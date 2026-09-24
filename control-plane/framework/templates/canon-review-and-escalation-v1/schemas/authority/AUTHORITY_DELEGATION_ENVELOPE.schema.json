@@ -1,0 +1,64 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/authority/AUTHORITY_DELEGATION_ENVELOPE.schema.json",
+ "$comment": "LOCAL ADDITION canon-review-and-escalation-v1 2026-07-31 - HARVEST TO CPB.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["schema", "contract_version", "envelope_id", "subject", "issuer", "grant", "authority_class", "allowed_decisions", "scope", "valid_from", "valid_until", "separation_of_duty", "delegation", "envelope_digest"],
+ "properties": {
+  "schema": {"const": "cpb-canon-review-and-escalation-v1/authority-delegation-envelope"},
+  "contract_version": {"const": "1"},
+  "envelope_id": {"type": "string", "pattern": "^ADE-[0-9a-f]{24}$"},
+  "subject": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/actor"},
+  "issuer": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/identity"},
+  "grant": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["artifact_path", "artifact_digest"],
+   "properties": {
+    "artifact_path": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/repositoryPath"},
+    "artifact_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}
+   }
+  },
+  "authority_class": {"type": "string", "minLength": 1},
+  "allowed_decisions": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/decisionType"}},
+  "scope": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["project_id", "candidate_token", "escalation_id"],
+   "properties": {
+    "project_id": {"type": "string", "minLength": 1},
+    "candidate_token": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/candidateToken"},
+    "escalation_id": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/escalationId"}
+   }
+  },
+  "valid_from": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/timestamp"},
+  "valid_until": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/timestamp"},
+  "separation_of_duty": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["rule", "candidate_producer_identity"],
+   "properties": {
+    "rule": {"const": "producer-must-differ-from-actor"},
+    "candidate_producer_identity": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/identity"}
+   }
+  },
+  "delegation": {
+   "oneOf": [
+    {"type": "null"},
+    {
+     "type": "object",
+     "additionalProperties": false,
+     "required": ["delegator_identity", "hop_count", "parent_grant_path", "parent_grant_digest"],
+     "properties": {
+      "delegator_identity": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/identity"},
+      "hop_count": {"const": 1},
+      "parent_grant_path": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/repositoryPath"},
+      "parent_grant_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}
+     }
+    }
+   ]
+  },
+  "envelope_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}
+ }
+}

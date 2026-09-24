@@ -1,0 +1,19 @@
+{
+  "schema": "cpb-forge-facts-v1",
+  "provider": "github",
+  "repository": "owner/repository",
+  "target_branch": "integration",
+  "collected_at": "2026-01-01T00:00:00Z",
+  "adapter_version": "cpb-github-adapter-v1",
+  "capabilities": {
+    "protected_target": null,
+    "pull_requests_required": null,
+    "force_push_blocked": null,
+    "required_checks": null,
+    "pr_workflow": null,
+    "merge_group_workflow": null,
+    "merge_queue_enabled": null,
+    "bypass_constrained": null
+  },
+  "visibility_limits": ["Template only; no live provider query performed."]
+}

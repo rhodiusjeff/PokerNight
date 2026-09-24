@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/transaction/PROMOTION_TRANSACTION_EVENT.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract_version",
+    "transaction_id",
+    "from_state",
+    "to_state",
+    "prior_event_digest",
+    "input_digest",
+    "output_digest",
+    "validation_report_digest",
+    "finding",
+    "recorded_at",
+    "runtime_version",
+    "event_digest"
+  ],
+  "properties": {
+    "schema": {
+      "const": "cpb-atomic-promotion-transaction-v1/promotion-transaction-event"
+    },
+    "contract_version": {
+      "const": "1"
+    },
+    "transaction_id": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/transactionId"
+    },
+    "from_state": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/nonterminalState"
+        }
+      ]
+    },
+    "to_state": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/state"
+    },
+    "prior_event_digest": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"
+        }
+      ]
+    },
+    "input_digest": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"
+    },
+    "output_digest": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"
+    },
+    "validation_report_digest": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"
+    },
+    "finding": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/finding"
+        }
+      ]
+    },
+    "recorded_at": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/timestamp"
+    },
+    "runtime_version": {
+      "enum": [
+        "atomic-promotion-transaction-v1-checkpoint1",
+        "atomic-promotion-transaction-v1-checkpoint2"
+      ]
+    },
+    "event_digest": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"
+    }
+  }
+}

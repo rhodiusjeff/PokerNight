@@ -1,0 +1,760 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json",
+  "$comment": "HARVEST TO CPB: closed shared definitions for Package C.",
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "gitSha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "repositoryPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\u0000]+$"
+    },
+    "absolutePath": {
+      "type": "string",
+      "pattern": "^/[^\\u0000]+$"
+    },
+    "gitRef": {
+      "type": "string",
+      "pattern": "^refs/(?:heads|remotes|cpb)/[A-Za-z0-9._/-]+$"
+    },
+    "transactionId": {
+      "type": "string",
+      "pattern": "^PROMO-[0-9a-f]{20}$"
+    },
+    "horizonId": {
+      "type": "string",
+      "pattern": "^H[0-9]{3}$"
+    },
+    "state": {
+      "enum": [
+        "declared",
+        "validated",
+        "delegated",
+        "composed",
+        "proposal-ready",
+        "ejected"
+      ]
+    },
+    "nonterminalState": {
+      "enum": [
+        "declared",
+        "validated",
+        "delegated",
+        "composed"
+      ]
+    },
+    "findingCode": {
+      "pattern": "^(?:APT00[1-9]|APT010|APE10[1-9])$"
+    },
+    "artifactBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_id",
+        "path",
+        "digest"
+      ],
+      "properties": {
+        "schema_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "digest": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "candidateBinding": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactBinding"},
+        {"properties": {"schema_id": {"const": "cpb-semantic-authority-v1/canon-synchronization"}}}
+      ]
+    },
+    "packageBReviewBinding": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactBinding"},
+        {"properties": {"schema_id": {"const": "cpb-canon-review-and-escalation-v1/cross-horizon-review"}}}
+      ]
+    },
+    "packageBInputFrontierBinding": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactBinding"},
+        {"properties": {"schema_id": {"const": "cpb-canon-review-and-escalation-v1/input-frontier"}}}
+      ]
+    },
+    "packageBVisibilityFrontierBinding": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactBinding"},
+        {"properties": {"schema_id": {"const": "cpb-canon-review-and-escalation-v1/visibility-frontier"}}}
+      ]
+    },
+    "packageBProviderBinding": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactBinding"},
+        {"properties": {"schema_id": {"const": "cpb-canon-review-and-escalation-v1/provider-calls"}}}
+      ]
+    },
+    "packageBEscalationBinding": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactBinding"},
+        {"properties": {"schema_id": {"const": "cpb-canon-review-and-escalation-v1/escalation-record"}}}
+      ]
+    },
+    "packageBDecisionBinding": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactBinding"},
+        {"properties": {"schema_id": {"const": "cpb-canon-review-and-escalation-v1/structured-decision"}}}
+      ]
+    },
+    "packageBGrantBinding": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactBinding"},
+        {"properties": {"schema_id": {"const": "cpb-canon-review-and-escalation-v1/authority-grant"}}}
+      ]
+    },
+    "packageBAuthorityHistoryBinding": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactBinding"},
+        {"properties": {"schema_id": {"const": "cpb-canon-review-and-escalation-v1/authority-delegation-envelope"}}}
+      ]
+    },
+    "packageBAttestationBinding": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactBinding"},
+        {"properties": {"schema_id": {"const": "cpb-canon-review-and-escalation-v1/disposition-attestation"}}}
+      ]
+    },
+    "promotionApprovalRequestBinding": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactBinding"},
+        {"properties": {"schema_id": {"const": "cpb-atomic-promotion-transaction-v1/promotion-approval-request"}}}
+      ]
+    },
+    "promotionApprovalDecisionBinding": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactBinding"},
+        {"properties": {"schema_id": {"const": "cpb-atomic-promotion-transaction-v1/promotion-approval-decision"}}}
+      ]
+    },
+    "promotionAuthorityGrantBinding": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactBinding"},
+        {"properties": {"schema_id": {"const": "cpb-atomic-promotion-transaction-v1/promotion-authority-grant"}}}
+      ]
+    },
+    "promotionApprovalAttestationBinding": {
+      "allOf": [
+        {"$ref": "#/$defs/artifactBinding"},
+        {"properties": {"schema_id": {"const": "cpb-atomic-promotion-transaction-v1/promotion-approval-attestation"}}}
+      ]
+    },
+    "fileBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "digest"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "digest": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "refBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "commit"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/gitRef"
+        },
+        "commit": {
+          "$ref": "#/$defs/gitSha"
+        }
+      }
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "actor_type"
+      ],
+      "properties": {
+        "identity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "actor_type": {
+          "enum": [
+            "human",
+            "delegated-ai"
+          ]
+        }
+      }
+    },
+    "image": {
+      "oneOf": [
+        {
+          "const": "absent"
+        },
+        {
+          "$ref": "#/$defs/digest"
+        }
+      ]
+    },
+    "pathImage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "logical_object",
+        "preimage",
+        "postimage"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "logical_object": {
+          "type": "string",
+          "minLength": 1
+        },
+        "preimage": {
+          "$ref": "#/$defs/image"
+        },
+        "postimage": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "writeEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "class",
+        "path",
+        "logical_object",
+        "postimage_digest"
+      ],
+      "properties": {
+        "class": {
+          "enum": [
+            "canon",
+            "source-impact",
+            "target-impact",
+            "proposal-evidence"
+          ]
+        },
+        "path": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "logical_object": {
+          "type": "string",
+          "minLength": 1
+        },
+        "postimage_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "transaction_id",
+        "member_horizon",
+        "artifact_path",
+        "logical_identity",
+        "evidence_digest",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/findingCode"
+        },
+        "transaction_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/transactionId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "member_horizon": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/horizonId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "artifact_path": {
+          "type": "string"
+        },
+        "logical_identity": {
+          "type": "string"
+        },
+        "evidence_digest": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "packageAFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_path",
+        "code",
+        "message",
+        "record_id"
+      ],
+      "properties": {
+        "artifact_path": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string",
+          "pattern": "^SAF(?:00[1-9]|01[0-5])$"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "record_id": {
+          "type": "string"
+        }
+      }
+    },
+    "approvalBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "route",
+        "producer_identity",
+        "approver",
+        "evidence",
+        "expires_at"
+      ],
+      "properties": {
+        "route": {
+          "enum": [
+            "decision-required",
+            "clear-result"
+          ]
+        },
+        "producer_identity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "approver": {
+          "$ref": "#/$defs/actor"
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/artifactBinding"
+          }
+        },
+        "expires_at": {
+          "$ref": "#/$defs/timestamp"
+        }
+      }
+    },
+    "catalogs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package_a",
+        "package_b",
+        "package_c"
+      ],
+      "properties": {
+        "package_a": {
+          "$ref": "#/$defs/fileBinding"
+        },
+        "package_b": {
+          "$ref": "#/$defs/fileBinding"
+        },
+        "package_c": {
+          "$ref": "#/$defs/fileBinding"
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_bytes",
+        "max_records",
+        "max_findings",
+        "max_targets"
+      ],
+      "properties": {
+        "max_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_records": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_findings": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_targets": {
+          "const": 1
+        }
+      }
+    },
+    "transactionInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository_identity",
+        "protected_ref",
+        "candidate_ref",
+        "candidate",
+        "candidate_count",
+        "package_a",
+        "package_b",
+        "approval_route",
+        "approval",
+        "source_horizon",
+        "target_horizons",
+        "preimage_postimage_set",
+        "declared_write_set",
+        "profile",
+        "runtime_version",
+        "limits"
+      ],
+      "properties": {
+        "repository_identity": {
+          "$ref": "#/$defs/digest"
+        },
+        "protected_ref": {
+          "$ref": "#/$defs/refBinding"
+        },
+        "candidate_ref": {
+          "$ref": "#/$defs/refBinding"
+        },
+        "candidate": {
+          "$ref": "#/$defs/candidateBinding"
+        },
+        "candidate_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "package_a": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "result_digest",
+            "catalog",
+            "validator",
+            "validator_version"
+          ],
+          "properties": {
+            "result_digest": {
+              "$ref": "#/$defs/digest"
+            },
+            "catalog": {
+              "$ref": "#/$defs/fileBinding"
+            },
+            "validator": {
+              "$ref": "#/$defs/fileBinding"
+            },
+            "validator_version": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "package_b": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "report",
+            "input_frontier",
+            "visibility_frontier",
+            "neighborhood_digest",
+            "provider_evidence",
+            "catalog",
+            "runtime",
+            "runtime_version"
+          ],
+          "properties": {
+            "report": {
+              "$ref": "#/$defs/packageBReviewBinding"
+            },
+            "input_frontier": {
+              "$ref": "#/$defs/packageBInputFrontierBinding"
+            },
+            "visibility_frontier": {
+              "$ref": "#/$defs/packageBVisibilityFrontierBinding"
+            },
+            "neighborhood_digest": {
+              "$ref": "#/$defs/digest"
+            },
+            "provider_evidence": {
+              "$ref": "#/$defs/packageBProviderBinding"
+            },
+            "catalog": {
+              "$ref": "#/$defs/fileBinding"
+            },
+            "runtime": {
+              "$ref": "#/$defs/fileBinding"
+            },
+            "runtime_version": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "approval_route": {
+          "enum": [
+            "decision-required",
+            "clear-result"
+          ]
+        },
+        "approval": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_or_escalation",
+            "decision",
+            "authority_grant",
+            "authority_history",
+            "attestation"
+          ],
+          "properties": {
+            "request_or_escalation": {
+              "$ref": "#/$defs/artifactBinding"
+            },
+            "decision": {
+              "$ref": "#/$defs/artifactBinding"
+            },
+            "authority_grant": {
+              "$ref": "#/$defs/artifactBinding"
+            },
+            "authority_history": {
+              "$ref": "#/$defs/artifactBinding"
+            },
+            "attestation": {
+              "$ref": "#/$defs/artifactBinding"
+            }
+          }
+        },
+        "source_horizon": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "horizon_id",
+            "ref"
+          ],
+          "properties": {
+            "horizon_id": {
+              "$ref": "#/$defs/horizonId"
+            },
+            "ref": {
+              "$ref": "#/$defs/refBinding"
+            }
+          }
+        },
+        "target_horizons": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "horizon_id",
+              "ref"
+            ],
+            "properties": {
+              "horizon_id": {
+                "$ref": "#/$defs/horizonId"
+              },
+              "ref": {
+                "$ref": "#/$defs/refBinding"
+              }
+            }
+          }
+        },
+        "preimage_postimage_set": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/pathImage"
+          }
+        },
+        "declared_write_set": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/writeEntry"
+          }
+        },
+        "profile": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "binding",
+            "version"
+          ],
+          "properties": {
+            "binding": {
+              "$ref": "#/$defs/fileBinding"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "runtime_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "limits": {
+          "$ref": "#/$defs/limits"
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"approval_route": {"const": "decision-required"}}, "required": ["approval_route"]},
+          "then": {
+            "properties": {
+              "approval": {
+                "properties": {
+                  "request_or_escalation": {"$ref": "#/$defs/packageBEscalationBinding"},
+                  "decision": {"$ref": "#/$defs/packageBDecisionBinding"},
+                  "authority_grant": {"$ref": "#/$defs/packageBGrantBinding"},
+                  "authority_history": {"$ref": "#/$defs/packageBAuthorityHistoryBinding"},
+                  "attestation": {"$ref": "#/$defs/packageBAttestationBinding"}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"approval_route": {"const": "clear-result"}}, "required": ["approval_route"]},
+          "then": {
+            "properties": {
+              "approval": {
+                "properties": {
+                  "request_or_escalation": {"$ref": "#/$defs/promotionApprovalRequestBinding"},
+                  "decision": {"$ref": "#/$defs/promotionApprovalDecisionBinding"},
+                  "authority_grant": {"$ref": "#/$defs/promotionAuthorityGrantBinding"},
+                  "authority_history": {"$ref": "#/$defs/promotionAuthorityGrantBinding"},
+                  "attestation": {"$ref": "#/$defs/promotionApprovalAttestationBinding"}
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "supersedes": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "transaction_id",
+            "input_digest",
+            "terminal_state",
+            "terminal_event_digest"
+          ],
+          "properties": {
+            "transaction_id": {
+              "$ref": "#/$defs/transactionId"
+            },
+            "input_digest": {
+              "$ref": "#/$defs/digest"
+            },
+            "terminal_state": {
+              "enum": [
+                "proposal-ready",
+                "ejected"
+              ]
+            },
+            "terminal_event_digest": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        }
+      ]
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "mocked",
+        "occurred_at",
+        "source"
+      ],
+      "properties": {
+        "mode": {
+          "const": "observation-only"
+        },
+        "mocked": {
+          "type": "boolean"
+        },
+        "occurred_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "source": {
+          "$ref": "#/$defs/artifactBinding"
+        }
+      }
+    }
+  }
+}

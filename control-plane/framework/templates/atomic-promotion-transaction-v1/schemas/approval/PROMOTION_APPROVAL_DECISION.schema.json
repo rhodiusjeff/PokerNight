@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/approval/PROMOTION_APPROVAL_DECISION.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract_version",
+    "decision_id",
+    "request_id",
+    "request_digest",
+    "decision",
+    "actor",
+    "grant",
+    "decided_at",
+    "supersedes",
+    "decision_digest"
+  ],
+  "properties": {
+    "schema": {
+      "const": "cpb-atomic-promotion-transaction-v1/promotion-approval-decision"
+    },
+    "contract_version": {
+      "const": "1"
+    },
+    "decision_id": {
+      "pattern": "^PAD-[0-9a-f]{24}$"
+    },
+    "request_id": {
+      "pattern": "^PAR-[0-9a-f]{24}$"
+    },
+    "request_digest": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"
+    },
+    "decision": {
+      "enum": [
+        "approve-promotion",
+        "reject-candidate"
+      ]
+    },
+    "actor": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/actor"
+    },
+    "grant": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/promotionAuthorityGrantBinding"
+    },
+    "decided_at": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/timestamp"
+    },
+    "supersedes": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/fileBinding"
+        }
+      ]
+    },
+    "decision_digest": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"
+    }
+  }
+}

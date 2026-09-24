@@ -1,0 +1,53 @@
+{
+  "schema": "cpb-ci-profile-catalog-v1",
+  "version": "0.1.0",
+  "provider": "github",
+  "protected_target": "integration",
+  "stable_check": "integration-gate",
+  "rollout_stage": "design",
+  "default_runner": {
+    "labels": ["ubuntu-24.04"],
+    "container": null
+  },
+  "global_budget": {
+    "wall_minutes": 10,
+    "runner_minutes": 30,
+    "max_concurrency": 4,
+    "retry_limit": 1
+  },
+  "profiles": [
+    {
+      "id": "always-integrity",
+      "description": "Always-run repository and control-plane integrity checks.",
+      "enabled": true,
+      "selectors": {
+        "paths": ["**"],
+        "impact_classes": ["always"]
+      },
+      "runner": {
+        "labels": ["ubuntu-24.04"],
+        "container": null
+      },
+      "blocking_checks": [
+        {
+          "id": "diff-check",
+          "command": "git diff --check",
+          "timeout_minutes": 2,
+          "requires_secrets": false
+        }
+      ],
+      "post_merge_checks": [],
+      "manual_checks": [],
+      "caches": [],
+      "broadening_rules": ["Unknown impact selects all blocking profiles or blocks."],
+      "budget": {
+        "wall_minutes": 3,
+        "runner_minutes": 3,
+        "max_concurrency": 1,
+        "retry_limit": 0
+      },
+      "evidence_owner": "forge-check"
+    }
+  ],
+  "unknown_impact": "broaden"
+}

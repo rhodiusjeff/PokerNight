@@ -1,0 +1,36 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://control-plane.dev/schemas/semantic-authority-v1/views/GENERATED_VIEW_PROVENANCE.schema.json",
+ "$comment": "LOCAL ADDITION semantic-authority-v1 - HARVEST TO CPB.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["schema", "view_kind", "generator_version", "schema_version", "repository_root", "repository_ref", "canon_baseline_digest", "canon_manifest_digest", "included_horizons", "excluded_horizons", "unknown_horizons", "visibility_limits", "generated_at", "output_path", "output_digest"],
+ "properties": {
+  "schema": {"const": "cpb-semantic-authority-v1/generated-view-provenance"},
+  "view_kind": {"type": "string", "minLength": 1},
+  "generator_version": {"type": "string", "minLength": 1},
+  "schema_version": {"const": "cpb-semantic-authority-v1"},
+  "repository_root": {"type": "string", "minLength": 1},
+  "repository_ref": {"type": "string", "minLength": 1},
+  "canon_baseline_digest": {"$ref": "https://control-plane.dev/schemas/semantic-authority-v1/semantic-authority.defs.schema.json#/$defs/digest"},
+  "canon_manifest_digest": {"$ref": "https://control-plane.dev/schemas/semantic-authority-v1/semantic-authority.defs.schema.json#/$defs/digest"},
+  "included_horizons": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["horizon_id", "artifact_digest"],
+    "properties": {
+     "horizon_id": {"$ref": "https://control-plane.dev/schemas/semantic-authority-v1/semantic-authority.defs.schema.json#/$defs/horizonId"},
+     "artifact_digest": {"$ref": "https://control-plane.dev/schemas/semantic-authority-v1/semantic-authority.defs.schema.json#/$defs/digest"}
+    }
+   }
+  },
+  "excluded_horizons": {"type": "array", "items": {"$ref": "https://control-plane.dev/schemas/semantic-authority-v1/semantic-authority.defs.schema.json#/$defs/horizonId"}},
+  "unknown_horizons": {"type": "array", "items": {"$ref": "https://control-plane.dev/schemas/semantic-authority-v1/semantic-authority.defs.schema.json#/$defs/horizonId"}},
+  "visibility_limits": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+  "generated_at": {"$ref": "https://control-plane.dev/schemas/semantic-authority-v1/semantic-authority.defs.schema.json#/$defs/timestamp"},
+  "output_path": {"type": "string", "minLength": 1},
+  "output_digest": {"$ref": "https://control-plane.dev/schemas/semantic-authority-v1/semantic-authority.defs.schema.json#/$defs/digest"}
+ }
+}

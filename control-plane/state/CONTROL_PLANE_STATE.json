@@ -1,0 +1,15 @@
+{
+  "schema": "cpb-instance-state-v2",
+  "state": "operational",
+  "cpb_version": "1.0.0-shape-v1",
+  "active_lanes": "derived from control-plane/horizons/*/HORIZON_STATE.json plus active TRACKER.json files",
+  "last_updated": "2026-09-23",
+  "state_vocabulary": {
+    "operational": "boundary operations and horizon work proceed per packet-local admission, closure, and tracker authority",
+    "ops-work": "exclusive singleton control-plane runtime and governance work",
+    "suspended": "no governed commands; the plane itself is under surgery",
+    "upgrading": "CPB framework replacement in progress; lanes halted at boundaries"
+  },
+  "provenance": "Clean seed from CP-V08 0.8-portable.1. Installation details are in INSTALLATION.json. No project state was imported.",
+  "notes": []
+}

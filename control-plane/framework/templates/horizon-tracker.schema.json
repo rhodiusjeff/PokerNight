@@ -1,0 +1,119 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "cpb-horizon-tracker-v3",
+ "title": "CPB horizon tracker with embedded DAG (cpb-horizon-tracker-v3)",
+ "type": "object",
+ "required": ["schema", "horizon", "title", "meta", "status_vocabulary", "nodes", "edges", "linearized_order", "approved", "change_log"],
+ "additionalProperties": false,
+ "properties": {
+  "schema": {"const": "cpb-horizon-tracker-v3"},
+  "horizon": {"type": "string", "pattern": "^H[0-9]{3}$"},
+  "title": {"type": "string", "minLength": 1},
+  "meta": {"type": "object"},
+  "status_vocabulary": {
+   "type": "object",
+   "required": ["not-started", "in-progress", "closed", "in-review", "done", "historical"],
+   "additionalProperties": false,
+   "properties": {
+    "not-started": {"$ref": "#/$defs/status"},
+    "in-progress": {"$ref": "#/$defs/status"},
+    "closed": {"$ref": "#/$defs/status"},
+    "in-review": {"$ref": "#/$defs/status"},
+    "done": {"$ref": "#/$defs/status"},
+    "historical": {"$ref": "#/$defs/status"}
+   }
+  },
+  "nodes": {
+   "type": "array",
+   "minItems": 1,
+   "items": {"$ref": "#/$defs/node"}
+  },
+  "edges": {
+   "type": "array",
+   "items": {"$ref": "#/$defs/edge"}
+  },
+  "linearized_order": {
+   "type": "array",
+   "minItems": 1,
+   "uniqueItems": true,
+   "items": {"type": "string", "minLength": 1}
+  },
+  "approved": {"$ref": "#/$defs/approval"},
+  "change_log": {
+   "type": "array",
+    "items": {
+     "oneOf": [
+      {"$ref": "#/$defs/change"},
+      {"$ref": "#/$defs/historical_change"}
+     ]
+    }
+  }
+ },
+ "$defs": {
+  "status": {
+   "type": "object",
+   "required": ["glyph", "meaning"],
+   "additionalProperties": false,
+   "properties": {
+    "glyph": {"type": "string"},
+    "meaning": {"type": "string", "minLength": 1}
+   }
+  },
+  "node": {
+   "type": "object",
+   "required": ["seq", "id", "group", "title", "execution_model", "review_unit", "status", "log", "review", "notes"],
+   "additionalProperties": false,
+   "properties": {
+    "seq": {"type": "string", "minLength": 1},
+    "id": {"type": "string", "minLength": 1},
+    "group": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "execution_model": {"type": "string", "minLength": 1},
+    "review_unit": {"type": "string", "minLength": 1},
+    "status": {"enum": ["not-started", "in-progress", "closed", "in-review", "done", "historical"]},
+    "log": {"type": ["string", "null"]},
+    "review": {"type": ["string", "null"]},
+    "notes": {"type": "string"}
+   }
+  },
+  "edge": {
+   "type": "object",
+   "required": ["from", "to", "kind", "rationale"],
+   "additionalProperties": false,
+   "properties": {
+    "from": {"type": "string", "minLength": 1},
+    "to": {"type": "string", "minLength": 1},
+    "kind": {"enum": ["hard", "soft", "calendar"]},
+    "rationale": {"type": "string", "minLength": 1}
+   }
+  },
+  "approval": {
+   "type": "object",
+   "required": ["date", "by"],
+   "additionalProperties": false,
+   "properties": {
+    "date": {"type": "string", "minLength": 1},
+    "by": {"type": "string", "minLength": 1}
+   }
+  },
+  "change": {
+   "type": "object",
+   "required": ["date", "change", "authority"],
+   "additionalProperties": false,
+   "properties": {
+    "date": {"type": "string", "minLength": 1},
+    "change": {"type": "string", "minLength": 1},
+    "authority": {"type": "string", "minLength": 1}
+   }
+    },
+    "historical_change": {
+     "type": "object",
+     "required": ["date", "entry"],
+     "additionalProperties": false,
+     "properties": {
+        "date": {"type": "string", "minLength": 1},
+        "entry": {"type": "string", "minLength": 1}
+     }
+  }
+ }
+}

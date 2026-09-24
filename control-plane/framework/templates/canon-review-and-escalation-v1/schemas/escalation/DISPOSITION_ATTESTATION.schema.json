@@ -1,0 +1,28 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/escalation/DISPOSITION_ATTESTATION.schema.json",
+ "$comment": "LOCAL ADDITION canon-review-and-escalation-v1 2026-07-31 - HARVEST TO CPB.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["schema", "contract_version", "trust", "attestation_id", "status", "escalation", "decision", "verified_actor", "verified_grant", "verified_event", "verification_codes", "accepted_decision", "supersedes", "controller_version", "conditions", "generated_at", "attestation_digest"],
+ "properties": {
+  "schema": {"const": "cpb-canon-review-and-escalation-v1/disposition-attestation"},
+  "contract_version": {"const": "1"},
+  "trust": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/trustBinding"},
+  "attestation_id": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/attestationId"},
+  "status": {"const": "decision-attested"},
+  "escalation": {"type": "object", "additionalProperties": false, "required": ["escalation_id", "escalation_digest"], "properties": {"escalation_id": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/escalationId"}, "escalation_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}}},
+  "decision": {"type": "object", "additionalProperties": false, "required": ["decision_id", "decision_digest"], "properties": {"decision_id": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/decisionId"}, "decision_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}}},
+  "verified_actor": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/actor"},
+  "verified_grant": {"type": "object", "additionalProperties": false, "required": ["envelope_id", "envelope_digest", "grant_artifact_path", "grant_artifact_digest"], "properties": {"envelope_id": {"type": "string", "pattern": "^ADE-[0-9a-f]{24}$"}, "envelope_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}, "grant_artifact_path": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/repositoryPath"}, "grant_artifact_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}}},
+  "verified_event": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/forgeEventRef"},
+  "verification_codes": {"type": "array", "minItems": 7, "maxItems": 7, "uniqueItems": true, "items": {"enum": ["authority-scope", "authority-validity", "candidate-binding", "escalation-binding", "event-immutability", "report-binding", "separation-of-duty"]}},
+  "accepted_decision": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/decisionType"},
+  "supersedes": {"oneOf": [{"type": "null"}, {"type": "object", "additionalProperties": false, "required": ["attestation_id", "attestation_digest"], "properties": {"attestation_id": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/attestationId"}, "attestation_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}}}]},
+    "controller_version": {"const": "canon-review-and-escalation-v1-slice3"},
+  "conditions": {"type": "object", "additionalProperties": false, "required": ["stale_after", "due_boundary"], "properties": {"stale_after": {"oneOf": [{"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/timestamp"}, {"type": "null"}]}, "due_boundary": {"type": "string", "minLength": 1}}},
+    "history_frontier": {"type": "object", "additionalProperties": false, "required": ["events_digest", "attestations_digest"], "properties": {"events_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}, "attestations_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}}},
+  "generated_at": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/timestamp"},
+  "attestation_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}
+ }
+}

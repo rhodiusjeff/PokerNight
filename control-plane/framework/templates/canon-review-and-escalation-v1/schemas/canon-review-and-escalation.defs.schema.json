@@ -1,0 +1,209 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json",
+ "$comment": "LOCAL ADDITION canon-review-and-escalation-v1 2026-07-31 - HARVEST TO CPB.",
+ "$defs": {
+  "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+  "gitSha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+  "timestamp": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+  "horizonId": {"type": "string", "pattern": "^H[0-9]{3}$"},
+  "candidateToken": {"type": "string", "pattern": "^H[0-9]{3}:[^:\\s]+$"},
+  "escalationId": {"type": "string", "pattern": "^ESC-[0-9a-f]{24}$"},
+  "decisionId": {"type": "string", "pattern": "^DEC-[0-9a-f]{24}$"},
+  "attestationId": {"type": "string", "pattern": "^ATT-[0-9a-f]{24}$"},
+  "eventId": {"type": "string", "pattern": "^MFE-[A-Za-z0-9._-]+$"},
+  "identity": {"type": "string", "minLength": 1, "maxLength": 255, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/-]*$"},
+  "gitRefName": {"type": "string", "minLength": 1, "pattern": "^refs/(?:heads|remotes)/[A-Za-z0-9._/-]+$"},
+  "decisionType": {"enum": ["approve-promotion", "reject-candidate", "revise-candidate", "defer-until", "supersede-with", "transfer-forward"]},
+  "repositoryPath": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"},
+  "artifactDigest": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["path", "digest"],
+   "properties": {
+    "path": {"$ref": "#/$defs/repositoryPath"},
+    "digest": {"$ref": "#/$defs/digest"}
+   }
+  },
+  "catalogBinding": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["path", "digest"],
+   "properties": {
+    "path": {"$ref": "#/$defs/repositoryPath"},
+    "digest": {"$ref": "#/$defs/digest"}
+   }
+  },
+  "trustBinding": {
+   "type": "object",
+   "additionalProperties": false,
+  "required": ["profile_path", "profile_digest", "profile_ref_object", "protected_ref_name", "protected_ref_object", "repository_identity", "authority_namespace", "authority_root_id", "authority_policy_digest", "authority_history_identity"],
+   "properties": {
+    "profile_path": {"$ref": "#/$defs/repositoryPath"},
+    "profile_digest": {"$ref": "#/$defs/digest"},
+    "profile_ref_object": {"$ref": "#/$defs/gitSha"},
+    "protected_ref_name": {"$ref": "#/$defs/gitRefName"},
+    "protected_ref_object": {"$ref": "#/$defs/gitSha"},
+    "repository_identity": {"$ref": "#/$defs/digest"},
+    "authority_namespace": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"},
+    "authority_root_id": {"type": "string", "pattern": "^AUTHROOT-[0-9a-f]{24}$"},
+    "authority_policy_digest": {"$ref": "#/$defs/digest"},
+    "authority_history_identity": {"type": "string", "pattern": "^AUTHHIST-[0-9a-f]{24}$"}
+   }
+  },
+  "actor": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["identity", "actor_type"],
+   "properties": {
+    "identity": {"$ref": "#/$defs/identity"},
+    "actor_type": {"enum": ["human", "delegated-ai"]}
+   }
+  },
+    "forgeEventIdentityRef": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": ["provider_namespace", "repository_id", "item_id", "event_id"],
+     "properties": {
+        "provider_namespace": {"const": "mock-forge-v1"},
+        "repository_id": {"type": "string", "minLength": 1},
+        "item_id": {"type": "string", "minLength": 1},
+        "event_id": {"$ref": "#/$defs/eventId"}
+     }
+    },
+  "forgeEventRef": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["provider_namespace", "repository_id", "item_id", "event_id", "event_digest"],
+   "properties": {
+    "provider_namespace": {"const": "mock-forge-v1"},
+    "repository_id": {"type": "string", "minLength": 1},
+    "item_id": {"type": "string", "minLength": 1},
+    "event_id": {"$ref": "#/$defs/eventId"},
+    "event_digest": {"$ref": "#/$defs/digest"}
+   }
+  },
+  "mockForgeEvent": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["schema", "provider_namespace", "repository_id", "item_id", "event_id", "event_type", "sequence", "escalation_id", "candidate_digest", "report_digest", "decision_digest", "supersedes_event_id", "occurred_at", "previous_event_digest", "transport", "event_digest"],
+   "properties": {
+    "schema": {"const": "cpb-mock-forge-event-v1"},
+    "provider_namespace": {"const": "mock-forge-v1"},
+    "repository_id": {"type": "string", "minLength": 1},
+    "item_id": {"type": "string", "minLength": 1},
+    "event_id": {"$ref": "#/$defs/eventId"},
+    "event_type": {"enum": ["work-item-created", "structured-decision", "closed", "labeled", "assigned", "commented", "reaction"]},
+    "sequence": {"type": "integer", "minimum": 1},
+    "escalation_id": {"$ref": "#/$defs/escalationId"},
+    "candidate_digest": {"$ref": "#/$defs/digest"},
+    "report_digest": {"$ref": "#/$defs/digest"},
+    "decision_digest": {"oneOf": [{"$ref": "#/$defs/digest"}, {"type": "null"}]},
+    "supersedes_event_id": {"oneOf": [{"$ref": "#/$defs/eventId"}, {"type": "null"}]},
+    "occurred_at": {"$ref": "#/$defs/timestamp"},
+    "previous_event_digest": {"oneOf": [{"$ref": "#/$defs/digest"}, {"type": "null"}]},
+    "transport": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": ["closed", "labels", "assignees", "comment", "reactions"],
+     "properties": {
+      "closed": {"type": "boolean"},
+      "labels": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+      "assignees": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/identity"}},
+      "comment": {"type": "string"},
+      "reactions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+     }
+    },
+    "event_digest": {"$ref": "#/$defs/digest"}
+   }
+  },
+  "includedHorizon": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["horizon_id", "reason", "ref", "root", "routed_artifacts_digest"],
+   "properties": {
+    "horizon_id": {"$ref": "#/$defs/horizonId"},
+    "reason": {"const": "admitted-unsealed-visible"},
+    "ref": {"$ref": "#/$defs/gitSha"},
+    "root": {"$ref": "#/$defs/repositoryPath"},
+    "routed_artifacts_digest": {"$ref": "#/$defs/digest"}
+   }
+  },
+  "excludedHorizon": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["horizon_id", "reason"],
+   "properties": {
+    "horizon_id": {"$ref": "#/$defs/horizonId"},
+    "reason": {"enum": ["sealed-not-affected", "not-admitted", "explicitly-out-of-scope", "unavailable-by-policy"]}
+   }
+  },
+  "unknownHorizon": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["horizon_id", "reason"],
+   "properties": {
+    "horizon_id": {"$ref": "#/$defs/horizonId"},
+    "reason": {"enum": ["ref-unavailable", "packet-unavailable", "discovery-incomplete", "unpublished-work"]}
+   }
+  },
+  "limits": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["max_bytes", "max_records", "max_horizons", "max_findings"],
+   "properties": {
+    "max_bytes": {"type": "integer", "minimum": 1},
+    "max_records": {"type": "integer", "minimum": 1},
+    "max_horizons": {"type": "integer", "minimum": 1},
+    "max_findings": {"type": "integer", "minimum": 1}
+   }
+  },
+  "evidenceRef": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["artifact_path", "record_id", "digest"],
+   "properties": {
+    "artifact_path": {"$ref": "#/$defs/repositoryPath"},
+    "record_id": {"type": "string", "minLength": 1},
+    "digest": {"$ref": "#/$defs/digest"}
+   }
+  },
+  "reviewFinding": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["code", "artifact_path", "record_id", "message", "evidence_refs"],
+   "properties": {
+    "code": {"pattern": "^CRV(?:00[1-8]|10[1-5]|20[1-6])$"},
+    "artifact_path": {"type": "string"},
+    "record_id": {"type": "string"},
+    "message": {"type": "string", "minLength": 1},
+    "evidence_refs": {"type": "array", "items": {"$ref": "#/$defs/evidenceRef"}}
+   }
+  },
+  "providerFinding": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["code", "claim", "evidence_refs", "confidence", "owning_authority"],
+   "properties": {
+    "code": {"enum": ["CRV201", "CRV202", "CRV203", "CRV204", "CRV205", "CRV206"]},
+    "claim": {"type": "string", "minLength": 1},
+    "evidence_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidenceRef"}},
+    "confidence": {"enum": ["high", "medium", "low"]},
+    "owning_authority": {"type": "string", "minLength": 1}
+   }
+  },
+  "neighborhoodMember": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["typed_identity", "artifact_path", "record_id", "horizon_id", "record_digest", "record"],
+   "properties": {
+    "typed_identity": {"type": "string", "minLength": 1},
+    "artifact_path": {"$ref": "#/$defs/repositoryPath"},
+    "record_id": {"type": "string", "minLength": 1},
+    "horizon_id": {"oneOf": [{"$ref": "#/$defs/horizonId"}, {"type": "null"}]},
+    "record_digest": {"$ref": "#/$defs/digest"},
+    "record": {"type": "object"}
+   }
+  }
+ }
+}

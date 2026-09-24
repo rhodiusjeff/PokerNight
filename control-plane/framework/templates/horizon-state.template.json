@@ -1,0 +1,26 @@
+{
+ "schema": "cpb-horizon-state-v2",
+ "horizon": "H001",
+ "slug": "replace-me",
+ "title": "Replace Me",
+ "owner": null,
+ "branch": null,
+ "baseline": {
+  "remote": "origin",
+  "target_branch": "integration",
+  "commit_sha": null
+ },
+ "env": null,
+ "dependencies": [],
+ "admission": {
+  "status": "declared",
+  "recorded_at": null,
+    "evidence": null,
+    "bundle_digest": null
+ },
+ "closure": {
+  "sealed_at": null,
+  "evidence": null,
+  "commit_sha": null
+ }
+}

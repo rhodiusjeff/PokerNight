@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "LOCAL ADDITION 2026-07-29 - HARVEST TO CPB: complete execution-admission bundle.",
+  "$id": "cpb-horizon-admission-bundle-v1",
+  "title": "CPB horizon admission bundle (cpb-horizon-admission-bundle-v1)",
+  "type": "object",
+  "required": [
+    "schema",
+    "horizon",
+    "packet_state",
+    "prepared_at",
+    "shaping_branch",
+    "baseline",
+    "tracker",
+    "phases",
+    "files",
+    "bundle_digest"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "cpb-horizon-admission-bundle-v1"},
+    "horizon": {"type": "string", "pattern": "^H[0-8][0-9]{2}$"},
+    "packet_state": {
+      "type": "object",
+      "required": ["slug", "title", "owner", "env", "dependencies"],
+      "additionalProperties": false,
+      "properties": {
+        "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+        "title": {"type": "string", "minLength": 1},
+        "owner": {"type": ["string", "null"]},
+        "env": {"type": ["string", "null"]},
+        "dependencies": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^H[0-8][0-9]{2}$"}
+        }
+      }
+    },
+    "prepared_at": {
+      "oneOf": [
+        {"type": "string", "format": "date"},
+        {"type": "string", "format": "date-time"}
+      ]
+    },
+    "shaping_branch": {"type": "string", "pattern": "^horizon/H[0-8][0-9]{2}-[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "baseline": {
+      "type": "object",
+      "required": ["remote", "target_branch", "commit_sha"],
+      "additionalProperties": false,
+      "properties": {
+        "remote": {"type": "string", "minLength": 1},
+        "target_branch": {"type": "string", "minLength": 1},
+        "commit_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+      }
+    },
+    "tracker": {"const": "admission/PROPOSED_TRACKER.json"},
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["phase_id", "prompt", "prompt_sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "phase_id": {"type": "string", "pattern": "^CP-[0-9]{3}[a-z]?(?:-precursor)?$"},
+          "prompt": {"type": "string", "pattern": "^phases/prompts/.+\\.md$"},
+          "prompt_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "bundle_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

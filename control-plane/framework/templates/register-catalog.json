@@ -1,0 +1,139 @@
+{
+ "local_mod": "OPS register analytics normalization, 2026-08-07 - HARVEST TO CPB",
+ "schema": "cpb-register-catalog-v1",
+ "purpose": "Per-register-kind validation contract for cpb-register-v1 files. The sanity registers gate enforces: envelope keys, kind membership here, unique id_field values, required_fields PRESENT per entry (null is a legal value meaning the md-era em-dash 'none'), entry keys subset of columns, enum_fields value membership, home path, scope, and horizon non-null when scope is lane. Homes are glob patterns (fnmatch) — lane kinds have one home per horizon packet.",
+ "kinds": {
+  "review-unit-ledger": {
+   "home": "horizons/*/ledgers/REVIEW_UNIT_LEDGER.json",
+   "scope": "lane",
+   "id_field": "review_unit_id",
+   "required_fields": [
+    "review_unit_id",
+    "boundary_type",
+    "phase_ids",
+    "status",
+    "review_artifact",
+    "publication_commit_sha",
+    "merge_commit_sha",
+    "supersedes_notes"
+   ],
+   "enum_fields": {
+    "boundary_type": [
+     "self",
+     "group",
+     "none-by-policy"
+    ],
+    "status": [
+     "Reserved",
+     "Published",
+     "Merged",
+     "Superseded",
+     "Waived"
+    ]
+   }
+  },
+  "risk-register": {
+   "home": "horizons/*/INCEPTION_RISK_REGISTER.json",
+   "scope": "lane",
+   "id_field": "id",
+   "required_fields": [
+    "id",
+    "risk",
+    "trigger",
+    "impact",
+    "mitigation",
+    "source_anchors"
+   ]
+  },
+  "user-story-registry": {
+   "home": "canon/USER_STORY_REGISTRY_CANONICAL.json",
+   "scope": "canon",
+   "id_field": "canonical_id",
+   "required_fields": [
+    "canonical_id",
+    "lane",
+    "cluster",
+    "subcluster",
+    "workflow",
+    "story",
+    "acceptance_signal",
+    "track_prompt",
+    "source_section",
+    "origin"
+   ]
+  },
+  "inception-user-stories": {
+   "home": "canon/INCEPTION_USER_STORIES_CANONICAL.json",
+   "scope": "canon",
+   "id_field": "id",
+   "required_fields": [
+    "id",
+    "lane",
+    "story",
+    "acceptance_signal",
+    "primary_prompt_family"
+   ]
+  },
+  "requirements": {
+   "home": "canon/INCEPTION_REQUIREMENTS_CANONICAL.json",
+   "scope": "canon",
+   "id_field": "id",
+   "required_fields": [
+    "id",
+    "category",
+    "requirement",
+    "priority",
+    "source_anchors",
+    "origin"
+   ],
+   "enum_fields": {
+    "category": [
+     "functional",
+     "non-functional"
+    ]
+   }
+  },
+  "user-story-catalog": {
+   "home": "canon/USER_STORY_CATALOG_CANONICAL.json",
+   "scope": "canon",
+   "id_field": "canonical_cluster_key",
+   "required_fields": [
+    "canonical_cluster_key",
+    "cluster",
+    "source_heading",
+    "lane_section"
+   ]
+  },
+  "trace-map": {
+   "home": "canon/USER_STORY_IMPLEMENTATION_TRACE_MAP.json",
+   "scope": "canon",
+   "id_field": "row_id",
+   "required_fields": [
+    "row_id",
+    "section",
+    "tranche",
+    "usc_id"
+   ],
+   "enum_fields": {
+    "section": [
+     "trace",
+     "observability"
+    ]
+   }
+  },
+  "acceptance-test-matrix": {
+   "home": "canon/context/ACCEPTANCE_TEST_MATRIX.json",
+   "scope": "canon",
+   "id_field": "scenario_id",
+   "required_fields": [
+    "scenario_id",
+    "phase_or_prompt",
+    "covers",
+    "scenario_description",
+    "evidence_expected",
+    "status"
+   ]
+  }
+ },
+ "scope_note": "Kinds are registered here only when the surface passes the MP-consumable test: entries short, uniform, numerous, and joined/queried. Surfaces whose entries are prose documents with identifiers (deferred planning notes, decision records) or that are mostly doctrine with a few rows (sidetrack tracker) stay markdown with a schema_version header and stable ID columns — the MP reads those as tables. See canon CDR-009 (2026-07-21)."
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cpb-ci-repository-inventory-v1",
+  "title": "CPB CI repository inventory (cpb-ci-repository-inventory-v1)",
+  "type": "object",
+  "required": [
+    "schema",
+    "generated_at",
+    "repository_root",
+    "provider_hint",
+    "protected_target",
+    "manifests",
+    "lockfiles",
+    "workflow_files",
+    "task_runner_commands",
+    "test_files",
+    "service_files",
+    "tool_version_files"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "cpb-ci-repository-inventory-v1"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "repository_root": {"type": "string", "minLength": 1},
+    "provider_hint": {"enum": ["github", "gitlab", "unknown"]},
+    "protected_target": {"type": ["string", "null"]},
+    "manifests": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "lockfiles": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "workflow_files": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "task_runner_commands": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "test_files": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "service_files": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "tool_version_files": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/approval/PROMOTION_APPROVAL_REQUEST.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract_version",
+    "request_id",
+    "candidate",
+    "chr",
+    "frontiers",
+    "refs",
+    "postimages_digest",
+    "write_set_digest",
+    "requested_by",
+    "expires_at",
+    "supersedes",
+    "request_digest"
+  ],
+  "properties": {
+    "schema": {
+      "const": "cpb-atomic-promotion-transaction-v1/promotion-approval-request"
+    },
+    "contract_version": {
+      "const": "1"
+    },
+    "request_id": {
+      "pattern": "^PAR-[0-9a-f]{24}$"
+    },
+    "candidate": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/candidateBinding"
+    },
+    "chr": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/packageBReviewBinding"
+    },
+    "frontiers": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "role",
+            "artifact"
+          ],
+          "properties": {
+            "role": {
+              "const": "input"
+            },
+            "artifact": {
+              "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/packageBInputFrontierBinding"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "role",
+            "artifact"
+          ],
+          "properties": {
+            "role": {
+              "const": "visibility"
+            },
+            "artifact": {
+              "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/packageBVisibilityFrontierBinding"
+            }
+          }
+        }
+      ],
+      "items": false
+    },
+    "refs": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 4,
+      "prefixItems": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "role",
+            "ref"
+          ],
+          "properties": {
+            "role": {
+              "const": "protected"
+            },
+            "ref": {
+              "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/refBinding"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "role",
+            "ref"
+          ],
+          "properties": {
+            "role": {
+              "const": "candidate"
+            },
+            "ref": {
+              "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/refBinding"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "role",
+            "ref"
+          ],
+          "properties": {
+            "role": {
+              "const": "source"
+            },
+            "ref": {
+              "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/refBinding"
+            }
+          }
+        }
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "role",
+          "ref"
+        ],
+        "properties": {
+          "role": {
+            "const": "target"
+          },
+          "ref": {
+            "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/refBinding"
+          }
+        }
+      }
+    },
+    "postimages_digest": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"
+    },
+    "write_set_digest": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"
+    },
+    "requested_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expires_at": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/timestamp"
+    },
+    "supersedes": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/fileBinding"
+        }
+      ]
+    },
+    "request_digest": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"
+    }
+  }
+}

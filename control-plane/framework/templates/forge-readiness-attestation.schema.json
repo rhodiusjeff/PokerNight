@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cpb-forge-readiness-attestation-v1",
+  "title": "CPB forge readiness attestation (cpb-forge-readiness-attestation-v1)",
+  "type": "object",
+  "required": [
+    "schema",
+    "provider",
+    "repository",
+    "target_branch",
+    "checked_at",
+    "expires_at",
+    "adapter_version",
+    "requirements_digest",
+    "overall",
+    "facts",
+    "visibility_limits"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "cpb-forge-readiness-attestation-v1"},
+    "provider": {"enum": ["github", "gitlab"]},
+    "repository": {"type": "string", "minLength": 1},
+    "target_branch": {"type": "string", "minLength": 1},
+    "checked_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "adapter_version": {"type": "string", "minLength": 1},
+    "requirements_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "overall": {"enum": ["pass", "fail", "unverified"]},
+    "facts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "summary", "evidence"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+          "status": {"enum": ["pass", "fail", "unverified", "not-required"]},
+          "summary": {"type": "string", "minLength": 1},
+          "evidence": {"type": "string"}
+        }
+      }
+    },
+    "visibility_limits": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    }
+  }
+}

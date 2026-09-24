@@ -1,0 +1,31 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/review/VISIBILITY_FRONTIER.schema.json",
+ "$comment": "LOCAL ADDITION canon-review-and-escalation-v1 2026-07-31 - HARVEST TO CPB.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["schema", "trust", "discovery", "included", "excluded", "unknown", "limits", "completeness", "normalized_digest"],
+ "properties": {
+  "schema": {"const": "cpb-canon-review-and-escalation-v1/visibility-frontier"},
+  "trust": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/trustBinding"},
+  "discovery": {
+    "type": "object", "additionalProperties": false, "required": ["source", "protected_ref_name", "ref", "digest", "state_artifacts"],
+   "properties": {
+    "source": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/repositoryPath"},
+     "protected_ref_name": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/gitRefName"},
+    "ref": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/gitSha"},
+     "digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"},
+     "state_artifacts": {"type": "array", "minItems": 1, "items": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/artifactDigest"}}
+   }
+  },
+  "included": {"type": "array", "items": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/includedHorizon"}},
+  "excluded": {"type": "array", "items": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/excludedHorizon"}},
+  "unknown": {"type": "array", "items": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/unknownHorizon"}},
+  "limits": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/limits"},
+  "completeness": {
+    "type": "object", "additionalProperties": false, "required": ["complete", "limited_to_discovery_source", "unknown_or_unpublished_present"],
+    "properties": {"complete": {"type": "boolean"}, "limited_to_discovery_source": {"const": true}, "unknown_or_unpublished_present": {"type": "boolean"}}
+  },
+  "normalized_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}
+ }
+}

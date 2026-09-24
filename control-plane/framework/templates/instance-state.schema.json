@@ -1,0 +1,71 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "cpb-instance-state-v2",
+ "title": "CPB instance state (cpb-instance-state-v2)",
+ "type": "object",
+ "required": [
+  "schema",
+  "state",
+  "cpb_version",
+  "last_updated",
+  "state_vocabulary",
+  "provenance",
+  "notes"
+ ],
+ "additionalProperties": false,
+ "properties": {
+  "schema": {
+   "const": "cpb-instance-state-v2"
+  },
+  "state": {
+   "enum": [
+    "operational",
+    "ops-work",
+    "suspended",
+    "upgrading"
+   ]
+  },
+  "cpb_version": {
+   "type": "string"
+  },
+  "active_lanes": {
+   "type": "string"
+  },
+  "ops_in_progress": {
+   "type": "string"
+  },
+    "active_ops_work": {
+     "type": "object",
+      "required": ["campaign_id", "path", "entry_stage", "protected_ref", "baseline_sha"],
+     "properties": {
+        "campaign_id": {"type": "string", "pattern": "^OPSC-[0-9]{3}$"},
+        "path": {"const": "cp-ops-work"},
+        "entry_stage": {"enum": ["pending", "effective"]},
+        "protected_ref": {"type": "string", "minLength": 1},
+        "baseline_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+     }
+    },
+    "last_ops_work": {
+     "type": "object"
+    },
+  "last_updated": {
+   "type": "string"
+  },
+  "state_vocabulary": {
+   "type": "object"
+  },
+  "provenance": {
+   "type": "string"
+  },
+  "notes": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "date",
+     "entry"
+    ]
+   }
+  }
+ }
+}

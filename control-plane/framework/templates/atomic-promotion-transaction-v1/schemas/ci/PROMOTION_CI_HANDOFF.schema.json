@@ -1,0 +1,336 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/ci/PROMOTION_CI_HANDOFF.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract_version",
+    "transaction_id",
+    "proposal_digest",
+    "catalogs",
+    "validators",
+    "classifier",
+    "path_classes",
+    "logical_object_classes",
+    "event_inputs",
+    "expected_preimage_algorithms",
+    "head_tree_validation",
+    "finding_check_map",
+    "queue_assumption",
+    "runner_contract",
+    "fixtures",
+    "responsibilities",
+    "serialization",
+    "rollout",
+    "handoff_digest"
+  ],
+  "properties": {
+    "schema": {
+      "const": "cpb-atomic-promotion-transaction-v1/promotion-ci-handoff"
+    },
+    "contract_version": {
+      "const": "1"
+    },
+    "transaction_id": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/transactionId"
+    },
+    "proposal_digest": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"
+    },
+    "catalogs": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/catalogs"
+    },
+    "validators": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/artifactBinding"
+      }
+    },
+    "classifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required_artifacts",
+        "refuse_mixed",
+        "refuse_unknown",
+        "refuse_undeclared"
+      ],
+      "properties": {
+        "required_artifacts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "refuse_mixed": {
+          "const": true
+        },
+        "refuse_unknown": {
+          "const": true
+        },
+        "refuse_undeclared": {
+          "const": true
+        }
+      }
+    },
+    "path_classes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowed",
+        "disallowed"
+      ],
+      "properties": {
+        "allowed": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "disallowed": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "logical_object_classes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowed",
+        "disallowed"
+      ],
+      "properties": {
+        "allowed": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "disallowed": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "event_inputs": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "pull_request",
+          "merge_group"
+        ]
+      }
+    },
+    "expected_preimage_algorithms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pull_request",
+        "merge_group"
+      ],
+      "properties": {
+        "pull_request": {
+          "type": "string",
+          "minLength": 1
+        },
+        "merge_group": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "head_tree_validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "exact_postimages",
+        "exact_write_set",
+        "event_sha_revalidation"
+      ],
+      "properties": {
+        "exact_postimages": {
+          "const": true
+        },
+        "exact_write_set": {
+          "const": true
+        },
+        "event_sha_revalidation": {
+          "const": true
+        }
+      }
+    },
+    "finding_check_map": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "pattern": "^(?:APT00[1-9]|APT010|APE10[1-9])$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "queue_assumption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "requires_live_provider_verification"
+      ],
+      "properties": {
+        "mode": {
+          "const": "serial-one-entry"
+        },
+        "requires_live_provider_verification": {
+          "const": true
+        }
+      }
+    },
+    "runner_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "secrets_required",
+        "cache_policy",
+        "budget"
+      ],
+      "properties": {
+        "secrets_required": {
+          "const": false
+        },
+        "cache_policy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "budget": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "fixtures": {
+      "type": "array",
+      "minItems": 7,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "unrelated-base",
+          "textual-conflict",
+          "clean-logical-preimage",
+          "stale-frontier",
+          "contaminated-diff",
+          "retry",
+          "duplicate-event"
+        ]
+      }
+    },
+    "responsibilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package_e",
+        "package_f"
+      ],
+      "properties": {
+        "package_e": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "package_f": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "serialization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sibling_preimage",
+        "authoritative_event_sha",
+        "stale_package_c_rerun",
+        "ape109"
+      ],
+      "properties": {
+        "sibling_preimage": {
+          "const": "shared-protected-integration-inbox-preimage"
+        },
+        "authoritative_event_sha": {
+          "const": true
+        },
+        "stale_package_c_rerun": {
+          "const": true
+        },
+        "ape109": {
+          "const": true
+        }
+      }
+    },
+    "rollout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "initial_mode",
+        "required_criteria",
+        "rollback_criteria"
+      ],
+      "properties": {
+        "initial_mode": {
+          "const": "observe"
+        },
+        "required_criteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "rollback_criteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "handoff_digest": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"
+    }
+  }
+}

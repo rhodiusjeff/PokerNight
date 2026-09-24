@@ -1,0 +1,17 @@
+{
+ "schema": "cpb-horizon-tracker-archive-v3",
+ "horizon": "H001",
+ "title": "H001 Horizon Tracker Archive",
+ "meta": {
+  "purpose": "Append-only evidence archive for nodes and edges rolled out of the active horizon tracker."
+ },
+ "status_vocabulary": {
+  "done": {"glyph": "✅", "meaning": "Merged-review evidence recorded or explicit none-by-policy waiver"},
+  "historical": {"glyph": "⚪", "meaning": "Historical and non-executable"}
+ },
+ "rolled_nodes": [],
+ "rolled_edges": [],
+ "change_log": [
+  {"date": "YYYY-MM-DD", "entry": "Archive initialized with the admitted horizon tracker."}
+ ]
+}

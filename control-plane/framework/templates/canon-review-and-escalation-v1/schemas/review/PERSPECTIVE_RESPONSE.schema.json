@@ -1,0 +1,20 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/review/PERSPECTIVE_RESPONSE.schema.json",
+ "$comment": "LOCAL ADDITION canon-review-and-escalation-v1 2026-07-31 - HARVEST TO CPB.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["schema", "contract_version", "provider_id", "provider_version", "request_digest", "role", "horizon_id", "findings", "declared_omissions", "response_digest"],
+ "properties": {
+  "schema": {"const": "cpb-canon-review-and-escalation-v1/perspective-response"},
+  "contract_version": {"const": "1"},
+  "provider_id": {"type": "string", "minLength": 1},
+  "provider_version": {"type": "string", "minLength": 1},
+  "request_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"},
+  "role": {"enum": ["source-proponent", "affected-horizon-reviewer"]},
+  "horizon_id": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/horizonId"},
+  "findings": {"type": "array", "items": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/providerFinding"}},
+  "declared_omissions": {"type": "array", "items": {"type": "string", "minLength": 1}},
+  "response_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}
+ }
+}

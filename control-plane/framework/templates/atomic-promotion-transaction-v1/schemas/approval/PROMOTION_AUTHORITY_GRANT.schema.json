@@ -1,0 +1,46 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/approval/PROMOTION_AUTHORITY_GRANT.schema.json",
+ "$comment": "HARVEST TO CPB: clear-result promotion authority is exact and carries no escalation identity.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["schema", "contract_version", "grant_id", "issuer", "subject", "authority_class", "decision_classes", "scope", "valid_from", "valid_until", "delegation_hops", "grant_digest"],
+ "properties": {
+  "schema": {"const": "cpb-atomic-promotion-transaction-v1/promotion-authority-grant"},
+  "contract_version": {"const": "1"},
+  "grant_id": {"type": "string", "pattern": "^PAG-[0-9a-f]{24}$"},
+  "issuer": {"type": "string", "minLength": 1, "maxLength": 255},
+  "subject": {"$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/actor"},
+  "authority_class": {"const": "promotion-approval"},
+  "decision_classes": {"const": ["approve-promotion"]},
+  "scope": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["candidate", "chr", "repository_identity", "refs", "postimages_digest", "write_set_digest", "expires_at"],
+   "properties": {
+    "candidate": {"$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/candidateBinding"},
+    "chr": {"$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/packageBReviewBinding"},
+    "repository_identity": {"$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"},
+    "refs": {
+     "type": "array",
+     "minItems": 3,
+     "maxItems": 4,
+     "prefixItems": [
+      {"type": "object", "additionalProperties": false, "required": ["role", "ref"], "properties": {"role": {"const": "protected"}, "ref": {"$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/refBinding"}}},
+      {"type": "object", "additionalProperties": false, "required": ["role", "ref"], "properties": {"role": {"const": "candidate"}, "ref": {"$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/refBinding"}}},
+      {"type": "object", "additionalProperties": false, "required": ["role", "ref"], "properties": {"role": {"const": "source"}, "ref": {"$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/refBinding"}}},
+      {"type": "object", "additionalProperties": false, "required": ["role", "ref"], "properties": {"role": {"const": "target"}, "ref": {"$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/refBinding"}}}
+     ],
+     "items": false
+    },
+    "postimages_digest": {"$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"},
+    "write_set_digest": {"$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"},
+    "expires_at": {"$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/timestamp"}
+   }
+  },
+  "valid_from": {"$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/timestamp"},
+  "valid_until": {"$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/timestamp"},
+  "delegation_hops": {"const": 0},
+  "grant_digest": {"$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"}
+ }
+}

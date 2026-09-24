@@ -1,0 +1,28 @@
+{
+  "schema": "cpb-horizon-admission-bundle-v1",
+  "horizon": "H001",
+  "packet_state": {
+    "slug": "replace-me",
+    "title": "Replace Me",
+    "owner": null,
+    "env": null,
+    "dependencies": []
+  },
+  "prepared_at": "YYYY-MM-DD",
+  "shaping_branch": "horizon/H001-replace-me",
+  "baseline": {
+    "remote": "origin",
+    "target_branch": "integration",
+    "commit_sha": "0000000000000000000000000000000000000000"
+  },
+  "tracker": "admission/PROPOSED_TRACKER.json",
+  "phases": [
+    {
+      "phase_id": "CP-001",
+      "prompt": "phases/prompts/CP-001-replace-me.md",
+      "prompt_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "files": [],
+  "bundle_digest": "0000000000000000000000000000000000000000000000000000000000000000"
+}

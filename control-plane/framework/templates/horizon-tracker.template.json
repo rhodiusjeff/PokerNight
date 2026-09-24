@@ -1,0 +1,39 @@
+{
+ "schema": "cpb-horizon-tracker-v3",
+ "horizon": "H001",
+ "title": "H001 Horizon Tracker",
+ "meta": {
+  "purpose": "Executable phase authority and embedded dependency DAG for one admitted horizon.",
+  "active_window": "Queued and in-flight nodes plus the most recent completed nodes remain active; older terminal nodes roll to TRACKER_ARCHIVE.json.",
+  "dependency_authority": "This file. Prompt-level dependency metadata remains authoritative within each prompt artifact.",
+  "executable_authority": "Only nodes in this file are executable prompt authority."
+ },
+ "status_vocabulary": {
+  "not-started": {"glyph": "⬜", "meaning": "Not started"},
+  "in-progress": {"glyph": "🔵", "meaning": "In progress"},
+  "closed": {"glyph": "🟡", "meaning": "Evidence frozen locally; review publication pending"},
+  "in-review": {"glyph": "🟠", "meaning": "Review artifact published and recorded"},
+  "done": {"glyph": "✅", "meaning": "Merged-review evidence recorded or explicit none-by-policy waiver"},
+  "historical": {"glyph": "⚪", "meaning": "Historical and non-executable"}
+ },
+ "nodes": [
+  {
+   "seq": "P1-01",
+   "id": "CP-001",
+   "group": "P1",
+   "title": "Replace with admitted phase",
+   "execution_model": "Operator-selected",
+   "review_unit": "self:CP-001",
+   "status": "not-started",
+   "log": null,
+   "review": null,
+   "notes": "Replace this template node during admission."
+  }
+ ],
+ "edges": [],
+ "linearized_order": ["CP-001"],
+ "approved": {"date": "YYYY-MM-DD", "by": "Operator"},
+ "change_log": [
+  {"date": "YYYY-MM-DD", "change": "Tracker created at horizon admission", "authority": "Operator admission approval"}
+ ]
+}

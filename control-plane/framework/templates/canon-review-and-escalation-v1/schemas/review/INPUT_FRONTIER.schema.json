@@ -1,0 +1,90 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/review/INPUT_FRONTIER.schema.json",
+ "$comment": "LOCAL ADDITION canon-review-and-escalation-v1 2026-07-31 - HARVEST TO CPB.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["schema", "trust", "repository", "candidate", "canon", "horizons", "provider", "catalogs", "tools", "normalized_digest"],
+ "properties": {
+  "schema": {"const": "cpb-canon-review-and-escalation-v1/input-frontier"},
+  "trust": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/trustBinding"},
+  "repository": {
+   "type": "object", "additionalProperties": false, "required": ["identity", "head_ref"],
+   "properties": {"identity": {"type": "string", "minLength": 1}, "head_ref": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/gitSha"}}
+  },
+  "candidate": {
+   "type": "object", "additionalProperties": false,
+    "required": ["token", "path", "ref", "producer_identity", "artifact_digest", "record_digest"],
+   "properties": {
+    "token": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/candidateToken"},
+    "path": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/repositoryPath"},
+    "ref": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/gitSha"},
+    "producer_identity": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/identity"},
+    "artifact_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"},
+    "record_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}
+   }
+  },
+  "canon": {
+   "type": "object", "additionalProperties": false,
+    "required": ["protected_ref_name", "ref", "root", "baseline_digest", "manifest_digest", "artifact_digests"],
+   "properties": {
+     "protected_ref_name": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/gitRefName"},
+    "ref": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/gitSha"},
+    "root": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/repositoryPath"},
+    "baseline_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"},
+    "manifest_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"},
+    "artifact_digests": {"type": "array", "items": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/artifactDigest"}}
+   }
+  },
+    "provider": {
+     "type": "object", "additionalProperties": false,
+     "required": ["provider_id", "provider_version", "ref", "root", "tree_digest", "artifact_digests"],
+     "properties": {
+        "provider_id": {"const": "deterministic-fixture-v1"},
+        "provider_version": {"const": "1"},
+        "ref": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/gitSha"},
+        "root": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/repositoryPath"},
+        "tree_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"},
+        "artifact_digests": {"type": "array", "items": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/artifactDigest"}}
+     }
+    },
+  "horizons": {
+   "type": "array",
+   "items": {
+    "type": "object", "additionalProperties": false,
+    "required": ["horizon_id", "ref", "root", "artifact_digests"],
+    "properties": {
+     "horizon_id": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/horizonId"},
+     "ref": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/gitSha"},
+     "root": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/repositoryPath"},
+     "artifact_digests": {"type": "array", "items": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/artifactDigest"}}
+    }
+   }
+  },
+  "catalogs": {
+   "type": "object", "additionalProperties": false, "required": ["package_a", "package_b"],
+   "properties": {
+    "package_a": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/catalogBinding"},
+    "package_b": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/catalogBinding"}
+   }
+  },
+  "tools": {
+   "type": "object", "additionalProperties": false,
+   "required": ["package_a_validator_path", "package_a_validator_digest", "package_a_validator_version", "interpreter_executable", "interpreter_implementation", "interpreter_version", "requirements_path", "requirements_digest", "review_runtime_version", "provider_id", "provider_version"],
+   "properties": {
+    "package_a_validator_path": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/repositoryPath"},
+    "package_a_validator_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"},
+    "package_a_validator_version": {"type": "string", "minLength": 1},
+    "interpreter_executable": {"type": "string", "minLength": 1},
+    "interpreter_implementation": {"const": "CPython"},
+    "interpreter_version": {"type": "string", "pattern": "^3\\.[0-9]+\\.[0-9]+$"},
+    "requirements_path": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/repositoryPath"},
+    "requirements_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"},
+    "review_runtime_version": {"type": "string", "minLength": 1},
+    "provider_id": {"type": "string", "minLength": 1},
+    "provider_version": {"type": "string", "minLength": 1}
+   }
+  },
+  "normalized_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}
+ }
+}

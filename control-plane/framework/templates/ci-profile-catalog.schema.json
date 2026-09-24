@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cpb-ci-profile-catalog-v1",
+  "title": "CPB CI profile catalog (cpb-ci-profile-catalog-v1)",
+  "type": "object",
+  "required": [
+    "schema",
+    "version",
+    "provider",
+    "protected_target",
+    "stable_check",
+    "rollout_stage",
+    "default_runner",
+    "global_budget",
+    "profiles",
+    "unknown_impact"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "cpb-ci-profile-catalog-v1"},
+    "version": {"type": "string", "minLength": 1},
+    "provider": {"enum": ["github", "gitlab"]},
+    "protected_target": {"type": "string", "minLength": 1},
+    "stable_check": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"},
+    "rollout_stage": {"enum": ["design", "observe", "required-pr", "queue-ready"]},
+    "default_runner": {"$ref": "#/$defs/runner"},
+    "global_budget": {"$ref": "#/$defs/budget"},
+    "unknown_impact": {"enum": ["broaden", "block"]},
+    "profiles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/profile"}
+    }
+  },
+  "$defs": {
+    "runner": {
+      "type": "object",
+      "required": ["labels"],
+      "additionalProperties": false,
+      "properties": {
+        "labels": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "container": {"type": ["string", "null"]}
+      }
+    },
+    "budget": {
+      "type": "object",
+      "required": ["wall_minutes", "runner_minutes", "max_concurrency", "retry_limit"],
+      "additionalProperties": false,
+      "properties": {
+        "wall_minutes": {"type": "number", "exclusiveMinimum": 0},
+        "runner_minutes": {"type": "number", "exclusiveMinimum": 0},
+        "max_concurrency": {"type": "integer", "minimum": 1},
+        "retry_limit": {"type": "integer", "minimum": 0, "maximum": 2}
+      }
+    },
+    "selectors": {
+      "type": "object",
+      "required": ["paths", "impact_classes"],
+      "additionalProperties": false,
+      "properties": {
+        "paths": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "impact_classes": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      },
+      "anyOf": [
+        {"properties": {"paths": {"minItems": 1}}},
+        {"properties": {"impact_classes": {"minItems": 1}}}
+      ]
+    },
+    "check": {
+      "type": "object",
+      "required": ["id", "command", "timeout_minutes"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+        "command": {"type": "string", "minLength": 1},
+        "timeout_minutes": {"type": "integer", "minimum": 1},
+        "requires_secrets": {"type": "boolean", "default": false}
+      }
+    },
+    "cache": {
+      "type": "object",
+      "required": ["id", "key_inputs", "paths"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+        "key_inputs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "paths": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+      }
+    },
+    "profile": {
+      "type": "object",
+      "required": [
+        "id",
+        "description",
+        "enabled",
+        "selectors",
+        "runner",
+        "blocking_checks",
+        "post_merge_checks",
+        "manual_checks",
+        "caches",
+        "broadening_rules",
+        "budget",
+        "evidence_owner"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+        "description": {"type": "string", "minLength": 1},
+        "enabled": {"type": "boolean"},
+        "selectors": {"$ref": "#/$defs/selectors"},
+        "runner": {"$ref": "#/$defs/runner"},
+        "blocking_checks": {"type": "array", "items": {"$ref": "#/$defs/check"}},
+        "post_merge_checks": {"type": "array", "items": {"$ref": "#/$defs/check"}},
+        "manual_checks": {"type": "array", "items": {"$ref": "#/$defs/check"}},
+        "caches": {"type": "array", "items": {"$ref": "#/$defs/cache"}},
+        "broadening_rules": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "budget": {"$ref": "#/$defs/budget"},
+        "evidence_owner": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

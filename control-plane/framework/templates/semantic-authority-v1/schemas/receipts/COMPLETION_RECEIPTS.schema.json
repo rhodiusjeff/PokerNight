@@ -1,0 +1,33 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://control-plane.dev/schemas/semantic-authority-v1/receipts/COMPLETION_RECEIPTS.schema.json",
+ "$comment": "LOCAL ADDITION semantic-authority-v1 - HARVEST TO CPB.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["schema", "horizon_id", "entries"],
+ "properties": {
+  "schema": {"const": "cpb-semantic-authority-v1/completion-receipts"},
+  "horizon_id": {"$ref": "https://control-plane.dev/schemas/semantic-authority-v1/semantic-authority.defs.schema.json#/$defs/horizonId"},
+  "entries": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "horizon_id", "receipt_kind", "scope", "producer_phase", "accepted_evidence_ids", "event_kind", "event_commit", "event_artifact_path", "event_artifact_digest", "occurred_at"],
+    "properties": {
+     "id": {"type": "string", "minLength": 1},
+     "horizon_id": {"$ref": "https://control-plane.dev/schemas/semantic-authority-v1/semantic-authority.defs.schema.json#/$defs/horizonId"},
+     "receipt_kind": {"const": "acceptance-completion"},
+     "scope": {"$ref": "https://control-plane.dev/schemas/semantic-authority-v1/semantic-authority.defs.schema.json#/$defs/horizonId"},
+     "producer_phase": {"$ref": "https://control-plane.dev/schemas/semantic-authority-v1/semantic-authority.defs.schema.json#/$defs/phaseRef"},
+     "accepted_evidence_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+     "event_kind": {"const": "phase-completed"},
+     "event_commit": {"$ref": "https://control-plane.dev/schemas/semantic-authority-v1/semantic-authority.defs.schema.json#/$defs/gitSha"},
+    "event_artifact_path": {"type": "string", "minLength": 1},
+    "event_artifact_digest": {"$ref": "https://control-plane.dev/schemas/semantic-authority-v1/semantic-authority.defs.schema.json#/$defs/digest"},
+     "occurred_at": {"$ref": "https://control-plane.dev/schemas/semantic-authority-v1/semantic-authority.defs.schema.json#/$defs/timestamp"}
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,10 @@
+
+# CP-V08 local runtime
+/.cp-venv/
+/.claude/state/
+/.claude/.persona-state
+/.claude/hook-observations.jsonl
+/.claude/settings.local.json
+__pycache__/
+*.py[cod]
+.DS_Store

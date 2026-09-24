@@ -1,0 +1,39 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/authority/ELIGIBLE_IDENTITY_POLICY.schema.json",
+ "$comment": "LOCAL ADDITION canon-review-and-escalation-v1 2026-07-31 - HARVEST TO CPB.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["schema", "contract_version", "policy_id", "trusted_issuers", "eligible_subjects", "delegation", "policy_digest"],
+ "properties": {
+  "schema": {"const": "cpb-canon-review-and-escalation-v1/eligible-identity-policy"},
+  "contract_version": {"const": "1"},
+  "policy_id": {"type": "string", "pattern": "^EIP-[0-9a-f]{24}$"},
+  "trusted_issuers": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/identity"}},
+  "eligible_subjects": {
+   "type": "array", "minItems": 1,
+   "items": {
+    "type": "object", "additionalProperties": false,
+    "required": ["identity", "actor_type", "authority_classes", "decision_classes", "project_ids", "candidate_tokens"],
+    "properties": {
+     "identity": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/identity"},
+     "actor_type": {"enum": ["human", "delegated-ai"]},
+     "authority_classes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+     "decision_classes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/decisionType"}},
+     "project_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+     "candidate_tokens": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/candidateToken"}}
+    }
+   }
+  },
+  "delegation": {
+   "type": "object", "additionalProperties": false,
+   "required": ["max_hops", "eligible_actor_types", "trusted_delegators"],
+   "properties": {
+    "max_hops": {"const": 1},
+    "eligible_actor_types": {"const": ["delegated-ai"]},
+    "trusted_delegators": {"type": "array", "uniqueItems": true, "items": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/identity"}}
+   }
+  },
+  "policy_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}
+ }
+}

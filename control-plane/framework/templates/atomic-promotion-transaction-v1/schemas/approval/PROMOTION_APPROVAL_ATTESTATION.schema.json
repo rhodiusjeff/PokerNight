@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/approval/PROMOTION_APPROVAL_ATTESTATION.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract_version",
+    "attestation_id",
+    "status",
+    "request",
+    "decision",
+    "grant",
+    "authority_history",
+    "verified_actor",
+    "verification_codes",
+    "expires_at",
+    "supersedes",
+    "attestation_digest"
+  ],
+  "properties": {
+    "schema": {
+      "const": "cpb-atomic-promotion-transaction-v1/promotion-approval-attestation"
+    },
+    "contract_version": {
+      "const": "1"
+    },
+    "attestation_id": {
+      "pattern": "^PAA-[0-9a-f]{24}$"
+    },
+    "status": {
+      "const": "approval-attested"
+    },
+    "request": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/promotionApprovalRequestBinding"
+    },
+    "decision": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/promotionApprovalDecisionBinding"
+    },
+    "grant": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/promotionAuthorityGrantBinding"
+    },
+    "authority_history": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/promotionAuthorityGrantBinding"
+    },
+    "verified_actor": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/actor"
+    },
+    "verification_codes": {
+      "const": [
+        "candidate-binding",
+        "chr-binding",
+        "frontier-binding",
+        "ref-binding",
+        "postimage-binding",
+        "write-set-binding",
+        "authority-scope",
+        "authority-validity",
+        "separation-of-duty"
+      ]
+    },
+    "expires_at": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/timestamp"
+    },
+    "supersedes": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/fileBinding"
+        }
+      ]
+    },
+    "attestation_digest": {
+      "$ref": "https://control-plane.dev/schemas/atomic-promotion-transaction-v1/atomic-promotion-transaction.defs.schema.json#/$defs/digest"
+    }
+  }
+}

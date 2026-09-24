@@ -1,0 +1,24 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/escalation/FORGE_ESCALATION_PROJECTION.schema.json",
+ "$comment": "LOCAL ADDITION canon-review-and-escalation-v1 2026-07-31 - HARVEST TO CPB.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["schema", "contract_version", "trust", "provider_namespace", "repository_id", "item_id", "event_id", "idempotency_key", "safe_body_digest", "labels", "assignees", "source_escalation_digest", "projection_state", "projection_digest"],
+ "properties": {
+  "schema": {"const": "cpb-canon-review-and-escalation-v1/forge-escalation-projection"},
+  "contract_version": {"const": "1"},
+    "trust": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/trustBinding"},
+  "provider_namespace": {"const": "mock-forge-v1"},
+  "repository_id": {"type": "string", "minLength": 1},
+  "item_id": {"type": "string", "minLength": 1},
+  "event_id": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/eventId"},
+  "idempotency_key": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"},
+  "safe_body_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"},
+  "labels": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+  "assignees": {"type": "array", "uniqueItems": true, "items": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/identity"}},
+  "source_escalation_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"},
+  "projection_state": {"const": "open"},
+  "projection_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}
+ }
+}

@@ -1,0 +1,116 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$comment": "LOCAL MOD 2026-07-29 - HARVEST TO CPB: baseline-bound horizon-state v2.",
+ "$id": "cpb-horizon-state-v2",
+ "title": "CPB horizon state (cpb-horizon-state-v2)",
+ "type": "object",
+ "required": [
+  "schema",
+  "horizon",
+  "slug",
+  "title",
+  "owner",
+  "branch",
+    "baseline",
+  "env",
+  "dependencies",
+  "admission",
+  "closure"
+ ],
+ "additionalProperties": false,
+ "properties": {
+  "schema": {
+    "const": "cpb-horizon-state-v2"
+  },
+  "horizon": {
+   "type": "string",
+   "pattern": "^H[0-9]{3}$"
+  },
+  "slug": {
+   "type": "string",
+   "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+  },
+  "title": {
+   "type": "string",
+   "minLength": 1
+  },
+  "owner": {
+   "type": ["string", "null"]
+  },
+  "branch": {
+   "type": ["string", "null"]
+  },
+    "baseline": {
+     "type": "object",
+     "required": ["remote", "target_branch", "commit_sha"],
+     "additionalProperties": false,
+     "properties": {
+        "remote": {"type": "string", "minLength": 1},
+        "target_branch": {"type": "string", "minLength": 1},
+        "commit_sha": {
+         "oneOf": [
+            {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+            {"type": "null"}
+         ]
+        }
+     }
+    },
+  "env": {
+   "type": ["string", "null"]
+  },
+  "dependencies": {
+   "type": "array",
+   "uniqueItems": true,
+   "items": {
+    "type": "string",
+    "pattern": "^H[0-9]{3}$"
+   }
+  },
+  "admission": {
+   "type": "object",
+    "required": ["status", "recorded_at", "evidence", "bundle_digest"],
+   "additionalProperties": false,
+   "properties": {
+    "status": {
+     "enum": ["declared", "inception", "admitted", "rejected"]
+    },
+    "recorded_at": {
+        "oneOf": [
+         {"type": "string", "format": "date"},
+         {"type": "string", "format": "date-time"},
+         {"type": "null"}
+        ]
+    },
+    "evidence": {
+     "type": ["string", "null"]
+    },
+    "bundle_digest": {
+     "oneOf": [
+      {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+      {"type": "null"}
+     ]
+    }
+   }
+  },
+  "closure": {
+   "type": "object",
+   "required": ["sealed_at", "evidence", "commit_sha"],
+   "additionalProperties": false,
+   "properties": {
+    "sealed_at": {
+        "oneOf": [
+         {"type": "string", "format": "date-time"},
+         {"type": "null"}
+        ]
+    },
+    "evidence": {
+     "type": ["string", "null"]
+    },
+    "commit_sha": {
+     "type": ["string", "null"],
+     "pattern": "^[0-9a-f]{40}$"
+    }
+   }
+  }
+ }
+}

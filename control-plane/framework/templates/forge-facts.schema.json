@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cpb-forge-facts-v1",
+  "title": "CPB normalized forge facts (cpb-forge-facts-v1)",
+  "type": "object",
+  "required": [
+    "schema",
+    "provider",
+    "repository",
+    "target_branch",
+    "collected_at",
+    "adapter_version",
+    "capabilities",
+    "visibility_limits"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "cpb-forge-facts-v1"},
+    "provider": {"enum": ["github", "gitlab"]},
+    "repository": {"type": "string", "minLength": 1},
+    "target_branch": {"type": "string", "minLength": 1},
+    "collected_at": {"type": "string", "format": "date-time"},
+    "adapter_version": {"type": "string", "minLength": 1},
+    "capabilities": {
+      "type": "object",
+      "required": [
+        "protected_target",
+        "pull_requests_required",
+        "force_push_blocked",
+        "required_checks",
+        "pr_workflow",
+        "merge_group_workflow",
+        "merge_queue_enabled",
+        "bypass_constrained"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "protected_target": {"type": ["boolean", "null"]},
+        "pull_requests_required": {"type": ["boolean", "null"]},
+        "force_push_blocked": {"type": ["boolean", "null"]},
+        "required_checks": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+          ]
+        },
+        "pr_workflow": {"type": ["boolean", "null"]},
+        "merge_group_workflow": {"type": ["boolean", "null"]},
+        "merge_queue_enabled": {"type": ["boolean", "null"]},
+        "bypass_constrained": {"type": ["boolean", "null"]}
+      }
+    },
+    "visibility_limits": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "cpb-register-v1",
+ "$comment": "LOCAL MOD OPS register analytics normalization 2026-08-07 - HARVEST TO CPB.",
+ "title": "CPB generic register envelope (cpb-register-v1)",
+ "type": "object",
+ "required": [
+  "schema",
+  "register",
+  "title",
+  "scope",
+  "meta",
+  "columns",
+  "entries",
+  "change_log"
+ ],
+ "additionalProperties": false,
+ "properties": {
+  "schema": {
+   "const": "cpb-register-v1"
+  },
+  "register": {
+   "type": "string",
+   "description": "Register kind key \u2014 must exist in register-catalog.json"
+  },
+  "title": {
+   "type": "string"
+  },
+  "scope": {
+   "enum": [
+    "instance",
+    "lane",
+    "canon"
+   ]
+  },
+  "horizon": {
+   "type": [
+    "string",
+    "null"
+   ],
+   "pattern": "^H[0-9]{3}$"
+  },
+  "meta": {
+   "type": "object",
+   "description": "Reconstituted prose: purpose, rules, provenance \u2014 free-form keys, verbatim where load-bearing"
+  },
+  "columns": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   },
+   "description": "Entry field names in canonical display order; every entry key must appear here"
+  },
+  "entries": {
+   "type": "array",
+   "items": {
+    "type": "object",
+        "description": "Entry fields may use structured JSON values when the register catalog and kind-specific validator define them."
+   }
+  },
+  "change_log": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "date",
+     "entry"
+    ]
+   }
+  }
+ },
+ "description": "Generic register envelope. Kind-specific fields, enums, homes, and structured-value contracts are defined by the register catalog and dedicated validators; change tracking is file-level via change_log."
+}

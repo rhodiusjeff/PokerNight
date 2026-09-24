@@ -1,0 +1,3 @@
+# LOCAL ADDITION (semantic-authority-v1, 2026-07-30) - HARVEST TO CPB.
+# Draft 2020-12 evaluation for validate-semantic-authority.py.
+jsonschema>=4.23,<5

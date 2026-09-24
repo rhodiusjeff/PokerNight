@@ -1,0 +1,79 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "cpb-horizon-tracker-archive-v3",
+ "title": "CPB horizon tracker archive (cpb-horizon-tracker-archive-v3)",
+ "type": "object",
+ "required": ["schema", "horizon", "title", "meta", "status_vocabulary", "rolled_nodes", "rolled_edges", "change_log"],
+ "additionalProperties": false,
+ "properties": {
+  "schema": {"const": "cpb-horizon-tracker-archive-v3"},
+  "horizon": {"type": "string", "pattern": "^H[0-9]{3}$"},
+  "title": {"type": "string", "minLength": 1},
+  "meta": {"type": "object"},
+  "status_vocabulary": {
+   "type": "object",
+   "additionalProperties": {
+    "type": "object",
+    "required": ["glyph", "meaning"],
+    "additionalProperties": false,
+    "properties": {
+     "glyph": {"type": "string"},
+     "meaning": {"type": "string", "minLength": 1}
+    }
+   }
+  },
+  "rolled_nodes": {
+   "type": "array",
+   "items": {"$ref": "#/$defs/rolled_node"}
+  },
+  "rolled_edges": {
+   "type": "array",
+   "items": {"$ref": "#/$defs/rolled_edge"}
+  },
+  "change_log": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": ["date", "entry"],
+    "properties": {
+     "date": {"type": "string", "minLength": 1},
+     "entry": {"type": "string", "minLength": 1}
+    }
+   }
+  }
+ },
+ "$defs": {
+  "rolled_node": {
+   "type": "object",
+   "required": ["seq", "id", "group", "title", "execution_model", "review_unit", "status", "status_v1", "log", "review", "notes", "section", "rolled"],
+   "additionalProperties": false,
+   "properties": {
+    "seq": {"type": ["string", "null"]},
+    "id": {"type": "string", "minLength": 1},
+    "group": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "execution_model": {"type": ["string", "null"]},
+    "review_unit": {"type": ["string", "null"]},
+    "status": {"enum": ["done", "historical"]},
+    "status_v1": {"type": "string"},
+    "log": {"type": ["string", "null"]},
+    "review": {"type": ["string", "null"]},
+    "notes": {"type": "string"},
+    "section": {"enum": ["executable-queue", "historical-legacy"]},
+    "rolled": {"type": "string", "minLength": 1}
+   }
+  },
+  "rolled_edge": {
+   "type": "object",
+   "required": ["from", "to", "kind", "rationale", "rolled"],
+   "additionalProperties": false,
+   "properties": {
+    "from": {"type": "string", "minLength": 1},
+    "to": {"type": "string", "minLength": 1},
+    "kind": {"enum": ["hard", "soft", "calendar"]},
+    "rationale": {"type": "string", "minLength": 1},
+    "rolled": {"type": "string", "minLength": 1}
+   }
+  }
+ }
+}

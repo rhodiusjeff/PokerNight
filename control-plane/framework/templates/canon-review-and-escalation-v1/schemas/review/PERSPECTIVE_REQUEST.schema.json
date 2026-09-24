@@ -1,0 +1,33 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/review/PERSPECTIVE_REQUEST.schema.json",
+ "$comment": "LOCAL ADDITION canon-review-and-escalation-v1 2026-07-31 - HARVEST TO CPB.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["schema", "contract_version", "provider_id", "provider_version", "role", "horizon_id", "refs", "frontier_digests", "neighborhood_digest", "records", "evidence_excerpts", "questions", "allowed_finding_codes", "limits", "capabilities", "request_digest"],
+ "properties": {
+  "schema": {"const": "cpb-canon-review-and-escalation-v1/perspective-request"},
+  "contract_version": {"const": "1"},
+  "provider_id": {"type": "string", "minLength": 1},
+  "provider_version": {"type": "string", "minLength": 1},
+  "role": {"enum": ["source-proponent", "affected-horizon-reviewer"]},
+  "horizon_id": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/horizonId"},
+  "refs": {
+   "type": "object", "additionalProperties": false, "required": ["source_ref", "canon_ref", "horizon_refs"],
+   "properties": {
+    "source_ref": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/gitSha"},
+    "canon_ref": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/gitSha"},
+    "horizon_refs": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["horizon_id", "ref"], "properties": {"horizon_id": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/horizonId"}, "ref": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/gitSha"}}}}
+   }
+  },
+  "frontier_digests": {"type": "object", "additionalProperties": false, "required": ["input", "visibility"], "properties": {"input": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}, "visibility": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}}},
+  "neighborhood_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"},
+  "records": {"type": "array", "items": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/neighborhoodMember"}},
+  "evidence_excerpts": {"type": "array", "items": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/evidenceRef"}},
+  "questions": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["Does the candidate duplicate visible meaning?", "Does the candidate contradict visible meaning?", "Is the candidate materially ambiguous?", "Does the candidate affect a visible acceptance claim or consumer?", "Is a named authority decision required?", "Is the bounded evidence sufficient?"]}},
+  "allowed_finding_codes": {"const": ["CRV201", "CRV202", "CRV203", "CRV204", "CRV205", "CRV206"]},
+  "limits": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/limits"},
+  "capabilities": {"type": "object", "additionalProperties": false, "required": ["network", "write", "tool_escalation"], "properties": {"network": {"const": false}, "write": {"const": false}, "tool_escalation": {"const": false}}},
+  "request_digest": {"$ref": "https://control-plane.dev/schemas/canon-review-and-escalation-v1/canon-review-and-escalation.defs.schema.json#/$defs/digest"}
+ }
+}
