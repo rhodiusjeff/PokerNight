@@ -1,0 +1,26 @@
+{
+ "schema": "cpb-horizon-state-v2",
+ "horizon": "H000",
+ "slug": "poker-night",
+ "title": "Poker Night",
+ "owner": "Rhodius Labs, LLC",
+ "branch": "horizon/H000-poker-night",
+ "baseline": {
+  "remote": "origin",
+  "target_branch": "main",
+  "commit_sha": "8973ba1efb6f0a936ffb16bdde0e0be3b108659a"
+ },
+ "env": "macOS M1; Docker; Cloudflare route",
+ "dependencies": [],
+ "admission": {
+  "status": "inception",
+  "recorded_at": "2026-09-24T00:18:58Z",
+  "evidence": "HORIZON_INCEPTION.md",
+  "bundle_digest": null
+ },
+ "closure": {
+  "sealed_at": null,
+  "evidence": null,
+  "commit_sha": null
+ }
+}
