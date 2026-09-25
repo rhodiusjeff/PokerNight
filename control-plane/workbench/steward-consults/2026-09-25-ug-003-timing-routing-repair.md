@@ -81,3 +81,25 @@ Publication succeeded; integration and upgrade completion have not. The repair b
 records `upgrading`, and the local CP-101 current pointer remains untracked. Review and merge of
 PR #5 must precede the planned upgrade completion and session recovery. No merge, lifecycle
 transition, or phase retry was invoked or performed by this advisory check.
+
+## 2026-09-25: Publication Recheck
+
+Operator request: "Ok, in the meantime we should commit and push and PR the UG-003 changes.  I think we are good there?"
+
+UG-003 is locally verified and already published in non-draft PR #5 against `main`:
+https://github.com/rhodiusjeff/PokerNight/pull/5. A fresh fetch confirmed that local and remote
+repair branches both pointed to `bd66beae1d647a74faec4f10f16228a42193e15f`, with zero commits
+ahead or behind. GitHub reported OPEN and CLEAN, no review decision, and no reported CI checks.
+This is publication evidence, not merge approval or lifecycle completion.
+
+The focused suites were rerun during this consult: all 23 Bash/PowerShell timing-routing checks
+and both timing-harvest checks passed. No new full code review was performed. The PR description
+needs to reflect the subsequent UG-003 handoff addition and cutover-summary correction instead
+of claiming the current handoff still matches the original restored blob byte-for-byte.
+
+The request authorizes committing and pushing this publication record and refreshing the existing
+PR; it does not require a duplicate PR. Leave the untracked operator league-rules capture and
+machine-local CP-101 timing pointer untouched and excluded. Preserve all existing repair commits.
+The instance remains `upgrading`; review/merge, governed upgrade completion, and blocked-session
+recovery remain pending. No merge, lifecycle transition, admission change, or phase retry is
+authorized or performed by this publication request.
