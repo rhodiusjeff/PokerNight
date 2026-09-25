@@ -14,9 +14,9 @@
  "dependencies": [],
  "admission": {
   "status": "inception",
-  "recorded_at": "2026-09-24T00:18:58Z",
-  "evidence": "HORIZON_INCEPTION.md",
-  "bundle_digest": null
+  "recorded_at": "2026-09-25T04:06:01Z",
+  "evidence": "admission/ADMISSION_BUNDLE.json",
+  "bundle_digest": "00fa39c71679b2a9db17066d679d8f743ad9f34c2f052012c5dbee9971b9bced"
  },
  "closure": {
   "sealed_at": null,
