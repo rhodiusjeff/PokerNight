@@ -1,0 +1,19 @@
+{
+   "inputs": [
+    {
+      "id": "excalidrawApiKey",
+      "type": "promptString",
+      "description": "Excalidraw+ API key",
+      "password": true
+    }
+  ],
+  "servers": {
+    "excalidraw": {
+      "type": "http",
+      "url": "https://api.excalidraw.com/api/v1/mcp",
+      "headers": {
+        "Authorization": "Bearer ${input:excalidrawApiKey}"
+      }
+    }
+  }
+}

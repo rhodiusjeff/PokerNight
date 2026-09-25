@@ -165,10 +165,18 @@ prepare_bundle() {
   local repo="$1" packet="$2" horizon="$3" tracker="$4"
   run_bash_path "$repo" shape "$horizon" --recorded-at 2026-07-21 >/dev/null
   write_phase_prompt "$packet" CP-001
+  local profile="implementation-baseline" verdict="Ready for implementation-baseline review"
+  if [[ "$horizon" != "H000" ]]; then
+    profile="successor-admission"
+    verdict="Ready for successor-admission review"
+  fi
   cat > "$packet/approvals/HORIZON_READINESS_REVIEW.md" <<EOF
 # Horizon Readiness Review
 
-Verdict: Ready for horizon admission review
+**Profile:** \`$profile\`
+
+**Verdict:** $verdict
+
 Reviewed commit: fixture
 EOF
   run_bash_path "$repo" prepare "$horizon" --tracker "$tracker" --recorded-at 2026-07-21 >/dev/null
@@ -219,7 +227,7 @@ packet="$repo/control-plane/horizons/H000-powershell"
 proposed_tracker "$repo/proposed-tracker.json" H000
 run_powershell_path "$repo" shape H000 --recorded-at 2026-07-21 >/dev/null
 write_phase_prompt "$packet" CP-001
-printf '# Horizon Readiness Review\n\nVerdict: Ready for horizon admission review\n' > "$packet/approvals/HORIZON_READINESS_REVIEW.md"
+printf '# Horizon Readiness Review\n\n**Profile:** `implementation-baseline`\n\n**Verdict:** Ready for implementation-baseline review\n' > "$packet/approvals/HORIZON_READINESS_REVIEW.md"
 run_powershell_path "$repo" prepare H000 --tracker proposed-tracker.json --recorded-at 2026-07-21 >/dev/null
 finalize_approval "$repo" "$packet" "PowerShell fixture approval"
 land_shaping_and_checkout_admission "$repo" H000
@@ -324,6 +332,60 @@ set -e
 assert_contains "$readiness_error" "HORIZON_READINESS_REVIEW.md" "missing readiness diagnostic"
 pass "admission preparation requires durable readiness review"
 
+# H000 implementation-baseline may prepare, while planning-baseline remains ineligible.
+fixture="$(new_fixture h000-planning-baseline)"
+repo="$fixture/repo"
+annotated_mint "$repo" H000
+checkout_shaping_branch "$repo" H000 planning-baseline; baseline="$BASELINE"
+run_bash_path "$repo" declare H000 --slug planning-baseline --title "Planning Baseline" --owner Operator --branch horizon/H000-planning-baseline --target-branch main --baseline-sha "$baseline" >/dev/null
+packet="$repo/control-plane/horizons/H000-planning-baseline"
+run_bash_path "$repo" shape H000 >/dev/null
+write_phase_prompt "$packet" CP-001
+proposed_tracker "$repo/proposed-tracker.json" H000
+cat > "$packet/approvals/HORIZON_READINESS_REVIEW.md" <<'EOF'
+# Horizon Readiness Review
+
+**Profile:** `planning-baseline`
+
+**Verdict:** Ready for planning-baseline review
+EOF
+set +e
+planning_error="$(run_bash_path "$repo" prepare H000 --tracker proposed-tracker.json 2>&1)"; planning_rc=$?
+set -e
+[[ $planning_rc -ne 0 ]] || fail "H000 planning-baseline report must not prepare admission"
+assert_contains "$planning_error" "implementation-baseline" "H000 planning-baseline diagnostic"
+pass "H000 planning-baseline report is ineligible for admission preparation"
+
+# H001+ successor-admission may prepare its bundle.
+fixture="$(new_fixture h001-successor-admission)"
+repo="$fixture/repo"
+annotated_mint "$repo" H001
+checkout_shaping_branch "$repo" H001 successor; baseline="$BASELINE"
+run_bash_path "$repo" declare H001 --slug successor --title "Successor Horizon" --owner Operator --branch horizon/H001-successor --target-branch main --baseline-sha "$baseline" >/dev/null
+packet="$repo/control-plane/horizons/H001-successor"
+proposed_tracker "$repo/proposed-tracker.json" H001
+prepare_bundle "$repo" "$packet" H001 proposed-tracker.json
+[[ -f "$packet/admission/ADMISSION_BUNDLE.json" ]] || fail "H001 successor-admission prepares a bundle"
+pass "H001 successor-admission report prepares admission bundle"
+
+# Malformed readiness reports fail closed.
+fixture="$(new_fixture malformed-readiness)"
+repo="$fixture/repo"
+annotated_mint "$repo" H000
+checkout_shaping_branch "$repo" H000 malformed; baseline="$BASELINE"
+run_bash_path "$repo" declare H000 --slug malformed --title "Malformed Readiness" --owner Operator --branch horizon/H000-malformed --target-branch main --baseline-sha "$baseline" >/dev/null
+packet="$repo/control-plane/horizons/H000-malformed"
+run_bash_path "$repo" shape H000 >/dev/null
+write_phase_prompt "$packet" CP-001
+proposed_tracker "$repo/proposed-tracker.json" H000
+printf '# Horizon Readiness Review\n\n**Profile:** `implementation-baseline`\n' > "$packet/approvals/HORIZON_READINESS_REVIEW.md"
+set +e
+malformed_error="$(run_bash_path "$repo" prepare H000 --tracker proposed-tracker.json 2>&1)"; malformed_rc=$?
+set -e
+[[ $malformed_rc -ne 0 ]] || fail "malformed readiness report must fail"
+assert_contains "$malformed_error" "one Profile and one Verdict" "malformed readiness diagnostic"
+pass "malformed readiness report fails closed"
+
 # Preparation requires one complete prompt per executable node.
 fixture="$(new_fixture missing-prompt)"
 repo="$fixture/repo"
@@ -332,7 +394,7 @@ checkout_shaping_branch "$repo" H000 missing-prompt; baseline="$BASELINE"
 run_bash_path "$repo" declare H000 --slug missing-prompt --title "Missing Prompt" --owner Operator --branch horizon/H000-missing-prompt --target-branch main --baseline-sha "$baseline" >/dev/null
 packet="$repo/control-plane/horizons/H000-missing-prompt"
 run_bash_path "$repo" shape H000 >/dev/null
-printf '# Horizon Readiness Review\n\nVerdict: Ready for horizon admission review\n' > "$packet/approvals/HORIZON_READINESS_REVIEW.md"
+printf '# Horizon Readiness Review\n\n**Profile:** `implementation-baseline`\n\n**Verdict:** Ready for implementation-baseline review\n' > "$packet/approvals/HORIZON_READINESS_REVIEW.md"
 proposed_tracker "$repo/proposed-tracker.json" H000
 set +e
 prompt_error="$(run_bash_path "$repo" prepare H000 --tracker proposed-tracker.json 2>&1)"; prompt_rc=$?
@@ -355,7 +417,7 @@ prepare_bundle_tracker="$repo/proposed-tracker.json"
 proposed_tracker "$prepare_bundle_tracker" H000
 run_bash_path "$repo" shape H000 >/dev/null
 write_phase_prompt "$packet" CP-001
-printf '# Horizon Readiness Review\n\nVerdict: Ready for horizon admission review\n' > "$packet/approvals/HORIZON_READINESS_REVIEW.md"
+printf '# Horizon Readiness Review\n\n**Profile:** `implementation-baseline`\n\n**Verdict:** Ready for implementation-baseline review\n' > "$packet/approvals/HORIZON_READINESS_REVIEW.md"
 set +e
 collision_error="$(run_bash_path "$repo" prepare H000 --tracker proposed-tracker.json 2>&1)"; collision_rc=$?
 set -e
@@ -372,7 +434,7 @@ run_bash_path "$repo" declare H000 --slug atomic-admit --title "Atomic Admit" --
 packet="$repo/control-plane/horizons/H000-atomic-admit"
 run_bash_path "$repo" shape H000 --recorded-at 2026-07-21 >/dev/null
 write_phase_prompt "$packet" CP-001
-printf '# Horizon Readiness Review\n\nVerdict: Ready for horizon admission review\n' > "$packet/approvals/HORIZON_READINESS_REVIEW.md"
+printf '# Horizon Readiness Review\n\n**Profile:** `implementation-baseline`\n\n**Verdict:** Ready for implementation-baseline review\n' > "$packet/approvals/HORIZON_READINESS_REVIEW.md"
 before="$(shasum -a 256 "$packet/HORIZON_STATE.json" | awk '{print $1}')"
 proposed_tracker "$repo/proposed-tracker.json" H001
 set +e

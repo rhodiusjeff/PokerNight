@@ -1,0 +1,183 @@
+{
+ "schema": "cpb-horizon-admission-bundle-v1",
+ "horizon": "H000",
+ "packet_state": {
+  "slug": "poker-night",
+  "title": "Poker Night",
+  "owner": "Rhodius Labs, LLC",
+  "env": "macOS M1; Docker; Cloudflare route",
+  "dependencies": []
+ },
+ "prepared_at": "2026-09-25T04:06:01Z",
+ "shaping_branch": "horizon/H000-poker-night",
+ "baseline": {
+  "remote": "origin",
+  "target_branch": "main",
+  "commit_sha": "8973ba1efb6f0a936ffb16bdde0e0be3b108659a"
+ },
+ "tracker": "admission/PROPOSED_TRACKER.json",
+ "phases": [
+  {
+   "phase_id": "CP-101",
+   "prompt": "phases/prompts/CP-101-application-and-data-foundation.md",
+   "prompt_sha256": "c882551712e2ec61129293a4e39536ad9a185e3eab962d08f6d2eab4017cfb5a"
+  },
+  {
+   "phase_id": "CP-102",
+   "prompt": "phases/prompts/CP-102-identity-authentication-and-audit.md",
+   "prompt_sha256": "1e43c6ff372be793bfbfe0b20ab6b103dbeeee5f2206f60510c94a9983736c87"
+  },
+  {
+   "phase_id": "CP-103",
+   "prompt": "phases/prompts/CP-103-league-season-governance.md",
+   "prompt_sha256": "487c3812c612b59c5498e661564c329fdbae4eb997618ff896318a7772039559"
+  },
+  {
+   "phase_id": "CP-104",
+   "prompt": "phases/prompts/CP-104-invitations-membership-and-discipline.md",
+   "prompt_sha256": "67e50b4e4cf802741bfbb9a6e850b3a147d1b41ecc0266e73c358a715539c752"
+  },
+  {
+   "phase_id": "CP-105",
+   "prompt": "phases/prompts/CP-105-season-participation-and-external-ledger.md",
+   "prompt_sha256": "59bebea0c7a7c0bb39ec51cd40d6f3e636ba45c79e015ce1f288bf390659b0ce"
+  },
+  {
+   "phase_id": "CP-106",
+   "prompt": "phases/prompts/CP-106-event-management-rsvp-and-waitlist.md",
+   "prompt_sha256": "f7fbb8fa16b07e797c4ec507e817397f397779bddea9c693d69998d58fbadaad"
+  },
+  {
+   "phase_id": "CP-107",
+   "prompt": "phases/prompts/CP-107-live-event-operations.md",
+   "prompt_sha256": "521bd493cbb2b5724d0171a3a2c2445ff982ef50ed3d15caef8c974cb7a0e530"
+  },
+  {
+   "phase_id": "CP-108",
+   "prompt": "phases/prompts/CP-108-scoring-conservation-and-closed-results.md",
+   "prompt_sha256": "a92b1626f3f2d424ce7d0a44cd6cefbfd11aaa5f371cd177c3ecb4c73caee046"
+  },
+  {
+   "phase_id": "CP-109",
+   "prompt": "phases/prompts/CP-109-season-closeout-and-bounded-correction.md",
+   "prompt_sha256": "e9bbc19a29497b36e35b1e64f1722d28b89c9e6900dc4ee24fcdcd9917b6b23c"
+  },
+  {
+   "phase_id": "CP-110",
+   "prompt": "phases/prompts/CP-110-authenticated-and-public-results-visibility.md",
+   "prompt_sha256": "4ad760ab68d9d6612ddf35d309deb80662f0b1152a69d1f2ad02f8be6533dd35"
+  },
+  {
+   "phase_id": "CP-111",
+   "prompt": "phases/prompts/CP-111-deployment-recovery-and-operational-readiness.md",
+   "prompt_sha256": "6fd1512fcce73deff2272bde581f7fb0e2a5ca6ac2acac2ee7d94a9bf479b2f4"
+  }
+ ],
+ "files": [
+  {
+   "path": "HORIZON_INCEPTION.md",
+   "sha256": "aee3ffeb6f0f4fb858a6bcb8aafac67b789196fcf6ccac4e2de205b834b36af2"
+  },
+  {
+   "path": "HORIZON_MANIFEST.md",
+   "sha256": "0fccd2a0033cd4685488512bc1504f24d42c026370bbbea17b35c8b243adb411"
+  },
+  {
+   "path": "admission/PROPOSED_TRACKER.json",
+   "sha256": "9b057611f5964ac44c216cc5459f6a3f9904ed3a7153882a694e4c1fdb282be3"
+  },
+  {
+   "path": "approvals/HORIZON_READINESS_REVIEW.md",
+   "sha256": "e23135bb127cfae1383ad813a9f9189363b633d10885d04650d406092e7d724a"
+  },
+  {
+   "path": "coordination/README.md",
+   "sha256": "68e00bfb642df3972a927f0961577e33266a82bb386e8c18762873695dc0f167"
+  },
+  {
+   "path": "coordination/exploratory-reviews/2026-09-24-proposal-assessment-01.md",
+   "sha256": "3894b4b705ea8d78476e4490d6d45d42c032ebed5b99d0812ad9826602c21fc5"
+  },
+  {
+   "path": "phases/prompts/CP-101-application-and-data-foundation.md",
+   "sha256": "c882551712e2ec61129293a4e39536ad9a185e3eab962d08f6d2eab4017cfb5a"
+  },
+  {
+   "path": "phases/prompts/CP-102-identity-authentication-and-audit.md",
+   "sha256": "1e43c6ff372be793bfbfe0b20ab6b103dbeeee5f2206f60510c94a9983736c87"
+  },
+  {
+   "path": "phases/prompts/CP-103-league-season-governance.md",
+   "sha256": "487c3812c612b59c5498e661564c329fdbae4eb997618ff896318a7772039559"
+  },
+  {
+   "path": "phases/prompts/CP-104-invitations-membership-and-discipline.md",
+   "sha256": "67e50b4e4cf802741bfbb9a6e850b3a147d1b41ecc0266e73c358a715539c752"
+  },
+  {
+   "path": "phases/prompts/CP-105-season-participation-and-external-ledger.md",
+   "sha256": "59bebea0c7a7c0bb39ec51cd40d6f3e636ba45c79e015ce1f288bf390659b0ce"
+  },
+  {
+   "path": "phases/prompts/CP-106-event-management-rsvp-and-waitlist.md",
+   "sha256": "f7fbb8fa16b07e797c4ec507e817397f397779bddea9c693d69998d58fbadaad"
+  },
+  {
+   "path": "phases/prompts/CP-107-live-event-operations.md",
+   "sha256": "521bd493cbb2b5724d0171a3a2c2445ff982ef50ed3d15caef8c974cb7a0e530"
+  },
+  {
+   "path": "phases/prompts/CP-108-scoring-conservation-and-closed-results.md",
+   "sha256": "a92b1626f3f2d424ce7d0a44cd6cefbfd11aaa5f371cd177c3ecb4c73caee046"
+  },
+  {
+   "path": "phases/prompts/CP-109-season-closeout-and-bounded-correction.md",
+   "sha256": "e9bbc19a29497b36e35b1e64f1722d28b89c9e6900dc4ee24fcdcd9917b6b23c"
+  },
+  {
+   "path": "phases/prompts/CP-110-authenticated-and-public-results-visibility.md",
+   "sha256": "4ad760ab68d9d6612ddf35d309deb80662f0b1152a69d1f2ad02f8be6533dd35"
+  },
+  {
+   "path": "phases/prompts/CP-111-deployment-recovery-and-operational-readiness.md",
+   "sha256": "6fd1512fcce73deff2272bde581f7fb0e2a5ca6ac2acac2ee7d94a9bf479b2f4"
+  },
+  {
+   "path": "phases/prompts/README.md",
+   "sha256": "31d7a313ae996608c3ce7ea445d8f09dc554df857420b484bd4463eb036738c1"
+  },
+  {
+   "path": "specification/README.md",
+   "sha256": "287f9679b8fd83015d6797537dd6115ed184598c77fc8b06cc5661d63b1e7fd6"
+  },
+  {
+   "path": "specification/capture/2026-09-23-operator-domain-and-surface-discussion.md",
+   "sha256": "31a6c7bfbb1fd1b7689f30946dc156ec8bba8cd56fa42600a2383cdd78bcf7fc"
+  },
+  {
+   "path": "specification/capture/2026-09-24-poker-night-inception.md",
+   "sha256": "7a90f1706359af3ade49adf251d9c020987341e3b601f2a678958c6ae7c8de00"
+  },
+  {
+   "path": "specification/consolidation/working-proposal/OPERATOR_AMBIGUITY_DOCKET.md",
+   "sha256": "ef3b76ff5cfdbc6b758dbd30334ef0c81198c57cdf8175d364f2091d59f37a2b"
+  },
+  {
+   "path": "specification/consolidation/working-proposal/PROPOSED_CANON_CHANGE_SET.md",
+   "sha256": "2845517575a06cd286dd9dee1923f0afb979b62e9d5a4c9a45071b974828e393"
+  },
+  {
+   "path": "specification/requirements/architecture-and-nfr-proposal.md",
+   "sha256": "a737f22a7d9a22ab226ce233d8183391ced5b7be4dc14a9dc3e6c26db0eed803"
+  },
+  {
+   "path": "specification/requirements/domain-and-surface-proposal.md",
+   "sha256": "fe5ac5e4bb21ffd5c50346e0ed6819de540297fc17a56aeace561724f3eaeae0"
+  },
+  {
+   "path": "specification/scrub/INCEPTION_SCRUB.md",
+   "sha256": "b32f105b85fb5dba9e9c533dc4658fd13844c398f63a0e46e97c587ab21a602e"
+  }
+ ],
+ "bundle_digest": "00fa39c71679b2a9db17066d679d8f743ad9f34c2f052012c5dbee9971b9bced"
+}
