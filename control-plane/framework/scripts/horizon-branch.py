@@ -23,6 +23,9 @@ import sys
 
 HORIZON_RE = re.compile(r"^H[0-8][0-9]{2}$")
 SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+ADMISSION_TIMING_STATUS_RE = re.compile(
+    r"^\?\? control-plane/state/timing/(?:LC-HORIZON__[^/]+\.jsonl|current/LC-HORIZON\.current)$"
+)
 
 
 def fail(message: str) -> None:
@@ -46,12 +49,18 @@ def repo_root() -> pathlib.Path:
 
 
 def worktree_status(root: pathlib.Path) -> list[str]:
-    return run_git(root, "status", "--porcelain").stdout.splitlines()
+    return run_git(root, "status", "--porcelain", "--untracked-files=all").stdout.splitlines()
 
 
-def require_clean_or_adopt(root: pathlib.Path, adopt_worktree: bool) -> list[str]:
+def only_active_admission_timing(status: list[str]) -> bool:
+    return bool(status) and all(ADMISSION_TIMING_STATUS_RE.fullmatch(entry) for entry in status)
+
+
+def require_clean_or_adopt(
+    root: pathlib.Path, adopt_worktree: bool, allow_admission_timing: bool = False
+) -> list[str]:
     status = worktree_status(root)
-    if status and not adopt_worktree:
+    if status and not adopt_worktree and not (allow_admission_timing and only_active_admission_timing(status)):
         fail(
             "working tree has outstanding changes; rerun with --adopt-worktree to include them "
             "in the new boundary"
@@ -126,7 +135,7 @@ def create_shape(args: argparse.Namespace) -> dict[str, str]:
 def create_admission(args: argparse.Namespace) -> dict[str, str]:
     root = repo_root()
     horizon = validate_horizon(args.horizon)
-    adopted_status = require_clean_or_adopt(root, args.adopt_worktree)
+    adopted_status = require_clean_or_adopt(root, args.adopt_worktree, allow_admission_timing=True)
     baseline_sha = fetch_target(root, args.remote, args.target)
     branch = f"admission/{horizon}"
     ensure_branch_absent(root, args.remote, branch)

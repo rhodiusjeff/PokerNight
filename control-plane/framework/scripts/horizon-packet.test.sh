@@ -192,6 +192,14 @@ land_shaping_and_checkout_admission() {
   git -C "$repo" switch --quiet --create "admission/$horizon"
 }
 
+write_active_admission_timing() {
+  local repo="$1"
+  mkdir -p "$repo/control-plane/state/timing/current"
+  printf '{}\n' > "$repo/control-plane/state/timing/LC-HORIZON__fixture.jsonl"
+  printf '%s\n' "$repo/control-plane/state/timing/LC-HORIZON__fixture.jsonl" \
+    > "$repo/control-plane/state/timing/current/LC-HORIZON.current"
+}
+
 printf 'TAP version 13\n'
 
 # Full Bash declaration + admission flow.
@@ -235,6 +243,41 @@ run_powershell_path "$repo" admit H000 --approval-evidence control-plane/horizon
 python3 "$repo/control-plane/framework/scripts/validate-horizon-trackers.py" --root "$repo"
 python3 "$repo/control-plane/framework/scripts/validate-horizon-packets.py" --root "$repo"
 pass "PowerShell invocation path reaches the same declaration and admission mechanics"
+
+# Active admission timing evidence does not weaken the protected-target or approval checks.
+fixture="$(new_fixture admission-timing)"
+repo="$fixture/repo"
+annotated_mint "$repo" H000
+checkout_shaping_branch "$repo" H000 admission-timing; baseline="$BASELINE"
+declared="$(run_bash_path "$repo" declare H000 --slug admission-timing --title "Admission Timing" --owner "Fixture Operator" --branch horizon/H000-admission-timing --target-branch main --baseline-sha "$baseline")"
+packet="$repo/$declared"
+proposed_tracker "$repo/proposed-tracker.json" H000
+prepare_bundle "$repo" "$packet" H000 proposed-tracker.json
+finalize_approval "$repo" "$packet" "Admission timing approval"
+land_shaping_and_checkout_admission "$repo" H000
+write_active_admission_timing "$repo"
+run_bash_path "$repo" admit H000 --approval-evidence control-plane/horizons/H000-admission-timing/approvals/HORIZON_ADMISSION_APPROVAL.md >/dev/null
+assert_eq "admitted" "$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["admission"]["status"])' "$packet/HORIZON_STATE.json")" "active admission timing permits admission"
+pass "active admission timing artifacts do not block admission"
+
+# Unrelated dirty paths remain a hard admission failure.
+fixture="$(new_fixture admission-dirty)"
+repo="$fixture/repo"
+annotated_mint "$repo" H000
+checkout_shaping_branch "$repo" H000 admission-dirty; baseline="$BASELINE"
+declared="$(run_bash_path "$repo" declare H000 --slug admission-dirty --title "Admission Dirty" --owner "Fixture Operator" --branch horizon/H000-admission-dirty --target-branch main --baseline-sha "$baseline")"
+packet="$repo/$declared"
+proposed_tracker "$repo/proposed-tracker.json" H000
+prepare_bundle "$repo" "$packet" H000 proposed-tracker.json
+finalize_approval "$repo" "$packet" "Admission dirty approval"
+land_shaping_and_checkout_admission "$repo" H000
+printf 'unexpected\n' > "$repo/unrelated.txt"
+set +e
+dirty_admission="$(run_bash_path "$repo" admit H000 --approval-evidence control-plane/horizons/H000-admission-dirty/approvals/HORIZON_ADMISSION_APPROVAL.md 2>&1)"; dirty_admission_rc=$?
+set -e
+[[ $dirty_admission_rc -ne 0 ]] || fail "unrelated dirty worktree must fail admission"
+assert_contains "$dirty_admission" "working tree must be clean" "unrelated admission dirt diagnostic"
+pass "unrelated dirty worktree still blocks admission"
 
 # Missing reservation rejects with no packet.
 fixture="$(new_fixture missing-reservation)"

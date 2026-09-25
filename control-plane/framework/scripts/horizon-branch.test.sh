@@ -91,4 +91,17 @@ repo="$(new_repo admission)"
 [[ "$(git -C "$repo" rev-parse HEAD)" == "$(git -C "$repo" rev-parse refs/remotes/origin/integration)" ]] || fail "admission branch baseline"
 pass "admission branch is created from the current remote target"
 
+repo="$(new_repo admission-timing)"
+mkdir -p "$repo/control-plane/state/timing/current"
+printf '{}\n' >"$repo/control-plane/state/timing/LC-HORIZON__fixture.jsonl"
+printf '%s\n' "$repo/control-plane/state/timing/LC-HORIZON__fixture.jsonl" >"$repo/control-plane/state/timing/current/LC-HORIZON.current"
+(cd "$repo" && python3 "$RUNTIME" admission H000 --target integration >"$ROOT/admission-timing.json")
+[[ "$(git -C "$repo" branch --show-current)" == "admission/H000" ]] || fail "timed admission branch checkout"
+pass "active admission timing artifacts do not block admission branch creation"
+
+repo="$(new_repo admission-dirty)"
+printf 'unexpected\n' >"$repo/unrelated.txt"
+expect_fail "rerun with --adopt-worktree" bash -c "cd '$repo' && python3 '$RUNTIME' admission H000 --target integration"
+pass "unrelated dirty worktree still blocks admission branch creation"
+
 printf '1..%d\n' "$COUNT"

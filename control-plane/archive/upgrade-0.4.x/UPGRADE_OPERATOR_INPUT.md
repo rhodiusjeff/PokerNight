@@ -25,3 +25,11 @@ required to keep that gate coherent.
 Operations remain `restricted` during cutover. No H000 admission preparation, admission, phase
 start, product implementation, or lifecycle execution proceeds until the repair is verified and the
 upgrade state is resolved.
+
+## 2026-09-25: UG-002 Admission Timing-Cleanliness Repair
+
+- Target: allow only the active `LC-HORIZON` timing JSONL and local current-pointer artifacts to
+  coexist with the admission branch-creation and admission runtime clean-tree checks.
+- Preserve: reject every other staged, modified, or untracked worktree change; preserve H000
+  bundle, approval, branch-tip, and tracker-authority checks.
+- Operations: remain `restricted` until the repair is verified.

@@ -23,7 +23,9 @@ Interpret arguments as `<HNNN> [--approval-evidence <path>]`. If omitted, infer 
 1. Instance state is operational and the horizon remains `inception`, unsealed, with a valid prepared bundle.
 2. Exactly one finalized approval/waiver is tracked and contains the current complete bundle digest.
 3. The shaping/preparation changes are visible unchanged on the recorded protected target.
-4. Working tree is clean and the recorded target ref is fetched/current.
+4. Working tree is clean and the recorded target ref is fetched/current. The active untracked
+	`LC-HORIZON` timing JSONL and local current pointer are the only permitted exception; every
+	other worktree change remains a refusal.
 5. Forge-readiness evidence is required only when current operating policy requires concurrent execution; absence must not be misreported as configured.
 
 ## Required Workflow
