@@ -1,5 +1,7 @@
 # Selective Control-Plane Upgrade
 
+## Historical Repairs: UG-001 And UG-002
+
 This packet records the 2026-09-25 selective repairs for `UG-001`, the profile/verdict mismatch in
 admission preparation, and `UG-002`, the admission timing-cleanliness conflict.
 
@@ -15,9 +17,11 @@ The upgrade packet remains as evidence. It does not admit H000 or authorize phas
 ## Active Repair: UG-003
 
 The Operator invoked a selective phase timing-routing repair on 2026-09-25, from `main` at
-`26dcc9c`. The instance is `upgrading`, operations are restricted, and cutover has not started.
-The current packet contains assessment and repair planning only; runtime implementation remains
-blocked on an authorized handoff. H000's existing admission and all timing evidence are preserved.
+`26dcc9c`. Cutover started with the local runtime edit on 2026-09-25. The repair is locally
+verified; integration and lifecycle completion remain pending. The instance stays `upgrading`
+with restricted operations. Reset is prohibited; resume or mop up the existing upgrade.
+H000's existing admission and all timing evidence are preserved. CP-101 session recovery and
+agent archival remain pending governed completion; this update does not retry phase preparation.
 
 - Active generated agent: `.github/agents/project-control-plane-upgrade.agent.md`.
 - Current status and blocker: `UPGRADE_STATUS.md`.

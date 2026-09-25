@@ -1,15 +1,20 @@
 # Upgrade Plan
 
-**Scope:** UG-003 phase timing routing assessment and repair handoff; UG-001/UG-002 history retained.
+**Scope:** UG-003 phase timing routing repair; UG-001/UG-002 history retained.
 
-**Cutover started:** no (UG-003)
+**Cutover started:** yes (UG-003 local runtime edit, 2026-09-25).
 
-**Current phase:** Assessed; authorized runtime repair path pending
+**Current phase:** Locally repaired and verified; integration and lifecycle completion pending.
+
+Reset is prohibited. Resume or mop up the existing upgrade; do not recreate the packet.
+The instance remains `upgrading` with restricted operations. Integration, governed completion,
+CP-101 session recovery, and agent archival remain outstanding. No lifecycle transition is
+authorized by this summary. The dated sections below preserve earlier snapshots, not current gates.
 
 **Prior completion:** UG-001/UG-002 completed 2026-09-25 after cutover started. Their completed
 history is not reset or reopened by this new repair entry.
 
-## Planned Work
+## Historical UG-001/UG-002 Planned Work
 
 1. Completed: inspect the current admission-preparation parser and its test coverage.
 2. Completed: define a fail-closed profile-to-verdict mapping for H000 and H001+ horizons.
@@ -39,7 +44,12 @@ history is not reset or reopened by this new repair entry.
 - Preserve the existing H001+ successor-admission gate.
 - Resume or mop up rather than reset after cutover begins.
 
-## UG-003 Execution And Cutover Plan
+## Historical UG-003 Assessment And Cutover Plan
+
+Assessment snapshot, 2026-09-25: cutover had not started and the authorized runtime repair path
+was pending. The numbered steps and assessment conclusion below retain that earlier meaning;
+the current summary above controls reset/resume decisions. Recovery and archival requirements
+in steps 7-8 remain outstanding.
 
 1. Completed: confirm baseline, selective scope, preservation requirements, and restricted posture
    with the Operator. Record instance state `upgrading` and the generated assessment agent.
@@ -69,11 +79,14 @@ history is not reset or reopened by this new repair entry.
 
 UG-003 is not repaired or verified yet. Passing packet validation does not close the runtime blocker.
 
-## 2026-09-25: UG-003 Repair Progress (Supersedes Assessment Status)
+## Historical 2026-09-25: UG-003 Repair Progress
 
-**Cutover started:** yes (local runtime edit, 2026-09-25).
+This snapshot records local verification before publication and review. It superseded the
+assessment snapshot at that time; the current summary above now controls reset/resume decisions.
 
-**Current phase:** Locally repaired and verified; review/integration and lifecycle completion pending.
+**Recorded cutover:** yes (local runtime edit, 2026-09-25).
+
+**Recorded phase:** Locally repaired and verified; review/integration and lifecycle completion pending.
 
 The Operator explicitly directed "proceed with the repair" following the repair handoff. Under
 the Steward's explicit cross-boundary directive rule, `timing-log.sh` now resolves the phase root

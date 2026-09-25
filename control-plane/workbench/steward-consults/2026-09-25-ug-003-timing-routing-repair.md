@@ -66,3 +66,18 @@ handoff, and durable CP-101/LC-UPGRADE JSONL evidence. Preserve the machine-loca
 pointer in the worktree without committing its absolute path. No ignore-policy change, session
 recovery, lifecycle completion, or phase retry is part of this publication request. The PR must
 state that the instance remains `upgrading` and completion/recovery remain pending.
+
+## 2026-09-25: Landing Check
+
+Operator question: "Do you think thre UG-003 repair landed ok?"
+
+The repair looks sound based on the reproduced failure and the previously passing 23 routing
+and 2 harvest checks, but it has not landed on `main`. A fresh fetch and GitHub query show PR #5
+still OPEN at head `2fd0040349997df1350d63d7372a6ded60336fb6`, with no merge commit, no merge
+timestamp, no review decision, and no reported CI checks. `origin/main` remains `26dcc9c` and
+does not contain the routing repair. This check did not rerun tests or perform a fresh full review.
+
+Publication succeeded; integration and upgrade completion have not. The repair branch still
+records `upgrading`, and the local CP-101 current pointer remains untracked. Review and merge of
+PR #5 must precede the planned upgrade completion and session recovery. No merge, lifecycle
+transition, or phase retry was invoked or performed by this advisory check.
