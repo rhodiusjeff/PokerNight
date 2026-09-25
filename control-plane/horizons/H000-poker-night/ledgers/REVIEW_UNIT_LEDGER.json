@@ -1,0 +1,27 @@
+{
+ "schema": "cpb-register-v1",
+ "register": "review-unit-ledger",
+ "title": "Poker Night Review Unit Ledger",
+ "scope": "lane",
+ "horizon": "H000",
+ "meta": {
+  "purpose": "Durable review-unit publication, merge, waiver, and supersession evidence for one horizon."
+ },
+ "columns": [
+  "review_unit_id",
+  "boundary_type",
+  "phase_ids",
+  "status",
+  "review_artifact",
+  "publication_commit_sha",
+  "merge_commit_sha",
+  "supersedes_notes"
+ ],
+ "entries": [],
+ "change_log": [
+  {
+   "date": "2026-09-25",
+   "entry": "Review-unit ledger initialized at horizon admission."
+  }
+ ]
+}
