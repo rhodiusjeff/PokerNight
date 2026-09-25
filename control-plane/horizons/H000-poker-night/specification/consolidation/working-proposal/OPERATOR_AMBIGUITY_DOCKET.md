@@ -68,19 +68,46 @@ filtered to a League, these figures are scoped to that League.
 
 **Status:** resolved by Operator decision.
 
+## ACC-06: Browser session, CSRF, rate-limit, and audit policy
+
+**Decision:** Browser authentication uses opaque server-side sessions in secure `HttpOnly` cookies,
+not JWT bearer tokens in browser storage or URLs. Sessions roll for 30 days and have a 90-day
+absolute lifetime. State-changing requests require same-origin protections: `SameSite=Lax`
+cookies, CSRF tokens, and strict origin/referrer validation. Verification sends are limited to
+three per mobile number per 15 minutes and code checks to five per number per 15 minutes, with
+deployment-configured IP-level abuse limits.
+
+**Affected candidates:** `CAND-ACC-001` through `CAND-ACC-005`, `CAND-INV-001`, `CAND-INV-002`;
+account, invitation, authorization, session, audit, and API work.
+
+**Implication:** SMS verification is required after session expiry or logout. Account
+block/unblock, authority changes, phone recovery, and logout revoke active sessions immediately.
+Recovery remains Platform-Admin-assisted with out-of-band identity confirmation, replacement-number
+SMS verification, reason, available prior-contact notification, and audit evidence. Audit records
+remain while their related product records exist; Platform Admins view all records, Commissioners
+view their League's records, and Players have no general audit-log view.
+
+**Status:** resolved by Operator decision.
+
 ## INV-01: Invitation expiry and resend policy
 
-**Question:** How long does an invitation remain claimable, and does resend extend that lifetime?
+**Decision:** A pending invitation expires after 14 days. An expired invitation remains visible
+with its history. Resending an expired invitation creates a new pending invitation cycle with a
+fresh 14-day expiry and new claim links; it does not rewrite the expired record.
 
 **Affected candidates:** `CAND-INV-001`, `CAND-INV-003`.
 
-**Operator decision:** Resend extends the invitation lifetime.
+**Implication:** SMS and, when present, email use the same idempotent claim flow; retries do not
+duplicate Accounts, Players, memberships, or authority grants, and mobile SMS verification remains
+required. Delivery does not auto-retry: a Commissioner sees outcomes and explicitly resends or
+corrects pending contact details after confirming permission to contact the prospect. SMS includes
+`Reply STOP to opt out`; Twilio Messaging handles `STOP` and `START`, and an opted-out number
+cannot receive invitation SMS until it opts back in. Poker Night does not send an email-only
+invitation because the SMS verification claim path would remain blocked. Signed, idempotent Twilio
+and Postmark callbacks record delivery/contact outcomes only and never claim an invitation or grant
+authority.
 
-**Current recommendation:** A pending invitation expires after 14 days. Each resend creates a new
-delivery attempt and refreshes the expiry from that resend; the invitation view displays the
-current expiry.
-
-**Status:** Duration remains open; resend behavior resolved by Operator decision.
+**Status:** resolved by Operator decision.
 
 ## INV-02: Duplicate pending invitations
 
@@ -128,15 +155,23 @@ timestamp; it notifies all active Season participants by SMS and, when present, 
 
 ## SEA-03: Closed-Season corrections and reopening
 
-**Decision:** Generic Season reopening is deferred until a concrete correction use case is shaped.
+**Decision:** Before any award payout is `disbursed`, a Platform Admin may reopen a closed Season
+only to correct a documented Commissioner-entry error in an official event or ledger fact. Sealed
+Season rules, configuration, eligibility rules, and award policy cannot be changed through this
+path. The Platform Admin records the reopening reason and authorizes an active Commissioner for
+that League to record the correction.
 
 **Affected candidates:** `CAND-LSE-003`; live-night, scoring, ledger, and public-results
 candidates.
 
-**Implication:** No generic reopen behavior is included in the current MVP candidate. Detailed
-post-final correction, recomputation, and revision behavior remains parked for later shaping.
+**Implication:** The correction creates an audit-preserved revision rather than overwriting the
+original fact. Poker Night recomputes affected standings, eligibility, purse, and award projections
+and notifies affected Season participants by SMS and, when present, email. The authorized
+Commissioner must explicitly review and reclose the Season before revised results are published.
+Once any award is `disbursed`, H000 does not reopen the Season, recover money, or issue a
+replacement payout.
 
-**Status:** deferred by Operator decision.
+**Status:** resolved by Operator decision.
 
 ## SEA-04: Season timezone and boundary interpretation
 
@@ -195,32 +230,34 @@ or event closure. When a Player cashes out, remove the self-reported count from 
 the Player as cashed out with their Commissioner-recorded official net-chip result in Event Ops and
 the player event experience.
 
-**Open detail:** Define whether a Player may replace or remove a posted count while the event is
-live, how the standings present active Players who have not posted a count, and the retention
-behavior for counts removed from view at cash-out.
+**Editing and retention:** While the event is open, a Player may replace or remove only their own
+self-reported count. Each post, replacement, and removal is timestamped in the audit history; the
+live experience shows only the current count. An active Player who has not posted a count remains
+listed as `Unreported`, with no inferred count or live-standing position. At cash-out, self-reported
+counts are removed from Event Ops, player, results, and public views; the audit history is retained
+under the existing audit-viewing policy.
 
-**Status:** authority, result semantics, and viewing audience resolved by Operator decision;
-editing and retention details remain open.
+**Status:** resolved by Operator decision.
 
 ## NIGHT-03: Rebuy confirmation and interruption handling
 
-**Direction:** A Commissioner starts a pending rebuy for an active entry, confirms external fee
-collection and points-chip issuance, then completes the rebuy. Only completion creates the
-official rebuy count, external-remittance record, and points-chip fact. A cashed-out entry cannot
-rebuy, and the Season's rebuy cap applies. The player event experience shows a pending rebuy as in
+**Decision:** During an open event, a Commissioner starts a pending rebuy for an active entry,
+confirms external fee collection and points-chip issuance, then completes it. A cashed-out entry
+cannot rebuy, the Season's rebuy cap applies, and the player experience shows a pending rebuy as in
 process without counting it as completed.
 
 **Affected candidates:** future event-operations, ledger, chip-conservation, and audit candidates.
 
-**Recommendation:** Make `Complete rebuy` unavailable until the Commissioner explicitly confirms
-both fee collection and chip issuance. Keep an interrupted rebuy visibly pending so the
-Commissioner can resume or cancel it, rather than silently losing the operational state.
+**Implication:** The Commissioner may cancel a pending rebuy while the event is open when the
+Player changes their mind. Any issued chips are collected and removed from play. If the external
+fee was collected, its external refund or retained-credit outcome is recorded before cancellation.
+The Commissioner may undo a completed rebuy while the event is open with a reason; the undo
+appends an audit-preserved reversal rather than deleting history, reverses the completed rebuy and
+chip facts, records the external money outcome, and recomputes conservation. Event closure is
+blocked while any rebuy is pending; Event Ops identifies the in-flight rebuys and requires each to
+be completed or cancelled.
 
-**Open detail:** Define whether a pending rebuy with fee already collected but chips not yet issued
-may be cancelled, and which audited correction path applies if a completed rebuy was entered in
-error.
-
-**Status:** proposed operational flow; interruption and correction policy remain open.
+**Status:** resolved by Operator decision.
 
 ## EVT-01: Commissioner League context and event-management resilience
 
@@ -233,17 +270,33 @@ Address entry uses debounced Google Maps autocomplete and shows the selected loc
 **Affected candidates:** future event-management, League-context, RSVP, notification, and
 deployment/integration candidates.
 
-**Recommendation:** When entering Commissioner workflows, automatically select the only
-authorized League; when more than one League is authorized, require a League choice before the
-first League-scoped action. Keep the active League visible and switchable throughout Commissioner
-surfaces, and enforce the same League authority server-side.
+**Implication:** Publishing does not open an event or authorize buy-ins. A scheduled event may be
+unpublished only before any RSVP. Draft and scheduled events may be cancelled; cancellation with
+RSVPs notifies those participants. An open event cannot be cancelled and instead closes through
+Event Ops and the correction flow. A sole authorized League is auto-selected; otherwise the
+Commissioner selects an active League at login, which is visible and switchable for that session
+only. Manual address entry remains usable on Maps failure, with explicit failure feedback and retry
+that preserves typed address. Server-side League authority applies throughout.
 
-**Open detail:** Define whether active League selection persists only for the session or is
-remembered for a later login; define map/autocomplete retry and manual-address fallback behavior;
-and define the draft-to-scheduled transition, cancellation, and attendee notification rules.
+**Status:** resolved by Operator decision.
 
-**Status:** required event fields and draft behavior resolved by Operator direction; Commissioner
-context and external-map resilience details remain open.
+## EVT-02: Event cancellation and live no-show waitlist offers
+
+**Decision:** Cancelling an event with RSVPs notifies every RSVP'd participant. During an open
+event, Event Ops provides a Commissioner-only `No show` action for an RSVP'd Player who has not
+bought in. Marking no-show releases the seat and immediately sends the next eligible waitlisted
+Player an SMS with accept and decline links.
+
+**Affected candidates:** `CAND-EVT-001`, `CAND-EVT-002`, `CAND-OPS-001`, and `CAND-VIS-001`;
+event-management, RSVP, messaging, live-operations, and audit work.
+
+**Implication:** An offer expires at the earlier of 15 minutes after SMS issuance or one hour after
+the event's posted start time. Decline or timely expiry advances the offer immediately to the next
+eligible waitlisted Player while the one-hour cutoff has not passed. After the cutoff, outstanding
+offers expire and the waitlist no longer advances. Offer acceptance must be concurrency-safe so no
+seat is overbooked; no-show, offer, acceptance, decline, and expiry are action-audited.
+
+**Status:** resolved by Operator decision.
 
 ## SEA-06: Ledger obligation and external remittance structure
 
@@ -267,6 +320,27 @@ to a Season or poker-night buy-in obligation.
 
 **Implication:** Poker Night records the external outcome and credit application as ledger
 adjustments, but never sends money or maintains a platform wallet.
+
+**Status:** resolved by Operator decision.
+
+## OPS-01: Production release, backup, recovery, and monitoring boundary
+
+**Decision:** A scheduled host process creates encrypted PostgreSQL backups to the NAS-backed
+`~/poker-night-backup` target every six hours and before any production migration or release.
+Keep 30 daily backups and 12 monthly backups. Recovery is manually initiated through a documented
+runbook, with $RPO = 6\text{h}$ and $RTO = 4\text{h}$; a full restore drill is required before
+public launch and quarterly afterward.
+
+**Affected candidates:** `WORK-CAND-SCH-001`; future deployment, release, backup/recovery,
+observability, migration, and operational-readiness work.
+
+**Implication:** Production releases use immutable images, migration and application smoke checks,
+and a retained prior application image for rollback. Irreversible database migrations require a
+verified backup/restore path. UX, API, PostgreSQL, and Cloudflare Tunnel health are independently
+checked, with alerts for backup failure/staleness, database disk pressure, delivery-provider
+failures, and webhook failures. Logs exclude credentials, verification codes, and bootstrap data.
+These controls may be the final MVP-readiness phase but must have evidence before the first
+production release holding real durable user data or claiming recoverability.
 
 **Status:** resolved by Operator decision.
 

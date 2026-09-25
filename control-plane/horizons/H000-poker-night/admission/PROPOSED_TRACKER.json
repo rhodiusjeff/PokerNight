@@ -1,0 +1,40 @@
+{
+  "schema": "cpb-horizon-tracker-v3",
+  "horizon": "H000",
+  "title": "H000 Poker Night Proposed Execution Laydown",
+  "meta": {
+    "status": "proposed-complete-laydown",
+    "purpose": "Pre-admission graph only; not TRACKER.json, execution authority, readiness, admission, review publication, or merge evidence.",
+    "resolution": "Explicit H000 on horizon/H000-poker-night; protected review target origin/main at 8973ba1efb6f0a936ffb16bdde0e0be3b108659a.",
+    "inputs": {
+      "proposed_change_set": "2845517575a06cd286dd9dee1923f0afb979b62e9d5a4c9a45071b974828e393",
+      "ambiguity_docket": "ef3b76ff5cfdbc6b758dbd30334ef0c81198c57cdf8175d364f2091d59f37a2b",
+      "domain_proposal": "fe5ac5e4bb21ffd5c50346e0ed6819de540297fc17a56aeace561724f3eaeae0",
+      "architecture_proposal": "a737f22a7d9a22ab226ce233d8183391ced5b7be4dc14a9dc3e6c26db0eed803",
+      "advisory_layout": "3a40b51b91005c3ceada6c0d643fa2902002f4ac8b6afc47a29fe87f0a1d0b79"
+    },
+    "vocabulary": "Pinned domain proposal owns proposed product vocabulary; it does not amend admitted Canon or installed control-plane terminology.",
+    "review_topology": "All nodes use durable self review boundaries. No grouped review unit, ledger row, publication, or merge evidence exists.",
+    "canonical_traceability_limit": "No H000 canonical requirement/story registries exist. Prompts use CAND-* and docket traceability only; no CPR/CPN/CUS/USC IDs are fabricated."
+  },
+  "status_vocabulary": {"not-started": {"glyph": "[ ]", "meaning": "Proposed but not started"}, "in-progress": {"glyph": "[~]", "meaning": "In progress after admission and explicit start"}, "closed": {"glyph": "[C]", "meaning": "Evidence frozen; publication pending"}, "in-review": {"glyph": "[R]", "meaning": "Published review evidence recorded"}, "done": {"glyph": "[D]", "meaning": "Merged review evidence recorded"}, "historical": {"glyph": "[-]", "meaning": "Historical and non-executable"}},
+  "nodes": [
+    {"seq":"P1-01","id":"CP-101","group":"P1","title":"Application and data foundation","execution_model":"Operator-selected","review_unit":"self:CP-101","status":"not-started","log":null,"review":null,"notes":"Proposed only."},
+    {"seq":"P1-02","id":"CP-102","group":"P1","title":"Identity, authentication, and audit","execution_model":"Operator-selected","review_unit":"self:CP-102","status":"not-started","log":null,"review":null,"notes":"Proposed only."},
+    {"seq":"P1-03","id":"CP-103","group":"P1","title":"League and Season governance","execution_model":"Operator-selected","review_unit":"self:CP-103","status":"not-started","log":null,"review":null,"notes":"Proposed only."},
+    {"seq":"P1-04","id":"CP-104","group":"P1","title":"Invitations, membership, and discipline","execution_model":"Operator-selected","review_unit":"self:CP-104","status":"not-started","log":null,"review":null,"notes":"Proposed only."},
+    {"seq":"P1-05","id":"CP-105","group":"P1","title":"Season participation and external ledger","execution_model":"Operator-selected","review_unit":"self:CP-105","status":"not-started","log":null,"review":null,"notes":"Proposed only."},
+    {"seq":"P2-01","id":"CP-106","group":"P2","title":"Event management, RSVP, and waitlist","execution_model":"Operator-selected","review_unit":"self:CP-106","status":"not-started","log":null,"review":null,"notes":"Proposed only."},
+    {"seq":"P2-02","id":"CP-107","group":"P2","title":"Live event operations","execution_model":"Operator-selected","review_unit":"self:CP-107","status":"not-started","log":null,"review":null,"notes":"Proposed only."},
+    {"seq":"P2-03","id":"CP-108","group":"P2","title":"Scoring, conservation, and closed results","execution_model":"Operator-selected","review_unit":"self:CP-108","status":"not-started","log":null,"review":null,"notes":"Proposed only."},
+    {"seq":"P2-04","id":"CP-109","group":"P2","title":"Season closeout and bounded correction","execution_model":"Operator-selected","review_unit":"self:CP-109","status":"not-started","log":null,"review":null,"notes":"Proposed only."},
+    {"seq":"P2-05","id":"CP-110","group":"P2","title":"Authenticated and public results visibility","execution_model":"Operator-selected","review_unit":"self:CP-110","status":"not-started","log":null,"review":null,"notes":"Proposed only."},
+    {"seq":"P3-01","id":"CP-111","group":"P3","title":"Deployment, recovery, and operational readiness","execution_model":"Operator-selected","review_unit":"self:CP-111","status":"not-started","log":null,"review":null,"notes":"Proposed only."}
+  ],
+  "edges": [
+    {"from":"CP-101","to":"CP-102","kind":"hard","rationale":"Identity requires the foundation."},{"from":"CP-101","to":"CP-103","kind":"hard","rationale":"League and Season source facts require the foundation."},{"from":"CP-102","to":"CP-103","kind":"hard","rationale":"Stewardship requires scoped authority."},{"from":"CP-103","to":"CP-104","kind":"hard","rationale":"Invitation/membership requires League scope."},{"from":"CP-102","to":"CP-104","kind":"hard","rationale":"Claim and discipline require Account authority."},{"from":"CP-104","to":"CP-105","kind":"hard","rationale":"Participation requires League membership."},{"from":"CP-103","to":"CP-105","kind":"hard","rationale":"Participation requires Season lifecycle/configuration."},{"from":"CP-105","to":"CP-106","kind":"hard","rationale":"RSVP eligibility requires participation."},{"from":"CP-103","to":"CP-106","kind":"hard","rationale":"Events require League/Season ownership."},{"from":"CP-106","to":"CP-107","kind":"hard","rationale":"Event Ops requires scheduled-event state."},{"from":"CP-105","to":"CP-107","kind":"hard","rationale":"Event Ops requires participation and money facts."},{"from":"CP-107","to":"CP-108","kind":"hard","rationale":"Scoring derives from official Event Ops facts."},{"from":"CP-103","to":"CP-108","kind":"hard","rationale":"Scoring uses sealed configuration."},{"from":"CP-105","to":"CP-108","kind":"hard","rationale":"Award input uses ledger facts."},{"from":"CP-108","to":"CP-109","kind":"hard","rationale":"Closeout requires derived results."},{"from":"CP-105","to":"CP-109","kind":"hard","rationale":"Correction/closeout use ledger lineage."},{"from":"CP-107","to":"CP-110","kind":"hard","rationale":"Live view uses Event Ops state."},{"from":"CP-108","to":"CP-110","kind":"hard","rationale":"Closed views use derived results."},{"from":"CP-109","to":"CP-111","kind":"hard","rationale":"Operational readiness protects finalization."},{"from":"CP-110","to":"CP-111","kind":"hard","rationale":"Operational readiness covers final viewer surfaces."}
+  ],
+  "linearized_order": ["CP-101","CP-102","CP-103","CP-104","CP-105","CP-106","CP-107","CP-108","CP-109","CP-110","CP-111"],
+  "approved": {"date":"2026-09-24","by":"Operator invocation of /shape-horizon-execution H000 --complete; proposed-laydown authorization only, not readiness, admission, execution, publication, or merge."},
+  "change_log": [{"date":"2026-09-24","change":"Created pre-admission complete proposed graph from pinned H000 inputs; all nodes remain not-started.","authority":"Operator-invoked complete laydown delegated to Project: Planning and Design"}]
+}

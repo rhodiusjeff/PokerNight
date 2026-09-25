@@ -39,8 +39,14 @@ Account and its complete history. A Commissioner cannot block an Account.
 This permits one person to be platform admin, commissioner, and player while retaining the distinct
 authority boundaries without creating unrelated accounts for one person. All roles authenticate
 through the verified mobile-phone identity; platform-admin permission does not require a separate
-email-authenticated login path. The exact authentication implementation, including SMS
-verification provider, remains a separate design decision.
+email-authenticated login path. Browser authentication uses an opaque, server-side session
+identifier in a secure `HttpOnly` cookie, not a JWT bearer token in browser storage or a URL.
+Sessions roll for 30 days and have a 90-day absolute lifetime; SMS verification is required again
+after expiry or logout. State-changing browser requests use `SameSite=Lax` cookies, CSRF tokens,
+and strict origin/referrer validation; the API rejects cross-origin mutations even when a browser
+carries a session cookie. Verification sends are limited to three per mobile number per 15 minutes
+and code checks to five per number per 15 minutes, with deployment-configured IP-level abuse
+limits.
 
 The first platform-admin Account is created or claimed when the deployment-configured bootstrap
 mobile number completes its first SMS verification. The configured number is deployment-only
@@ -53,6 +59,9 @@ new number. Once confirmed, the system updates the same Account immediately, rev
 sessions, notifies the old number and email contact when available, and records the full recovery
 action in the audit. Commissioner assistance does not grant authority to change an Account's login
 identity.
+
+Account block/unblock, authority changes, phone-number recovery, and logout revoke every active
+session for the affected Account immediately.
 
 A Platform Admin creates a League through League Management and assigns one or more Commissioners.
 An existing Account receives a League-scoped Commissioner assignment immediately. A Commissioner
@@ -96,12 +105,22 @@ attempts, expiry, and resolution.
 
 Every invitation is delivered by SMS to the invited mobile number. When an email address is present,
 the same invitation is delivered by email as well. Delivery attempts and outcomes retain their
-channel. The recipient follows either delivery path, authenticates by manually entering an SMS
-verification code in the browser when required, and claims the invitation using the invited mobile
-number. A claimed player invitation establishes the Account-to-Player link and League membership.
-A claimed commissioner invitation additionally grants league-scoped commissioner authority. An
-invitation may be pending, claimed, expired, revoked, or declined; it remains auditable after
-resolution.
+channel. A pending invitation expires after 14 days and remains visible as expired with its
+delivery and claim history. Resending an expired invitation creates a new pending invitation cycle
+with a fresh 14-day expiry and new claim links; it does not rewrite the expired record. The
+recipient follows either delivery path into the same idempotent claim flow, authenticates by
+manually entering an SMS verification code in the browser, and claims using the invited mobile
+number. Reopening either link or retrying a completed claim does not create duplicate Accounts,
+Players, memberships, or authority grants. A claimed player invitation establishes the
+Account-to-Player link and League membership. A claimed commissioner invitation additionally grants
+league-scoped commissioner authority. An invitation may be pending, claimed, expired, revoked, or
+declined; it remains auditable after resolution.
+
+Delivery does not auto-retry. A Commissioner sees delivery outcomes and explicitly resends or
+corrects pending contact details after confirming permission to contact the prospect. Invitation
+SMS includes `Reply STOP to opt out`. Twilio Messaging handles `STOP` and `START`; an opted-out
+number cannot receive a new invitation SMS or resend until it opts back in. Poker Night does not
+send an email-only invitation because the SMS verification claim path would remain blocked.
 
 A Player is minted only when a verified Account becomes an active League participant. For MVP,
 claiming a valid player invitation atomically creates the Player when that Account has no Player
@@ -163,11 +182,16 @@ rebuy, or cash-out fact.
 
 For a rebuy during an open event, Event Ops starts a pending rebuy for an active entry, then
 requires the Commissioner to confirm both external fee collection and rebuy points-chip issuance
-before completing it. A pending rebuy does not increment the entry's official rebuy count, add a
-ledger remittance, or change official chip facts. The player event experience shows that a rebuy is
-in process while it remains pending, but does not show it as completed. Completion creates the
-official rebuy fact and updates those records. The system must reject a new rebuy for a cashed-out
-entry and enforce the Season's configured rebuy limit.
+before completing it. A pending rebuy does not increment the entry's official rebuy count or show
+as completed in the player experience. During the open event, the Commissioner may cancel a
+pending rebuy when the Player changes their mind. Any issued chips must be collected and removed
+from play; when the external fee was collected, the Commissioner records its external refund or
+retained-credit adjustment before cancellation. During the open event, the Commissioner may undo a
+completed rebuy with a reason. The undo appends an audit-preserved reversal rather than deleting
+history, reverses the completed rebuy and chip facts, records the external money outcome, and
+recomputes conservation. The system must reject a new rebuy for a cashed-out entry and enforce the
+Season's configured rebuy limit. Event closure is blocked while any rebuy remains pending; Event
+Ops identifies those rebuys and requires the Commissioner to complete or cancel each one first.
 
 Event Management creates and schedules a poker-night event; Event Ops is the distinct Commissioner
 surface for operating it. A Commissioner manually opens the event in Event Ops at any time. The
@@ -181,19 +205,21 @@ event only after every bought-in Player has cashed out; scheduled end time neith
 permits premature closure. Closure enables the night's final-results publication.
 
 During a live event, the player event experience shows live status, bought-in Players, and each
-Player's Commissioner-recorded rebuy count. A Player may post a self-reported points-chip count.
-That count is voluntary, timestamped, and explicitly unofficial: it does not alter official chip
-facts, net-chip results, event points, cash-out, conservation checks, or closure eligibility.
-The experience shows explicitly unofficial live standings, each active Player's completed rebuy
-count and total issued points chips, Players who have cashed out with their official net-chip
-result, and confirmed RSVP Players who have not yet bought in. Total issued points chips are the
-starting stack plus chips issued through completed rebuys; they are not a cash value or a result.
-Any authenticated Player may view this live event information and closed final results for every
-League, regardless of their own League memberships. When a Player cashes out, their self-reported
-count is no longer shown; Event Ops and the player event experience show that Player as cashed out
-with the Commissioner-recorded official net-chip result. Final results show each official net-chip
-result and event-points result. The retention and correction behavior for self-reported counts
-remain to be shaped.
+Player's Commissioner-recorded rebuy count. A Player may post, replace, or remove their own
+self-reported points-chip count while the event is open. That count is voluntary, timestamped, and
+explicitly unofficial: it does not alter official chip facts, net-chip results, event points,
+cash-out, conservation checks, or closure eligibility. Each post, replacement, and removal remains
+in the audit history, while the live experience shows only the current count. The experience shows
+explicitly unofficial live standings, each active Player's completed rebuy count and total issued
+points chips, Players who have cashed out with their official net-chip result, and confirmed RSVP
+Players who have not yet bought in. An active Player who has not posted a count remains listed as
+`Unreported`, without an inferred count or live-standing position. Total issued points chips are
+the starting stack plus chips issued through completed rebuys; they are not a cash value or a
+result. Any authenticated Player may view this live event information and closed final results for
+every League, regardless of their own League memberships. When a Player cashes out, their
+self-reported counts are removed from Event Ops, player, results, and public views; Event Ops and
+the player event experience show that Player as cashed out with the Commissioner-recorded official
+net-chip result. Final results show each official net-chip result and event-points result.
 
 ## Event management
 
@@ -205,21 +231,36 @@ is system-derived rather than free text: `<league name> <season name> Poker Nigh
 An event requires an address, attendee limit, date, start time, and end time. Description is free
 text. Event date uses a date picker; start and end times use time pickers. The end must occur after
 the start when interpreted in the event's timezone, including an event that ends after midnight.
-The Commissioner can save an incomplete event as a draft, but a non-draft scheduled event must
-satisfy all required fields.
+The Commissioner can save an incomplete event as a draft and explicitly publish a valid draft as a
+scheduled event. Publishing neither opens the event nor authorizes buy-ins. A scheduled event may
+be unpublished only before anyone RSVPs. Draft and scheduled events may be cancelled; cancellation
+with RSVPs notifies those participants. An open event cannot be cancelled and instead closes
+through Event Ops and the correction flow.
+
+When the Commissioner has one authorized League, Poker Night auto-selects it. When the
+Commissioner has more than one, they select an active League at login; it remains visible and
+switchable for that session only and does not persist to a later login. Server-side authorization
+enforces the chosen League boundary.
 
 While editing the address, the form debounces input and uses Google Maps address autocomplete.
 Selecting an address shows its location on an embedded map in the create/edit surface. The form
-must provide explicit loading and failure feedback, and address entry must remain usable when the
-external Places or map service is unavailable. Exact fallback and retry behavior remains to be
-shaped.
+must provide explicit loading and failure feedback, and manual address entry must remain usable
+when the external Places or map service is unavailable. The Commissioner may retry the lookup
+without losing the typed address.
 
 ## Event capacity and waitlist
 
 A Commissioner sets maximum capacity when creating a Season poker-night event. Active or committed
 Season participants may RSVP until the event reaches capacity; later RSVPs join an ordered waiting
-list. When a confirmed player cancels, the next waiting-list player receives a time-limited seat
-offer and becomes confirmed only after accepting before that offer expires.
+list. Cancelling an event with RSVPs notifies every RSVP'd participant. During an open event, Event
+Ops provides a Commissioner-only `No show` action for an RSVP'd Player who has not bought in.
+Marking no-show releases the seat and immediately sends the next eligible waitlisted Player an SMS
+with accept and decline links. An offer expires at the earlier of 15 minutes after SMS issuance or
+one hour after the event's posted start time. Decline or timely expiry advances the offer
+immediately to the next eligible Player while the one-hour cutoff has not passed. After that
+cutoff, outstanding offers expire and the waitlist stops advancing. Acceptance is concurrency-safe:
+the first valid acceptance reserves the seat without exceeding capacity. No-show, offer,
+acceptance, decline, and expiry actions are action-audited.
 
 ## Season closeout and final results
 
@@ -237,8 +278,16 @@ A Commissioner may enter closeout only after every Season poker-night event is c
 Closeout review presents final standings, eligibility, the purse basis, projected awards, and payout
 readiness. The Commissioner records each external payout as `ready` and then `disbursed` once cash
 is handed over or an external cash-app transfer completes. Poker Night records these confirmations
-and audit evidence but never moves money. Generic Season reopening is deferred pending a concrete
-correction use case.
+and audit evidence but never moves money. Before any award payout reaches `disbursed`, a Platform
+Admin may reopen a closed Season only to correct a documented Commissioner-entry error in an
+official event or ledger fact; sealed Season rules, configuration, eligibility rules, and award
+policy are not correctable through reopening. The Platform Admin records the reopening reason and
+authorizes an active Commissioner for that League to record the correction. The correction creates
+an audit-preserved revision rather than overwriting the original fact; Poker Night recomputes
+affected standings, eligibility, purse, and award projections and notifies affected Season
+participants by SMS and, when present, email. The authorized Commissioner must explicitly review
+and reclose the Season before revised results are published. Once any award is `disbursed`, H000
+does not reopen the Season, recover money, or issue a replacement payout.
 
 The conceptual ownership chain is:
 
@@ -283,8 +332,8 @@ govern scoring, eligibility, money tracking, and award calculations.
 An active Season's end date may be changed by the Commissioner only with an explicit confirmation
 and reason. The system records the before/after dates, acting Commissioner, reason, and timestamp
 in the action audit, then notifies every active Season participant by SMS and, when an email address
-is present, email. A Platform Admin may reopen a closed Season for a bounded correction with a
-reason and audit evidence; detailed closeout and correction workflows remain to be shaped.
+is present, email. Closed-Season corrections follow the bounded reopening, correction, recomputation,
+notification, and Commissioner reclose workflow defined above.
 
 Commissioners can view all League invitations throughout the League's lifetime, including claimed
 invitations, and filter them by status. The invitation view displays each delivery attempt and its
@@ -361,8 +410,16 @@ resolution; player and membership changes; season and configuration changes; pok
 and RSVP changes; live-night chip facts and closure overrides; ledger, refund, retained-credit,
 and payout-confirmation changes; and access-control or public-link changes.
 
+Twilio Messaging status and inbound-message callbacks, plus Postmark delivery, bounce, and
+complaint callbacks, update durable delivery and SMS-contact facts. Each callback path verifies the
+provider signature and processes a provider event idempotently. Provider callbacks never claim an
+invitation, grant authority, or decide invitation validity.
+
 The action audit is not a replacement for domain records. It explains who changed the source facts
 and when; it does not become the source of truth for scoring, money tracking, or authorization.
+Audit records remain while their related product records exist. Platform Admins may view all audit
+records; Commissioners may view records for their own League; Players have no general audit-log
+view.
 
 ## Money boundary
 
@@ -445,7 +502,10 @@ cached but must be reproducible from source facts and the applicable season conf
 - A closed poker night requires a final stack for every entry.
 - Closing is blocked on chip-conservation mismatch unless the commissioner records an override
   note.
-- Corrections after closure recompute derived results and produce an audit record.
+- Closing is blocked while a rebuy is pending until the Commissioner explicitly completes or
+  cancels it.
+- A post-close Season correction is Platform-Admin-only, requires an audit-preserved revision, and
+  recomputes derived results only before any award payout is `disbursed`.
 
 ## Decisions still required
 

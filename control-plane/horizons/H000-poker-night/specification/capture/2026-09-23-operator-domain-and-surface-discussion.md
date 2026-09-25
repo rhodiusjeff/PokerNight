@@ -70,6 +70,25 @@ email may remain a contact or notification channel.
   resolved when the recipient responds, rather than being treated as a transient message only.
 - Poker Night requires an action-audit system that captures salient operational actions.
 
+## Later operator decision: browser session and audit security profile
+
+- Browser authentication uses an opaque, server-side session identifier in a secure `HttpOnly`
+  cookie, not a JWT bearer token in browser storage or a URL. Sessions roll for 30 days and have a
+  90-day absolute lifetime; SMS verification is required again after expiry or logout.
+- State-changing browser requests use same-origin protections, including `SameSite=Lax` cookies,
+  CSRF tokens, and strict origin/referrer validation. The API rejects cross-origin mutations even
+  when a browser carries a session cookie.
+- Verification sends are limited to three per mobile number per 15 minutes and code checks to five
+  per mobile number per 15 minutes. IP-level limits supplement those per-number limits; their
+  operational thresholds are deployment configuration rather than product data.
+- Account block/unblock, authority changes, phone-number recovery, and logout revoke the Account's
+  active sessions immediately. Recovery remains Platform-Admin-assisted, with an out-of-band
+  identity check, SMS verification of the replacement number, a reason, prior-contact notification
+  when available, and action-audit evidence.
+- Audit records remain while their related product records exist. Platform Admins may view all
+  audit records; Commissioners may view records for their own League; Players have no general
+  audit-log view.
+
 ## Later operator decision: public visibility and League share links
 
 - A League may expose a limited public read-only view through a League-owned share link. An
@@ -96,6 +115,26 @@ email may remain a contact or notification channel.
 An invitation is always delivered by SMS to the invited mobile number. When the invitation record
 also contains an email address, the system delivers the same invitation by email. Both channels
 belong to the same invitation and are individually recorded.
+
+## Later operator decision: invitation expiry, claim, and delivery outcomes
+
+- A pending invitation expires after 14 days. It remains visible as expired with its delivery and
+  claim history. Resending an expired invitation creates a new pending invitation cycle with a
+  fresh 14-day expiry and new claim links; it does not rewrite the expired record.
+- SMS and, when present, email use links to the same idempotent claim flow. Reopening either link
+  or retrying a completed claim does not create duplicate Accounts, Players, memberships, or
+  authority grants; mobile SMS verification remains required for identity.
+- Delivery does not auto-retry. A Commissioner sees delivery outcomes and explicitly resends or
+  corrects pending contact details. The Commissioner confirms permission to contact the prospect
+  before sending an invitation.
+- Invitation SMS includes `Reply STOP to opt out`. Twilio Messaging handles `STOP` and `START`;
+  an opted-out number cannot receive a new invitation SMS or resend until it opts back in. Poker
+  Night does not send an email-only invitation because the SMS verification claim path would still
+  be blocked.
+- Twilio Messaging status and inbound-message callbacks, plus Postmark delivery, bounce, and
+  complaint callbacks, update durable delivery/contact facts. Provider callbacks are signature-
+  verified and idempotent; they do not claim invitations, grant authority, or determine invitation
+  validity.
 
 ## Later operator decision: durable account lifecycle
 
@@ -164,6 +203,16 @@ entries contribute to that Season's points, net chips, eligibility, and award ca
 - A Platform Admin may reopen a closed Season for a bounded correction with reason and audit
   evidence. Detailed Season-closeout use cases remain to be shaped.
 
+## Later operator decision: bounded post-close Season correction
+
+- A Platform Admin may reopen a closed Season only before any award payout reaches `disbursed`,
+  and only to correct an erroneous Commissioner-recorded source fact.
+- The correction creates an audit-preserved revision rather than overwriting the original fact.
+  Poker Night recomputes affected standings, eligibility, purse, and award projections from the
+  revised facts, then notifies affected Season participants by SMS and, when present, email.
+- After any award payout is `disbursed`, Poker Night does not reopen the Season, recover money, or
+  issue a replacement payout. Any resulting external dispute is outside the H000 correction flow.
+
 ## Later operator decisions: scoring metrics and finish points
 
 - Poker-night and Season ranking use the net-chip calculation, not raw final cash-out stack.
@@ -228,6 +277,14 @@ historical input.
   committed Season participants RSVP until capacity is reached; later RSVPs join an ordered
   waiting list. When a seat opens, the next player receives a time-limited offer and must accept it
   before the seat is confirmed.
+- When a Commissioner cancels an event with RSVPs, Poker Night notifies every RSVP'd participant.
+  During an open event, Event Ops presents a Commissioner-only `No show` action for RSVP'd Players
+  who have not bought in. Marking a no-show releases the seat and immediately sends the next
+  eligible waitlisted Player an SMS with accept and decline links.
+- An SMS seat offer expires at the earlier of 15 minutes after it is sent or one hour after the
+  event's posted start time. A decline or timely expiry immediately advances to the next eligible
+  waitlisted Player while that one-hour cutoff has not passed. After the cutoff, outstanding offers
+  expire and the waitlist stops advancing.
 - Award eligibility requires active or committed Season participation and the configured minimum
   number of completed poker-night entries. All Season participants appear in standings, while
   ineligible participants cannot receive Champion, Runner-up, Third, or Biggest Winner awards.
@@ -296,6 +353,16 @@ historical input.
   event fact only when the Commissioner completes that confirmation.
 - While a rebuy is pending, the player event experience shows that the rebuy is in process. It is
   not reflected as a completed rebuy until the Commissioner completes it.
+- During an open event, the Commissioner may cancel a pending rebuy when the Player changes their
+  mind. If chips were already handed out, the Commissioner collects and removes them from play. If
+  the external fee was already collected, the Commissioner records its external refund or retained
+  credit outcome before cancellation.
+- During an open event, the Commissioner may undo a completed rebuy with a reason. The undo
+  appends an audit-preserved reversal rather than deleting history, returns any issued chips from
+  play, records any refund or retained-credit outcome, and recomputes official rebuy, chip, and
+  conservation facts.
+- A Commissioner cannot close an event while any rebuy is pending. Event Ops identifies each
+  in-process rebuy and requires the Commissioner to complete or cancel it before closure proceeds.
 
 ## Later operator requirements: event management
 
@@ -311,6 +378,20 @@ historical input.
 - A Commissioner may save an event as a draft.
 - A Commissioner with authority in multiple Leagues needs a League context for Commissioner
   workflows. The exact selection and switching behavior remains for product-design confirmation.
+
+## Later operator decision: event publication, cancellation, and context
+
+- A Commissioner may save an incomplete event as a draft and explicitly publish a valid draft as a
+  scheduled event. Publishing neither opens the event nor authorizes buy-ins.
+- A Commissioner may unpublish a scheduled event only before anyone RSVPs. Draft and scheduled
+  events may be cancelled; cancelling an event with RSVPs notifies those participants. An open
+  event cannot be cancelled and instead closes through Event Ops and the correction flow.
+- When a Commissioner has one authorized League, Poker Night selects it automatically. When they
+  have more than one, they choose an active League at login; the choice remains visible and
+  switchable for that session only and does not persist to a later login.
+- Google Maps autocomplete and map display are convenience features. Manual address entry remains
+  usable when either provider feature fails, the failure is shown explicitly, and the Commissioner
+  can retry without losing the typed address.
 
 ## Later operator decisions: deployment, data platform, and integrations
 
@@ -367,6 +448,24 @@ historical input.
 - Define whether an Access-protected public staging route is needed before production.
 - Define outbound-message retry, idempotency, provider-webhook signature handling, and the
   callback-route policy for Twilio and Postmark.
+
+## Later operator decision: operational release and recovery profile
+
+- A scheduled host process backs up PostgreSQL to the encrypted NAS-backed
+  `~/poker-night-backup` target every six hours and before any production migration or release.
+  Retain 30 daily backups and 12 monthly backups.
+- Recovery is manually initiated through a documented runbook, never automatically. H000 targets a
+  six-hour recovery point objective and four-hour recovery time objective. A full restore drill is
+  required before public launch and quarterly afterward.
+- Production releases use immutable container images, migration and application smoke checks, and a
+  retained prior application image for rollback. An irreversible database migration requires a
+  verified backup/restore path rather than an image-only rollback.
+- UX, API, PostgreSQL, and Cloudflare Tunnel health are independently checked. Operators receive
+  alerts for backup failure or staleness, database disk pressure, delivery-provider failures, and
+  provider-webhook failures. Logs exclude credentials, verification codes, and bootstrap data.
+- These operational controls form a final MVP-readiness phase and may be implemented after the
+  product workflow is validated, but must be complete with evidence before the first production
+  release that holds real durable user data or claims recoverability.
 
 ## Source status
 

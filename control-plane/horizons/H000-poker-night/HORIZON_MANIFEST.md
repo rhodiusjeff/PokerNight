@@ -11,8 +11,8 @@
 - Packet root: `control-plane/horizons/H000-poker-night/`
 - State authority: `HORIZON_STATE.json`
 - Admission and approval context: Declared; no execution authority until admission evidence is recorded in `HORIZON_STATE.json`.
-- Expected first prompt ID: To be shaped during consolidation from the captured originating handoff
-	and working proposal.
-- Expected last prompt ID: To be shaped during consolidation from the captured originating handoff
-	and working proposal.
+- Proposed first prompt ID: `CP-101` — Application and data foundation.
+- Proposed last prompt ID: `CP-111` — Deployment, recovery, and operational readiness.
+- Proposed execution graph: `admission/PROPOSED_TRACKER.json` and `phases/prompts/CP-101` through
+	`CP-111`; these artifacts are proposed planning only and do not create execution authority.
 - Notes: Declared from annotated reservation `horizon/H000`.

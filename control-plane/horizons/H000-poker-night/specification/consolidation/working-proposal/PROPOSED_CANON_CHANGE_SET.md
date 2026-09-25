@@ -12,7 +12,9 @@ live Event Ops, scoring and closure, and authenticated and public results visibi
 - `specification/capture/2026-09-23-operator-domain-and-surface-discussion.md`, SHA-256
   `b907fd8b8f125039d751a295cd9bf260dc17db7d18a8cadb88744de269870329`.
 - `specification/requirements/domain-and-surface-proposal.md`, SHA-256
-  `72548509e1d5af996187847149e22af499812ca1ce483130fb84c3440b66bfc4`.
+  `fe5ac5e4bb21ffd5c50346e0ed6819de540297fc17a56aeace561724f3eaeae0`.
+- `specification/requirements/architecture-and-nfr-proposal.md`, SHA-256
+  `a737f22a7d9a22ab226ce233d8183391ced5b7be4dc14a9dc3e6c26db0eed803`.
 - `specification/capture/2026-09-24-poker-night-inception.md`, SHA-256
   `7a90f1706359af3ade49adf251d9c020987341e3b601f2a678958c6ae7c8de00`.
 - `specification/scrub/INCEPTION_SCRUB.md`, SHA-256
@@ -64,6 +66,17 @@ the money-and-points terms listed above at its C03 source pin. `S02-F01` explici
 recorded external-money facts from payment obligations; an external refund or prize handoff is
 recorded but not performed by Poker Night. No new alias, candidate key, or ambiguity-docket item
 is introduced.
+
+## Consolidation Pass C04
+
+**Disposition:** Refresh the working candidate set's requirement provenance after the resolved
+`NIGHT-02` and `SEA-03` details and architecture-decision refresh. This pass adds the architecture
+proposal as an explicit source and updates the domain-proposal digest. It retains every candidate
+key and does not change candidate meaning, scope, dependencies, or authority.
+
+**Provenance relationship:** The preceding C02/C03 digests remain historical evidence of those
+passes. The current source list above is the definition and constraint revision consumed by the
+proposed tracker and Phase prompts.
 
 These are local candidate keys, not admitted Canon, `CUS-*`, or `USC-*` identities.
 
@@ -418,12 +431,16 @@ actually occurred.
   dollars; remaining amount is house remainder, not a prize or platform fee.
 - Each award payout progresses from `projected` to Commissioner-confirmed `ready` and then
   Commissioner-confirmed `disbursed`; confirmations are action-audited and never transfer money.
-- Generic Season reopening is deferred pending a concrete correction use case.
+- Before any award payout is disbursed, a Platform Admin may reopen a closed Season only for a
+  documented Commissioner-entry error in an official event or ledger fact. The admin authorizes an
+  active League Commissioner to record an audit-preserved correction, recomputes affected outputs,
+  notifies affected participants, and requires explicit Commissioner reclose before publication.
+  Reopening cannot alter sealed rules, configuration, eligibility rules, or award policy.
 
 **Provenance:** Operator closeout, purse, rounding, and payout-workflow decisions recorded in the
 included capture.
 
-**Status:** proposed; post-final correction/revision behavior remains deferred.
+**Status:** proposed; see ambiguity docket `SEA-03`.
 
 ## Candidate CAND-LSE-001: MVP League Bootstrap And Stewardship
 
@@ -518,8 +535,11 @@ competitive play begins.
 - A Commissioner may change an active Season's end date only through explicit confirmation and a
   recorded reason; the system audits the change and notifies every active Season participant by SMS
   and, when present, email.
-- A Platform Admin may reopen a closed Season only for a bounded correction with reason and audit
-  evidence; detailed closeout workflow remains to be shaped.
+- Before any award payout is disbursed, a Platform Admin may reopen a closed Season only for a
+  documented Commissioner-entry error in an official event or ledger fact. The reopening reason,
+  correction revision, affected-output recomputation, participant notifications, and required
+  Commissioner reclose are audit-preserved; reopening cannot alter sealed rules, configuration,
+  eligibility rules, or award policy.
 
 **Provenance:** Originating handoff and operator discussion on Season dates, rule immutability, and
 buy-in participation.
@@ -644,15 +664,17 @@ rather than silently changing a result.
   minimum; all Season participants remain visible in standings.
 - Awards derive only from recorded external remittances and adjustments, use whole-dollar tie
   handling, and record unallocated rounding money as house remainder.
-- Post-closure corrections produce audit evidence and recompute derivations; their detailed
-  revision workflow remains unshaped.
+- Before any award payout is disbursed, a Platform Admin may authorize an active League
+  Commissioner to record an audit-preserved correction to a documented Commissioner-entry error in
+  an official event or ledger fact. The correction recomputes derivations, notifies affected
+  participants, and requires an explicit Commissioner reclose before revised results are published;
+  it cannot revise sealed rules, configuration, eligibility rules, or award policy.
 
 **Provenance:** Operator scoring, chip-conservation, money-boundary, and Season-closeout decisions;
 the originating handoff's conflicting fixed scoring and Champion-remainder rules are superseded by
 scrub disposition `S01-F04`.
 
-**Status:** proposed; correction/revision workflow and any resulting participant notifications
-remain unresolved.
+**Status:** proposed; see ambiguity docket `SEA-03`.
 
 ## Candidate CAND-VIS-001: Authenticated And Public Results Visibility
 

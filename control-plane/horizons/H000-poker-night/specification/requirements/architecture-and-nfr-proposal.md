@@ -75,6 +75,12 @@ revision.
 
 - The API independently enforces Account authentication, role authorization, League scope, and
   public-share scope. Docker networks reduce exposure but do not replace API authorization.
+- Browser authentication uses revocable opaque server-side sessions in secure `HttpOnly`,
+  `SameSite=Lax` cookies, not JWT browser bearer tokens. State-changing requests require CSRF
+  tokens and strict origin/referrer validation.
+- Verification endpoints enforce the approved per-number send/check limits and deployment-
+  configured IP-level abuse limits. Session revocation is durable and immediate for logout, account
+  block/unblock, authority changes, and phone-number recovery.
 - API and PostgreSQL services remain private. Public webhooks later use dedicated callback paths,
   provider-signature verification, idempotency, and narrowly scoped Cloudflare configuration.
 - Live operations require server-acknowledged persistence, idempotent mutation handling, and
@@ -82,13 +88,25 @@ revision.
 
 ### Availability and recovery
 
-- The AI-M1 path `~/poker-night-backup` is an intended NAS-backed backup target, not evidence of a
-  working recovery system.
-- Production must define encrypted off-host backup format, cadence, retention, monitoring, restore
-  drills, recovery-point objective, and recovery-time objective before it claims recoverability.
-- UX, API, database, and tunnel health need independent checks. Operational signals include tunnel
-  loss, database disk pressure, failed backups, failed delivery integrations, and provider webhook
-  failures.
+- A scheduled host process creates encrypted PostgreSQL backups to the NAS-backed
+  `~/poker-night-backup` target every six hours and before any production migration or release.
+  Retain 30 daily backups and 12 monthly backups.
+- Recovery is manually initiated through a documented runbook, never automatically. The target is
+  $RPO = 6\text{h}$ and $RTO = 4\text{h}$. A full restore drill is required before public launch
+  and quarterly afterward.
+- UX, API, PostgreSQL, and Cloudflare Tunnel health need independent checks. Operational alerts
+  cover tunnel loss, database disk pressure, backup failure or staleness, failed delivery
+  integrations, and provider webhook failures. Logs must exclude credentials, verification codes,
+  and bootstrap data.
+
+### Release boundary
+
+- Production releases use immutable container images, migration and application smoke checks, and a
+  retained prior application image for rollback. An irreversible database migration requires a
+  verified backup/restore path rather than an image-only rollback.
+- Backup, recovery, release, rollback, monitoring, and alerting implementation may be the final
+  MVP-readiness phase after product workflows are validated. They must be complete with evidence
+  before the first production release that holds real durable user data or claims recoverability.
 
 ### Provider resilience
 
@@ -96,6 +114,10 @@ revision.
   feedback. Provider availability does not change authorization or source-fact integrity.
 - A failed or pending provider configuration blocks only the affected delivery behavior, not the
   database, API, or unrelated user stories.
+- Twilio Messaging status and inbound-message callbacks, plus Postmark delivery, bounce, and
+  complaint callbacks, use dedicated API callback paths with provider-signature verification and
+  idempotent event handling. They update delivery/contact facts only; they never claim invitations,
+  grant authority, or decide invitation validity.
 
 ## Schema-Shaping Order
 
@@ -113,15 +135,17 @@ revision.
 
 ## Open Decisions
 
-- Authentication session lifetime, CSRF posture, phone-recovery workflow, rate-limit policy, and
-  audit retention/viewing policy.
+- Authentication session, CSRF, phone-recovery, rate-limit, and audit-viewing policies are resolved
+  in ambiguity docket `ACC-06`; their physical session, rate-limit, and audit-record designs remain
+  schema and implementation work.
 - Exact production Compose layout, runtime-secret injection mechanism, release/rollback procedure,
   logging, monitoring, and alerting implementation.
-- Backup encryption, NAS ownership/capacity, retention, recovery objectives, and restore-test
-  cadence.
+- Backup encryption mechanism and NAS ownership/capacity remain operational implementation work;
+  the backup schedule, retention, recovery objectives, and restore-test cadence are resolved in
+  ambiguity docket `OPS-01`.
 - Public staging route need, hostname, and Cloudflare Access policy.
-- Messaging-outbox design, retry limits, user consent and opt-out behavior, and Postmark/Twilio
-  webhook inclusion timeline.
+- Messaging-outbox and provider-adapter design plus webhook rollout timing. Invitation delivery,
+  opt-out, retry, callback, and identity-boundary policy are resolved in `INV-01`.
 
 ## Non-Authority Notice
 

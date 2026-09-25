@@ -23,7 +23,10 @@ singular inception packet. Default tracker: the packet's `admission/PROPOSED_TRA
 ## Required Workflow
 
 1. Resolve the packet, require `admission.status=inception`, and verify the active shaping branch/baseline.
-2. Require a current readiness report whose reviewed inputs still match and whose verdict is `Ready for horizon admission review`; otherwise stop.
+2. Require a current readiness report whose reviewed inputs still match and whose declared profile
+	and verdict satisfy the fail-closed admission mapping: H000 requires
+	`implementation-baseline` with `Ready for implementation-baseline review`; H001+ requires
+	`successor-admission` with `Ready for successor-admission review`. Otherwise stop.
 3. Run `python3 control-plane/framework/scripts/horizon-packet.py prepare <HNNN> --tracker <path>`.
 4. Verify `admission/ADMISSION_BUNDLE.json` contains the baseline, shaping branch, proposed tracker, one complete prompt per executable node, and digests for packet specification/coordination/prompt files.
 5. Run packet/tracker/sanity validation and confirm no executable `TRACKER.json` exists.

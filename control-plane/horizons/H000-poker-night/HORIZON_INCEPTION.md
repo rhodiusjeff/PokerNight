@@ -41,12 +41,13 @@ requirement or implementation contract is admitted by this inception packet.
 ## Admission readiness questions
 
 - What is the expected admission gate?
-- What tracker shape and first phase family are expected?
-- What phase nodes, typed dependency edges, and proposed linearized order constitute the embedded
-	dependency DAG? The operator has not selected these yet.
+- The complete proposed laydown is recorded in `admission/PROPOSED_TRACKER.json` with proposed
+	`CP-101` through `CP-111` prompts under `phases/prompts/`. It defines the candidate DAG,
+	proposed linearized order, and self review boundaries; it remains pre-admission planning only.
 - Which requirements and acceptance evidence must be complete before admission?
 
 ## Open questions and decisions needed
 
 - Identify environment dependencies and integration constraints.
-- Define the admission gate, tracker shape, first phase family, and embedded dependency DAG.
+- Resolve planning-baseline review findings, then obtain a fresh named readiness verdict before
+	admission preparation.

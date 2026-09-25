@@ -347,8 +347,11 @@ Context-specific examples:
 
 There is no unconditional default string. When `--profile` is omitted, the Facilitator infers from
 packet intent and asks when ambiguous. For an H001+ packet with proposed executable phases,
-`successor-admission` is the expected choice. Readiness is advisory: `Ready for horizon admission
-review` is not approval and does not admit the packet.
+`successor-admission` is the expected choice. Admission preparation accepts a current, matching
+profile/verdict pair: H000 requires `implementation-baseline` with `Ready for
+implementation-baseline review`; H001+ requires `successor-admission` with `Ready for
+successor-admission review`. `planning-baseline`, missing, malformed, or mismatched reports are
+ineligible. Readiness is advisory and does not admit the packet.
 
 ### Approval or waiver
 

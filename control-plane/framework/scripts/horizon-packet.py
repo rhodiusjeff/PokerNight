@@ -45,6 +45,8 @@ import uuid
 HORIZON_RE = re.compile(r"^H[0-8][0-9]{2}$")
 SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 ISO_RE = re.compile(r"^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}Z)?$")
+READINESS_PROFILE_RE = re.compile(r"(?m)^\s*\*\*Profile:\*\*\s*`?([a-z][a-z-]*)`?\s*$")
+READINESS_VERDICT_RE = re.compile(r"(?m)^\s*\*\*Verdict:\*\*\s*(Ready for [a-z][a-z-]* review)\s*$")
 
 
 def fail(message):
@@ -102,6 +104,26 @@ def validate_slug(value):
     if not SLUG_RE.fullmatch(value):
         fail("slug must be lowercase kebab-case")
     return value
+
+
+def required_readiness_contract(horizon):
+    if horizon == "H000":
+        return "implementation-baseline", "Ready for implementation-baseline review"
+    return "successor-admission", "Ready for successor-admission review"
+
+
+def validate_readiness_for_preparation(path, horizon):
+    text = path.read_text()
+    profiles = READINESS_PROFILE_RE.findall(text)
+    verdicts = READINESS_VERDICT_RE.findall(text)
+    if len(profiles) != 1 or len(verdicts) != 1:
+        fail("horizon readiness report must declare one Profile and one Verdict")
+    expected_profile, expected_verdict = required_readiness_contract(horizon)
+    if profiles[0] != expected_profile or verdicts[0] != expected_verdict:
+        fail(
+            "horizon readiness report is not eligible for admission preparation: "
+            f"expected {expected_profile!r} with {expected_verdict!r}"
+        )
 
 
 def load_json(path):
@@ -586,9 +608,7 @@ def prepare(args):
     readiness_path = target / "approvals/HORIZON_READINESS_REVIEW.md"
     if not readiness_path.is_file():
         fail("HORIZON_READINESS_REVIEW.md is required before admission preparation")
-    readiness_text = readiness_path.read_text()
-    if "Ready for horizon admission review" not in readiness_text:
-        fail("horizon readiness verdict is not Ready for horizon admission review")
+    validate_readiness_for_preparation(readiness_path, args.horizon)
     tracker_source = pathlib.Path(args.tracker)
     if not tracker_source.is_absolute():
         tracker_source = (root / tracker_source).resolve()
