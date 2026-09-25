@@ -13,9 +13,9 @@
  "env": "macOS M1; Docker; Cloudflare route",
  "dependencies": [],
  "admission": {
-  "status": "inception",
-  "recorded_at": "2026-09-25T04:06:01Z",
-  "evidence": "admission/ADMISSION_BUNDLE.json",
+  "status": "admitted",
+  "recorded_at": "2026-09-25T04:28:09Z",
+  "evidence": "approvals/HORIZON_ADMISSION_APPROVAL.md",
   "bundle_digest": "00fa39c71679b2a9db17066d679d8f743ad9f34c2f052012c5dbee9971b9bced"
  },
  "closure": {
