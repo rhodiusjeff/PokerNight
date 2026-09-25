@@ -47,6 +47,9 @@ SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 ISO_RE = re.compile(r"^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}Z)?$")
 READINESS_PROFILE_RE = re.compile(r"(?m)^\s*\*\*Profile:\*\*\s*`?([a-z][a-z-]*)`?\s*$")
 READINESS_VERDICT_RE = re.compile(r"(?m)^\s*\*\*Verdict:\*\*\s*(Ready for [a-z][a-z-]* review)\s*$")
+ADMISSION_TIMING_STATUS_RE = re.compile(
+    r"^\?\? control-plane/state/timing/(?:LC-HORIZON__[^/]+\.jsonl|current/LC-HORIZON\.current)$"
+)
 
 
 def fail(message):
@@ -124,6 +127,11 @@ def validate_readiness_for_preparation(path, horizon):
             "horizon readiness report is not eligible for admission preparation: "
             f"expected {expected_profile!r} with {expected_verdict!r}"
         )
+
+
+def only_active_admission_timing(root):
+    status = run_git(root, "status", "--porcelain", "--untracked-files=all").stdout.splitlines()
+    return bool(status) and all(ADMISSION_TIMING_STATUS_RE.fullmatch(entry) for entry in status)
 
 
 def load_json(path):
@@ -747,7 +755,7 @@ def admit(args):
         fail("finalized admission approval is not visible unchanged on the protected target")
     if (target / "TRACKER.json").exists() or (target / "TRACKER_ARCHIVE.json").exists():
         fail("packet already contains tracker authority")
-    if run_git(root, "status", "--porcelain").stdout.strip():
+    if run_git(root, "status", "--porcelain", "--untracked-files=all").stdout.strip() and not only_active_admission_timing(root):
         fail("working tree must be clean before admission")
     approval_text = approval.read_text()
     if len(approval_text.strip()) < 20:
