@@ -2,8 +2,8 @@
 
 **Captured:** 2026-09-23
 
-**Attribution:** Operator discussion following the originating handoff at
-`/Users/jmsimpson/Downloads/Poker Night Inception.md`.
+**Attribution:** Operator discussion following the originating handoff preserved at
+`specification/capture/2026-09-24-poker-night-inception.md`.
 
 ## Statements captured
 
@@ -70,6 +70,16 @@ email may remain a contact or notification channel.
   resolved when the recipient responds, rather than being treated as a transient message only.
 - Poker Night requires an action-audit system that captures salient operational actions.
 
+## Later operator decision: public visibility and League share links
+
+- A League may expose a limited public read-only view through a League-owned share link. An
+  authorized Commissioner may enable, disable, revoke, and regenerate that link.
+- Public visitors may view League standings, closed poker-night results, and Player history. They
+  do not view live events, live standings, RSVP or waitlist state, self-reported points-chip
+  counts, Account or invitation information, or ledger, payment, pot, or payout-projection data.
+- Authenticated Players retain the richer experience, including permitted cross-League live event
+  information and closed results.
+
 ## Later operator requirements: invitation management
 
 - A commissioner can view every invitation sent during the League's lifetime, including accepted
@@ -92,6 +102,12 @@ belong to the same invitation and are individually recorded.
 Accounts are never deleted. Closing an account is equivalent to suspending its access; a later
 reinstatement restores the same Account rather than creating a replacement. Historical actions and
 relationships remain attached to the durable Account identity.
+
+**Disposition (S01-F01, 2026-09-24):** This earlier access-removal use of `suspension` is
+superseded by the later Operator decision on player suspension, Account blocking, and
+administration. League suspension does not prevent login; only a Platform Admin may block or
+unblock Account access. This disposition preserves the original captured statement as historical
+input.
 
 The first platform-admin account is bootstrapped from a deployment-configured mobile number, which
 is not stored in the repository or planning corpus. Its first successful SMS verification grants
@@ -199,6 +215,13 @@ external refund or a retained credit that may later be applied to a Season or ev
 obligation. Poker Night records the external outcome and later credit application but never holds a
 wallet balance or moves money.
 
+**Disposition (S01-F02, 2026-09-24):** The earlier expected-obligation,
+expected-but-unreceived, and outstanding-balance claims are superseded by the later Operator
+decision that MVP tracks no IOUs, expected-but-unreceived obligations, or outstanding balances.
+The Season Ledger records only externally confirmed remittances and adjustments, including external
+refund and retained-credit outcomes. This disposition preserves the original captured statement as
+historical input.
+
 ## Later operator decisions: event capacity and Season closeout
 
 - A Commissioner sets maximum capacity when creating a Season poker-night event. Active or
@@ -273,6 +296,77 @@ wallet balance or moves money.
   event fact only when the Commissioner completes that confirmation.
 - While a rebuy is pending, the player event experience shows that the rebuy is in process. It is
   not reflected as a completed rebuy until the Commissioner completes it.
+
+## Later operator requirements: event management
+
+- Event Management is the Commissioner experience for creating and editing events. Every event
+  requires a League and a Season selection, and the selected Season belongs to the selected League.
+- An event title is system-prescriptive rather than free text: `<league name> <season name> Poker
+  Night - <date>`.
+- The Commissioner enters a required event address. After debounced input, Event Management uses
+  Google Maps address autocomplete and shows the selected location on a map in the create/edit
+  experience.
+- Event description is free text. Attendee limit, event date, start time, and end time are all
+  required. Date and time inputs use date-picker and time-picker components.
+- A Commissioner may save an event as a draft.
+- A Commissioner with authority in multiple Leagues needs a League context for Commissioner
+  workflows. The exact selection and switching behavior remains for product-design confirmation.
+
+## Later operator decisions: deployment, data platform, and integrations
+
+- Poker Night uses the registered `poker-night.org` domain. A validated Cloudflare Tunnel on the
+  AI-M1 host reaches Docker's proxy network, whose current public UX target is
+  `http://poker-night-ux:8080`.
+- The AI-M1 host is available on the local network as `AI-M1.local`; the deployment identity is
+  `aiserver`. Docker, SSH access, and the proxy network are already established.
+- UX, API, and PostgreSQL are separate containers. The API is the required middle tier between UX
+  and database. Each product requirement is intended to be implemented as a full UX, API, and
+  database user-story slice.
+- PostgreSQL 18 is the selected database major. The Operator wants schema-first design, while
+  retaining versioned migrations for discovery, defects, and later schema changes.
+- All recorded external money facts use integer cents. Award calculations derive whole-dollar
+  payouts by rounding down; the remaining cents are recorded as derived house remainder, not an
+  award, platform fee, stored balance, or money transfer.
+- The AI-M1 path `~/poker-night-backup` resolves to a NAS mount and is the intended backup target.
+  Backup cadence, encryption, retention, restore testing, and recovery objectives are not yet
+  selected.
+- Local development currently runs on `localhost`. The UX publishes host port `8080` for manual
+  browser validation at `http://localhost:8080`. No `dev.poker-night.org` host alias or public
+  development route is selected; API and PostgreSQL ports remain private.
+- Postmark is the selected transactional-email provider. Its sender DNS is configured for
+  `poker-night.org`; the server API token is stored outside the repository in 1Password. Postmark
+  account approval remains pending.
+- Twilio is the selected phone-verification and transactional-SMS provider. A Poker Night Verify
+  Service and API key are stored in 1Password, and a live SMS verification request/check has
+  completed successfully. A2P brand registration is complete; the Messaging Service campaign and
+  approval remain pending for custom transactional SMS.
+- The Provider credentials and identifiers are not planning-corpus values. They are injected only
+  at runtime from the approved secret store.
+- The Excalidraw+ `PokerNight` collection is the designated live source for all project drawings.
+  The initial conceptual database ERD is created in that collection; no local checkpoint has been
+  requested or claimed.
+
+## Later operator decision: implementation stack
+
+- Poker Night uses a `pnpm` TypeScript monorepo. The UX is Next.js with React and TypeScript. The
+  separate API container is Fastify with Zod request/response validation.
+- PostgreSQL 18 is accessed through Drizzle ORM, with Drizzle Kit producing versioned migrations.
+- Shared packages isolate pure domain rules, API contracts, and database schema/access boundaries.
+- Vitest is the unit and API-test runner; Playwright covers browser workflows; Testcontainers runs
+  integration tests against PostgreSQL.
+- This is a modular-monolith design. Separate UX, API, and database containers remain deployment
+  and trust boundaries, not a decision to introduce microservices, a separate queue, Redis, or
+  streaming infrastructure.
+
+## Architecture and NFR questions still open
+
+- Define API authentication/session, CSRF, phone-recovery, rate-limit, public-link, and
+  League-authorization boundaries.
+- Define Docker production composition, private networks, health checks, image release process,
+  operational logging, monitoring, and alerting.
+- Define whether an Access-protected public staging route is needed before production.
+- Define outbound-message retry, idempotency, provider-webhook signature handling, and the
+  callback-route policy for Twilio and Postmark.
 
 ## Source status
 

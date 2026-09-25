@@ -4,15 +4,13 @@
 ## Objective and scope
 
 Establish the bounded product intent, requirements, architecture direction, and admission-ready
-work shape for Poker Night. The detailed objective and scope will be supplied in an originating
-inception document and reconciled during this horizon's inception shaping. Product implementation
-and executable tracker authority are out of scope until the horizon completes the separate
-readiness and admission boundaries.
+work shape for Poker Night from the preserved originating handoff and attributable operator
+decisions. Product implementation and executable tracker authority are out of scope until the
+horizon completes the separate readiness and admission boundaries.
 
 ## Context and references
 
-- Operator-provided context: an originating inception document will provide the objective and
-	requirements; its path and contents are still pending.
+- Originating handoff: `specification/capture/2026-09-24-poker-night-inception.md`.
 - Attributable operator discussion on roles, product surfaces, and domain concepts is captured in
 	`specification/capture/2026-09-23-operator-domain-and-surface-discussion.md`.
 - Current revisable domain and surface proposal:
@@ -29,14 +27,14 @@ readiness and admission boundaries.
 
 ## Requirements and acceptance criteria
 
-To be supplied from the originating inception document and shaped into attributable requirements
-and acceptance criteria. No product requirement or implementation contract is admitted by this
-initial packet declaration.
+Shaped into attributable working requirements and acceptance criteria in
+`specification/requirements/domain-and-surface-proposal.md` and the working proposal. No product
+requirement or implementation contract is admitted by this inception packet.
 
 ## Risk implications and mitigations
 
-- Unknown objective, requirements, and dependencies create admission-readiness risk; mitigate by
-	capturing the originating document and resolving its open decisions before readiness review.
+- Reconciliation gaps between the originating handoff and later operator decisions create
+	admission-readiness risk; mitigate by recording explicit dispositions during consolidation.
 - The deployment assumptions are provisional; validate Mac M1, Docker, and Cloudflare constraints
 	during architecture and risk shaping.
 
@@ -50,7 +48,5 @@ initial packet declaration.
 
 ## Open questions and decisions needed
 
-- Provide and identify the originating inception document.
-- Confirm the horizon objective and bounded scope from that document.
 - Identify environment dependencies and integration constraints.
 - Define the admission gate, tracker shape, first phase family, and embedded dependency DAG.

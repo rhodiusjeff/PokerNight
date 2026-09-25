@@ -222,6 +222,29 @@ error.
 
 **Status:** proposed operational flow; interruption and correction policy remain open.
 
+## EVT-01: Commissioner League context and event-management resilience
+
+**Decision:** Event Management creates and edits League- and Season-owned poker-night events.
+An event requires its League, a Season within that League, address, attendee limit, date, start
+time, and end time. Description is free text; the title is derived as
+`<league name> <season name> Poker Night - <date>`. A Commissioner may save an event as a draft.
+Address entry uses debounced Google Maps autocomplete and shows the selected location on a map.
+
+**Affected candidates:** future event-management, League-context, RSVP, notification, and
+deployment/integration candidates.
+
+**Recommendation:** When entering Commissioner workflows, automatically select the only
+authorized League; when more than one League is authorized, require a League choice before the
+first League-scoped action. Keep the active League visible and switchable throughout Commissioner
+surfaces, and enforce the same League authority server-side.
+
+**Open detail:** Define whether active League selection persists only for the session or is
+remembered for a later login; define map/autocomplete retry and manual-address fallback behavior;
+and define the draft-to-scheduled transition, cancellation, and attendee notification rules.
+
+**Status:** required event fields and draft behavior resolved by Operator direction; Commissioner
+context and external-map resilience details remain open.
+
 ## SEA-06: Ledger obligation and external remittance structure
 
 **Decision:** Externally confirmed remittances and adjustments are separate immutable ledger
