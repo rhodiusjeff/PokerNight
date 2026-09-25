@@ -437,11 +437,9 @@ case "$COMMAND" in
           ;;
       esac
     done
-TIMING_ROOT="$(timing_root_for_phase "$PHASE_ID")"
-ACTIVE_ROOT="$TIMING_ROOT/current"
-
-
     [[ -n "$PHASE_ID" ]] || fail "open requires --phase-id"
+  TIMING_ROOT="$(timing_root_for_phase "$PHASE_ID")"
+  ACTIVE_ROOT="$TIMING_ROOT/current"
 
     SESSION_ID_SOURCE=""
     if [[ -n "$COPILOT_SESSION_ID" ]]; then
@@ -562,6 +560,8 @@ ACTIVE_ROOT="$TIMING_ROOT/current"
 
     [[ -n "$PHASE_ID" ]] || fail "emit requires --phase-id"
     [[ -n "$ACTION" ]] || fail "emit requires --action"
+    TIMING_ROOT="$(timing_root_for_phase "$PHASE_ID")"
+    ACTIVE_ROOT="$TIMING_ROOT/current"
   METADATA="$(merge_metadata_json "$METADATA" "$COPILOT_SESSION_ID")"
     METADATA="$(merge_metadata_field "$METADATA" "model_id" "$MODEL_ID")"
     METADATA="$(merge_metadata_field "$METADATA" "harness" "$HARNESS")"
@@ -652,6 +652,8 @@ ACTIVE_ROOT="$TIMING_ROOT/current"
     done
 
     [[ -n "$PHASE_ID" ]] || fail "close requires --phase-id"
+    TIMING_ROOT="$(timing_root_for_phase "$PHASE_ID")"
+    ACTIVE_ROOT="$TIMING_ROOT/current"
   METADATA="$(merge_metadata_json "$METADATA" "$COPILOT_SESSION_ID")"
     METADATA="$(merge_metadata_field "$METADATA" "model_id" "$MODEL_ID")"
     METADATA="$(merge_metadata_field "$METADATA" "harness" "$HARNESS")"
@@ -730,6 +732,8 @@ ACTIVE_ROOT="$TIMING_ROOT/current"
     done
 
     [[ -n "$PHASE_ID" ]] || fail "reset requires --phase-id"
+    TIMING_ROOT="$(timing_root_for_phase "$PHASE_ID")"
+    ACTIVE_ROOT="$TIMING_ROOT/current"
   METADATA="$(merge_metadata_json "$METADATA" "$COPILOT_SESSION_ID")"
     METADATA="$(merge_metadata_field "$METADATA" "model_id" "$MODEL_ID")"
     METADATA="$(merge_metadata_field "$METADATA" "harness" "$HARNESS")"
@@ -764,6 +768,8 @@ ACTIVE_ROOT="$TIMING_ROOT/current"
     done
 
     [[ -n "$PHASE_ID" ]] || fail "status requires --phase-id"
+    TIMING_ROOT="$(timing_root_for_phase "$PHASE_ID")"
+    ACTIVE_ROOT="$TIMING_ROOT/current"
     ensure_timing_surface
 
     LOG_FILE="$(read_active_log_path "$PHASE_ID" 2>/dev/null || true)"

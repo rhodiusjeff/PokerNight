@@ -1,6 +1,7 @@
 {
   "schema": "cpb-instance-state-v2",
-  "state": "operational",
+  "state": "upgrading",
+  "active_lifecycle_agent": ".github/agents/project-control-plane-upgrade.agent.md",
   "cpb_version": "1.0.0-shape-v1",
   "active_lanes": "derived from control-plane/horizons/*/HORIZON_STATE.json plus active TRACKER.json files",
   "last_updated": "2026-09-25",
@@ -33,6 +34,12 @@
       "date": "2026-09-25",
       "kind": "upgrade-complete",
       "summary": "UG-002 merged to protected main at 301bc89, passed focused regression suites, and restored normal lifecycle operation."
+    },
+    {
+      "date": "2026-09-25",
+      "kind": "selective-upgrade",
+      "operations": "restricted",
+      "summary": "UG-003 assessment and repair planning opened by explicit /control-plane-upgrade invocation. Phase timing open resolves the horizon root, but other session commands retain the instance root. Phase execution is halted pending authorized runtime repair and verification; preserve H000 admission and the failed CP-101 timing evidence. Cutover has not started."
     }
   ]
 }
