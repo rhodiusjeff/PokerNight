@@ -1,6 +1,7 @@
 {
   "schema": "cpb-instance-state-v2",
   "state": "operational",
+  "active_lifecycle_agent": null,
   "cpb_version": "1.0.0-shape-v1",
   "active_lanes": "derived from control-plane/horizons/*/HORIZON_STATE.json plus active TRACKER.json files",
   "last_updated": "2026-09-25",
@@ -33,6 +34,23 @@
       "date": "2026-09-25",
       "kind": "upgrade-complete",
       "summary": "UG-002 merged to protected main at 301bc89, passed focused regression suites, and restored normal lifecycle operation."
+    },
+    {
+      "date": "2026-09-25",
+      "kind": "selective-upgrade",
+      "operations": "restricted",
+      "summary": "UG-003 assessment and repair planning opened by explicit /control-plane-upgrade invocation. Phase timing open resolves the horizon root, but other session commands retain the instance root. Phase execution is halted pending authorized runtime repair and verification; preserve H000 admission and the failed CP-101 timing evidence. Cutover has not started."
+    },
+    {
+      "date": "2026-09-25",
+      "kind": "upgrade-resume-blocked",
+      "operations": "restricted",
+      "summary": "Explicit /control-plane-upgrade --resume continued UG-003 from local verification and resolved local review finding UG003-R1. Cutover has started; reset remains prohibited. GitHub PR #5 is still OPEN at 9ca88814129d75384b2efe51d710d48fb2ce8fc2 with no merge commit or timestamp. Protected-main integration and governed completion remain pending; instance stays upgrading. Preserve H000 admission and the failed CP-101 session. No merge, phase retry, session recovery, or agent archival was performed."
+    },
+    {
+      "date": "2026-09-25",
+      "kind": "upgrade-complete",
+      "summary": "Operator explicitly approved returning to operational on repair/UG-003-timing-routing before PR #5 merges, superseding the merge-first completion sequence. UG-003 is locally verified with 23 routing and 2 harvest checks passing and local review finding UG003-R1 resolved. Branch-local upgrade completion is recorded; protected-main integration remains pending. Archive the temporary UG-003 agent and clear its active reference. Preserve H000 admission and failed CP-101 evidence; no phase preparation, execution, or session recovery is authorized by this transition."
     }
   ]
 }
