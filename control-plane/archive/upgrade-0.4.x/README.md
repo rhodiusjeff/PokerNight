@@ -14,16 +14,17 @@ admission preparation, and `UG-002`, the admission timing-cleanliness conflict.
 
 The upgrade packet remains as evidence. It does not admit H000 or authorize phase execution.
 
-## Active Repair: UG-003
+## UG-003: Branch-Local Completion
 
 The Operator invoked a selective phase timing-routing repair on 2026-09-25, from `main` at
 `26dcc9c`. Cutover started with the local runtime edit on 2026-09-25. The repair is locally
-verified; integration and lifecycle completion remain pending. The instance stays `upgrading`
-with restricted operations. Reset is prohibited; resume or mop up the existing upgrade.
-H000's existing admission and all timing evidence are preserved. CP-101 session recovery and
-agent archival remain pending governed completion; this update does not retry phase preparation.
+verified, and the Operator explicitly approved branch-local completion before PR #5 merges.
+The instance is `operational` on the repair branch; protected-main integration remains pending.
+Reset is prohibited. H000's admission and all timing evidence are preserved. CP-101 recovery
+remains separate; this completion does not retry phase preparation or start execution.
 
-- Active generated agent: `.github/agents/project-control-plane-upgrade.agent.md`.
+- Active generated agent: none.
+- Archived UG-003 agent: `control-plane/archive/instantiation/runtime-archive/lifecycle-agents/project-control-plane-upgrade-UG-003.agent.md`.
 - Current status and blocker: `UPGRADE_STATUS.md`.
 - Confirmed scope and preservation decisions: `UPGRADE_OPERATOR_INPUT.md`.
 - Current compatibility contract: `COMPATIBILITY_NOTES.md`, UG-003 section.

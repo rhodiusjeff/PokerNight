@@ -4,12 +4,24 @@
 
 **Cutover started:** yes (UG-003 local runtime edit, 2026-09-25).
 
-**Current phase:** Locally repaired and verified; integration and lifecycle completion pending.
+**Current phase:** Branch-local upgrade complete; protected-main integration pending.
 
 Reset is prohibited. Resume or mop up the existing upgrade; do not recreate the packet.
-The instance remains `upgrading` with restricted operations. Integration, governed completion,
-CP-101 session recovery, and agent archival remain outstanding. No lifecycle transition is
-authorized by this summary. The dated sections below preserve earlier snapshots, not current gates.
+The Operator approved returning this repair branch to `operational` before merging PR #5.
+Branch-local completion and agent archival are complete. Integration and separate CP-101 session
+recovery remain outstanding. Earlier merge-first sequencing is superseded by this explicit
+approval; historical records below remain unchanged. No phase preparation or start is authorized.
+
+## Approved Completion Sequence: 2026-09-25
+
+1. Verified: 23 routing and 2 harvest checks passed; local review finding UG003-R1 is resolved.
+2. Approved and applied: restore `operational` on `repair/UG-003-timing-routing`, clear the active
+   lifecycle-agent reference, and archive the temporary agent under its unique UG-003 filename.
+3. Pending publication: commit and push the completion records with the repair in PR #5.
+4. Pending integration: review/merge PR #5 and verify the protected-target result. Branch-local
+   completion does not assert that `main` is already operational or that the PR has merged.
+5. Pending separate recovery: preserve CP-101's failed session until supported blocked closure
+   and evidence disposition. Any new preparation or start still requires explicit invocation.
 
 **Prior completion:** UG-001/UG-002 completed 2026-09-25 after cutover started. Their completed
 history is not reset or reopened by this new repair entry.

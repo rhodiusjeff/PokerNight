@@ -2,14 +2,14 @@
 
 **Upgrade:** Selective control-plane contract repairs
 
-**Current phase:** Locally repaired and verified; integration and lifecycle completion pending.
+**Current phase:** Branch-local upgrade complete; protected-main integration pending.
 
 **Cutover started:** yes (UG-003 local runtime edit, 2026-09-25).
 
-Reset is prohibited. The instance remains `upgrading` with restricted operations; continue the
-existing upgrade rather than restarting assessment. Integration, governed completion, CP-101
-session recovery, and agent archival remain outstanding. Dated records below are historical
-snapshots; this summary supplies the current phase and cutover state.
+Reset is prohibited. The instance is `operational` on `repair/UG-003-timing-routing` by explicit
+Operator approval before PR merge. The temporary agent is archived and its active reference is
+cleared. PR #5 integration and separate CP-101 session recovery remain outstanding. Dated records
+below are historical snapshots; this summary supplies the current phase and cutover state.
 
 | Blocker ID | Summary | Impact | Required decision or fix | Owner | Status | Last update |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -129,3 +129,49 @@ checks remain the recorded runtime evidence. No code traces were added or change
 
 This resolves the local review finding, not UG-003 lifecycle completion or independent approval.
 No commit, push, merge, session recovery, or phase preparation retry occurred in this correction.
+
+## 2026-09-25: Explicit Resume Blocked On Integration
+
+**Invocation:** `/control-plane-upgrade --resume`, issued directly by the Operator.
+**Outcome:** Blocked; instance remains `upgrading` with restricted operations.
+**Timing:** `control-plane/state/timing/LC-UPGRADE__20260925T171751Z__002853007532.jsonl`.
+
+| Blocker ID | Summary | Current phase | Impact | Required decision or fix | Owner | Status | Last update |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `UG-003` | The locally verified repair is published, but PR #5 has not merged. | Integration pending; local review finding UG003-R1 resolved | Return to operational and phase-session recovery cannot proceed under the recorded completion plan. | Complete review/merge of PR #5 through authorized publication governance, verify protected-target integration, then explicitly resume governed completion. | Operator and upgrade owner | Blocked on integration | 2026-09-25 |
+
+Fresh GitHub evidence: https://github.com/rhodiusjeff/PokerNight/pull/5 is OPEN at
+`9ca88814129d75384b2efe51d710d48fb2ce8fc2`, with null `mergedAt` and `mergeCommit`.
+The repair and source handoff are already pushed; publication alone does not establish integration.
+The earlier same-context review and resolved UG003-R1 finding remain historical evidence.
+The most recent runtime verification passed 23 routing and 2 harvest checks; this resume did
+not rerun unchanged runtime tests or claim a new code review.
+
+Baseline, selective repair scope, and preservation requirements remain unchanged. Cutover has
+started, so reset is prohibited. No merge was inferred from the resume invocation. No product,
+runtime, H000 admission, tracker, prompt, or CP-101 timing evidence was changed. The generated
+upgrade agent remains active; archive it only at verified completion. The existing consult edit,
+untracked league-rules capture, and local CP-101 pointer were preserved. No commit or push was
+performed during this resume. Close the LC-UPGRADE session with outcome `blocked`, without a
+`/control-plane-upgrade-complete` event.
+
+## 2026-09-25: Approved Branch-Local Completion
+
+Operator approval: "Yes, I get that.  I approve going back to operational in this branch before we merge the PR."
+
+This explicitly supersedes the merge-first sequence and the preceding integration blocker for
+branch-local completion only. UG-003 is locally resolved: 23 routing and 2 harvest checks passed,
+the scoped review found no additional runtime defect, and UG003-R1 was corrected and re-reviewed.
+This pass reused that evidence without claiming new runtime tests or independent approval.
+
+The instance is now `operational` on `repair/UG-003-timing-routing`; `active_lifecycle_agent` is
+null. The temporary agent was archived byte-for-byte to
+`control-plane/archive/instantiation/runtime-archive/lifecycle-agents/project-control-plane-upgrade-UG-003.agent.md`.
+The earlier archived agent and all historical upgrade records are preserved.
+
+Completion timing: `control-plane/state/timing/LC-UPGRADE__20260925T173847Z__009639004554.jsonl`,
+with invocation source `operator-confirmation`. PR #5 remains OPEN at the observed head
+`9ca88814129d75384b2efe51d710d48fb2ce8fc2`; publication of these completion changes and protected-main
+integration remain pending. No commit, push, merge, CP-101 recovery, phase prep, or execution is
+performed in this approval pass. H000 admission, tracker, prompts, and failed CP-101 evidence
+remain unchanged. The prior blocked timing record remains intact.

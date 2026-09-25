@@ -103,3 +103,44 @@ machine-local CP-101 timing pointer untouched and excluded. Preserve all existin
 The instance remains `upgrading`; review/merge, governed upgrade completion, and blocked-session
 recovery remain pending. No merge, lifecycle transition, admission change, or phase retry is
 authorized or performed by this publication request.
+
+## 2026-09-25: Return-To-Operational Command
+
+Operator question: "Instance should be back to operational.  What is command to return to operational state?"
+
+Select **Control Plane: Lifecycle Facilitator** and invoke:
+
+`/control-plane-upgrade --resume`
+
+Add: "Resume UG-003 for verified completion and return the instance to operational when its
+completion conditions are satisfied. Preserve H000 admission and the failed CP-101 evidence."
+
+This resumes the upgrade; it is not an unconditional state toggle. The installed prompt's own
+verification still expects `upgrading`, so completion must explicitly reconcile the upgrade
+packet and instance state under the lifecycle-exit policy, not infer completion from command
+success. There is no separate operational-state command in the installed upgrade prompt.
+
+A fresh GitHub check still reports PR #5 OPEN, with no merge timestamp or merge commit. Review
+and merge remain prerequisites in the recorded UG-003 plan. Do not manually flip the state or
+use `--reset`. This question does not invoke resume, authorize merge, or change lifecycle state.
+
+## 2026-09-25: Approved Completion Before Merge
+
+Operator approval: "Yes, I get that.  I approve going back to operational in this branch before we merge the PR."
+
+The prior merge-first requirement was a recorded project sequence, not a universal prerequisite.
+This explicit approval supersedes that sequence for UG-003. The resumed lifecycle action restores
+`operational` on `repair/UG-003-timing-routing`, clears the active lifecycle-agent reference, and
+archives the temporary agent byte-for-byte under the unique UG-003 destination. The upgrade plan,
+status, operator input, compatibility notes, README, and source handoff reflect branch-local
+completion and pending protected-main integration. Historical blocked records remain intact.
+
+Evidence reused: 23 routing and 2 harvest checks passed, local branch-delta review, and resolved
+UG003-R1 fix-diff re-review. No new runtime test run or independent approval is claimed. JSON,
+diff, current-summary consistency, agent-byte preservation, and unchanged tracked H000 authority
+and timing checks passed. These checks do not themselves approve PR merge or phase execution.
+
+This pass does not commit, push, merge, recover CP-101, retry preparation, or start a phase.
+PR #5 remains open; the league-rules capture and CP-101 current pointer remain untouched.
+Commit/push of completion records, protected-target integration, and separate evidence-preserving
+session recovery are still outstanding. The completed lifecycle action is branch-local only.

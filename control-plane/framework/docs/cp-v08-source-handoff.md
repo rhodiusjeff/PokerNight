@@ -21,7 +21,7 @@ records.
 | --- | --- | --- | --- |
 | `UG-001` | Admission preparation accepted a generic literal verdict and rejected the valid H000 `implementation-baseline` readiness contract. | `framework/scripts/horizon-packet.py`, preparation prompt, user guide, packet fixtures | Merged to protected `main` in `301bc89` |
 | `UG-002` | Required `LC-HORIZON` timing artifacts dirtied the worktree after invocation, conflicting with admission branch/runtime clean-tree and protected-target-tip checks. | `framework/scripts/horizon-branch.py`, `framework/scripts/horizon-packet.py`, admission prompt, `.gitignore`, branch/packet fixtures | Merged to protected `main` in `301bc89`; completion state merged in `7113988` |
-| `UG-003` | Bash timing `open` selected the horizon directory, while `emit`, `close`, `reset`, and `status` retained the instance directory and could not find the phase session. | `framework/scripts/timing-log.sh`, `framework/scripts/timing-routing.test.sh`, upgrade cutover summaries | Locally verified; published in PR #5 at `f62d39a`; not merged as checked on 2026-09-25; lifecycle completion pending |
+| `UG-003` | Bash timing `open` selected the horizon directory, while `emit`, `close`, `reset`, and `status` retained the instance directory and could not find the phase session. | `framework/scripts/timing-log.sh`, `framework/scripts/timing-routing.test.sh`, upgrade cutover summaries | Locally verified; branch-local completion approved on 2026-09-25; PR #5 integration pending |
 
 ## UG-001: Profile-Aware Readiness Gate
 
@@ -128,12 +128,16 @@ PowerShell already resolves its timing root before dispatching commands and need
   diff checks passed; the cutover-summary fix passed focused validation and scoped re-review.
 - Runtime repair commit: `2fd0040`; review correction and evidence commit: `f62d39a`.
   [PR #5](https://github.com/rhodiusjeff/PokerNight/pull/5) remains open against `main` as checked
-  on 2026-09-25. This is local verification, not independent review or lifecycle completion.
+  on 2026-09-25. The Operator subsequently approved branch-local completion before merge;
+  this does not establish independent approval or protected-main integration.
 - Windows execution and modern bundle-bound admission were not exercised by these routing fixtures;
   their admission fixtures use a null bundle digest. The existing resolver checks remain unchanged.
-- Instance state remains `upgrading`. After governed completion restores operational state, recover
-  the preserved CP-101 session through supported commands with outcome `blocked`, disposition its
-  evidence, and require a separate explicit prep invocation. Do not erase or mark it successful.
+- Instance state is `operational` on the repair branch by explicit Operator approval before merge.
+  The temporary agent is archived; completion-record publication and protected-main integration
+  remain pending. Separately recover the preserved CP-101 session through supported commands with
+  outcome `blocked`, disposition its evidence, and require a separate explicit prep invocation.
+  No recovery or phase start occurred during branch-local completion. Do not erase the failed
+  session or mark it successful.
 
 ## Source Adoption Checklist
 

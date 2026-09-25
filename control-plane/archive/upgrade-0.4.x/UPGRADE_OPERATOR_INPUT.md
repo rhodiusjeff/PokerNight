@@ -45,3 +45,12 @@ upgrade state is resolved.
 - Operator-confirmed posture: operations `restricted`, instance state `upgrading`.
 - This invocation establishes assessment, state, and handoff artifacts. Its guardrails prohibit
   runtime-script edits; implementation requires a separately authorized framework repair path.
+
+## 2026-09-25: Branch-Local Completion Approval
+
+"Yes, I get that.  I approve going back to operational in this branch before we merge the PR."
+
+The Operator approves operational state and completion records on the repair branch before
+integration, superseding the prior merge-first sequence. Preserve earlier evidence and archive
+the temporary upgrade agent. PR merge, protected-target verification, and separate CP-101
+blocked-session recovery remain outstanding; no new phase preparation or execution is authorized.

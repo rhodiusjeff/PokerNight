@@ -29,7 +29,9 @@ substring. Missing, malformed, or mismatched report fields fail closed.
 ## UG-003 Current Compatibility Contract
 
 - H000 is now admitted; preserve its bundle, approval, executable tracker, prompt bytes, and
-  recorded baseline. Instance upgrade state temporarily blocks phase execution, not admission history.
+  recorded baseline. The temporary upgrade-state block did not change admission history.
+  The Operator approved operational state on the repair branch before merge; protected-main
+  integration and separate CP-101 recovery remain pending, with no automatic prep or start.
 - Preserve UG-001/UG-002 behavior, invocation provenance, clean-tree gates, and protected-target checks.
 - Preserve horizon routing for CP/ST sessions and instance routing for LC/IN/OPS sessions.
   All session commands must agree on the same root and pointer for a given identifier.
