@@ -4,7 +4,7 @@
 
 **Cutover started:** yes
 
-**Completion:** Pending `UG-002` verification
+**Completion:** 2026-09-25
 
 ## Planned Work
 
@@ -25,10 +25,9 @@
 
 - Verified locally: `horizon-branch.test.sh` passes 8 checks; `horizon-packet.test.sh` passes 19
    checks.
-- Pending: commit the framework repair, publish and merge its PR to protected `main`, then recreate
-   `admission/H000` from the updated target and rerun `/admit-horizon`.
-- Do not mark `UG-002` resolved or restore operational state until the merged target contains the
-   repair and the resumed admission path passes its protected-target checks.
+- Completed: the framework repair merged to protected `main` at `301bc89`; `UG-002` is resolved
+   and normal lifecycle operation is restored. Recreate `admission/H000` from the updated target
+   before resuming the H000 admission boundary.
 
 ## Guardrails
 
