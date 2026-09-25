@@ -1,10 +1,9 @@
 {
   "schema": "cpb-instance-state-v2",
-  "state": "upgrading",
+  "state": "operational",
   "cpb_version": "1.0.0-shape-v1",
   "active_lanes": "derived from control-plane/horizons/*/HORIZON_STATE.json plus active TRACKER.json files",
   "last_updated": "2026-09-25",
-  "active_lifecycle_agent": ".github/agents/project-control-plane-upgrade.agent.md",
   "state_vocabulary": {
     "operational": "boundary operations and horizon work proceed per packet-local admission, closure, and tracker authority",
     "ops-work": "exclusive singleton control-plane runtime and governance work",
@@ -29,6 +28,11 @@
       "kind": "selective-upgrade",
       "operations": "restricted",
       "summary": "Selective control-plane repair for the admission timing-cleanliness conflict; H000 admission remains halted until UG-002 is verified."
+    },
+    {
+      "date": "2026-09-25",
+      "kind": "upgrade-complete",
+      "summary": "UG-002 merged to protected main at 301bc89, passed focused regression suites, and restored normal lifecycle operation."
     }
   ]
 }
