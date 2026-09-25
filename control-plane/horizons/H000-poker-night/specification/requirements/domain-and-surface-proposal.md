@@ -5,7 +5,7 @@
 **Sources:**
 
 - `specification/capture/2026-09-23-operator-domain-and-surface-discussion.md`
-- `/Users/jmsimpson/Downloads/Poker Night Inception.md`
+- `specification/capture/2026-09-24-poker-night-inception.md`
 
 ## Product roles and access
 
@@ -195,6 +195,25 @@ with the Commissioner-recorded official net-chip result. Final results show each
 result and event-points result. The retention and correction behavior for self-reported counts
 remain to be shaped.
 
+## Event management
+
+Event Management is the Commissioner surface for creating and editing poker-night events. An event
+belongs to exactly one League and exactly one Season; the selected Season must belong to the
+selected League, and the acting Commissioner must hold authority for that League. The event title
+is system-derived rather than free text: `<league name> <season name> Poker Night - <date>`.
+
+An event requires an address, attendee limit, date, start time, and end time. Description is free
+text. Event date uses a date picker; start and end times use time pickers. The end must occur after
+the start when interpreted in the event's timezone, including an event that ends after midnight.
+The Commissioner can save an incomplete event as a draft, but a non-draft scheduled event must
+satisfy all required fields.
+
+While editing the address, the form debounces input and uses Google Maps address autocomplete.
+Selecting an address shows its location on an embedded map in the create/edit surface. The form
+must provide explicit loading and failure feedback, and address entry must remain usable when the
+external Places or map service is unavailable. Exact fallback and retry behavior remains to be
+shaped.
+
 ## Event capacity and waitlist
 
 A Commissioner sets maximum capacity when creating a Season poker-night event. Active or committed
@@ -287,8 +306,11 @@ hidden from default pending-work views but remain available through status filte
 - **Commissioner browser mode:** the same authenticated product on wider screens, with additional
   ergonomics for season configuration, player management, corrections, ledger review, export, and
   audit review.
-- **Public browser mode:** a read-only, mobile-friendly share-link experience for standings, poker
-  night results, player history, and any confirmed pot projection information.
+- **Public browser mode:** a League-owned, read-only, mobile-friendly share-link experience for
+  standings, closed poker-night results, and Player history. An authorized Commissioner may
+  enable, disable, revoke, and regenerate the link. Public visitors cannot view live events, live
+  standings, RSVP or waitlist state, self-reported points-chip counts, Account or invitation data,
+  or ledger, payment, pot, or payout-projection data.
 
 The current preferred delivery option is one responsive browser application, potentially
 installable as a PWA. A separate native application is deferred pending evidence that offline
@@ -322,8 +344,10 @@ Account -> League commissioner assignment
 - **Poker night:** one dated live cash-game session within a season.
 - **Night entry:** one player's participation in one poker night; the source of attendance,
   starting-stack, rebuy, final-stack, and cash-out facts.
-- **Ledger entry:** an authoritative financial obligation, payment, or manual adjustment associated
-  with a season and, when applicable, a player or poker night.
+- **Ledger entry:** an authoritative recorded external-money fact: a received remittance or an
+  adjustment such as a correction, external refund, retained credit, or retained-credit
+  application. A payout confirmation separately records an external prize handoff. No such record
+  represents an IOU, unpaid status, outstanding balance, or platform-held money.
 - **Audit record:** append-only evidence of commissioner changes to results, money, configuration,
   or access settings.
 
@@ -334,8 +358,8 @@ record must identify the acting account when one exists, the action, affected su
 and sufficient before/after or structured change information to explain the outcome. At minimum,
 audit coverage includes platform-admin and commissioner authority changes; invitations and their
 resolution; player and membership changes; season and configuration changes; poker-night lifecycle
-and RSVP changes; live-night chip facts and closure overrides; ledger/payment-status changes; and
-access-control or public-link changes.
+and RSVP changes; live-night chip facts and closure overrides; ledger, refund, retained-credit,
+and payout-confirmation changes; and access-control or public-link changes.
 
 The action audit is not a replacement for domain records. It explains who changed the source facts
 and when; it does not become the source of truth for scoring, money tracking, or authorization.
@@ -352,9 +376,24 @@ This boundary applies to season dues, nightly fees, rebuy fees, and award payout
 processor, stored balance, payout workflow, payment credential, or money-transfer integration is
 in scope for this horizon unless a later explicit decision changes this requirement.
 
-For clarity, use `starting stack`, `night fee`, `rebuy stack`, and `rebuy fee` rather than the
-ambiguous term `buy-in` until a precise house-rule definition is adopted. A player's cash-out
-records their final chip observation for scoring; it is distinct from the season's award payout.
+### Money and points vocabulary
+
+- **Cash game:** the real-world social poker activity. People may exchange money outside Poker
+  Night, but the product does not handle that money.
+- **Points chips:** non-cash scoring units issued and counted through Event Ops. They cannot be
+  held, transferred, redeemed, or withdrawn through Poker Night.
+- **Season buy-in:** the external money a Commissioner receives and records to activate Season
+  participation.
+- **Night fee** or **event buy-in:** the external money a Commissioner receives for one
+  poker-night event; it is not a points-chip value.
+- **Rebuy fee:** the external money a Commissioner receives before issuing additional points
+  chips.
+- **Cash-out:** poker terminology for finalizing a night entry by recording the Player's final
+  points-chip stack. It is not a payout or money transfer through Poker Night.
+- **Award payout:** the external post-Season money handoff recorded as ready and then disbursed.
+
+Cash-out is distinct from an award payout. Poker Night must not call points chips cash, balances,
+or stored value.
 
 ## Night scoring and finish points
 
@@ -417,8 +456,8 @@ cached but must be reproducible from source facts and the applicable season conf
    needed.
 4. Define whether rebuys are represented as a count or individual facts in v1.
 5. Define whether a closed poker night can be edited directly or needs a revision workflow.
-6. Define the ledger's money semantics: obligations, externally received payment status, or both;
-  and define the award-purse basis.
+6. Define correction and retained-credit adjustment controls, including their relationship to
+  externally confirmed refund and award-payout handoffs.
 7. Define when season configuration becomes immutable or versioned.
 8. Confirm season boundaries, timezone, and the final tie policy for awards.
 9. Define whether an invitation can be delivered by email, SMS, or both, and its expiry and

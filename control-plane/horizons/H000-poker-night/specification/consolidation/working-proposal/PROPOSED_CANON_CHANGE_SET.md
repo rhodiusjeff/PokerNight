@@ -1,21 +1,69 @@
-# Proposed Canon Change Set: Account, Invitation, League, And Season Slices
+# Proposed Canon Change Set: Account, Invitation, League, Season, Event, And Results Slices
 
 **Status:** Working candidate set for H000 inception shaping
 
 **Scope:** Account identity, authentication, role authority, initial platform bootstrap, invitation
 lifecycle, invitation claim, invite-first League membership, League bootstrap, configuration
-templates, Season configuration, and Season participation.
+templates, Season configuration and participation, Event Management, RSVP and waitlist behavior,
+live Event Ops, scoring and closure, and authenticated and public results visibility.
 
 **Included sources:**
 
-- `specification/capture/2026-09-23-operator-domain-and-surface-discussion.md`, current working
-  revision.
-- `specification/requirements/domain-and-surface-proposal.md`, current working revision.
-- `/Users/jmsimpson/Downloads/Poker Night Inception.md`, originating handoff supplied during this
-  session.
+- `specification/capture/2026-09-23-operator-domain-and-surface-discussion.md`, SHA-256
+  `b907fd8b8f125039d751a295cd9bf260dc17db7d18a8cadb88744de269870329`.
+- `specification/requirements/domain-and-surface-proposal.md`, SHA-256
+  `72548509e1d5af996187847149e22af499812ca1ce483130fb84c3440b66bfc4`.
+- `specification/capture/2026-09-24-poker-night-inception.md`, SHA-256
+  `7a90f1706359af3ade49adf251d9c020987341e3b601f2a678958c6ae7c8de00`.
+- `specification/scrub/INCEPTION_SCRUB.md`, SHA-256
+  `b32f105b85fb5dba9e9c533dc4658fd13844c398f63a0e46e97c587ab21a602e`; S01-F01 through S01-F05
+  dispositions and applied S02-F01 are incorporated, and S01-F06 is reconciled here.
 
-**Excluded from this pass:** event/RSVP behavior; live-night operations; scoring; money tracking;
-public views; deployment architecture.
+**Excluded from this pass:** SMS and Maps provider selection, recovery/session and rate-limit
+details, deployment architecture, backup/restore, native-app versus responsive-PWA delivery, and
+the open operational details named in the ambiguity docket.
+
+## Consolidation Pass C02
+
+**Disposition:** revise the working proposal by adding the Event Management, RSVP, Event Ops,
+scoring/closure, and visibility slices identified by scrub finding `S01-F06`. Retain
+`CAND-ACC-001` through `CAND-LSE-003` without semantic revision; no candidate is withdrawn,
+merged, split, or superseded in this pass.
+
+**Corpus coverage:** The complete H000 packet was inventoried at Git revision
+`38b677fc4496252ef566049c9700697783feaa9f`; product-source extraction examined both captures,
+the current working specification, and applicable scrub dispositions. Packet navigation,
+templates, state, approvals, and timing records were inventoried but contain no additional product
+claims. There is no admitted product Canon, completed Phase, tracker, or formal approval to amend.
+
+**Vocabulary reconciliation:** The working specification's `Money and points vocabulary` is the
+proposed definition owner for `cash game`, `points chips`, `event buy-in`, `rebuy fee`,
+`cash-out`, and `award payout`, at the source revision pinned above. These terms are proposed
+product vocabulary, not installed control-plane terms. `Cash-out` is explicitly distinct from an
+external award payout; points chips are non-cash scoring units. No alias or product definition is
+admitted by this proposal.
+
+## Consolidation Pass C03
+
+**Disposition:** retain every existing candidate key without semantic revision. Applied scrub
+finding `S02-F01` removes only obsolete obligation terminology from the mutable source: the MVP
+records external remittances, refunds, retained-credit adjustments, and externally confirmed prize
+handoffs, never IOUs, unpaid status, outstanding balances, or platform-held money. This confirms
+rather than changes the existing meanings of `CAND-SEA-001`, `CAND-SEA-002`, `CAND-SEA-003`,
+`CAND-OPS-001`, and `CAND-SCR-001`.
+
+**Corpus coverage:** The complete H000 packet was inventoried on the current uncommitted worktree
+at the baseline Git revision `38b677fc4496252ef566049c9700697783feaa9f`. Product-source extraction
+examined both captures, the current mutable working specification, and scrub dispositions S01 and
+S02. Packet navigation, templates, state, approvals, timing records, the advisory work layout,
+and exploratory assessment were inventoried; they contain no additional product-source claim for
+this bounded money-terminology pass.
+
+**Vocabulary reconciliation:** The working specification remains the proposed definition owner for
+the money-and-points terms listed above at its C03 source pin. `S02-F01` explicitly distinguishes
+recorded external-money facts from payment obligations; an external refund or prize handoff is
+recorded but not performed by Poker Night. No new alias, candidate key, or ambiguity-docket item
+is introduced.
 
 These are local candidate keys, not admitted Canon, `CUS-*`, or `USC-*` identities.
 
@@ -42,6 +90,11 @@ for the future canonical user-story and requirement registries.
 | `CAND-LSE-001` | Platform administration can establish and recover the MVP League without unbounded League-management complexity. | One-League bootstrap; initial commissioner assignment; audited Admin override. | Operator capture: `Later operator decisions: MVP platform and onboarding`; working requirements: `Product roles and access`. |
 | `CAND-LSE-002` | A commissioner can start from approved rule defaults while retaining ownership of the applied configuration. | Platform League templates; League defaults; League-private Season templates; copied application; editable draft configuration. | Operator capture: `Later operator decisions: configuration hierarchy and templates`; working requirements: `Configuration hierarchy and templates`. |
 | `CAND-LSE-003` | A commissioner can run a predictable Season whose competitive rules cannot shift once play has begun. | Draft/active/closed lifecycle; configuration sealing at activation; gated end-date changes. | Originating handoff section 2; operator discussion on Season dates and post-start policy changes; working requirements: `Season participation and buy-in`. |
+| `CAND-EVT-001` | A commissioner can prepare a correct League-and-Season-owned poker night before running it. | Required scheduled-event fields; derived title; draft behavior; authority and location-service resilience. | Operator capture: `Later operator requirements: event management`; working requirements: `Event management`. |
+| `CAND-EVT-002` | Eligible Season participants can obtain or wait for a seat without exceeding event capacity. | Capacity-bound RSVP, ordered waitlist, and time-limited offer acceptance. | Operator capture: `Later operator decisions: event capacity and Season closeout`; working requirements: `Event capacity and waitlist`. |
+| `CAND-OPS-001` | A commissioner can run live play with auditable official facts while Players see clearly bounded live status. | Manual opening; official entry, buy-in, rebuy, and cash-out facts; pending rebuy; final cash-out; non-authoritative self-reports. | Operator capture: `Later operator decisions: poker-night opening and final cash-out` and `rebuy operations`; working requirements: `Season enrollment lifecycle`. |
+| `CAND-SCR-001` | A League can publish reproducible official night and Season results only after complete, reviewed inputs. | Derived net chips, rank, points, standings, awards, and conservation-gated closure. | Originating handoff sections 2 and 7, subject to S01-F04; operator capture: scoring and closeout decisions; working requirements: `Night scoring and finish points` and `Chip conservation override`. |
+| `CAND-VIS-001` | Players and public visitors can inspect the appropriate results without exposing operational, personal, or money data. | Authenticated cross-League live/result visibility; revocable League public share link with a restricted data set. | Operator capture: `Later operator decision: public visibility and League share links`; working requirements: `Proposed product surfaces`. |
 
 When this proposal is consolidated, each accepted candidate must receive canonical requirement and
 story links in the project-owned Canon registry. Until then, the candidate key and the source
@@ -473,6 +526,162 @@ buy-in participation.
 
 **Status:** proposed; detailed Season-closeout workflow remains to be shaped.
 
+## Candidate CAND-EVT-001: Event Management And Scheduled Event
+
+**Kind:** behavior candidate
+
+**Proposed meaning:** A poker-night event belongs to exactly one League and one Season within that
+League. An authorized Commissioner uses Event Management to create or edit it with a system-derived
+title, address, attendee limit, event date, start time, end time, description, and draft state.
+Only a draft may omit required fields. A scheduled event requires valid fields, including an end
+after its start in the event's timezone. Address search and map display may use Google Maps, but
+unavailability must leave address entry usable with explicit feedback.
+
+**Actor/outcome direction:** As a Commissioner, I can create and prepare an event in the correct
+League and Season without mistaking a draft, location lookup failure, or schedule for live play.
+
+**Acceptance direction:**
+
+- League, Season, and acting-Commissioner authority are checked together; a selected Season belongs
+  to the selected League.
+- The title is derived as `<league name> <season name> Poker Night - <date>`, while description is
+  free text.
+- A draft may be saved before all required fields are available; a non-draft scheduled event may
+  not omit address, attendee limit, date, start time, or end time.
+- Address autocomplete is debounced and selection shows a map, with loading/failure feedback and a
+  usable non-provider-dependent address entry path.
+- The scheduled start does not automatically open an event or itself authorize buy-ins.
+
+**Provenance:** Operator event-management requirements in the included capture and working
+specification.
+
+**Status:** proposed; fallback/retry behavior and active League-context persistence remain in
+ambiguity docket `EVT-01`.
+
+## Candidate CAND-EVT-002: Event Capacity, RSVP, And Waitlist
+
+**Kind:** behavior candidate
+
+**Proposed meaning:** A Season poker-night event uses its configured maximum capacity to manage
+RSVPs from active or committed Season participants. Until capacity is reached an eligible RSVP is
+confirmed; later eligible RSVPs form an ordered waitlist. A cancellation opens a time-limited offer
+to the next waiting participant, who becomes confirmed only by accepting in time.
+
+**Actor/outcome direction:** As an eligible participant, I can tell whether I have a confirmed seat
+or am waiting; as a Commissioner, I can avoid admitting more participants than the event allows.
+
+**Acceptance direction:**
+
+- Only active or committed participants in the event's Season may RSVP.
+- Confirmed RSVPs cannot exceed event capacity.
+- The waiting list is ordered, and a cancelled confirmed seat produces an expiring offer to the
+  next eligible participant rather than silently confirming them.
+- RSVP and waitlist state is excluded from the public share-link view.
+
+**Provenance:** Operator capacity and enrollment decisions in the included capture and working
+specification.
+
+**Status:** proposed; cancellation notifications and exact offer-expiry behavior remain unresolved.
+
+## Candidate CAND-OPS-001: Live Event Operations And Official Facts
+
+**Kind:** behavior candidate
+
+**Proposed meaning:** Event Ops is the separate Commissioner surface for manually opening and
+running a scheduled event. An official entry begins only when the Commissioner records the external
+event buy-in and issues the starting points-chip stack. Rebuys become official only after explicit
+confirmation of external fee collection and points-chip issuance. Cash-out is a final observation
+of the official stack, not an in-product money payout; cash-out precludes rebuy and partial
+cash-out.
+
+**Actor/outcome direction:** As a Commissioner, I can record the authoritative live facts needed
+for a fair closeout; as a Player, I can see bounded live status without mistaking a self-report for
+an official result.
+
+**Acceptance direction:**
+
+- An authorized Commissioner manually opens an event; scheduled time is not an automatic lifecycle
+  transition or buy-in gate.
+- A pending rebuy visibly remains in process but does not increment the official rebuy count, add a
+  ledger remittance, or change official chip facts until completed.
+- Completed rebuys obey the Season cap; no rebuy is permitted after cash-out.
+- A Player's live points-chip count is timestamped, voluntary, and explicitly unofficial; it has no
+  effect on chip facts, scoring, conservation, or closure and is removed from view at cash-out.
+- A cash-out records the final stack and finalizes the entry's participation without closing the
+  event until every official entry is final.
+
+**Provenance:** Operator live-event and rebuy decisions in the included capture and working
+specification.
+
+**Status:** proposed; interrupted rebuy cancellation/correction and self-report editing/retention
+remain in docket items `NIGHT-02` and `NIGHT-03`.
+
+## Candidate CAND-SCR-001: Scoring, Conservation, Closure, And Results
+
+**Kind:** behavior candidate
+
+**Proposed meaning:** Official night and Season outcomes are reproducible derived results, not
+mutable source facts. Night net chips derive from final stack less starting stack and completed
+rebuy stacks. Field-size-scaled finish points use standard competition ranking, with an optional
+one-point attendance addition. A night closes only after every official entry has cashed out and
+chip conservation passes or an authorized Commissioner records an auditable override. Season
+closeout waits for each Season event to close or be cancelled, then derives eligibility, standings,
+whole-dollar award projections, and house remainder from recorded money facts.
+
+**Actor/outcome direction:** As a League participant, I can rely on standings and awards that trace
+back to final recorded facts; as a Commissioner, I can resolve a real chip discrepancy explicitly
+rather than silently changing a result.
+
+**Acceptance direction:**
+
+- Net chips, ranking, night and Season points, eligibility, standings, conservation difference,
+  purse, and projected awards are derived from source facts and applicable sealed configuration.
+- A conservation mismatch blocks closure unless an authorized Commissioner records a reason; the
+  issued amount, counted amount, and difference remain visible rather than repaired in place.
+- Closure publishes official net-chip and event-points results only after every bought-in Player
+  cashes out.
+- Award eligibility requires active or committed participation and the configured completed-entry
+  minimum; all Season participants remain visible in standings.
+- Awards derive only from recorded external remittances and adjustments, use whole-dollar tie
+  handling, and record unallocated rounding money as house remainder.
+- Post-closure corrections produce audit evidence and recompute derivations; their detailed
+  revision workflow remains unshaped.
+
+**Provenance:** Operator scoring, chip-conservation, money-boundary, and Season-closeout decisions;
+the originating handoff's conflicting fixed scoring and Champion-remainder rules are superseded by
+scrub disposition `S01-F04`.
+
+**Status:** proposed; correction/revision workflow and any resulting participant notifications
+remain unresolved.
+
+## Candidate CAND-VIS-001: Authenticated And Public Results Visibility
+
+**Kind:** behavior candidate
+
+**Proposed meaning:** Any authenticated Player may view live event information and closed results
+across Leagues. Separately, an authorized Commissioner may enable, disable, revoke, or regenerate
+a League-owned public share link. The public link exposes only League standings, closed poker-night
+results, and Player history; it does not expose live information, operational state, personal
+account data, invitations, or money and payout data.
+
+**Actor/outcome direction:** As a Player or public visitor, I can inspect the results I am allowed
+to see without gaining authority over League operations or access to sensitive information.
+
+**Acceptance direction:**
+
+- Authenticated cross-League viewing does not grant Commissioner authority or change League
+  membership.
+- The public share-link data set excludes live events and live standings, RSVP/waitlist,
+  self-reported counts, Account and invitation information, and ledger, payment, purse, and payout
+  projections.
+- The Commissioner can revoke or regenerate a public link, ending access under the prior link.
+- Public visibility remains read-only and League-owned.
+
+**Provenance:** Operator public-visibility decision and working product-surface proposal.
+
+**Status:** proposed; public aggregate visibility for any future pot or payout data is explicitly
+out of scope for this candidate.
+
 ## Relationship And Work Impact
 
 - `CAND-ACC-001` supports all invitation, membership, audit, and player-facing candidates.
@@ -496,9 +705,32 @@ candidates.
 - `CAND-LSE-002` depends on `CAND-LSE-001` and supplies draft configuration to `CAND-LSE-003`.
 - `CAND-LSE-003` depends on `CAND-LSE-002` and `CAND-SEA-001`; it constrains event scheduling,
   live-night scoring, ledger, and public-results candidates.
+- `CAND-EVT-001` depends on `CAND-LSE-001`, `CAND-LSE-003`, and `CAND-ACC-003`; it supplies the
+  League-and-Season event boundary for RSVP and Event Ops.
+- `CAND-EVT-002` depends on `CAND-EVT-001` and `CAND-SEA-001`; it supplies eligible participant
+  and capacity state to `CAND-OPS-001` and `CAND-VIS-001`.
+- `CAND-OPS-001` depends on `CAND-EVT-001`, `CAND-SEA-001`, `CAND-SEA-002`, and `CAND-ACC-003`; it
+  supplies the official entry and chip facts consumed by `CAND-SCR-001`.
+- `CAND-SCR-001` depends on `CAND-OPS-001`, `CAND-SEA-002`, and `CAND-LSE-003`; it supplies the
+  official results and closeout evidence consumed by `CAND-SEA-003` and `CAND-VIS-001`.
+- `CAND-VIS-001` depends on `CAND-SCR-001` for public closed results and on `CAND-OPS-001` for
+  authenticated live viewing; it constrains all future public-surface work.
 
 No existing Canon, completed Phase, tracker, phase prompt, or formal review is affected because
-none exists in this fresh H000 packet.
+none exists in this fresh H000 packet. The new candidates create prospective work-shaping impacts:
+event scheduling/location integration, RSVP/notifications, transactional Event Ops and audit,
+derivation and conservation testing, and separate authenticated/public access controls. These are
+new proposed obligations, not discovered nonconformance and not automatic Phase or tracker work.
+As of C03, the existing advisory work layout remains pinned to C02 proposal digest
+`576f14447a940b06bb04309a67351eddb020616337eb333043d4e045920752c5`; its exact-subject freshness
+is unknown until a separately authorized work-shaping pass reconciles it with C03. This pass does
+not amend the advisory layout. The exploratory assessment round
+`2026-09-24-proposal-assessment-01.md` is likewise historical because its pinned requirements,
+scrub, and proposal inputs changed. Preserve its findings as evidence of its reviewed subject;
+do not rewrite the report.
+
+No exact-subject review or approval exists for the changed proposal. The S01 scrub remains
+historical source-disposition evidence; it neither reviews nor approves this C03 proposal.
 
 ## Candidate Status
 
