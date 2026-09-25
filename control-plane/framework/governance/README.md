@@ -43,6 +43,12 @@ the **Project: Control Plane Steward** to adjudicate the path.
 
 ## Transition Status
 
+The reusable CP-V08 source handoff for the H000 admission trial is cataloged in
+[`docs/cp-v08-source-handoff.md`](../docs/cp-v08-source-handoff.md). It records the two completed
+repairs: profile-aware readiness admission mapping (`UG-001`) and admission-specific timing
+cleanliness compatibility (`UG-002`). The project archive remains the detailed provenance source;
+the handoff does not promote project candidates into Canon.
+
 H000's instance/horizon state split is installed. Tag-based identifier minting, target-pinned
 shaping branches, declaration/inception scaffolding, complete admission bundles, admission-time
 tracker creation, protected-target effectiveness checks, phase-to-horizon resolution, and local
