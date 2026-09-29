@@ -1,7 +1,7 @@
 ---
 name: "Admit Plan"
 description: "Guide exact review, decision and local/mock admission, or explicitly selected isolated gh/glab trial publication and application verification. Production admission remains disabled."
-argument-hint: "ID [--trial] [--review-only | --prepare | --publish | --resume ATTEMPT-ID | --withdraw ATTEMPT-ID | --merge-trial ATTEMPT-ID | --close-trial ATTEMPT-ID | --verify-trial ATTEMPT-ID] [--help]"
+argument-hint: "ID [--trial] [--review-only | --prepare | --publish | --resume ATTEMPT-ID | --withdraw ATTEMPT-ID | --merge-trial ATTEMPT-ID | --close-trial ATTEMPT-ID | --retire-trial ATTEMPT-ID | --verify-trial ATTEMPT-ID] [--help]"
 ---
 # Admit Plan: Local/Mock And Isolated Trials
 
@@ -12,10 +12,13 @@ review, signoff, publication consent or product execution. Other callers lack th
 
 `--trial` explicitly selects the guided skill's isolated CLI trial exception. Require a
 confirmed disposable test setup and exact nondefault cp-admission-trial/ target. Merge,
-close and verify trial options require --trial and an exact attempt ID; merge/close each
+close, retire and verify trial options require --trial and an exact attempt ID; merge/close/retire each
 require their own offered operation and actual confirmation. Never infer merge consent
 from publish. `--withdraw` remains local/mock only. Ordinary production admission remains
 disabled; successful trial application does not authorize product execution.
+`--retire-trial` verifies closure and non-integration before permitting a newly confirmed
+replacement attempt; it never reuses the retired ID. `--verify-trial` fails for any request
+that has not merged, including closed-unmerged requests.
 
 Load [guided admission](../skills/guided-admission/SKILL.md). Run its installed evidence,
 admission and publication APIs, not hypothetical forge commands. `--help` only describes actual

@@ -11,7 +11,7 @@ You are the implementation specialist for this project.
 
 LOCAL MOD - HARVEST TO CPB: `/admit-plan --trial` additionally permits the guided-admission
 skill's shipped isolated gh/glab trial helpers, including separately confirmed publication,
-merge, closure and application verification on nondefault cp-admission-trial/ targets only.
+merge, closure, retirement and application verification on nondefault cp-admission-trial/ targets only.
 This narrow exception does not permit production admission, main/protection changes,
 arbitrary remote operations, source-branch commits/pushes, or product start.
 

@@ -384,6 +384,101 @@ class TrialControllerTests(unittest.TestCase):
 		self.assertEqual(publication.run_trial(self.root, "trial-attempt", "resume", True)["state"], "closed-unmerged")
 
 
+	def test_verify_refuses_open_and_closed_requests(self):
+		self.setup_trial()
+		publication.run_trial(self.root, "trial-attempt", "resume", True)
+		for state in ("open", "closed"):
+			self.remote_request["state"] = state
+			output, errors = io.StringIO(), io.StringIO()
+			with self.subTest(state=state), mock.patch.object(sys, "argv", ["publication", "--root", str(self.root),
+				"--transport", "forge-cli-trial", "verify-trial", "--attempt", "trial-attempt", "--confirmed"]), \
+				 contextlib.redirect_stdout(output), contextlib.redirect_stderr(errors):
+				self.assertEqual(publication.main(), 1)
+			self.assertEqual(output.getvalue(), "")
+			self.assertIn("has not merged", errors.getvalue())
+
+
+	def test_retirement_allows_replacement_and_preserves_old_history(self):
+		self.setup_trial()
+		publication.run_trial(self.root, "trial-attempt", "resume", True)
+		publication.run_trial(self.root, "trial-attempt", "close-trial", True, self.operation_confirmation("close-trial"))
+		confirmation = self.operation_confirmation("retire-trial")
+		confirmation_path = self.root / "retirement.json"
+		confirmation_path.write_text(json.dumps(confirmation))
+		with self.assertRaisesRegex(ValueError, "retirement"):
+			publication.create_attempt(self.root, self.offered, "replacement", self.confirmation, True)
+		retired = self.cli("retire-trial", "--attempt", "trial-attempt", "--confirmation", confirmation_path, "--confirmed")
+		self.assertEqual(retired["state"], "trial-retired")
+		directory = publication.attempt_directory(self.root, "trial-attempt")
+		history = publication.journal(self.root, directory)
+		publication.create_attempt(self.root, self.offered, "replacement", self.confirmation, True)
+		self.assertEqual(publication.run_trial(self.root, "trial-attempt", "retire-trial", True, confirmation), retired)
+		self.assertEqual(publication.journal(self.root, directory), history)
+		claim = self.contract.load_json(publication.home(self.root) / "claims" / (self.offered["offer"]["context_id"] + ".json"))
+		self.assertEqual(claim["attempt_id"], "replacement")
+		with self.assertRaisesRegex(ValueError, "retired"):
+			publication.create_attempt(self.root, self.offered, "trial-attempt", self.confirmation, True)
+		for operation in ("resume", "verify-trial"):
+			with self.assertRaisesRegex(ValueError, "retired"):
+				publication.run_trial(self.root, "trial-attempt", operation, True)
+
+
+	def test_retirement_refuses_unconfirmed_open_merged_and_integrated(self):
+		self.setup_trial()
+		publication.run_trial(self.root, "trial-attempt", "resume", True)
+		confirmation = self.operation_confirmation("retire-trial")
+		for confirmed, supplied in ((False, confirmation), (True, {**confirmation, "commit": "a" * 40}),
+			(True, {**confirmation, "request_number": 99})):
+			with self.assertRaises(ValueError):
+				publication.run_trial(self.root, "trial-attempt", "retire-trial", confirmed, supplied)
+		for state in ("open", "merged"):
+			self.remote_request["state"] = state
+			with self.assertRaisesRegex(ValueError, "closed unmerged"):
+				publication.run_trial(self.root, "trial-attempt", "retire-trial", True, confirmation)
+		self.remote_request["state"] = "closed"
+		self.remote_target = self.commit
+		with self.assertRaisesRegex(ValueError, "already integrated"):
+			publication.run_trial(self.root, "trial-attempt", "retire-trial", True, confirmation)
+		self.remote_target = self.target
+		closed = copy.deepcopy(self.remote_request)
+		with mock.patch.object(self.client, "find_requests", side_effect=[[closed], [{**closed, "state": "open"}]]), self.assertRaisesRegex(ValueError, "changed during retirement"):
+			publication.run_trial(self.root, "trial-attempt", "retire-trial", True, confirmation)
+		with mock.patch.object(self.client, "branch", return_value={"commit": "a" * 40}), self.assertRaisesRegex(ValueError, "target changed"):
+			publication.run_trial(self.root, "trial-attempt", "retire-trial", True, confirmation)
+		self.assertFalse(any(event["state"] == "trial-retired" for event in publication.journal(self.root, publication.attempt_directory(self.root, "trial-attempt"))))
+
+
+	def test_retirement_recovers_interruptions_with_stale_capture_and_moved_target(self):
+		self.setup_trial()
+		publication.run_trial(self.root, "trial-attempt", "resume", True)
+		publication.run_trial(self.root, "trial-attempt", "close-trial", True, self.operation_confirmation("close-trial"))
+		confirmation = self.operation_confirmation("retire-trial")
+		self.remote_target = self.git(self.sandbox, "commit-tree", self.target + "^{tree}", "-p", self.target,
+			"-m", "Unrelated target advancement").stdout.decode().strip()
+		capture_path = self.capture.resolve_document(self.root, self.offered["offer"]["context_id"])
+		document = self.capture.read_capture(capture_path)
+		document["proposal"]["revision"] += 1
+		capture_path.write_text(self.capture.render(document))
+		directory = publication.attempt_directory(self.root, "trial-attempt")
+		original = publication.journal(self.root, directory)
+		append = publication.append_event
+		with mock.patch.object(publication, "append_event", side_effect=OSError("before journal publication")), self.assertRaises(OSError):
+			publication.run_trial(self.root, "trial-attempt", "retire-trial", True, confirmation)
+		self.assertEqual(publication.journal(self.root, directory), original)
+		def lost_reply(*arguments):
+			append(*arguments)
+			raise OSError("after journal publication")
+		with mock.patch.object(publication, "append_event", side_effect=lost_reply), self.assertRaises(OSError):
+			publication.run_trial(self.root, "trial-attempt", "retire-trial", True, confirmation)
+		completed = publication.journal(self.root, directory)
+		result = publication.run_trial(self.root, "trial-attempt", "retire-trial", True, confirmation)
+		self.assertEqual(result["state"], "trial-retired")
+		self.assertEqual(result["target_commit"], self.remote_target)
+		self.assertEqual(publication.journal(self.root, directory), completed)
+		with self.assertRaisesRegex(ValueError, "changed confirmation"):
+			publication.run_trial(self.root, "trial-attempt", "retire-trial", True, {**confirmation, "rationale": "Changed"})
+
+
 class TransferPublicationGuards(unittest.TestCase):
 	def setUp(self):
 		temporary = tempfile.TemporaryDirectory()

@@ -5,7 +5,9 @@
 LOCAL MOD - HARVEST TO CPB (2026-09-29): the guided-admission skill's explicitly selected
 isolated CLI trial exception permits helper-owned trial candidate commits, pushes and
 separately confirmed PR/MR merge/closure on nondefault cp-admission-trial/ targets.
-The existing attempt journal owns published-trial/applied-trial evidence; no second
+Separately confirmed trial retirement permits claim replacement only after closed-request
+and non-integration checks; it does not delete the old claim or reuse its attempt ID.
+The existing attempt journal owns published-trial/applied-trial/trial-retired evidence; no second
 tracker or production authorization is created. See approval-and-review.policy.md.
 This narrow exception does not alter legacy trackers, instance state or execution progress.
 

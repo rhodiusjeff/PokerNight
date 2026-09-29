@@ -77,6 +77,10 @@ are required. `--verify-trial` fetches and checks the merged target's exact cand
 result/evidence, one revision advance, preserved history and unchanged execution bindings.
 Results are `published-trial` or `applied-trial`, never protected admission or execution
 authority. Normal production admission remains disabled; GitLab live verification is outstanding.
+`--verify-trial` fails for any unmerged request, including a closed one. After confirmed
+closure, separately confirmed `--retire-trial` checks that the old change was not integrated
+and allows a newly confirmed replacement attempt. Old attempt history is retained and its
+ID cannot be reused. See the guided-admission skill for exact confirmation fields.
 Cross-branch source retirement remains `local-only/incomplete`, `portable_complete: false`.
 Offline diagram retention verifies bytes only; the diagram-checkpoint skill owns actual provider,
 native/render consistency and currentness checks. No remote scene operations are invented.

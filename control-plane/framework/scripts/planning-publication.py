@@ -213,8 +213,8 @@ def create_attempt(root, offered, identity, confirmation, confirmed, *, owner=No
             load_attempt(root, identity)
             contract.require(header_path.read_bytes() == evidence.encoded(header), "immutable publication record differs")
         events = journal(root, directory)
-        contract.require(not any(event["state"] == "withdrawn" for event in events),
-                         "withdrawn attempt identity cannot be reused")
+        contract.require(not any(event["state"] in ("withdrawn", "trial-retired") for event in events),
+                 "withdrawn or retired attempt identity cannot be reused")
         claims = home(root) / "claims"
         capture.ensure_directory(root, claims)
         claim_path = evidence.confined(root, claims / (value["context_id"] + ".json"))
@@ -224,7 +224,8 @@ def create_attempt(root, offered, identity, confirmation, confirmed, *, owner=No
             if previous != claim:
                 old_directory = attempt_directory(root, previous["attempt_id"])
                 previous_events = journal(root, old_directory)
-                contract.require(previous_events and previous_events[-1]["state"] == "withdrawn", "competing publication attempt requires withdrawal")
+                contract.require(previous_events and previous_events[-1]["state"] in ("withdrawn", "trial-retired"),
+                                 "competing publication attempt requires withdrawal or explicit trial retirement")
                 capture.replace_bytes(claim_path, claim_path.read_bytes(), evidence.encoded(claim))
         else:
             immutable_json(root, claim_path, claim)
@@ -528,16 +529,44 @@ def verify_trial_application(root, directory, header, client, commit, request):
     return observed
 
 
+def retire_trial(root, directory, header, client, commit, request, confirmation):
+    contract.require(request["state"] == "closed", "only a closed unmerged trial can be retired")
+    value = header["offer"]
+    claim = contract.load_json(evidence.confined(root, home(root) / "claims" / (value["context_id"] + ".json")))
+    contract.require(claim == {"attempt_id": header["id"], "bundle_id": value["bundle_id"]},
+                     "another attempt owns the proposal claim")
+    sandbox = evidence.confined(root, directory / "repository")
+    target = client.fetch_target(sandbox, request["target"])
+    specification = planning_git.blob_json(sandbox, target, admission.SPECIFICATION_PATH)
+    contract.validate_specification(specification)
+    contract.require(not any(entry["proposal_id"] == value["context_id"] for entry in specification["admissions"]),
+                     "trial proposal already integrated; retirement refused")
+    contract.require(planning_git.git(sandbox, "merge-base", "--is-ancestor", commit, target, check=False).returncode == 1,
+                     "trial candidate already integrated or ancestry unavailable")
+    contract.require(client.find_requests(request["source"], request["repository_id"]) == [request],
+                     "trial request changed during retirement")
+    contract.require(client.branch(request["target"])["commit"] == target, "trial target changed during retirement")
+    result = {"attempt_id": header["id"], "state": "trial-retired", "request": request,
+              "target_commit": target, "confirmation": copy.deepcopy(confirmation), "live_admission": False}
+    append_event(root, directory, "trial-retired", result)
+    return result
+
+
 def run_trial(root, identity, operation, confirmed, confirmation=None):
-    contract.require(confirmed and operation in ("resume", "merge-trial", "close-trial", "verify-trial"),
+    contract.require(confirmed and operation in ("resume", "merge-trial", "close-trial", "verify-trial", "retire-trial"),
                      "exact confirmed trial operation required")
     root, directory, header = load_attempt(root, identity)
-    if operation in ("merge-trial", "close-trial"):
+    if operation in ("merge-trial", "close-trial", "retire-trial"):
         evidence.attribution(confirmation)
         contract.require(confirmation.get("attempt_id") == identity and confirmation.get("offer_digest") == header["offer_digest"]
                          and confirmation.get("operation") == operation, "confirmation must bind the exact trial operation")
     with attempt_lock(root, directory):
         events = journal(root, directory)
+        retired = [event for event in events if event["state"] == "trial-retired"]
+        if retired:
+            contract.require(operation == "retire-trial", "retired trial cannot resume or verify application")
+            contract.require(retired[-1]["data"]["confirmation"] == confirmation, "retirement retry changed confirmation")
+            return retired[-1]["data"]
         contract.require(not any(event["state"] == "withdrawn" for event in events), "withdrawn trial cannot resume")
         client = trial_client(root, header)
         value = header["offer"]
@@ -552,12 +581,19 @@ def run_trial(root, identity, operation, confirmed, confirmation=None):
             check_trial_request(header, commit, request)
             known = [event["data"]["number"] for event in events if event["state"] == "trial-request-observed"]
             contract.require(not known or all(number == request["number"] for number in known), "trial request identity changed")
+            if operation in ("merge-trial", "close-trial", "retire-trial"):
+                contract.require(confirmation.get("request_number") == request["number"]
+                                 and confirmation.get("commit") == commit, "confirmation differs from exact request/commit")
+            if operation == "retire-trial":
+                return retire_trial(root, directory, header, client, commit, request, confirmation)
             if request["state"] == "merged":
                 return verify_trial_application(root, directory, header, client, commit, request)
             if request["state"] == "closed":
+                contract.require(operation != "verify-trial", "trial request has not merged")
                 append_event(root, directory, "trial-request-closed", request)
                 return {"attempt_id": identity, "state": "closed-unmerged", "request": request, "live_admission": False}
         fresh(root, header)
+        contract.require(operation != "retire-trial", "exact closed trial request is required for retirement")
         contract.require(client.branch(target)["commit"] == value["target_commit"], "remote trial target moved")
         if operation == "resume":
             append_event(root, directory, "trial-push-intent", {"commit": commit, "source": source})
@@ -877,12 +913,12 @@ def main():
     offered.add_argument("--host-provider", action="append", default=[], metavar="HOST=github|gitlab")
     create = commands.add_parser("create", help="persist immutable confirmed local/mock attempt")
     create.add_argument("--offer", required=True, type=pathlib.Path)
-    for name in ("create", "resume", "inspect", "close-mock", "withdraw", "merge-trial", "close-trial", "verify-trial"):
+    for name in ("create", "resume", "inspect", "close-mock", "withdraw", "merge-trial", "close-trial", "verify-trial", "retire-trial"):
         command = create if name == "create" else commands.add_parser(name)
         command.add_argument("--attempt", required=True)
         if name != "inspect":
             command.add_argument("--confirmed", action="store_true")
-        if name in ("create", "close-mock", "withdraw", "merge-trial", "close-trial"):
+        if name in ("create", "close-mock", "withdraw", "merge-trial", "close-trial", "retire-trial"):
             command.add_argument("--confirmation", required=True, type=pathlib.Path)
         if name == "resume":
             command.add_argument("--fail-at", choices=FAILURES)
@@ -898,7 +934,7 @@ def main():
                              "host mappings must be unique HOST=github|gitlab entries")
             providers[host] = provider
         trial = args.transport == "forge-cli-trial"
-        if args.command in ("merge-trial", "close-trial", "verify-trial"):
+        if args.command in ("merge-trial", "close-trial", "verify-trial", "retire-trial"):
             contract.require(trial, "trial operations require --transport forge-cli-trial")
             confirmation = None if args.command == "verify-trial" else contract.load_json(evidence.confined(args.root, args.confirmation))
             result = run_trial(args.root, args.attempt, args.command, args.confirmed, confirmation)

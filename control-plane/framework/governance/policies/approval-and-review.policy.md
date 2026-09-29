@@ -13,6 +13,13 @@ operation confirmations. This trial path claims no queue/train, cross-clone excl
 bypass enforcement and cannot be used as a production approval workaround. It is available
 for the Operator's requested E2E test; no test run or merge is implied by implementation.
 
+Separately confirmed `retire-trial` verifies an exact closed-unmerged request and absence
+of its proposal/candidate from the fetched target before recording `trial-retired`.
+Only then may a fresh confirmed attempt replace the retained proposal claim. The retired
+identity and history remain immutable; retry cannot overwrite a newer claim. This is
+trial reentry, not withdrawal of production authorization. Application verification must
+fail for open and closed-unmerged requests; successful inspection is not applied work.
+
 LOCAL MOD - HARVEST TO CPB: applies only to new-format planning captures; legacy horizon/OPS
 review, ledger, closeout and completion authority below is unchanged. Both primary callers and
 Facilitator use the same narrow guided-admission skill, never grant themselves actor authority.

@@ -44,14 +44,24 @@ python3 control-plane/framework/scripts/planning-publication.py --root ROOT --tr
 python3 control-plane/framework/scripts/planning-publication.py --root ROOT --transport forge-cli-trial merge-trial --attempt ATTEMPT-ID --confirmation MERGE.json --confirmed
 python3 control-plane/framework/scripts/planning-publication.py --root ROOT --transport forge-cli-trial verify-trial --attempt ATTEMPT-ID --confirmed
 python3 control-plane/framework/scripts/planning-publication.py --root ROOT --transport forge-cli-trial close-trial --attempt ATTEMPT-ID --confirmation CLOSE.json --confirmed
+python3 control-plane/framework/scripts/planning-publication.py --root ROOT --transport forge-cli-trial retire-trial --attempt ATTEMPT-ID --confirmation RETIRE.json --confirmed
 ```
 
-Merge and close are separate offered operations, never inferred from publication consent.
+Merge, close and retirement are separate offered operations, never inferred from publication consent.
 Their confirmation files require actual attribution plus `attempt_id`, `offer_digest`,
-`operation` (merge-trial or close-trial), `request_number` and candidate `commit`.
+`operation` (merge-trial, close-trial or retire-trial), `request_number` and candidate `commit`.
 Merge reports `applied-trial` only after fetching the target and verifying exact candidate
 tree, specification/evidence bytes, one revision advance, history and unchanged execution.
 `published-trial` grants no merge authorization. Both keep `live_admission: false`.
+Verification exits nonzero for open or closed-unmerged requests; only actual verified
+application succeeds. After closure, separately confirmed retirement checks that the exact
+request is still closed and its proposal/candidate are absent from the fetched target.
+It appends `trial-retired` without erasing the claim or history. A fresh confirmed attempt
+may then replace that claim; the retired ID cannot be reused. An exact retirement retry
+is idempotent even after a replacement exists. Changed confirmation refuses. Source edits
+or unrelated target advancement do not require restoring stale content to retire an old
+attempt; remote request/target changes during verification still refuse. Retiring a trial
+does not claim production withdrawal or cross-clone writer exclusion.
 Trial PR/MR closure is not withdrawal of production authorization. Do not use mock withdrawal
 for a trial, silently reuse its identity, or erase its journal. Uncertain writes require
 inspection/reconciliation of the same attempt; do not generate a replacement request.
