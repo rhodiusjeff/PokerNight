@@ -1,0 +1,580 @@
+{
+  "schema": "cp-planning-capture-v1",
+  "id": "ADHOC-7fd789738d5348cbbbd4f4cb378fbecf",
+  "kind": "ad-hoc",
+  "title": "Tic-Tac-Toe: React, 0-2 Human Players",
+  "author": "Operator (conversation); source retained by GitHub Copilot",
+  "created_at": "2026-09-29T17:15:44.820639+00:00",
+  "sources": [
+    {
+      "id": "source-1",
+      "origin": "/Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/001-conversation-source.md",
+      "sha256": "d6139844ec225d1e36ddd07d9552bc8aa1a64fc14a38fc6b935560f49bea69ed",
+      "bytes_base64": "IyBUaWMtVGFjLVRvZTogT3JpZ2luYWwgUGxhbm5pbmcgQ29udmVyc2F0aW9uCgpEYXRlOiAyMDI2LTA5LTI5ClNvdXJjZTogY3VycmVudCBPcGVyYXRvciBjb252ZXJzYXRpb247IGV4Y2VycHRzIHRyYW5zY3JpYmVkIGJ5IEdpdEh1YiBDb3BpbG90LgpTY29wZTogbmV3IGFkIGhvYyBmZWF0dXJlIHBsYW5uaW5nLCBub3QgdGhlIGVhcmxpZXIgY2hlY2tsaXN0IHNhbXBsZSBvciBQb2tlck5pZ2h0IGhvcml6b24uClN0YXR1czogb3JpZ2luYWwgaW50ZW50IGFuZCBjbGFyaWZpY2F0aW9uLCBub3QgYXBwcm92ZWQgQ2Fub24gb3IgaW1wbGVtZW50YXRpb24gYXV0aG9yaXR5LgoKIyMgT3BlcmF0b3I6IEZlYXR1cmUgSW50ZW50IChWZXJiYXRpbSkKCmBgYHRleHQKT2ssIHdlIGFyZSBnb2luZyB0byBkbyBzb21lIHBsYW5uaW5nIGZvciBmZWF0dXJlLiAgVGhhdCBmZWF0dXJlIGlzIGEgc2ltcGxlIHRpYy10YWMtdG9lIGdhbWUuICBJdCB3aWxsIGJlIGEgc2ltcGxlIHJlYWN0IGFwcGxpY2F0aW9uIHdpdGggMC0yIHBsYXllci4gIDAgcGxheWVycyBhcmUgQUkgdnMgQUksIDEgcGxheWVyIGlzIGEgaHVtYW4gdnMgQUkgYW5kIDIgcGxheWVycyBpcyBodW1hbiB2cyBodW1hbi4KYGBgCgojIyBBc3Npc3RhbnQ6IFByb3Bvc2VkIFNjb3BlIEFuZCBRdWVzdGlvbnMKClRoZSBhc3Npc3RhbnQgcHJvcG9zZWQgc3RhbmRhcmQgM3gzIHRpYy10YWMtdG9lLCBhIGJyb3dzZXItb25seSBmaXJzdCB2ZXJzaW9uIG9uIG9uZSBzaGFyZWQKZGV2aWNlLCBubyBhY2NvdW50cyBvciBuZXR3b3JraW5nLCBhIG1vZGUgc2VsZWN0b3IsIHR1cm4vcmVzdWx0IGRpc3BsYXkgYW5kIHJlc3RhcnQuClRoZXNlIHdlcmUgcHJlc2VudGVkIGFzIHByb3Bvc2Fscywgbm90IHNldHRsZWQgcmVxdWlyZW1lbnRzLgoKUXVlc3Rpb25zICh2ZXJiYXRpbSB0ZXh0LCB3aXRoIE1hcmtkb3duIGVtcGhhc2lzIHJldGFpbmVkKToKCjEuIFNob3VsZCB0aGUgQUkgYmUgKip1bmJlYXRhYmxlKiosICoqY2FzdWFsKiosIG9yIG9mZmVyIGRpZmZpY3VsdHkgbGV2ZWxzPwoyLiBJbiBodW1hbi12cy1BSSBtb2RlLCBzaG91bGQgdGhlIGh1bWFuIGNob29zZSBYIG9yIE8/CjMuIFNob3VsZCBBSS12cy1BSSBwbGF5IG9uZSBnYW1lIGF0IGEgdmlzaWJsZSBwYWNlLCBvciBhdXRvbWF0aWNhbGx5IHJlcGVhdCBnYW1lcz8KClRoZSBhc3Npc3RhbnQgb2ZmZXJlZCBgL3BsYW4td29yayAtLWNhcHR1cmUgYWQtaG9jYCB0byBwcmVzZXJ2ZSB0aGlzIGNvbnZlcnNhdGlvbiBhcyB0aGUKc291cmNlIGFuZCBzdGF0ZWQgdGhhdCBjYXB0dXJlIGRvZXMgbm90IGF1dGhvcml6ZSBpbXBsZW1lbnRhdGlvbi4KCiMjIE9wZXJhdG9yOiBDb25maXJtYXRpb24gQW5kIEFuc3dlcnMgKFZlcmJhdGltKQoKYGBgdGV4dApTb3VuZHMgZ29vZC4gIFN0YXJ0IHRoZSBhZCBob2MgcGxhbm5pbmcuCgoxIC0gQUkgc2hvdWxkIGJlIHVuYmVhdGFibGUgLSB5b3Uga25vdyBob3cgdGhpcyBnYW1lIGlzIHN1cHBvc2VkIHRvIHdvcmsKMiAtIFllcwozIC0gWWVzCmBgYAoKIyMgQ2FwdHVyZSBJbnRlcnByZXRhdGlvbiAoQXNzaXN0YW50LCBOb3QgQWRkaXRpb25hbCBPcGVyYXRvciBEZWNpc2lvbnMpCgotIFJlYWN0IGFuZCBhbGwgdGhyZWUgaHVtYW4tcGxheWVyIGNvdW50cyBhcmUgZXhwbGljaXQgcmVxdWlyZW1lbnRzLgotIFRoZSBBSSBtdXN0IGJlIHVuYmVhdGFibGUuIFN0YW5kYXJkIHRpYy10YWMtdG9lIHBlcm1pdHMgYSBkcmF3OyB1bmJlYXRhYmxlIGRvZXMgbm90CiAgbWVhbiB0aGUgQUkgbXVzdCB3aW4gYWdhaW5zdCBwZXJmZWN0IHBsYXkuIFR3byB1bmJlYXRhYmxlIEFJcyBzaG91bGQgZHJhdy4KLSBUaGUgaHVtYW4gY2FuIGNob29zZSBYIG9yIE8gaW4gb25lLWh1bWFuIG1vZGUuCi0gIlNvdW5kcyBnb29kIiBzdXBwb3J0cyB1c2luZyB0aGUgcHJvcG9zZWQgc2ltcGxlIGxvY2FsLWJyb3dzZXIgc2NvcGUgYXMgdGhlIHdvcmtpbmcKICBpbnRlcnByZXRhdGlvbiwgdG8gYmUgbWFkZSBleHBsaWNpdCBkdXJpbmcgZHJhZnRpbmcgcmF0aGVyIHRoYW4gYXR0cmlidXRlZCBhcyBhIHZlcmJhdGltCiAgT3BlcmF0b3Igc3BlY2lmaWNhdGlvbi4KLSBUaGUgdGhpcmQgYW5zd2VyIGlzIGFtYmlndW91cyBiZWNhdXNlIHRoZSBxdWVzdGlvbiBvZmZlcmVkIGFsdGVybmF0aXZlcy4gVmlzaWJsZS1wYWNlZAogIEFJIHR1cm5zIHJlbWFpbiBwcm9wb3NlZDsgd2hldGhlciBnYW1lcyBhdXRvbWF0aWNhbGx5IHJlcGVhdCBpcyB1bnJlc29sdmVkLiBEbyBub3QKICBjb252ZXJ0ICJZZXMiIGludG8gYSBkZWNpc2lvbiBmb3IgZWl0aGVyIGFsdGVybmF0aXZlIHdpdGhvdXQgY2xhcmlmaWNhdGlvbi4KLSBTdGFuZGFyZCAzeDMgcGxheSBhbmQgWCBtb3ZpbmcgZmlyc3QgYXJlIHRoZSBjb252ZW50aW9uYWwgcnVsZXMgaW50ZXJwcmV0YXRpb24sIG5vdCBhCiAgbmV3IHZhcmlhbnQgb3IgYSBzZWxlY3RlZCBpbXBsZW1lbnRhdGlvbiBhbGdvcml0aG0vbGlicmFyeS4KLSBObyByZXBvc2l0b3J5IGFkbWlzc2lvbiB0YXJnZXQsIG9wZXJhdGlvbmFsIGJhc2VsaW5lLCBhcmNoaXRlY3R1cmUsIHBoYXNlIHNwbGl0IG9yCiAgaW1wbGVtZW50YXRpb24gc3RhcnQgaGFzIGJlZW4gc2VsZWN0ZWQgYnkgdGhpcyBjYXB0dXJlLgoKIyMgTmV4dCBDbGFyaWZpY2F0aW9uCgpGb3IgQUktdnMtQUksIHNob3VsZCBwbGF5IHN0b3AgYWZ0ZXIgb25lIHZpc2libHkgcGFjZWQgZ2FtZSB1bnRpbCByZXN0YXJ0ZWQsIG9yIGF1dG9tYXRpY2FsbHkKYmVnaW4gYW5vdGhlciBnYW1lPyBQbGFubmluZyBtYXkgY29udGludWUgd2l0aCB0aGlzIHF1ZXN0aW9uIG9wZW47IGNvbXBsZXRpb24gbXVzdCBzZXR0bGUgaXQu"
+    },
+    {
+      "id": "source-2",
+      "origin": "/Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/002-play-again-source.md",
+      "sha256": "7af814bf2cd85e7440edec3184c9e505435e77ebf8d7fad2359c3b2ed884e961",
+      "bytes_base64": "IyBUaWMtVGFjLVRvZTogTWFudWFsIFJlcGxheSBEZWNpc2lvbgoKRGF0ZTogMjAyNi0wOS0yOQpTb3VyY2U6IE9wZXJhdG9yIGNsYXJpZmljYXRpb24gYW5kIGV4cGxpY2l0IGNvbmZpcm1hdGlvbiBpbiB0aGUgY3VycmVudCBjb252ZXJzYXRpb24uCkNvbnRleHQ6IEFESE9DLTdmZDc4OTczOGQ1MzQ4Y2JiYmQ0ZjRjYjM3OGZiZWNmCgojIyBPcGVyYXRvciBDbGFyaWZpY2F0aW9uIChWZXJiYXRpbSkKCmBgYHRleHQKVGhlIGh1bWFuIG5lZWQgdG8gcHJlc3MgdGhlICJQbGF5IGFnYWluIiBidXR0b24uCmBgYAoKIyMgSW50ZXJwcmV0YXRpb24gT2ZmZXJlZCBGb3IgQ29uZmlybWF0aW9uCgpBSS12cy1BSSBzdG9wcyBhZnRlciBlYWNoIGdhbWUsIGtlZXBzIHRoZSByZXN1bHQgdmlzaWJsZSwgYW5kIHdhaXRzIGZvciBhIHBlcnNvbiB0byBwcmVzcwoiUGxheSBhZ2Fpbi4iIE5vIGF1dG9tYXRpYyByZXBlYXQuCgpUaGUgYXNzaXN0YW50IG9mZmVyZWQgYC9wbGFuLXdvcmsgQURIT0MtN2ZkNzg5NzM4ZDUzNDhjYmJiZDRmNGNiMzc4ZmJlY2YgLS1hcHBlbmRgCnRvIHJlY29yZCB0aGF0IGRlY2lzaW9uIHdoaWxlIHByZXNlcnZpbmcgdGhlIG9yaWdpbmFsIGNvbnZlcnNhdGlvbi4KCiMjIE9wZXJhdG9yIENvbmZpcm1hdGlvbiAoVmVyYmF0aW0pCgpgYGB0ZXh0CnJ1biBpdApgYGAKCiMjIERlY2lzaW9uIEFuZCBTY29wZQoKVGhpcyByZXNvbHZlcyBzb3VyY2UtMSdzIG9wZW4gcXVlc3Rpb24gYWJvdXQgYXV0b21hdGljIHJlcGxheSBpbiBBSS12cy1BSSBtb2RlOiBzdGFydGluZwphbm90aGVyIGdhbWUgcmVxdWlyZXMgYSBodW1hbiBhY3Rpb24gb24gIlBsYXkgYWdhaW4iOyBnYW1lcyBkbyBub3QgcmVwZWF0IGF1dG9tYXRpY2FsbHkuClRoZSB0ZXJtaW5hbCByZXN1bHQgc3RheXMgdmlzaWJsZSB1bnRpbCB0aGF0IGFjdGlvbi4gVGhpcyBkb2VzIG5vdCBpbnRyb2R1Y2UgYSBodW1hbgpib2FyZCBwbGF5ZXIgaW50byB0aGUgemVyby1odW1hbiBtb2RlOyB0aGUgcGVyc29uIGNvbnRyb2xzIHJlcGxheSwgbm90IGVpdGhlciBBSSdzIG1vdmVzLgoKT3JpZ2luYWwgc291cmNlLTEgcmVtYWlucyB1bmNoYW5nZWQuIFRoaXMgZGVjaXNpb24gZG9lcyBub3Qgc3BlY2lmeSBuZXcgdGltaW5nIHZhbHVlcywKc2NvcmUgcmV0ZW50aW9uLCByZXNldCBzZXR0aW5ncyBvciBiZWhhdmlvciBmb3IgY2hhbmdpbmcgbW9kZXMgbWlkLWdhbWUuIEl0IGF1dGhvcml6ZXMKcmVjb3JkaW5nIHRoZSBkZWNpc2lvbiBvbmx5LCBub3QgaW1wbGVtZW50YXRpb24sIGEgY29tcGxldGUgcHJvcG9zYWwgb3IgYWRtaXNzaW9uLg=="
+    },
+    {
+      "id": "source-3",
+      "origin": "/Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/003-runtime-browser-source.md",
+      "sha256": "3546cbb855ed4253554279579fe77387fb3eaccfe03310fe79b5f2db2e44e616",
+      "bytes_base64": "IyBUaWMtVGFjLVRvZTogUnVudGltZSBBbmQgQnJvd3NlciBSZXF1aXJlbWVudHMKCkRhdGU6IDIwMjYtMDktMjkKU291cmNlOiBPcGVyYXRvciByZXF1aXJlbWVudHMgYW5kIGNvbmZpcm1hdGlvbiBpbiB0aGUgY3VycmVudCBjb252ZXJzYXRpb24uCkNvbnRleHQ6IEFESE9DLTdmZDc4OTczOGQ1MzQ4Y2JiYmQ0ZjRjYjM3OGZiZWNmCgojIyBPcGVyYXRvciBSZXF1aXJlbWVudHMgKFZlcmJhdGltKQoKYGBgdGV4dApBIGNvdXBsZSBvZiBub24tZnVuY3Rpb25hbCByZXF1aXJlbWVudHMgLSB0aGlzIHdpbGwgcnVuIGluIE5vZGUgRXhwcmVzcyBsb2NhbGx5IGF0IHBvcnQgMzYzMC4gIEl0IG5lZWRzIHRvIHJ1biBvbiBhIGRlc2t0b3AgYW5kIGEgbW9iaWxlIGJyb3dzZXIuCmBgYAoKIyMgSW50ZXJwcmV0YXRpb24gT2ZmZXJlZCBGb3IgQ29uZmlybWF0aW9uCgotIExvY2FsIHJ1bnRpbWU6IE5vZGUuanMgd2l0aCBFeHByZXNzLCBzZXJ2aW5nIHRoZSBSZWFjdCBhcHBsaWNhdGlvbiBvbiBwb3J0IDM2MzAuCi0gQnJvd3NlciBzdXBwb3J0OiByZXNwb25zaXZlIGxheW91dCBhbmQgdXNhYmxlIGNvbnRyb2xzIG9uIGJvdGggZGVza3RvcCBhbmQgbW9iaWxlIGJyb3dzZXJzLgoKVGhlIGFzc2lzdGFudCBvZmZlcmVkIGAvcGxhbi13b3JrIEFESE9DLTdmZDc4OTczOGQ1MzQ4Y2JiYmQ0ZjRjYjM3OGZiZWNmIC0tYXBwZW5kYAp0byByZXRhaW4gdGhlc2UgcmVxdWlyZW1lbnRzIGluIHRoZSBleGlzdGluZyBjYXB0dXJlLgoKIyMgT3BlcmF0b3IgQ29uZmlybWF0aW9uIChWZXJiYXRpbSkKCmBgYHRleHQKcnVuIGl0CmBgYAoKIyMgU2NvcGUgQW5kIEludGVycHJldGF0aW9uCgpUaGVzZSByZXF1aXJlbWVudHMgc3VwcGxlbWVudCB0aGUgb3JpZ2luYWwgUmVhY3QgZ2FtZSBhbmQgbWFudWFsLXJlcGxheSBkZWNpc2lvbjsgbmVpdGhlcgplYXJsaWVyIHNvdXJjZSBpcyByZXBsYWNlZC4gVGhlIGVhcmxpZXIgYnJvd3Nlci1vbmx5IHByb3Bvc2FsIG11c3Qgbm90IGJlIGludGVycHJldGVkIGFzCnByb2hpYml0aW5nIHRoZSBleHBsaWNpdGx5IHJlcXVlc3RlZCBsb2NhbCBFeHByZXNzIHNlcnZlci4gTm8gbmV0d29ya2VkIG11bHRpcGxheWVyIGlzCmludHJvZHVjZWQgYnkgYnJvd3NlciBzdXBwb3J0IG9yIGJ5IHNlcnZpbmcgdGhlIGFwcGxpY2F0aW9uIHRocm91Z2ggRXhwcmVzcy4KCk5vIE5vZGUuanMvRXhwcmVzcyB2ZXJzaW9uLCBicm93c2VyL3ZlcnNpb24gbWF0cml4LCBuZXR3b3JrIGJpbmRpbmcsIHJlbW90ZSBob3N0aW5nLApnYW1lLXN0YXRlIGF1dGhvcml0eSBvciBkZXBsb3ltZW50IGNvbmZpZ3VyYXRpb24gaXMgc2VsZWN0ZWQgYnkgdGhpcyBzb3VyY2UuIEEgZnV0dXJlCmltcGxlbWVudGF0aW9uIG11c3Qgc2F0aXNmeSB0aGUgc3RhdGVkIHJ1bnRpbWUgYW5kIGJyb3dzZXIgcmVxdWlyZW1lbnRzOyB0aGlzIGNvbmZpcm1hdGlvbgpvbmx5IGF1dGhvcml6ZXMgcmVjb3JkaW5nIHRoZW0sIG5vdCBzdGFydGluZyBhIHNlcnZlciBvciB3cml0aW5nIGFwcGxpY2F0aW9uIGNvZGUu"
+    },
+    {
+      "id": "source-4",
+      "origin": "/Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/005-confirmed-defaults-source.md",
+      "sha256": "677069c28c0a4c38ba1772b07b82c664fd8c82a29f1465615b8488424e9f90b8",
+      "bytes_base64": "IyBUaWMtVGFjLVRvZTogQ29uZmlybWVkIERlZmF1bHRzCgpEYXRlOiAyMDI2LTA5LTI5CkNvbnRleHQ6IEFESE9DLTdmZDc4OTczOGQ1MzQ4Y2JiYmQ0ZjRjYjM3OGZiZWNmClByb3ZlbmFuY2U6IGFzc2lzdGFudCByZWNvbW1lbmRhdGlvbnMgZm9sbG93ZWQgYnkgYWN0dWFsIE9wZXJhdG9yIGNvbmZpcm1hdGlvbi4KCiMjIFJlY29tbWVuZGF0aW9ucyBQcmVzZW50ZWQgVG8gVGhlIE9wZXJhdG9yCgpUaGUgYXNzaXN0YW50IGFza2VkIHdoZXRoZXIgdGhlc2UgZGVmYXVsdHMgbWF0Y2hlZCB0aGUgT3BlcmF0b3IncyBpbnRlbnQ6CgotIE9uZSBzaGFyZWQtZGV2aWNlIGdhbWUsIHdpdGhvdXQgYWNjb3VudHMsIHNhdmVkIGdhbWVzIG9yIHBlcnNpc3RlbnQgc2NvcmVzLgotICJQbGF5IGFnYWluIiBpbiBldmVyeSBtb2RlLCByZXRhaW5pbmcgbW9kZSBhbmQgbWFyayBzZWxlY3Rpb25zLgotIEEgKio1MDAgbXMgZGVsYXkqKiBiZWZvcmUgZWFjaCBBSSBtb3ZlLgotIERlc2t0b3AgYW5kIG1vYmlsZSBicm93c2VyIHRlc3RpbmcsIGluY2x1ZGluZyBhIHBoeXNpY2FsIHBob25lIGFjY2Vzc2luZyB0aGUgbG9jYWwgRXhwcmVzcyBzZXJ2ZXIgb3ZlciBXaS1GaS4KCiMjIE9wZXJhdG9yIFJlc3BvbnNlIChWZXJiYXRpbSkKCmBgYHRleHQKWWVzCmBgYAoKIyMgU2VwYXJhdGUgT3BlcmF0aW9uIENvbmZpcm1hdGlvbgoKVGhlIGFzc2lzdGFudCBvZmZlcmVkIHRoZXNlIHR3byBvcGVyYXRpb25zIGFnYWluc3QgdGhpcyBleGFjdCBjb250ZXh0OgoKMS4gYC9wbGFuLXdvcmsgQURIT0MtN2ZkNzg5NzM4ZDUzNDhjYmJiZDRmNGNiMzc4ZmJlY2YgLS1hcHBlbmRgIHRvIHJldGFpbiB0aGUgY29uZmlybWF0aW9uLgoyLiBgL3BsYW4td29yayBBREhPQy03ZmQ3ODk3MzhkNTM0OGNiYmJkNGY0Y2IzNzhmYmVjZiAtLWNhbm9uYCB0byByZWZyZXNoIHRoZSByZXF1aXJlbWVudHMgZHJhZnQuCgpPcGVyYXRvciByZXNwb25zZSAodmVyYmF0aW0pOgoKYGBgdGV4dApydW4gYm90aApgYGAKCiMjIEludGVycHJldGF0aW9uIEFuZCBMaW1pdHMKClRoZSBmb3VyIGxpc3RlZCBkZWZhdWx0cyBhcmUgbm93IGNvbmZpcm1lZCBpbnRlbnQuIFRoZXkgcmVzb2x2ZSB0aGUgcHJpb3IgcmVjb21tZW5kYXRpb25zCm9ubHkgdG8gdGhlIGV4dGVudCBzdGF0ZWQ6IG9uZSBzaGFyZWQtZGV2aWNlIGdhbWUsIG5vIGFjY291bnRzL3NhdmVkIGdhbWVzL3BlcnNpc3RlbnQgc2NvcmVzLAptYW51YWwgcmVwbGF5IGluIGV2ZXJ5IG1vZGUgd2l0aCBtb2RlL21hcmsgcmV0ZW50aW9uLCBhIDUwMCBtcyBkZWxheSBiZWZvcmUgZXZlcnkgQUkgbW92ZQooaW5jbHVkaW5nIGFuIG9wZW5pbmcgQUkgbW92ZSksIGFuZCBhY3R1YWwgcGh5c2ljYWwtcGhvbmUgYnJvd3NlciB0ZXN0aW5nIG92ZXIgbG9jYWwgV2ktRmkuCgpUaGlzIGlzIG5vdCBibGFua2V0IGNvbmZpcm1hdGlvbiBvZiBhbGwgdGV4dCBpbiBkcmFmdCByMS4gRXhhY3QgYnJvd3NlciB2ZXJzaW9ucy92aWV3cG9ydHMsCmhvdyBtaWQtZ2FtZSBzZXR1cCBjaGFuZ2VzIGFyZSBoYW5kbGVkLCBzZXJ2ZXIgYmluZCBhZGRyZXNzLCBpbXBsZW1lbnRhdGlvbiB2ZXJzaW9ucyBhbmQKdGhlIG9wZXJhdGlvbmFsIGFkbWlzc2lvbiBkZXN0aW5hdGlvbiByZW1haW4gb3V0c2lkZSB0aGUgZm91ci1kZWZhdWx0IGNvbmZpcm1hdGlvbi4KUmVjb21tZW5kYXRpb25zIG9uIHRob3NlIGRldGFpbHMgcmVtYWluIHJlY29tbWVuZGF0aW9ucyB1bnRpbCBwcm9wZXJseSByZXNvbHZlZC4KCk5vIG9ubGluZSBtdWx0aXBsYXllciwgcHVibGljIGhvc3RpbmcsIGV4dHJhIGRpZmZpY3VsdHkgbGV2ZWxzIG9yIGltcGxlbWVudGF0aW9uIGlzIHJlcXVlc3RlZC4KVGhlIGxvY2FsLXNlcnZlciByZXF1aXJlbWVudCBmcm9tIHNvdXJjZS0zIHJlbWFpbnMgcG9ydCAzNjMwLiBUaGlzIHNvdXJjZSBuZWl0aGVyIHJld3JpdGVzCmVhcmxpZXIgc3RhdGVtZW50cyBub3IgZ3JhbnRzIGFkbWlzc2lvbiwgcHVibGljYXRpb24sIGludGVncmF0aW9uIG9yIHByb2R1Y3Qtc3RhcnQgYXV0aG9yaXR5Lg=="
+    },
+    {
+      "id": "source-5",
+      "origin": "/Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/008-design-targets-source.md",
+      "sha256": "46d3113d1fd032c0a194c49229f11a956bf1b2de43b49f01e38df51d40417726",
+      "bytes_base64": "IyBUaWMtVGFjLVRvZTogRGVzaWduLCBCcm93c2VyIFRhcmdldHMgQW5kIFJlcG9zaXRvcnkgRGVjaXNpb24KCkRhdGU6IDIwMjYtMDktMjkKQ29udGV4dDogQURIT0MtN2ZkNzg5NzM4ZDUzNDhjYmJiZDRmNGNiMzc4ZmJlY2YKUHJvdmVuYW5jZTogY3VycmVudCBPcGVyYXRvciBjb252ZXJzYXRpb24sIHRyYW5zY3JpYmVkIGJ5IEdpdEh1YiBDb3BpbG90LgoKIyMgT3BlcmF0b3I6IFRlc3RpbmcgQW5kIERlc3RpbmF0aW9uIChWZXJiYXRpbSkKCmBgYHRleHQKMi0gaVBob25lIC0gQ2hyb21lIGJyb3dzZXIgb24gYm90aCBpUGhvbmUgYW5kIGRlc2t0b3AKMyAtIGRvbid0IHdvcnJ5IGFib3V0IHBva2VybmlnaHQgcHJvZHVjdCBzY29wZSwgbGFuZCBpdCBpbiB0aGlzIHJlcG8uCmBgYAoKIyMgRGVzaWduIE9mZmVyZWQgRm9yIEFncmVlbWVudAoKVGhlIGFzc2lzdGFudCBhc2tlZCB3aGV0aGVyIHRoZSBPcGVyYXRvciBhZ3JlZWQgdG8gYnJvd3Nlci1oZWxkIGdhbWUgc3RhdGUsIEV4cHJlc3MKc2VydmluZyB0aGUgYXBwLCBhIFN0YXJ0IGJ1dHRvbiBhZnRlciBzZXR1cCwgYW5kIG1vZGUvbWFyayBjaGFuZ2VzIGRpc2FibGVkIGR1cmluZyBwbGF5LgoKT3BlcmF0b3IgcmVzcG9uc2UgKHZlcmJhdGltKToKCmBgYHRleHQKSSBhZ3JlZSB3aXRoIHRoYXQgZGVzaWduCmBgYAoKIyMgT3BlcmF0aW9uIENvbmZpcm1hdGlvbgoKVGhlIGFzc2lzdGFudCBvZmZlcmVkIHRoZXNlIHRocmVlIG9wZXJhdGlvbnMgZm9yIHRoaXMgY29udGV4dDoKCjEuIGAvcGxhbi13b3JrIEFESE9DLTdmZDc4OTczOGQ1MzQ4Y2JiYmQ0ZjRjYjM3OGZiZWNmIC0tYXBwZW5kYAoyLiBgL3BsYW4td29yayBBREhPQy03ZmQ3ODk3MzhkNTM0OGNiYmJkNGY0Y2IzNzhmYmVjZiAtLWNhbm9uYAozLiBgL3BsYW4td29yayBBREhPQy03ZmQ3ODk3MzhkNTM0OGNiYmJkNGY0Y2IzNzhmYmVjZiAtLXdvcmtgCgpPcGVyYXRvciByZXNwb25zZSAodmVyYmF0aW0pOgoKYGBgdGV4dApydW4gYWxsIHRocmVlCmBgYAoKIyMgQ29uZmlybWVkIE1lYW5pbmcgQW5kIExpbWl0cwoKLSBSZXF1aXJlZCBicm93c2VyIGFjY2VwdGFuY2UgdGFyZ2V0cyBhcmUgQ2hyb21lIG9uIGRlc2t0b3AgYW5kIENocm9tZSBvbiBhIHBoeXNpY2FsCiAgaVBob25lLiBQaHlzaWNhbC1waG9uZSB0ZXN0aW5nIG92ZXIgbG9jYWwgV2ktRmkgZnJvbSBzb3VyY2UtNCByZW1haW5zIHJlcXVpcmVkLgotIFRoZSBpbnRlbmRlZCByZXBvc2l0b3J5IGlzIHRoaXMgUG9rZXJOaWdodCByZXBvc2l0b3J5LiBBIHNlcGFyYXRlIHByb2R1Y3Qtc2NvcGUKICBvYmplY3Rpb24gbXVzdCBub3QgY29udGludWUgdG8gYmxvY2sgcGxhbm5pbmcuIE5vIHBhcnRpY3VsYXIgR2l0IHRhcmdldCBicmFuY2ggb3IKICBvcGVyYXRpb25hbCBiYXNlbGluZSB3YXMgc2VsZWN0ZWQgYnkgdGhpcyBzdGF0ZW1lbnQuCi0gR2FtZSBzdGF0ZSBpcyBoZWxkIGluIHRoZSBicm93c2VyOyBFeHByZXNzIHNlcnZlcyB0aGUgYXBwLiBUaGUgYWdyZWVkIGRlc2lnbiBkb2VzCiAgbm90IHJlcXVpcmUgYSBzZXJ2ZXIgZ2FtZXBsYXkgQVBJIG9yIHNoYXJlZCBtdWx0aXBsYXllciBzdGF0ZS4KLSBJbml0aWFsIHNldHVwIGhhcyBhIFN0YXJ0IGJ1dHRvbi4gTW9kZS9tYXJrIHNldHRpbmdzIGNhbm5vdCBjaGFuZ2Ugd2hpbGUgYSBnYW1lIGlzCiAgYWN0aXZlLiBUaGlzIGRvZXMgbm90IGNoYW5nZSB0aGUgcHJldmlvdXNseSBjb25maXJtZWQgUGxheSBhZ2FpbiBiZWhhdmlvcjogcmV1c2UKICB0aGUgc2VsZWN0ZWQgbW9kZS9tYXJrIGFuZCBiZWdpbiBhbm90aGVyIGdhbWUgYWZ0ZXIgYSBodW1hbiBwcmVzc2VzIHRoYXQgYnV0dG9uLgoKRXhhY3QgZGV2aWNlIG1vZGVscywgT1MvYnJvd3NlciB2ZXJzaW9ucyBhbmQgaW1wbGVtZW50YXRpb24gZGVwZW5kZW5jeSB2ZXJzaW9ucyB3ZXJlCm5vdCBzdXBwbGllZC4gUmVjb3JkIGFjdHVhbCB0ZXN0ZWQgdmVyc2lvbnMgbGF0ZXIgaW5zdGVhZCBvZiBpbnZlbnRpbmcgdGhlbS4gVGhpcyBpcwpub3QgYXBwcm92YWwgb2YgZXh0cmEgU2FmYXJpLCBGaXJlZm94IG9yIEFuZHJvaWQgY292ZXJhZ2UgZnJvbSBlYXJsaWVyIHJlY29tbWVuZGF0aW9ucy4KTm8gcHVibGljIG5ldHdvcmsgZXhwb3N1cmUsIGJhc2VsaW5lIGluaXRpYWxpemF0aW9uLCBjb21taXQsIHB1c2gsIFBSLCBtZXJnZSwgY29tcGxldGUKcHJvcG9zYWwsIGFkbWlzc2lvbiBvciBwcm9kdWN0IGltcGxlbWVudGF0aW9uIGlzIGF1dGhvcml6ZWQgYnkgdGhlc2UgdGhyZWUgb3BlcmF0aW9ucy4="
+    }
+  ],
+  "origin": null,
+  "workflow": {
+    "planning": {
+      "status": "draft",
+      "current": {
+        "canon": {
+          "request_id": "tic-tac-toe-canon-current",
+          "source_ids": [
+            "source-1",
+            "source-2",
+            "source-3",
+            "source-4",
+            "source-5"
+          ],
+          "questions": [
+            "Before complete proposal composition, verify the selected main target's exact committed baseline and finish the repository Canon/tracker storage correction."
+          ],
+          "schema_expansions": [],
+          "content": {
+            "status": "draft",
+            "readiness": "not-assessed",
+            "scope": "Proposed product vocabulary and requirements for the tic-tac-toe feature in this PokerNight repository. Candidate identifiers are not admitted Canon identities.",
+            "reconciled_requests": [
+              "tic-tac-toe-canon-r1",
+              "tic-tac-toe-canon-r2",
+              "tic-tac-toe-canon-r3"
+            ],
+            "definitions": {
+              "d-human-count": {
+                "revision": 1,
+                "text": "The number of human-controlled marks in a game: zero, one or two. Zero players means zero human players; X and O still exist and are controlled by AI.",
+                "sources": [
+                  "source-1"
+                ],
+                "aliases": [
+                  "0 players means 0 human players"
+                ]
+              },
+              "d-ai": {
+                "revision": 1,
+                "text": "A computer-controlled player. Unbeatable means no loss from a fresh legal game against any legal opponent sequence as either X or O. A draw is valid, not a guarantee of victory. Two unbeatable AIs draw under standard rules. This does not select an algorithm or external AI service.",
+                "sources": [
+                  "source-1"
+                ],
+                "aliases": [
+                  "computer-controlled opponent",
+                  "computer-controlled player"
+                ]
+              },
+              "d-game": {
+                "revision": 1,
+                "text": "One standard 3x3 round from an empty board until X wins, O wins or a draw. It is distinct from a browser session and implies no match or multi-game score.",
+                "sources": [
+                  "source-1"
+                ],
+                "aliases": [
+                  "round"
+                ]
+              },
+              "d-replay": {
+                "revision": 1,
+                "text": "Play again is a person's explicit action beginning another game after termination. In zero-human mode the person triggers replay without controlling either mark. Replay is not automatic.",
+                "sources": [
+                  "source-2"
+                ],
+                "aliases": [
+                  "Play again"
+                ]
+              }
+            },
+            "requirements": {
+              "r-rules": {
+                "revision": 1,
+                "text": "Use nine cells in a 3x3 board. X starts; X and O alternate, placing one mark in an empty cell. Three identical marks in a row, column or diagonal win. A full board without a winner draws. A winning final move takes precedence over draw; terminal games accept no moves.",
+                "acceptance": [
+                  "All eight winning lines for both marks",
+                  "Full-board draw and winning ninth move",
+                  "Occupied-cell rejection, X-first alternation and terminal immutability"
+                ],
+                "uses": [
+                  "d-game"
+                ],
+                "sources": [
+                  "source-1"
+                ]
+              },
+              "r-modes": {
+                "revision": 2,
+                "text": "Support zero humans with AI controlling both marks, one human versus AI, and two humans sharing one device. Human input cannot place moves on an AI-controlled turn.",
+                "acceptance": [
+                  "Complete a game in each mode",
+                  "Zero-human games progress without board input after Start",
+                  "Two-human games schedule no autonomous moves",
+                  "The phone runs its own local game, not a synchronized second board"
+                ],
+                "uses": [
+                  "d-human-count",
+                  "r-rules"
+                ],
+                "sources": [
+                  "source-1",
+                  "source-4"
+                ]
+              },
+              "r-mark-choice": {
+                "revision": 1,
+                "text": "Before a one-human game, choose human X or O; AI controls the other mark.",
+                "acceptance": [
+                  "Human X makes the opening move after Start",
+                  "Human O receives an opening AI-X move after Start and the AI delay"
+                ],
+                "uses": [
+                  "r-rules",
+                  "r-modes"
+                ],
+                "sources": [
+                  "source-1"
+                ]
+              },
+              "r-unbeatable": {
+                "revision": 1,
+                "text": "Every AI-controlled mark must be unbeatable as defined by d-ai. Algorithm and library selection remain implementation choices.",
+                "acceptance": [
+                  "Exhaust every legal opponent sequence from a fresh game for AI-X and AI-O, with zero AI losses",
+                  "Every chosen move is legal",
+                  "Cover every permitted nondeterministic tie-breaking choice",
+                  "AI versus AI terminates in a draw; winning against perfect play is not promised"
+                ],
+                "uses": [
+                  "d-ai"
+                ],
+                "sources": [
+                  "source-1"
+                ]
+              },
+              "r-result": {
+                "revision": 1,
+                "text": "Show the current turn and unambiguous X win, O win or draw. Preserve the finished board and result while waiting for a new-game action.",
+                "acceptance": [
+                  "Labels agree with the board",
+                  "Waiting after AI versus AI finishes neither clears the result nor schedules a new game"
+                ],
+                "uses": [
+                  "r-rules",
+                  "d-replay"
+                ],
+                "sources": [
+                  "source-1",
+                  "source-2"
+                ]
+              },
+              "r-manual-replay": {
+                "revision": 2,
+                "text": "Provide Play again after termination in every mode. One activation clears the board/result and starts exactly one game with X first, retaining the displayed mode and mark selections without another Start confirmation.",
+                "acceptance": [
+                  "No automatic replay after any waiting period",
+                  "Replay works in all three modes and for each terminal result",
+                  "No duplicate new games or delayed moves from the prior game"
+                ],
+                "uses": [
+                  "d-replay",
+                  "r-rules"
+                ],
+                "sources": [
+                  "source-2",
+                  "source-4"
+                ]
+              },
+              "r-react": {
+                "revision": 1,
+                "text": "Implement the actual interactive game interface in React. No bundler or language variant is prescribed.",
+                "acceptance": [
+                  "The delivered browser application uses React for its game interface"
+                ],
+                "uses": [],
+                "sources": [
+                  "source-1"
+                ]
+              },
+              "r-runtime": {
+                "revision": 1,
+                "text": "Use local Node.js and Express to serve the React application on fixed port 3630. Versions, commands and build/serving details follow the repository implementation context.",
+                "acceptance": [
+                  "Load assets and complete a game through port 3630",
+                  "If port 3630 is occupied, report an actionable startup error instead of silently choosing another port",
+                  "Use deliberate local Wi-Fi access for the physical phone; do not treat phone localhost as the host"
+                ],
+                "uses": [],
+                "sources": [
+                  "source-3",
+                  "source-4"
+                ]
+              },
+              "r-browsers": {
+                "revision": 3,
+                "text": "Support Chrome on desktop and Chrome on a physical iPhone accessing the local server over Wi-Fi. Responsive layout, pointer/touch controls and complete game/replay behavior are required. Other browser families are optional supplemental testing, not additional release gates.",
+                "acceptance": [
+                  "Board, mode/mark controls, Start, turn/result and Play again remain accessible without overlap or clipping",
+                  "Game rules do not change with viewport size",
+                  "Test actual desktop Chrome and actual iPhone Chrome; emulation or another mobile browser cannot substitute",
+                  "Record desktop OS, iPhone model/iOS version, Chrome versions, real viewport and local access URL"
+                ],
+                "uses": [
+                  "r-runtime",
+                  "r-modes",
+                  "r-start-setup"
+                ],
+                "sources": [
+                  "source-3",
+                  "source-4",
+                  "source-5"
+                ]
+              },
+              "r-local-session": {
+                "revision": 1,
+                "text": "Keep play shared-device and local to a browser session, without accounts, saved games or persistent scores. No synchronized cross-device multiplayer or scoreboard is inferred.",
+                "acceptance": [
+                  "No account flow, saved-game feature or persistent-score behavior",
+                  "Separate browser sessions do not share a board"
+                ],
+                "uses": [
+                  "d-game"
+                ],
+                "sources": [
+                  "source-4",
+                  "source-5"
+                ]
+              },
+              "r-ai-pacing": {
+                "revision": 1,
+                "text": "Schedule each AI move with a 500 ms delay before applying it, including opening moves and every AI/AI turn. Browser scheduling can run later under background throttling or load; this is not a hard real-time deadline.",
+                "acceptance": [
+                  "Controlled-clock tests show no move before the delay and one legal move when its turn runs",
+                  "Foreground observation shows distinct moves",
+                  "Moves occur only in the current active game's AI turn, never after termination or from stale games",
+                  "Stacked callbacks cannot apply multiple moves"
+                ],
+                "uses": [
+                  "r-rules",
+                  "r-modes",
+                  "r-manual-replay"
+                ],
+                "sources": [
+                  "source-4"
+                ]
+              },
+              "r-state-authority": {
+                "revision": 1,
+                "text": "The browser owns transient board, controller, AI, turn and terminal-result transitions; Express serves the app. No server gameplay API or shared cross-device state is required. This does not promise offline asset loading.",
+                "acceptance": [
+                  "Gameplay does not depend on server move-validation or opponent endpoints",
+                  "Independent browser sessions keep independent boards",
+                  "No saved-game or persistent-score behavior, while replay retains current settings"
+                ],
+                "uses": [
+                  "r-react",
+                  "r-runtime",
+                  "r-local-session"
+                ],
+                "sources": [
+                  "source-5"
+                ]
+              },
+              "r-start-setup": {
+                "revision": 1,
+                "text": "Allow mode selection and one-human X/O choice before Start. No human or AI move happens before Start. Start begins with X; lock mode/mark changes during active play and enable them again after termination. Editing terminal settings alone does not start a game. Preserve the finished board/result until an explicit new-game action.",
+                "acceptance": [
+                  "Exercise Start in all modes",
+                  "Human O and AI/AI opening moves occur only after Start and the 500 ms delay",
+                  "Active setup controls cannot change controller ownership",
+                  "Terminal setup becomes usable but schedules no move on its own",
+                  "Play again starts directly using displayed selections, without a second Start"
+                ],
+                "uses": [
+                  "r-rules",
+                  "r-modes",
+                  "r-mark-choice",
+                  "r-manual-replay",
+                  "r-ai-pacing"
+                ],
+                "sources": [
+                  "source-5"
+                ]
+              }
+            },
+            "stories": {
+              "s-solo": {
+                "revision": 3,
+                "text": "Choose X/O, press Start, play an unbeatable AI and replay with the same selections.",
+                "requirements": [
+                  "r-rules",
+                  "r-modes",
+                  "r-mark-choice",
+                  "r-unbeatable",
+                  "r-result",
+                  "r-manual-replay",
+                  "r-ai-pacing",
+                  "r-start-setup",
+                  "r-state-authority"
+                ]
+              },
+              "s-watch": {
+                "revision": 3,
+                "text": "Press Start to observe two unbeatable AIs with 500 ms pacing, retain the draw and choose when to Play again.",
+                "requirements": [
+                  "r-modes",
+                  "r-unbeatable",
+                  "r-result",
+                  "r-manual-replay",
+                  "r-ai-pacing",
+                  "r-start-setup"
+                ]
+              },
+              "s-two-humans": {
+                "revision": 3,
+                "text": "Two people share a device, start, alternate legal moves, see the result and choose replay.",
+                "requirements": [
+                  "r-rules",
+                  "r-modes",
+                  "r-result",
+                  "r-manual-replay",
+                  "r-local-session",
+                  "r-start-setup"
+                ]
+              },
+              "s-local-browser": {
+                "revision": 3,
+                "text": "Use desktop Chrome or physical-iPhone Chrome over local Wi-Fi to play the browser-held React game served by Express on port 3630.",
+                "requirements": [
+                  "r-react",
+                  "r-runtime",
+                  "r-browsers",
+                  "r-local-session",
+                  "r-state-authority"
+                ]
+              }
+            },
+            "excluded": [
+              "Accounts",
+              "Saved games",
+              "Persistent scores",
+              "Online multiplayer",
+              "Public deployment",
+              "Extra difficulty levels",
+              "Unrelated PokerNight features",
+              "External AI service"
+            ],
+            "implementation_choices": [
+              "Product source placement and compatible toolchain versions",
+              "Maintained game/AI library and independently verified behavior",
+              "Component structure, internal APIs and React state implementation",
+              "Local bind/access setup without unauthorized firewall changes"
+            ],
+            "authority_limits": [
+              "Not admitted Canon",
+              "No complete proposal or implementation permission",
+              "No historical product compliance assessment",
+              "No inherited independent review or approval"
+            ]
+          }
+        },
+        "work": {
+          "request_id": "tic-tac-toe-work-current",
+          "source_ids": [
+            "source-1",
+            "source-2",
+            "source-3",
+            "source-4",
+            "source-5"
+          ],
+          "questions": [
+            "Inspect this repository's product/toolchain conventions before assigning implementation paths.",
+            "Finalize the complete phase contract against a freshly verified committed main baseline after the Canon/tracker storage correction."
+          ],
+          "schema_expansions": [],
+          "content": {
+            "status": "draft",
+            "readiness": "not-assessed",
+            "reconciled_requests": [
+              "tic-tac-toe-work-r1",
+              "tic-tac-toe-work-r2"
+            ],
+            "candidates": {
+              "w-playable-game": {
+                "revision": 2,
+                "title": "Playable local React tic-tac-toe with verified unbeatable AI",
+                "outcome": "One cohesive delivery of the browser-held game, local Express serving on 3630, exhaustive correctness/AI tests and actual Chrome desktop/iPhone acceptance. Internal tasks are not separately reserved phases.",
+                "definitions": [
+                  "d-human-count",
+                  "d-ai",
+                  "d-game",
+                  "d-replay"
+                ],
+                "requirements": [
+                  "r-rules",
+                  "r-modes",
+                  "r-mark-choice",
+                  "r-unbeatable",
+                  "r-result",
+                  "r-manual-replay",
+                  "r-react",
+                  "r-runtime",
+                  "r-browsers",
+                  "r-local-session",
+                  "r-ai-pacing",
+                  "r-state-authority",
+                  "r-start-setup"
+                ],
+                "stories": [
+                  "s-solo",
+                  "s-watch",
+                  "s-two-humans",
+                  "s-local-browser"
+                ],
+                "included": [
+                  "Standard rules and all human-player modes",
+                  "Human X/O choice",
+                  "Unbeatable AI for both marks",
+                  "500 ms AI pacing",
+                  "Explicit Start and active setup lock",
+                  "Stable turn/result display",
+                  "Manual replay in every mode with current settings",
+                  "Browser-owned transient state",
+                  "React served by local Node.js/Express on 3630",
+                  "Responsive pointer/touch controls",
+                  "Physical-iPhone Chrome access over Wi-Fi",
+                  "Automated and physical-browser acceptance evidence",
+                  "Local run/test instructions"
+                ],
+                "excluded": [
+                  "Accounts",
+                  "Saved games",
+                  "Persistent scores",
+                  "Online multiplayer",
+                  "Public hosting",
+                  "Extra difficulty levels",
+                  "Framework helper changes as product work",
+                  "Unrelated PokerNight scope"
+                ],
+                "tasks": [
+                  {
+                    "id": "context",
+                    "text": "Inspect repository conventions, packages/tests and compatible dependencies. Evaluate a suitable maintained game/AI library for license, browser compatibility, footprint, rules and unbeatable behavior. If none is suitable, request an explicit tradeoff decision rather than silently writing a custom engine.",
+                    "after": []
+                  },
+                  {
+                    "id": "rules-ai",
+                    "text": "Integrate rules/AI and independently verify legal transitions and no losses for either AI mark. Internal API choices remain implementation decisions.",
+                    "after": [
+                      "context"
+                    ]
+                  },
+                  {
+                    "id": "game-flow",
+                    "text": "Implement React setup, Start, controller ownership, turn/result display, 500 ms AI turns, manual replay and cancellation or rejection of stale callbacks. Add behavior/component tests.",
+                    "after": [
+                      "rules-ai"
+                    ]
+                  },
+                  {
+                    "id": "serving",
+                    "text": "Serve built React assets through Express on 3630. Document run commands and deliberate LAN access; verify occupied-port refusal.",
+                    "after": [
+                      "context"
+                    ]
+                  },
+                  {
+                    "id": "acceptance",
+                    "text": "Verify the integrated application automatically and on actual desktop Chrome and physical-iPhone Chrome. Record exact implementation and environment evidence.",
+                    "after": [
+                      "game-flow",
+                      "serving"
+                    ]
+                  }
+                ],
+                "acceptance": [
+                  "Rules cover all eight win lines for X/O, full draw, final-cell win precedence, X-first alternation, occupied cells and terminal immutability.",
+                  "Explore every legal opponent sequence against AI-X and AI-O, all permitted nondeterministic choices, legal returned moves and zero AI losses. Use an independent outcome oracle or assertions separate from the engine being tested. AI/AI must draw.",
+                  "All modes remain inactive before Start. One-human mode accepts input only for the human turn; two-human mode schedules no AI moves; zero-human play needs no board input after Start.",
+                  "Controlled clocks verify no move before 500 ms and exactly one legal move for the scheduled turn, including openings and successive AI/AI turns. Cover rapid input, stacked timers, termination and stale prior-game callbacks.",
+                  "Lock mode/mark during play; unlock at completion. Changing terminal setup alone does not start moves. Play again starts directly with displayed selections, X first and no duplicate game.",
+                  "Each reachable terminal result persists until a new-game action. Replay clears board/result, retains mode/mark and isolates old callbacks.",
+                  "Verify browser-owned state and independent sessions without move APIs, authentication claims, saved games or persistent scores. No offline-loading guarantee is inferred.",
+                  "Load real React assets and play through port 3630; occupied port fails clearly. Verify actual phone/LAN URL without assuming phone localhost or changing firewall/public exposure without authority.",
+                  "Complete/replay games in actual desktop Chrome and actual Chrome on the physical iPhone. Exercise touch/pointer input, setup, Start, AI observation, result retention, full board/control fit, hit targets and stable non-overlapping layout.",
+                  "Record device, OS, browser versions, viewport, URL, tested commit, observed outcomes, dependency versions, commands, automated results, AI exploration method/counts and untested cases. Screenshots support but do not replace interaction evidence."
+                ],
+                "recommended_supplemental_checks": {
+                  "viewports": [
+                    "1280x800 desktop",
+                    "390x844 mobile",
+                    "320px-width stress"
+                  ],
+                  "status": "engineering recommendations, adjustable with rationale; not claimed device dimensions",
+                  "browsers": "Firefox, Safari, Android, Chromium emulation and WebKit checks are optional and cannot replace required actual Chrome desktop/iPhone evidence"
+                },
+                "risks": [
+                  "A purported unbeatable library needs exhaustive independent verification",
+                  "Stale or duplicate scheduled moves can corrupt replay and terminal state",
+                  "Desktop emulation cannot prove iPhone Chrome behavior",
+                  "LAN serving must remain deliberate local use without unauthorized network changes"
+                ],
+                "later_contract_obligations": [
+                  "Resolve actual implementation placement/toolchain before naming paths",
+                  "Provide the required validated architecture/pre-flight diagram when creating a complete phase prompt for these boundaries",
+                  "Fresh exact baseline and independent review/decision are still required before admission"
+                ]
+              }
+            },
+            "dag": {
+              "order": [
+                "w-playable-game"
+              ],
+              "edges": [],
+              "authority": "advisory work-candidate graph only; no repository phase IDs or execution dependencies"
+            },
+            "authority_limits": [
+              "No executable phase contract",
+              "No product implementation or test pass is claimed",
+              "No historical nonconformance or completed-phase rework assessment",
+              "Repository selection does not authorize publication or product start"
+            ]
+          }
+        }
+      },
+      "requests": [
+        {
+          "request_id": "tic-tac-toe-canon-current",
+          "section": "canon",
+          "digest": "3f48ae7de9da56581615fff334e243ea84bcb8ebc0b215e26ec03e28895d185e"
+        },
+        {
+          "request_id": "tic-tac-toe-work-current",
+          "section": "work",
+          "digest": "3596e19ef025844fd53b17c10a6c36b00ded86368e7721b797f5aa3ea5fd4353"
+        }
+      ]
+    }
+  },
+  "capture_sha256": "eafb8f19a7e189ad8358a44ae83913ffc8ebea105bc5694cf42abe82e1d40939"
+}

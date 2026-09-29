@@ -13,6 +13,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
 from unittest import mock
 
 root = pathlib.Path(sys.argv.pop(1))
@@ -88,7 +89,7 @@ class CaptureTests(unittest.TestCase):
         first = self.capture("--confirmed")
         self.assertEqual(first.returncode, 0, first.stderr)
         document = pathlib.Path(json.loads(first.stdout)["path"])
-        self.assertEqual(document, self.repository.resolve() / "control-plane/ad-hoc" / self.identity / (self.identity + ".md"))
+        self.assertEqual(document, self.repository.resolve() / "control-plane/ad-hoc" / self.identity / (self.identity + "-proposal.json"))
         self.assertTrue((document.parent / "assets").is_dir())
         before = document.read_bytes()
         repeated = self.capture("--confirmed")
@@ -111,12 +112,96 @@ class CaptureTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("different inputs", result.stderr)
 
+    def test_record_collapses_into_markdown_and_retry_is_noop(self):
+        self.capture("--confirmed")
+        document = capture_module.resolve_document(self.repository, self.identity)
+        record = "## Operator Request\n\nConfirmation: proceed with the requested draft.\n"
+        result = capture_module.mutate_capture(self.repository, self.identity,
+            hashlib.sha256(document.read_bytes()).hexdigest(), lambda value: value, True, record=record)
+        self.assertTrue(result["updated"])
+        self.assertIn(record.strip(), capture_module.narrative_path(document).read_text())
+        self.assertNotIn(record, document.read_text())
+        retry = capture_module.mutate_capture(self.repository, self.identity, result["document_digest"], lambda value: value, True, record=record)
+        self.assertFalse(retry["updated"])
+        self.assertFalse((document.parent / "assets/requests").exists())
+
+    def test_pair_recovery_binds_both_observed_files(self):
+        document, proposal = self.proposal_inputs()
+        original = document.read_bytes()
+        narrative = capture_module.narrative_path(document)
+        original_narrative = narrative.read_bytes()
+        snapshot = hashlib.sha256(original).hexdigest()
+        self.assertEqual(self.propose(snapshot).returncode, 0)
+        current = document.read_bytes()
+        narrative.write_bytes(original_narrative)
+        with self.assertRaisesRegex(ValueError, "pair mismatch"):
+            capture_module.read_capture(document)
+        expected = hashlib.sha256(current).hexdigest()
+        with self.assertRaisesRegex(ValueError, "changed"):
+            capture_module.recover_pair(self.repository, self.identity, expected, "0" * 64, snapshot, True)
+        capture_module.recover_pair(self.repository, self.identity, expected,
+            hashlib.sha256(original_narrative).hexdigest(), snapshot, True)
+        self.assertEqual(document.read_bytes(), original)
+        self.assertEqual(narrative.read_bytes(), original_narrative)
+        capture_module.read_capture(document)
+
+    def test_paired_write_failure_restores_capture(self):
+        document, proposal = self.proposal_inputs()
+        original = document.read_bytes()
+        narrative = capture_module.narrative_path(document)
+        before = narrative.read_bytes()
+        replace = capture_module.replace_bytes
+        def fail_json(destination, previous, content):
+            if destination == document:
+                raise OSError("fixture write interruption")
+            return replace(destination, previous, content)
+        with mock.patch.object(capture_module, "replace_bytes", fail_json):
+            with self.assertRaisesRegex(OSError, "interruption"):
+                capture_module.update_proposal(self.proposal_arguments(hashlib.sha256(original).hexdigest()))
+        self.assertEqual(document.read_bytes(), original)
+        self.assertEqual(narrative.read_bytes(), before)
+        capture_module.read_capture(document)
+
+    def test_migration_preserves_every_original_and_collapses_requests(self):
+        self.capture("--confirmed")
+        destination = capture_module.resolve_document(self.repository, self.identity)
+        value = capture_module.read_capture(destination)
+        value.pop("capture_sha256")
+        value["workflow"] = {"planning": {"drafts": [{"request_id": "old", "text": "# Prior draft"}]}}
+        legacy = destination.parent / (self.identity + ".md")
+        legacy.write_text(capture_module.render_legacy(value))
+        destination.unlink()
+        capture_module.narrative_path(destination).unlink()
+        request_home = legacy.parent / "assets/requests"
+        request_home.mkdir()
+        (request_home / "001-confirmation.md").write_text("# Confirmation\n\nOperator: run it\n")
+        (request_home / "001-draft.json").write_text('{"text":"# Prior draft"}')
+        original = {filename.relative_to(legacy.parent).as_posix(): filename.read_bytes()
+                    for filename in legacy.parent.rglob("*") if filename.is_file()}
+        candidates = {section: {"request_id": section + "-current", "content": {"summary": "Self-contained fixture"},
+            "source_ids": ["source-1"], "questions": [], "schema_expansions": []} for section in ("canon", "work")}
+        with self.assertRaisesRegex(ValueError, "changed"):
+            capture_module.migrate_pair(self.repository, self.identity, "0" * 64, candidates, True)
+        self.assertTrue(legacy.exists())
+        result = capture_module.migrate_pair(self.repository, self.identity,
+            hashlib.sha256(legacy.read_bytes()).hexdigest(), candidates, True)
+        self.assertEqual(result["preserved_files"], 3)
+        self.assertFalse(legacy.exists())
+        self.assertFalse(request_home.exists())
+        archive = next((destination.parent / "assets/history").glob("*.zip"))
+        with zipfile.ZipFile(archive) as bundle:
+            self.assertEqual({name: bundle.read(name) for name in bundle.namelist()}, original)
+        current = capture_module.read_capture(destination)
+        self.assertEqual(current["workflow"]["planning"]["current"], candidates)
+        self.assertNotIn("proposal", current)
+        self.assertIn("Operator: run it", capture_module.narrative_path(destination).read_text())
+
     def test_flat_capture_refuses_duplicate_authority(self):
         created = self.capture("--confirmed")
         self.assertEqual(created.returncode, 0, created.stderr)
         document = pathlib.Path(json.loads(created.stdout)["path"])
         original = document.read_bytes()
-        flat = document.parent.parent / document.name
+        flat = document.parent.parent / (self.identity + ".md")
         document.rename(flat)
         refused = self.capture("--confirmed")
         self.assertNotEqual(refused.returncode, 0)
@@ -225,10 +310,11 @@ class CaptureTests(unittest.TestCase):
     def test_changed_render_is_not_silently_trusted(self):
         result = self.capture("--confirmed")
         document = pathlib.Path(json.loads(result.stdout)["path"])
-        document.write_text(document.read_text() + "Changed apparent source meaning\n")
+        narrative = capture_module.narrative_path(document)
+        narrative.write_text(narrative.read_text() + "Changed apparent source meaning\n")
         result = self.run_command("inspect", "--root", str(self.repository), "--id", self.identity)
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn("text differs", result.stderr)
+        self.assertIn("pair mismatch", result.stderr)
 
     def test_proposal_update_preserves_snapshot_and_retries(self):
         document, proposal = self.proposal_inputs()
@@ -237,7 +323,7 @@ class CaptureTests(unittest.TestCase):
         result = self.propose(expected)
         self.assertEqual(result.returncode, 0, result.stderr)
         output = json.loads(result.stdout)
-        self.assertEqual(pathlib.Path(output["previous_snapshot"]), document.parent / "assets/history" / (expected + ".md"))
+        self.assertEqual(pathlib.Path(output["previous_snapshot"]), document.parent / "assets/history" / (expected + "-proposal.json"))
         self.assertEqual(pathlib.Path(output["previous_snapshot"]).read_bytes(), original)
         retry = self.propose(expected)
         self.assertEqual(retry.returncode, 0, retry.stderr)
@@ -376,7 +462,8 @@ class CaptureTests(unittest.TestCase):
             value["workflow"] = {"scrub": [], "reviews": []}
             return value
         result = capture_module.mutate_capture(self.repository, self.identity, hashlib.sha256(document.read_bytes()).hexdigest(), workflow, True)
-        self.assertIn("## Workflow Evidence", document.read_text())
+        self.assertEqual(json.loads(document.read_text())["workflow"], {"scrub": [], "reviews": []})
+        self.assertNotIn("```json", capture_module.narrative_path(document).read_text())
         def retire(value):
             value["context"] = {"state": "absorbed"}
             return value

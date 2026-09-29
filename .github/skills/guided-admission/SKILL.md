@@ -60,7 +60,13 @@ The author can guide the process but cannot impersonate an independent reviewer 
 Use [planning workflow](../planning-workflow/SKILL.md) for capture/selection/drafts, not admission.
 Only explicit `/admit-plan ID` or confirmation of its exact offered step invokes this boundary.
 Keep every command and verbatim actual confirmation in the selected capture's supporting request
-records. No default actor, checklist completion, signature, approval, or waiver is synthesized.
+records: for paired ADHOC/discovery, these are Markdown entries in `ID-capture.md`, not
+separate files in a requests directory. HNNN keeps its existing support-file placement.
+Use transient inputs or JSON stdin for evidence requests; do not embed JSON in the Markdown.
+The proposal JSON owns the structured evidence indexes and candidate. Immutable admission
+bundles retain both pair members, with different role suffixes. A `draft` candidate is not
+admissible even if an older complete proposal is retained.
+No default actor, checklist completion, signature, approval, or waiver is synthesized.
 
 ## Preflight And Independent Review
 

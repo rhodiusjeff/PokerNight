@@ -42,7 +42,7 @@ def retained_bytes(value):
 
 
 def subject(document):
-    captured = {key: value for key, value in document.items() if key not in ("workflow", "proposal")}
+    captured = {key: value for key, value in document.items() if key not in ("workflow", "proposal", "capture_sha256")}
     return {"schema": "cp-review-input-v1", "context_id": document["id"],
             "capture": copy.deepcopy(captured), "proposal": copy.deepcopy(document.get("proposal"))}
 
@@ -195,12 +195,13 @@ def load_bytes(content):
 
 def decode_document(raw):
     rendered = raw.decode("utf-8")
+    if not rendered.startswith("---\n"):
+        document = load_bytes(raw)
+        return capture.decode_capture(raw, document["id"])
     contract.require(rendered.startswith("---\n"), "snapshot capture envelope missing")
     ignored, offset = json.JSONDecoder().raw_decode(rendered[4:])
     document = load_bytes(rendered[4:4 + offset])
-    capture.validate_capture(document)
-    contract.require(capture.render(document).encode("utf-8") == raw, "snapshot capture render differs")
-    return document
+    return capture.decode_capture(raw, document["id"])
 
 
 def finding_digest(document):
@@ -409,7 +410,7 @@ def read_document(root, context_id):
     return filename, document
 
 
-def mutate(root, context_id, expected_digest, update, confirmed):
+def mutate(root, context_id, expected_digest, update, confirmed, record=None):
     contract.require(hasattr(capture, "mutate_capture"), "shared capture mutate_capture API is required")
 
     def checked(document):
@@ -422,7 +423,7 @@ def mutate(root, context_id, expected_digest, update, confirmed):
         validate_workflow(updated)
         return updated
 
-    return capture.mutate_capture(root, context_id, expected_digest, checked, confirmed)
+    return capture.mutate_capture(root, context_id, expected_digest, checked, confirmed, record=record)
 
 
 def main():
@@ -438,6 +439,7 @@ def main():
         command.add_argument("--request", type=pathlib.Path, required=True, help="repository-confined JSON API arguments")
         command.add_argument("--expected-digest", required=True, help="SHA-256 of exact current capture document bytes")
         command.add_argument("--confirmed", action="store_true")
+        command.add_argument("--record", type=pathlib.Path, help="transient Markdown narrative record for paired ad hoc capture")
     args = parser.parse_args()
     try:
         filename, document = read_document(args.root, args.context)
@@ -448,7 +450,8 @@ def main():
         elif args.command == "inspect":
             result = {**subjects(document), "document_digest": hashlib.sha256(filename.read_bytes()).hexdigest(), "warnings": warnings(document)}
         else:
-            request = contract.load_json(confined(args.root, args.request))
+            request = json.load(sys.stdin) if str(args.request) == "-" else contract.load_json(confined(args.root, args.request))
+            record = confined(args.root, args.record).read_text() if args.record else None
             operation_result = {}
 
             def update(current):
@@ -467,7 +470,7 @@ def main():
                 operation_result["evidence_result"] = value
                 return current
 
-            result = {**mutate(args.root, args.context, args.expected_digest, update, args.confirmed), **operation_result}
+            result = {**mutate(args.root, args.context, args.expected_digest, update, args.confirmed, record), **operation_result}
         print(json.dumps({**result, "live_admission": False}, indent=2, ensure_ascii=False))
         return 0
     except (ValueError, OSError, KeyError, TypeError) as error:

@@ -243,6 +243,8 @@ def include(root, offer, confirmed, acknowledge_associations=False):
             journal = {"schema": "cp-deferred-transaction-v1", "offer": offer,
                        "document_before": base64.b64encode(before).decode(), "document_after": document,
                        "register_before": base64.b64encode(register_before).decode(), "register_after": register}
+            if filename.suffix == ".json":
+                journal["narrative_before"] = base64.b64encode(capture.narrative_path(filename).read_bytes()).decode()
             capture.ensure_directory(root, journal_path.parent)
             capture.publish_new_bytes(journal_path, encode(journal))
         journal = contract.load_json(journal_path)
@@ -258,7 +260,13 @@ def include(root, offer, confirmed, acknowledge_associations=False):
         expected_register, expected_document, changed = inclusion_result(root, previous_register, previous_document, offer)
         contract.require(changed and expected_document == journal["document_after"] and expected_register == journal["register_after"],
                  "deferred recovery output differs from confirmed selection")
-        after = capture.render(journal["document_after"]).encode()
+        after_document = copy.deepcopy(journal["document_after"])
+        if filename.suffix == ".json":
+            narrative_before = base64.b64decode(journal["narrative_before"], validate=True)
+            original_document = capture.decode_capture(before, offer["destination"])
+            contract.require(digest(narrative_before) == original_document["capture_sha256"], "deferred narrative preimage mismatch")
+            after_document["capture_sha256"] = digest(narrative_before + capture.change_narrative(original_document, after_document).encode())
+        after = capture.render(after_document).encode()
         register_after = encode(journal["register_after"])
         current_document = filename.read_bytes()
         register, current_register = read_register(root)
@@ -267,6 +275,7 @@ def include(root, offer, confirmed, acknowledge_associations=False):
         if current_document == before:
             capture.require_mutable(capture.read_capture(filename))
             capture.publish_capture(root, filename, before, journal["document_after"])
+        capture.read_capture(filename)
         if current_register == register_before:
             publish_register(root, register_before, journal["register_after"])
         return {"operation_id": operation_id, "updated": current_document != after or current_register != register_after,

@@ -67,13 +67,14 @@ class WorkflowTests(unittest.TestCase):
             lambda document: {**document, 'workflow': copy.deepcopy(reserved)}, True)
         original = self.path.read_bytes()
         result = work.draft(self.root, self.identity, 'canon', self.request, self.digest(), True)
-        snapshot = self.path.parent / 'assets/history' / (hashlib.sha256(original).hexdigest() + '.md')
+        snapshot = self.path.parent / 'assets/history' / (hashlib.sha256(original).hexdigest() + '-proposal.json')
         self.assertEqual(pathlib.Path(result['previous_snapshot']), snapshot)
         self.assertEqual(snapshot.read_bytes(), original)
         self.assertFalse((self.path.parent / 'assets' / self.identity).exists())
         document = capture.read_capture(self.path)
         self.assertNotIn('proposal', document)
-        self.assertEqual(document['workflow']['planning']['drafts'][0]['text'], self.request['text'])
+        self.assertEqual(document['workflow']['planning']['current']['canon']['content']['summary'], self.request['text'])
+        self.assertEqual(document['workflow']['planning']['status'], 'draft')
         self.assertEqual({key: document['workflow'][key] for key in reserved}, reserved)
         self.assertFalse((self.root / 'control-plane/operational').exists())
 
@@ -90,6 +91,35 @@ class WorkflowTests(unittest.TestCase):
         self.assertFalse(result['updated'])
         with self.assertRaisesRegex(ValueError, 'identity reused'):
             work.draft(self.root, self.identity, 'canon', self.request, self.digest(), True)
+
+    def test_current_sections_replace_without_losing_other_section(self):
+        work.draft(self.root, self.identity, 'canon', self.request, self.digest(), True)
+        work_request = {**self.request, 'request_id': 'work-1', 'text': 'Current work'}
+        work.draft(self.root, self.identity, 'work', work_request, self.digest(), True)
+        revised = {key: value for key, value in self.request.items() if key != 'text'}
+        revised.update(request_id='canon-2', content={'requirements': [{'id': 'candidate-1', 'text': 'Current requirement'}]})
+        work.draft(self.root, self.identity, 'canon', revised, self.digest(), True)
+        planning = capture.read_capture(self.path)['workflow']['planning']
+        self.assertEqual(set(planning['current']), {'canon', 'work'})
+        self.assertEqual(planning['current']['work']['content']['summary'], 'Current work')
+        self.assertEqual(planning['current']['canon']['content'], revised['content'])
+        self.assertNotIn('drafts', planning)
+        retry = work.draft(self.root, self.identity, 'canon', self.request, self.digest(), True)
+        self.assertFalse(retry['updated'])
+        self.assertEqual(capture.read_capture(self.path)['workflow']['planning'], planning)
+
+    def test_markdown_request_refused_without_writes(self):
+        before = self.path.read_bytes()
+        with self.assertRaisesRegex(ValueError, 'not Markdown'):
+            work.draft(self.root, self.identity, 'canon', {**self.request, 'text': '# Mixed format'}, self.digest(), True)
+        self.assertEqual(self.path.read_bytes(), before)
+
+    def test_stdin_request_needs_no_permanent_request_file(self):
+        result = subprocess.run([sys.executable, str(script), '--root', str(self.root), '--context', self.identity,
+            'draft', '--section', 'canon', '--request', '-', '--expected-digest', self.digest(), '--confirmed'],
+            input=json.dumps(self.request), capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse((self.path.parent / 'assets/requests').exists())
 
     def test_source_draft_proposal_clean_export_cli(self):
         def command(name, *arguments):

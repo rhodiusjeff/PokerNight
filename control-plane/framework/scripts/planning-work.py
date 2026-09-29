@@ -7,6 +7,7 @@ import hashlib
 import importlib.util
 import json
 import pathlib
+import re
 import sys
 
 
@@ -16,11 +17,15 @@ capture = importlib.util.module_from_spec(module_spec)
 module_spec.loader.exec_module(capture)
 contract = capture.contract
 
-DRAFT_REQUEST = contract.object_schema({
+DRAFT_TEXT_REQUEST = contract.object_schema({
     "request_id": contract.TEXT, "text": contract.TEXT,
     "source_ids": contract.NONEMPTY_TEXTS,
     "questions": contract.TEXTS, "schema_expansions": contract.TEXTS,
 })
+DRAFT_REQUEST = {"oneOf": [DRAFT_TEXT_REQUEST, contract.object_schema({
+    "request_id": contract.TEXT, "content": {"type": "object", "minProperties": 1},
+    "source_ids": contract.NONEMPTY_TEXTS, "questions": contract.TEXTS, "schema_expansions": contract.TEXTS,
+})]}
 COMPLETE_REQUEST = contract.object_schema({
     "result": contract.CONTENT,
     "started_dispositions": {"type": "object", "propertyNames": contract.TEXT,
@@ -28,7 +33,19 @@ COMPLETE_REQUEST = contract.object_schema({
 })
 
 
-def draft(root, context_id, section, request, expected_digest, confirmed=False):
+def plain_content(value):
+    if isinstance(value, dict):
+        for item in value.values():
+            plain_content(item)
+    elif isinstance(value, list):
+        for item in value:
+            plain_content(item)
+    elif isinstance(value, str):
+        contract.require(not re.search(r"(?m)^\s{0,3}(?:#{1,6}\s|```|~~~|[-*+]\s)|\*\*|\[[^\]]+\]\([^)]+\)", value),
+                         "draft content must be structured JSON with plain text, not Markdown")
+
+
+def draft(root, context_id, section, request, expected_digest, confirmed=False, record=None):
     contract.require(section in ("canon", "work"), "draft section must be canon or work")
     contract.validate_shape(request, DRAFT_REQUEST, "draft request")
 
@@ -37,6 +54,26 @@ def draft(root, context_id, section, request, expected_digest, confirmed=False):
         source_ids = {source["id"] for source in document["sources"]}
         contract.require(set(request["source_ids"]) <= source_ids, "draft references uncaptured sources")
         workflow = document.setdefault("workflow", {})
+        if capture.IDENTITY.fullmatch(context_id):
+            plain_content(request.get("content", request.get("text")))
+            planning = workflow.setdefault("planning", {})
+            contract.require(not planning.get("drafts"), "legacy draft pile requires explicit migration")
+            requests = planning.setdefault("requests", [])
+            signature = contract.digest({"section": section, "request": request})
+            retained = [entry for entry in requests if entry["request_id"] == request["request_id"]]
+            if retained:
+                contract.require(len(retained) == 1 and retained[0]["digest"] == signature,
+                                 "draft request identity reused with changed content")
+                return document
+            planning.setdefault("current", {})[section] = {
+                "request_id": request["request_id"],
+                "content": copy.deepcopy(request.get("content", {"summary": request.get("text")})),
+                "source_ids": list(request["source_ids"]), "questions": list(request["questions"]),
+                "schema_expansions": list(request["schema_expansions"]),
+            }
+            planning["status"] = "draft"
+            requests.append({"request_id": request["request_id"], "section": section, "digest": signature})
+            return document
         planning = workflow.setdefault("planning", {"drafts": []})
         contract.require(isinstance(planning, dict) and isinstance(planning.get("drafts"), list),
                          "invalid workflow.planning drafts")
@@ -49,7 +86,7 @@ def draft(root, context_id, section, request, expected_digest, confirmed=False):
             planning["drafts"].append(entry)
         return document
 
-    return capture.mutate_capture(root, context_id, expected_digest, update, confirmed)
+    return capture.mutate_capture(root, context_id, expected_digest, update, confirmed, record=record)
 
 
 def build_proposal(document, base, execution, request):
@@ -111,13 +148,15 @@ def compose(root, context_id, base, execution, request, expected_digest):
     return build_proposal(document, base, execution, request)
 
 
-def propose(root, context_id, base, execution, request, expected_digest, confirmed=False):
+def propose(root, context_id, base, execution, request, expected_digest, confirmed=False, record=None):
     def update(document):
         capture.require_mutable(document)
         document["proposal"] = build_proposal(document, base, execution, request)
+        if capture.IDENTITY.fullmatch(context_id):
+            document.setdefault("workflow", {}).setdefault("planning", {})["status"] = "complete"
         return document
 
-    return capture.mutate_capture(root, context_id, expected_digest, update, confirmed)
+    return capture.mutate_capture(root, context_id, expected_digest, update, confirmed, record=record)
 
 
 def main():
@@ -136,18 +175,20 @@ def main():
             command.add_argument("--execution", type=pathlib.Path, required=True)
         if name != "compose":
             command.add_argument("--confirmed", action="store_true")
+            command.add_argument("--record", type=pathlib.Path, help="transient Markdown confirmation/outcome input to append to capture")
     args = parser.parse_args()
     try:
-        request = contract.load_json(args.request)
+        request = json.load(sys.stdin) if str(args.request) == "-" else contract.load_json(args.request)
+        record = args.record.read_text() if getattr(args, "record", None) else None
         if args.command == "draft":
-            result = draft(args.root, args.context, args.section, request, args.expected_digest, args.confirmed)
+            result = draft(args.root, args.context, args.section, request, args.expected_digest, args.confirmed, record)
         else:
             base = contract.load_json(args.base)
             execution = contract.load_json(args.execution)
             if args.command == "compose":
                 result = compose(args.root, args.context, base, execution, request, args.expected_digest)
             else:
-                result = propose(args.root, args.context, base, execution, request, args.expected_digest, args.confirmed)
+                result = propose(args.root, args.context, base, execution, request, args.expected_digest, args.confirmed, record)
         print(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False))
         return 0
     except (ValueError, OSError, KeyError, TypeError) as error:

@@ -1,5 +1,44 @@
 # Tracker and State Policy
 
+## Artifact Formats And Ad Hoc Storage
+
+LOCAL MOD - HARVEST TO CPB (2026-09-29): Operator-directed format separation and
+minimal ad hoc working files. This section supersedes conflicting ad hoc placement
+or draft-retention wording elsewhere in the installed surface.
+
+- Keep maintained Markdown narrative and structured JSON in separate files across the
+  control-plane surface. Do not embed JSON envelopes/blocks in Markdown or store authored
+  Markdown documents in JSON text fields. Native customization YAML frontmatter is not JSON.
+- Related files share an identity stem and have distinct role suffixes, not just different
+  extensions. Each owns its role; generated views are not competing editable authority.
+- An ad hoc/discovery session uses `control-plane/ad-hoc/ADHOC-<id>/` with exactly two
+  current working files: `ADHOC-<id>-capture.md` and `ADHOC-<id>-proposal.json`.
+  The JSON carries required session/provenance metadata and the structured candidate;
+  the Markdown carries readable intent, clarifications, rationale and request/decision records.
+- Keep one evolving self-contained candidate, with current Canon and work sections.
+  Incomplete work is explicitly draft and not admissible. Do not invent phase IDs or DAG
+  decisions, and do not require readers to reconstruct current meaning from old drafts.
+- Collapse ordinary source notes, requests, confirmations and receipts into the capture.
+  Retain exact command/operation identity, actual confirmation, relevant input/subject
+  digests and outcome there. No routine `assets/requests/`, numbered draft-file families,
+  mandatory `sources/` directory, or extra maintained metadata sidecar.
+- Helper request inputs may use stdin or transient files; the exact resulting subject,
+  provenance and authorization remain durable. A transient input is not permission to
+  omit evidence, infer confirmation, or discard genuine original attachments.
+- Preserve paired prior revisions under `assets/history/` when content changes. Exact
+  retries and read-only operations do not create revisions. Real attachments and immutable
+  admission/review exhibits may remain separate assets; they are not another current plan.
+- Bind the pair by digest. Reject missing/mismatched members; preserve preimages before
+  replacement. Recovery requires exact observed digests and explicit confirmation.
+- Preserve original source bytes and immutable legacy evidence rather than rewriting
+  history to satisfy the new format. A verified legacy archive is historical evidence,
+  not a competing live authority. Migration never approves or completes a proposal.
+
+Ad hoc pair writers are implemented; horizon planning laydown changes remain deferred.
+Other existing mixed report/adapter emitters remain identified migration work, not a claim
+that this policy alone converts every installed emitter. Do not introduce new mixed artifacts.
+Lifecycle, independent review, admission and phase-start authority remain separate.
+
 ## V0.8.1 Shared File-Backed Planning
 
 LOCAL MOD - HARVEST TO CPB (2026-09-29): explicitly invoked guided admission permits
@@ -18,12 +57,10 @@ conflicting legacy horizon-only planning/placement requirements below only for r
 Codegen, Planning and Design, and Lifecycle Facilitator share narrow writer grants through
 `.github/skills/planning-workflow/SKILL.md` and `.github/skills/guided-admission/SKILL.md`.
 No persona switch is required. They may execute unmodified planning-capture/context/deferred/work/
-evidence/admission/publication helpers for explicitly selected operations and author exact source,
-request, offer, report and real-confirmation files under `control-plane/ad-hoc/ID/assets/requests/`
-for ADHOC/discovery, or the horizon capture's sibling `assets/ID/requests/` for HNNN.
-Each ADHOC/discovery capture is `control-plane/ad-hoc/ID/ID.md`; all its supporting assets
-live in that session's `assets/`, without another ID directory. Before capture creation
-that supporting path may be established under `control-plane/ad-hoc/ID/assets/requests/`;
+evidence/admission/publication helpers for explicitly selected operations. For ADHOC/discovery,
+retain request/confirmation narrative in `ID-capture.md` and structured state in
+`ID-proposal.json`; supporting inputs are transient unless genuine assets/evidence.
+HNNN retains its capture's sibling `assets/ID/requests/` pending horizon laydown design;
 for an uncaptured horizon, explicitly selected working inputs may live in `control-plane/workbench/`.
 No arbitrary callbacks/scripts from request files. Helpers own the maintained capture/register,
 immutable preimages, local bindings/recovery and attempt outputs; do not hand-edit them.
@@ -38,8 +75,9 @@ changes instance lifecycle or starts product work. Existing conflict-recovery gr
 
 Capture precedes proposal. Deferred inclusion requires explicit IDs/revisions and disclosed existing
 associations; declined/unselected records are unchanged. Scrub maintains source interpretation,
-not candidate Canon; consolidation and work shaping are separate. Iterative drafts live solely in
-`workflow.planning` and may retain questions/unsupported schema expansion without fake phase/trace
+not candidate Canon; consolidation and work shaping are separate. Ad hoc iterative content lives
+in `workflow.planning.current` in the proposal JSON, not an append-only active draft pile.
+HNNN retains its current draft-history representation. Both may retain questions/unsupported schema expansion without fake phase/trace
 IDs. Complete proposal content is the one Canon/phases/DAG candidate, not a parallel tracker.
 Evidence owns workflow.findings/reviews/decision/admission and preserves independent histories.
 

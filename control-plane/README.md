@@ -56,12 +56,17 @@ Legacy execution gates remain intact; no fixture authority or mock evidence gran
 
 ## Ownership
 
+Follow [Artifact Formats And Ad Hoc Storage](framework/governance/policies/tracker-and-state.policy.md#artifact-formats-and-ad-hoc-storage):
+separate Markdown and JSON, use related stems with distinct role suffixes, and keep one
+current ad hoc capture/proposal pair. Requests and confirmations belong in capture;
+superseded revisions belong in history. Horizon laydown redesign remains deferred.
+
 | Path | Owner and purpose |
 |---|---|
 | `framework/` | Reusable policies, templates, scripts, and framework documentation |
 | `canon/` | Project-owned requirements and standards, established through governed work |
 | `horizons/` | Project-owned planning packets, then admitted trackers and phase artifacts |
-| `ad-hoc/` | One `ADHOC-<id>/` session folder containing `ADHOC-<id>.md` and its `assets/` |
+| `ad-hoc/` | One `ADHOC-<id>/` folder with `ADHOC-<id>-capture.md`, `ADHOC-<id>-proposal.json`, and historical/genuine assets |
 | `deferred/` | One repository-level deferred register with explicit selected inclusions |
 | `operational/` | New versioned specification and retained admission bundles, not execution progress |
 | `state/` | Instance mode, installation receipt, and runtime evidence |

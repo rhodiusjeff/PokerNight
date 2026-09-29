@@ -1,0 +1,624 @@
+# Tic-Tac-Toe: React, 0-2 Human Players
+
+Context: ADHOC-7fd789738d5348cbbbd4f4cb378fbecf
+
+Planning capture; not admission or execution authority.
+
+## Captured Intent
+
+### source-1
+
+Origin: /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/001-conversation-source.md
+
+SHA-256: d6139844ec225d1e36ddd07d9552bc8aa1a64fc14a38fc6b935560f49bea69ed
+
+# Tic-Tac-Toe: Original Planning Conversation
+
+Date: 2026-09-29
+Source: current Operator conversation; excerpts transcribed by GitHub Copilot.
+Scope: new ad hoc feature planning, not the earlier checklist sample or PokerNight horizon.
+Status: original intent and clarification, not approved Canon or implementation authority.
+
+## Operator: Feature Intent (Verbatim)
+
+```text
+Ok, we are going to do some planning for feature.  That feature is a simple tic-tac-toe game.  It will be a simple react application with 0-2 player.  0 players are AI vs AI, 1 player is a human vs AI and 2 players is human vs human.
+```
+
+## Assistant: Proposed Scope And Questions
+
+The assistant proposed standard 3x3 tic-tac-toe, a browser-only first version on one shared
+device, no accounts or networking, a mode selector, turn/result display and restart.
+These were presented as proposals, not settled requirements.
+
+Questions (verbatim text, with Markdown emphasis retained):
+
+1. Should the AI be **unbeatable**, **casual**, or offer difficulty levels?
+2. In human-vs-AI mode, should the human choose X or O?
+3. Should AI-vs-AI play one game at a visible pace, or automatically repeat games?
+
+The assistant offered `/plan-work --capture ad-hoc` to preserve this conversation as the
+source and stated that capture does not authorize implementation.
+
+## Operator: Confirmation And Answers (Verbatim)
+
+```text
+Sounds good.  Start the ad hoc planning.
+
+1 - AI should be unbeatable - you know how this game is supposed to work
+2 - Yes
+3 - Yes
+```
+
+## Capture Interpretation (Assistant, Not Additional Operator Decisions)
+
+- React and all three human-player counts are explicit requirements.
+- The AI must be unbeatable. Standard tic-tac-toe permits a draw; unbeatable does not
+  mean the AI must win against perfect play. Two unbeatable AIs should draw.
+- The human can choose X or O in one-human mode.
+- "Sounds good" supports using the proposed simple local-browser scope as the working
+  interpretation, to be made explicit during drafting rather than attributed as a verbatim
+  Operator specification.
+- The third answer is ambiguous because the question offered alternatives. Visible-paced
+  AI turns remain proposed; whether games automatically repeat is unresolved. Do not
+  convert "Yes" into a decision for either alternative without clarification.
+- Standard 3x3 play and X moving first are the conventional rules interpretation, not a
+  new variant or a selected implementation algorithm/library.
+- No repository admission target, operational baseline, architecture, phase split or
+  implementation start has been selected by this capture.
+
+## Next Clarification
+
+For AI-vs-AI, should play stop after one visibly paced game until restarted, or automatically
+begin another game? Planning may continue with this question open; completion must settle it.
+
+### source-2
+
+Origin: /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/002-play-again-source.md
+
+SHA-256: 7af814bf2cd85e7440edec3184c9e505435e77ebf8d7fad2359c3b2ed884e961
+
+# Tic-Tac-Toe: Manual Replay Decision
+
+Date: 2026-09-29
+Source: Operator clarification and explicit confirmation in the current conversation.
+Context: ADHOC-7fd789738d5348cbbbd4f4cb378fbecf
+
+## Operator Clarification (Verbatim)
+
+```text
+The human need to press the "Play again" button.
+```
+
+## Interpretation Offered For Confirmation
+
+AI-vs-AI stops after each game, keeps the result visible, and waits for a person to press
+"Play again." No automatic repeat.
+
+The assistant offered `/plan-work ADHOC-7fd789738d5348cbbbd4f4cb378fbecf --append`
+to record that decision while preserving the original conversation.
+
+## Operator Confirmation (Verbatim)
+
+```text
+run it
+```
+
+## Decision And Scope
+
+This resolves source-1's open question about automatic replay in AI-vs-AI mode: starting
+another game requires a human action on "Play again"; games do not repeat automatically.
+The terminal result stays visible until that action. This does not introduce a human
+board player into the zero-human mode; the person controls replay, not either AI's moves.
+
+Original source-1 remains unchanged. This decision does not specify new timing values,
+score retention, reset settings or behavior for changing modes mid-game. It authorizes
+recording the decision only, not implementation, a complete proposal or admission.
+
+### source-3
+
+Origin: /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/003-runtime-browser-source.md
+
+SHA-256: 3546cbb855ed4253554279579fe77387fb3eaccfe03310fe79b5f2db2e44e616
+
+# Tic-Tac-Toe: Runtime And Browser Requirements
+
+Date: 2026-09-29
+Source: Operator requirements and confirmation in the current conversation.
+Context: ADHOC-7fd789738d5348cbbbd4f4cb378fbecf
+
+## Operator Requirements (Verbatim)
+
+```text
+A couple of non-functional requirements - this will run in Node Express locally at port 3630.  It needs to run on a desktop and a mobile browser.
+```
+
+## Interpretation Offered For Confirmation
+
+- Local runtime: Node.js with Express, serving the React application on port 3630.
+- Browser support: responsive layout and usable controls on both desktop and mobile browsers.
+
+The assistant offered `/plan-work ADHOC-7fd789738d5348cbbbd4f4cb378fbecf --append`
+to retain these requirements in the existing capture.
+
+## Operator Confirmation (Verbatim)
+
+```text
+run it
+```
+
+## Scope And Interpretation
+
+These requirements supplement the original React game and manual-replay decision; neither
+earlier source is replaced. The earlier browser-only proposal must not be interpreted as
+prohibiting the explicitly requested local Express server. No networked multiplayer is
+introduced by browser support or by serving the application through Express.
+
+No Node.js/Express version, browser/version matrix, network binding, remote hosting,
+game-state authority or deployment configuration is selected by this source. A future
+implementation must satisfy the stated runtime and browser requirements; this confirmation
+only authorizes recording them, not starting a server or writing application code.
+
+### source-4
+
+Origin: /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/005-confirmed-defaults-source.md
+
+SHA-256: 677069c28c0a4c38ba1772b07b82c664fd8c82a29f1465615b8488424e9f90b8
+
+# Tic-Tac-Toe: Confirmed Defaults
+
+Date: 2026-09-29
+Context: ADHOC-7fd789738d5348cbbbd4f4cb378fbecf
+Provenance: assistant recommendations followed by actual Operator confirmation.
+
+## Recommendations Presented To The Operator
+
+The assistant asked whether these defaults matched the Operator's intent:
+
+- One shared-device game, without accounts, saved games or persistent scores.
+- "Play again" in every mode, retaining mode and mark selections.
+- A **500 ms delay** before each AI move.
+- Desktop and mobile browser testing, including a physical phone accessing the local Express server over Wi-Fi.
+
+## Operator Response (Verbatim)
+
+```text
+Yes
+```
+
+## Separate Operation Confirmation
+
+The assistant offered these two operations against this exact context:
+
+1. `/plan-work ADHOC-7fd789738d5348cbbbd4f4cb378fbecf --append` to retain the confirmation.
+2. `/plan-work ADHOC-7fd789738d5348cbbbd4f4cb378fbecf --canon` to refresh the requirements draft.
+
+Operator response (verbatim):
+
+```text
+run both
+```
+
+## Interpretation And Limits
+
+The four listed defaults are now confirmed intent. They resolve the prior recommendations
+only to the extent stated: one shared-device game, no accounts/saved games/persistent scores,
+manual replay in every mode with mode/mark retention, a 500 ms delay before every AI move
+(including an opening AI move), and actual physical-phone browser testing over local Wi-Fi.
+
+This is not blanket confirmation of all text in draft r1. Exact browser versions/viewports,
+how mid-game setup changes are handled, server bind address, implementation versions and
+the operational admission destination remain outside the four-default confirmation.
+Recommendations on those details remain recommendations until properly resolved.
+
+No online multiplayer, public hosting, extra difficulty levels or implementation is requested.
+The local-server requirement from source-3 remains port 3630. This source neither rewrites
+earlier statements nor grants admission, publication, integration or product-start authority.
+
+### source-5
+
+Origin: /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/008-design-targets-source.md
+
+SHA-256: 46d3113d1fd032c0a194c49229f11a956bf1b2de43b49f01e38df51d40417726
+
+# Tic-Tac-Toe: Design, Browser Targets And Repository Decision
+
+Date: 2026-09-29
+Context: ADHOC-7fd789738d5348cbbbd4f4cb378fbecf
+Provenance: current Operator conversation, transcribed by GitHub Copilot.
+
+## Operator: Testing And Destination (Verbatim)
+
+```text
+2- iPhone - Chrome browser on both iPhone and desktop
+3 - don't worry about pokernight product scope, land it in this repo.
+```
+
+## Design Offered For Agreement
+
+The assistant asked whether the Operator agreed to browser-held game state, Express
+serving the app, a Start button after setup, and mode/mark changes disabled during play.
+
+Operator response (verbatim):
+
+```text
+I agree with that design
+```
+
+## Operation Confirmation
+
+The assistant offered these three operations for this context:
+
+1. `/plan-work ADHOC-7fd789738d5348cbbbd4f4cb378fbecf --append`
+2. `/plan-work ADHOC-7fd789738d5348cbbbd4f4cb378fbecf --canon`
+3. `/plan-work ADHOC-7fd789738d5348cbbbd4f4cb378fbecf --work`
+
+Operator response (verbatim):
+
+```text
+run all three
+```
+
+## Confirmed Meaning And Limits
+
+- Required browser acceptance targets are Chrome on desktop and Chrome on a physical
+  iPhone. Physical-phone testing over local Wi-Fi from source-4 remains required.
+- The intended repository is this PokerNight repository. A separate product-scope
+  objection must not continue to block planning. No particular Git target branch or
+  operational baseline was selected by this statement.
+- Game state is held in the browser; Express serves the app. The agreed design does
+  not require a server gameplay API or shared multiplayer state.
+- Initial setup has a Start button. Mode/mark settings cannot change while a game is
+  active. This does not change the previously confirmed Play again behavior: reuse
+  the selected mode/mark and begin another game after a human presses that button.
+
+Exact device models, OS/browser versions and implementation dependency versions were
+not supplied. Record actual tested versions later instead of inventing them. This is
+not approval of extra Safari, Firefox or Android coverage from earlier recommendations.
+No public network exposure, baseline initialization, commit, push, PR, merge, complete
+proposal, admission or product implementation is authorized by these three operations.
+
+## Request And Decision Record
+
+
+## Historical Capture Confirmation
+
+# Ad Hoc Capture Confirmation
+
+Date: 2026-09-29
+Context: ADHOC-7fd789738d5348cbbbd4f4cb378fbecf
+Operation: /plan-work --capture ad-hoc
+Persona: Project: Planning and Design
+Invocation provenance: operator-confirmation
+
+## Offered Operation And Actual Confirmation
+
+The assistant named `/plan-work --capture ad-hoc` to preserve the tic-tac-toe conversation
+and explained that capture does not authorize implementation. The Operator replied:
+
+```text
+Sounds good.  Start the ad hoc planning.
+
+1 - AI should be unbeatable - you know how this game is supposed to work
+2 - Yes
+3 - Yes
+```
+
+The current Planning and Design persona performed this capture. Earlier conversational
+claims that a switch to Planning was needed do not override the active persona at execution.
+The third answer remains unresolved between the two offered alternatives; capture does
+not silently settle it. No independent review, decision or admission is asserted.
+
+## Exact Input
+
+Source: /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/001-conversation-source.md
+
+SHA-256: d6139844ec225d1e36ddd07d9552bc8aa1a64fc14a38fc6b935560f49bea69ed
+
+## Executed Capture Command
+
+```text
+python3 control-plane/framework/scripts/planning-capture.py capture --root /Users/jmsimpson/Documents/GitHub/PokerNight --id ADHOC-7fd789738d5348cbbbd4f4cb378fbecf --title 'Tic-Tac-Toe: React, 0-2 Human Players' --author 'Operator (conversation); source retained by GitHub Copilot' --source /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/001-conversation-source.md --confirmed
+```
+
+Environment: repository root, activated .cp-venv, PYTHONDONTWRITEBYTECODE=1.
+The helper returned created=true and admitted=false. Its inspect command validated the
+capture envelope, source hash and rendered content. source-1 retained the hash above;
+kind=ad-hoc, origin=null, and no proposal was created.
+
+## Timing And Limits
+
+Timing session: control-plane/state/timing/IN-PLAN__20260929T171518Z__004765019277.jsonl
+
+The runtime opened IN-PLAN with harness=copilot, model-id=unresolved and the active Planning
+persona, then emitted /plan-work-invoked with invocation_source=operator-confirmation.
+The timing log owns completion evidence. This note records capture consent only, not
+permission for a complete proposal, baseline initialization, commit, push, publication,
+merge, horizon creation, product implementation or changes to the unrelated consult note.
+
+Planning status: in-progress. Readiness: not-assessed.
+
+## Historical Append Confirmation
+
+# Manual Replay Append Receipt
+
+Date: 2026-09-29
+Persona: Project: Planning and Design
+Operation: /plan-work ADHOC-7fd789738d5348cbbbd4f4cb378fbecf --append
+Invocation provenance: operator-confirmation
+Actual Operator confirmation (verbatim): "run it"
+
+The confirmation responds to the explicit offer to append the decision that AI-vs-AI
+stops after a game and requires a person to press "Play again", keeping the result visible.
+The source retains the preceding Operator clarification verbatim. No additional operation
+was approved by this confirmation.
+
+## Exact Executed Command
+
+```text
+python3 control-plane/framework/scripts/planning-capture.py append --root /Users/jmsimpson/Documents/GitHub/PokerNight --id ADHOC-7fd789738d5348cbbbd4f4cb378fbecf --expected-digest 2093d7ec806fb86dfc0a29d3c1f8831606459c73ed15af8430746c818c014d9e --source /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/002-play-again-source.md --confirmed
+```
+
+Environment: repository root, activated .cp-venv, PYTHONDONTWRITEBYTECODE=1.
+
+- Appended source SHA-256: 7af814bf2cd85e7440edec3184c9e505435e77ebf8d7fad2359c3b2ed884e961
+- Prior capture SHA-256: 2093d7ec806fb86dfc0a29d3c1f8831606459c73ed15af8430746c818c014d9e
+- Updated capture SHA-256: f6612709caba49aea1a2fed5ee9e78adfc0b6f0dbe65140f04b5c436a5ff0511
+- Result: updated=true, admitted=false. The helper retained the prior capture under history.
+- Verification: inspect validated the capture and both source hashes. Original source-1
+  remains d6139844ec225d1e36ddd07d9552bc8aa1a64fc14a38fc6b935560f49bea69ed.
+- No proposal exists. Original source text was not rewritten to erase the prior ambiguity.
+
+Timing session: control-plane/state/timing/IN-PLAN__20260929T171935Z__014497014188.jsonl.
+The runtime log owns completion evidence. No product, operational specification, execution,
+horizon, forge or unrelated consult content was changed by this append.
+
+Planning status: in-progress. Readiness: not-assessed.
+
+## Historical Append Confirmation
+
+# Runtime And Browser Requirements Append Receipt
+
+Date: 2026-09-29
+Persona: Project: Planning and Design
+Operation: /plan-work ADHOC-7fd789738d5348cbbbd4f4cb378fbecf --append
+Invocation provenance: operator-confirmation
+Actual Operator confirmation (verbatim): "run it"
+
+The confirmation responds to the explicit offer to append local Node.js/Express serving
+on port 3630 and responsive desktop/mobile browser support. The appended source retains
+the original Operator wording and the offered interpretation. No other operation is authorized.
+
+## Exact Executed Command
+
+```text
+python3 control-plane/framework/scripts/planning-capture.py append --root /Users/jmsimpson/Documents/GitHub/PokerNight --id ADHOC-7fd789738d5348cbbbd4f4cb378fbecf --expected-digest f6612709caba49aea1a2fed5ee9e78adfc0b6f0dbe65140f04b5c436a5ff0511 --source /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/003-runtime-browser-source.md --confirmed
+```
+
+Environment: repository root, activated .cp-venv, PYTHONDONTWRITEBYTECODE=1.
+
+- Input source SHA-256: 3546cbb855ed4253554279579fe77387fb3eaccfe03310fe79b5f2db2e44e616
+- Prior capture SHA-256: f6612709caba49aea1a2fed5ee9e78adfc0b6f0dbe65140f04b5c436a5ff0511
+- Updated capture SHA-256: 0dbc10062eb37b27cdfc26dcde4e85a8cbfa1f0b490e5192a9738bcb920347d2
+- Result: updated=true, admitted=false; prior capture retained under history.
+- Inspection validated all three retained sources. source-1 remains
+  d6139844ec225d1e36ddd07d9552bc8aa1a64fc14a38fc6b935560f49bea69ed and source-2 remains
+  7af814bf2cd85e7440edec3184c9e505435e77ebf8d7fad2359c3b2ed884e961.
+- No proposal was created. No original source was rewritten.
+
+Timing session: control-plane/state/timing/IN-PLAN__20260929T172109Z__009423003052.jsonl.
+The runtime log owns completion evidence. No application code, server process, operational
+specification, execution progress, horizon, commit, push or admission was created.
+
+Planning status: in-progress. Readiness: not-assessed.
+
+## Historical Canon Confirmation
+
+# Canon Draft r1 Receipt
+
+Date: 2026-09-29
+Persona: Project: Planning and Design
+Operation: /plan-work ADHOC-7fd789738d5348cbbbd4f4cb378fbecf --canon
+Invocation provenance: operator-confirmation
+Actual Operator confirmation (verbatim): "run it"
+
+This responds to the assistant's exact offer to turn all captured requirements into a
+proposed specification with acceptance criteria and flagged assumptions. The preceding
+Operator statement was: "I am done with the requirement, what is next?"
+Neither statement authorizes a complete proposal, work phases, admission or implementation.
+
+## Exact Executed Command
+
+```text
+python3 control-plane/framework/scripts/planning-work.py --root /Users/jmsimpson/Documents/GitHub/PokerNight --context ADHOC-7fd789738d5348cbbbd4f4cb378fbecf draft --section canon --request /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/004-canon-draft.json --expected-digest 0dbc10062eb37b27cdfc26dcde4e85a8cbfa1f0b490e5192a9738bcb920347d2 --confirmed
+```
+
+Environment: repository root, activated .cp-venv, PYTHONDONTWRITEBYTECODE=1.
+
+- Request SHA-256: 7ac28f9bf3aca134f6f52fb082868610db59a3bb17bdbe3b4e90603522e430c4
+- Input capture SHA-256: 0dbc10062eb37b27cdfc26dcde4e85a8cbfa1f0b490e5192a9738bcb920347d2
+- Output capture SHA-256: 4b6cbbe183004c1dfd26ccb300967a1d550709a511452bee40a36c01923f99c2
+- Result: updated=true, admitted=false; previous capture retained under history.
+- Request identity: tic-tac-toe-canon-r1; section canon; source-1, source-2 and source-3.
+- Helper validation passed. Subsequent inspection verified one draft with the expected
+  identity, all three source references, no complete proposal, and unchanged source hashes.
+- Manual content checks: local keys are unique, all semantic relationship endpoints refer
+  to declared revision-1 candidates, source pins match, and assumptions remain attributable.
+
+The draft proposes four definitions, nine requirements and four stories, with no admitted
+identities or execution DAG changes. It records the absent operational baseline and execution
+snapshot as limits, not as fabricated empty authority. No product implementation or historical
+completed-work compliance assessment was performed. No independent review/approval is claimed.
+No new maintained plan, phase prompt, tracker, diagram, server, commit or remote write was made.
+
+Timing session: control-plane/state/timing/IN-PLAN__20260929T172353Z__004392007041.jsonl.
+The runtime log owns completion evidence. Planning remains in-progress; readiness: not-assessed.
+
+## Historical Defaults Reconciliation Receipt
+
+# Confirmed Defaults: Append And Canon r2 Receipt
+
+Date: 2026-09-29
+Persona: Project: Planning and Design
+Invocation provenance for each operation: operator-confirmation
+Actual Operator confirmation of the four listed defaults (verbatim): "Yes"
+Actual Operator confirmation of the two named operations (verbatim): "run both"
+
+The assistant offered append followed by Canon reconciliation for this capture. These
+confirmations authorize only those bounded operations, not approval of every r1 assumption,
+work shaping, complete proposal, admission, implementation or forge publication.
+
+## Operation 1: Append
+
+```text
+python3 control-plane/framework/scripts/planning-capture.py append --root /Users/jmsimpson/Documents/GitHub/PokerNight --id ADHOC-7fd789738d5348cbbbd4f4cb378fbecf --expected-digest 4b6cbbe183004c1dfd26ccb300967a1d550709a511452bee40a36c01923f99c2 --source /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/005-confirmed-defaults-source.md --confirmed
+```
+
+- Input source SHA-256: 677069c28c0a4c38ba1772b07b82c664fd8c82a29f1465615b8488424e9f90b8
+- Input capture SHA-256: 4b6cbbe183004c1dfd26ccb300967a1d550709a511452bee40a36c01923f99c2
+- Output capture SHA-256: d96c7dfa21082401fb0845ea96f9ba6d82b890fc8b37474316adfc3cd3b7838e
+- Verification: helper inspection validated four sources, unchanged prior source hashes,
+  retained r1 and no complete proposal. Prior capture was retained under history.
+- Timing: control-plane/state/timing/IN-PLAN__20260929T172832Z__007874017962.jsonl,
+  completed successfully before starting the second operation.
+
+## Operation 2: Canon Reconciliation
+
+```text
+python3 control-plane/framework/scripts/planning-work.py --root /Users/jmsimpson/Documents/GitHub/PokerNight --context ADHOC-7fd789738d5348cbbbd4f4cb378fbecf draft --section canon --request /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/006-canon-draft-r2.json --expected-digest d96c7dfa21082401fb0845ea96f9ba6d82b890fc8b37474316adfc3cd3b7838e --confirmed
+```
+
+- Request SHA-256: 9b92df3a13224d02f539ad22626a6ea70a976252dbaf25d307c1431f5c4da21e
+- Input capture SHA-256: d96c7dfa21082401fb0845ea96f9ba6d82b890fc8b37474316adfc3cd3b7838e
+- Output capture SHA-256: 2e8934c8b88fe938572597d7ceecd8020a7d381c3e0062958ad16449fed3ac74
+- Verification: helper schema validation and inspection passed. Structured comparison
+  confirmed r1 equals its original request plus section=canon, r2 equals its new request
+  plus section=canon, exactly two drafts and four sources exist, and no proposal exists.
+- r2 explicitly preserves retained r1 candidates and identifies all revisions/additions.
+  It does not claim the exact browser matrix or mid-game setup behavior was approved.
+- Timing: control-plane/state/timing/IN-PLAN__20260929T172910Z__005154013160.jsonl.
+  The runtime log owns completion evidence for this operation.
+
+Both helpers returned updated=true and admitted=false. Environment for both: repository
+root, activated .cp-venv, PYTHONDONTWRITEBYTECODE=1. Sources 1-3 and r1 were preserved;
+the preceding capture for each mutation was retained by the helper under history.
+No operational Canon, specification, phases, execution DAG, progress, product code,
+unrelated worktree content, commits or remote resources were changed.
+
+Planning status: in-progress. Readiness: not-assessed. Next is separately authorized
+work shaping; baseline/destination and remaining acceptance/setup choices still need resolution.
+
+## Historical Work Confirmation
+
+# Advisory Work Draft r1 Receipt
+
+Date: 2026-09-29
+Persona: Project: Planning and Design
+Operation: /plan-work ADHOC-7fd789738d5348cbbbd4f4cb378fbecf --work
+Invocation provenance: operator-confirmation
+Actual Operator confirmation (verbatim): "run it"
+
+The confirmation responds to the exact offered work-shaping command for implementation
+scope, dependencies and tests. It does not authorize a complete proposal, implementation,
+admission or approval of the draft's newly proposed interaction/state-authority choices.
+
+## Exact Executed Command
+
+```text
+python3 control-plane/framework/scripts/planning-work.py --root /Users/jmsimpson/Documents/GitHub/PokerNight --context ADHOC-7fd789738d5348cbbbd4f4cb378fbecf draft --section work --request /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/007-work-draft.json --expected-digest 2e8934c8b88fe938572597d7ceecd8020a7d381c3e0062958ad16449fed3ac74 --confirmed
+```
+
+Environment: repository root, activated .cp-venv, PYTHONDONTWRITEBYTECODE=1.
+
+- Request SHA-256: aeac270a616f403b36cc8263ad88a01227d05488c4bf814dbf5022e45f482ee3
+- Input capture SHA-256: 2e8934c8b88fe938572597d7ceecd8020a7d381c3e0062958ad16449fed3ac74
+- Output capture SHA-256: f12795dc373836c7e48a373ced63913e910fa7521de669195b6fc4dc85b80b98
+- Result: updated=true, admitted=false; previous capture retained under history.
+- Helper schema validation passed. Inspection and structured comparison verified the
+  exact original Canon r1/r2 requests remain intact, the work draft equals its request
+  with section=work, all four sources remain, and no complete proposal exists.
+- Manual traceability check covers eleven current requirements and four stories.
+  One advisory candidate has no inter-candidate edges; internal prerequisites are explicit.
+  No executable dependency closure or actual repository DAG correctness is claimed.
+
+The work draft recommends one cohesive deliverable, not multiple artificial phases.
+It does not select a library/version, assert product-code inspection, or fabricate
+physical-device availability. Product implementation and acceptance tests have not run.
+No Canon content, phase, tracker, execution progress, operational baseline, framework source,
+unrelated consult, commit, remote resource or server process was changed.
+
+Timing session: control-plane/state/timing/IN-PLAN__20260929T173245Z__018048027016.jsonl.
+The runtime log owns completion evidence. Planning remains in-progress; readiness: not-assessed.
+
+## Historical Three Operation Receipt
+
+# Design And Targets Reconciliation Receipt
+
+Date: 2026-09-29
+Persona: Project: Planning and Design
+Context: ADHOC-7fd789738d5348cbbbd4f4cb378fbecf
+Invocation provenance for each operation: operator-confirmation
+Actual confirmation of the three named operations (verbatim): "run all three"
+
+The separate substantive decisions are retained verbatim in source-5. The command
+confirmation covers append, Canon drafting and work drafting, not a complete proposal,
+baseline setup, commit, push, admission, merge or product implementation.
+
+## 1. Append Source-5
+
+```text
+python3 control-plane/framework/scripts/planning-capture.py append --root /Users/jmsimpson/Documents/GitHub/PokerNight --id ADHOC-7fd789738d5348cbbbd4f4cb378fbecf --expected-digest f12795dc373836c7e48a373ced63913e910fa7521de669195b6fc4dc85b80b98 --source /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/008-design-targets-source.md --confirmed
+```
+
+- Source SHA-256: 46d3113d1fd032c0a194c49229f11a956bf1b2de43b49f01e38df51d40417726
+- Input capture: f12795dc373836c7e48a373ced63913e910fa7521de669195b6fc4dc85b80b98
+- Output capture: 8289cd57bc65e6500343a094190e10c8ab7c1ad6ff95eca307b8bd3262d6e788
+- Inspection verified five sources, three prior drafts and no complete proposal.
+- Timing session: IN-PLAN__20260929T173900Z__008707029335.jsonl; closed successfully.
+
+## 2. Reconcile Canon r3
+
+```text
+python3 control-plane/framework/scripts/planning-work.py --root /Users/jmsimpson/Documents/GitHub/PokerNight --context ADHOC-7fd789738d5348cbbbd4f4cb378fbecf draft --section canon --request /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/009-canon-draft-r3.json --expected-digest 8289cd57bc65e6500343a094190e10c8ab7c1ad6ff95eca307b8bd3262d6e788 --confirmed
+```
+
+- Request SHA-256: b4c7fbde06e754f9451f1510ca65fa95b8d12a61672eef2e587434bcfe3d1558
+- Input capture: 8289cd57bc65e6500343a094190e10c8ab7c1ad6ff95eca307b8bd3262d6e788
+- Output capture: 8d5893679d6384baa071b3ffee1b170d1976183ade22de13a6b306c84cc9b075
+- Validation verified the exact Canon r3 request, four drafts, five sources and no proposal.
+- Timing session: IN-PLAN__20260929T173936Z__005563015957.jsonl; closed successfully.
+
+## 3. Reconcile Work r2
+
+```text
+python3 control-plane/framework/scripts/planning-work.py --root /Users/jmsimpson/Documents/GitHub/PokerNight --context ADHOC-7fd789738d5348cbbbd4f4cb378fbecf draft --section work --request /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/ad-hoc/assets/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/requests/010-work-draft-r2.json --expected-digest 8d5893679d6384baa071b3ffee1b170d1976183ade22de13a6b306c84cc9b075 --confirmed
+```
+
+- Request SHA-256: c9fd1d6005e04ba71a51e7857a6d65f2cd935a0c43f2b2e74646520c88834b6c
+- Input capture: 8d5893679d6384baa071b3ffee1b170d1976183ade22de13a6b306c84cc9b075
+- Output capture: 68aa2e7f744df3d5c7f5c4f18bb5d72bd4356f8fc887c2d26d39764733f69b80
+- Structured comparison verified the complete draft list equals the five original request
+  objects with their respective canon/work section fields. Earlier drafts are unchanged,
+  current drafts match exactly, all five source hashes validate and no proposal exists.
+- Timing session: IN-PLAN__20260929T174043Z__009787032507.jsonl; runtime owns completion evidence.
+
+## Scope And Result
+
+All commands used the repository root, activated .cp-venv and PYTHONDONTWRITEBYTECODE=1.
+All returned updated=true and admitted=false. Each previous capture is helper-retained under
+history; all timing sessions are under control-plane/state/timing/.
+
+Manual reconciliation verified four retained definition identities, thirteen current requirements
+and four stories, and one work candidate with no inter-candidate edges. New traces resolve to
+declared candidate revisions. Settled design, Chrome desktop/iPhone testing and this repository
+replace the earlier open questions. Target-branch and exact baseline setup remain prerequisites.
+No historical product compliance, independent review, admission readiness or executed test pass
+is inferred from planning-helper validation.
+
+No operational specification, progress, tracker, phase prompt, product code, server, Git commit,
+remote resource or unrelated workbench content was changed. Planning remains in-progress;
+readiness: not-assessed.
+
+## Format Migration
+
+Original files are retained byte-for-byte in the legacy history archive. Historical commands are evidence, not current instructions. The paired proposal remains an incomplete candidate; no admission or phase start occurred.

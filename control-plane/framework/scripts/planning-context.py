@@ -67,11 +67,11 @@ def inspect_context(root, identity):
 
 def list_contexts(root):
     root = pathlib.Path(root).resolve()
-    documents = list(capture.capture_root(root).glob("ADHOC-*/*.md"))
-    contract.require(all(filename.parent.name == filename.stem for filename in documents), "capture identity/path mismatch")
+    documents = list(capture.capture_root(root).glob("ADHOC-*/*-proposal.json"))
+    contract.require(all(filename.parent.name == capture.document_identity(filename) for filename in documents), "capture identity/path mismatch")
     horizons = capture.safe_path(root, root / "control-plane/horizons")
     documents.extend(horizons.glob("H*/planning/H*.md"))
-    contexts = [inspect_context(root, filename.stem) for filename in sorted(documents)]
+    contexts = [inspect_context(root, capture.document_identity(filename)) for filename in sorted(documents)]
     binding_path = local_path(root, "binding.json")
     binding = contract.load_json(binding_path) if binding_path.exists() else None
     return {"contexts": contexts, "binding": binding,
@@ -93,15 +93,19 @@ def discover(root):
                 continue
             metadata, relative_bytes = entry.split(b"\t", 1)
             relative = relative_bytes.decode("utf-8", errors="strict")
-            identity = pathlib.PurePosixPath(relative).stem
+            identity = capture.document_identity(pathlib.PurePosixPath(relative))
             if not capture.CONTEXT_ID.fullmatch(identity):
                 continue
             if not (re.fullmatch(r"control-plane/horizons/H[0-8][0-9]{2}(?:-[a-z0-9-]+)?/planning/H[0-8][0-9]{2}\.md", relative)
-                    or relative == f"control-plane/ad-hoc/{identity}/{identity}.md"):
+                    or relative == f"control-plane/ad-hoc/{identity}/{identity}-proposal.json"):
                 continue
             contract.require(metadata.split()[0] in (b"100644", b"100755"), "published context must be a regular file")
             content = git(root, "cat-file", "blob", metadata.split()[2].decode()).stdout
             document = capture.decode_capture(content, identity)
+            if capture.IDENTITY.fullmatch(identity):
+                companion = str(capture.narrative_path(pathlib.PurePosixPath(relative)))
+                narrative = git(root, "show", commit + ":" + companion).stdout
+                contract.require(digest_bytes(narrative) == document["capture_sha256"], "published capture/proposal pair mismatch")
             context = document.get("context", {})
             result.append({"id": identity, "reference": reference, "commit": commit, "path": relative,
                            "document_digest": digest_bytes(content), "context": context,
@@ -418,6 +422,10 @@ def transfer_inventory(root, identity):
     document = capture.resolve_document(root, identity)
     home = document.parent.parent if identity.startswith("H") else capture.assets_path(root, identity)
     files = {document.relative_to(pathlib.Path(root).resolve()).as_posix(): document.read_bytes()}
+    if capture.IDENTITY.fullmatch(identity):
+        capture.read_capture(document)
+        narrative = capture.narrative_path(document)
+        files[narrative.relative_to(pathlib.Path(root).resolve()).as_posix()] = narrative.read_bytes()
     if home.exists():
         for filename in sorted(home.rglob("*")):
             capture.safe_path(root, filename)

@@ -66,6 +66,10 @@ class Fixture(unittest.TestCase):
 
     def save(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        narrative = capture.narrative_path(self.path)
+        if not narrative.exists():
+            narrative.write_text(capture.initial_narrative(self.document))
+            self.document['capture_sha256'] = hashlib.sha256(narrative.read_bytes()).hexdigest()
         self.path.write_text(capture.render(self.document))
 
     def finalize(self, identity='decision-1', supersedes=None):
@@ -107,7 +111,8 @@ class AdmissionTests(Fixture):
         self.assertEqual(pathlib.Path(first['bundle']), self.path.parent / 'assets/admission' / first['bundle_id'])
         self.assertEqual(first['bundle_id'], second['bundle_id'])
         self.assertFalse(second['created'])
-        self.assertEqual((pathlib.Path(first['bundle']) / 'capture.md').read_bytes(), raw)
+        self.assertEqual((pathlib.Path(first['bundle']) / 'capture-proposal.json').read_bytes(), raw)
+        self.assertEqual((pathlib.Path(first['bundle']) / 'capture-narrative.md').read_bytes(), capture.narrative_path(self.path).read_bytes())
         self.assertEqual((pathlib.Path(first['bundle']) / 'base.json').read_bytes(), self.base_path.read_bytes())
 
     def test_tampered_result_and_manifest_refuse(self):

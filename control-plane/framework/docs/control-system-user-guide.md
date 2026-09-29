@@ -35,18 +35,26 @@ the [planning workflow](../../../.github/skills/planning-workflow/SKILL.md),
 
 ### Drafts And Complete Proposals
 
-One maintained capture document retains original sources and proposal separately. ADHOC remains
-under `control-plane/ad-hoc/ADHOC-<id>/ADHOC-<id>.md`, with requests, history and admission
-bundles beneath the same session's `assets/` directory. There is no shared ad hoc assets
-tree or repeated ID directory beneath those assets. Discovery captures use this same layout.
+Ad hoc/discovery uses two active files under `control-plane/ad-hoc/ADHOC-<id>/`:
+`ADHOC-<id>-capture.md` for readable intent and request/decision records, and
+`ADHOC-<id>-proposal.json` for the structured candidate and required session metadata.
+Related files share the identity stem but distinguish roles. Do not mix JSON and Markdown.
+Routine source notes, requests and receipts collapse into capture; request payloads can be
+transient or supplied on stdin. No routine requests directory or metadata sidecar is needed.
+Prior paired revisions live in `assets/history/`; genuine attachments and immutable admission
+evidence may remain assets. Original bytes survive migration in a verified legacy archive.
+The pair is digest-bound: missing/mismatched members refuse, with explicit snapshot recovery.
 A new horizon resolves its own `planning/HNNN.md` with unchanged horizon asset placement. No substitute
 ADHOC identity or fake horizon tracker is created. A single repository deferred register preserves
 origin, guardrail, reopen conditions, revisions and associations. The walkthrough explains intent,
 origin, relevance, scope, testing implications, questions and recommendation; declined records
 remain untouched. Existing destination associations are disclosed before explicit inclusion.
 
-`planning-work.py draft --section canon|work` stores partial text and questions in workflow.planning,
-without invented phase/trace IDs. Rich definitions/clauses remain in text/source provenance;
+`planning-work.py draft --section canon|work` replaces the selected ad hoc section in
+`workflow.planning.current`, preserving the other section. Each section is self-contained;
+do not make current meaning depend on reading earlier drafts. The candidate can remain
+explicitly incomplete, without invented phase/trace IDs. HNNN retains its draft-history
+representation until horizon laydown design is settled. Rich definitions/clauses remain in content/source provenance;
 unsupported structure is labelled schema expansion, not dropped or made a new kernel kind.
 `compose` is read-only; confirmed `propose` writes a complete explicit delta/result using the capture
 transaction. Both require exact supplied base/execution and expected current capture digest.

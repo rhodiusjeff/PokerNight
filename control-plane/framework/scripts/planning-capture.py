@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Create or inspect local planning captures; never admit, schedule, or publish work.
 
-LOCAL MOD - HARVEST TO CPB: operator-directed per-session ad hoc storage.
+LOCAL MOD - HARVEST TO CPB: operator-directed paired ad hoc capture/proposal storage.
 """
 
 import argparse
@@ -14,9 +14,11 @@ import json
 import os
 import pathlib
 import re
+import shutil
 import sys
 import tempfile
 import uuid
+import zipfile
 from datetime import datetime, timezone
 from contextlib import contextmanager
 
@@ -68,7 +70,17 @@ def capture_path(root, identity):
     home = capture_root(root)
     contract.require(not (home / f"{identity}.md").exists(),
                      "legacy flat capture exists; relocate the session before use")
-    return safe_path(root, home / identity / f"{identity}.md")
+    contract.require(not (home / identity / f"{identity}.md").exists(),
+                     "legacy hybrid capture exists; migrate the session before use")
+    return safe_path(root, home / identity / f"{identity}-proposal.json")
+
+
+def document_identity(filename):
+    return filename.stem.removesuffix("-proposal") if filename.suffix == ".json" else filename.stem
+
+
+def narrative_path(filename):
+    return filename.with_name(document_identity(filename) + "-capture.md")
 
 
 def assets_path(root, context_id):
@@ -123,6 +135,12 @@ def publish_new_bytes(destination, content):
 
 
 def render(document):
+    if IDENTITY.fullmatch(document["id"]):
+        return json.dumps(document, ensure_ascii=False, indent=2, allow_nan=False) + "\n"
+    return render_legacy(document)
+
+
+def render_legacy(document):
     parts = ["---", json.dumps(document, ensure_ascii=False, indent=2), "---", "",
              f"# {document['title']}", "", "Status: captured; not admitted or scheduled.", "",
              "## Captured Input", ""]
@@ -151,6 +169,42 @@ def render(document):
     return "\n".join(parts)
 
 
+def source_narrative(source):
+    content = base64.b64decode(source["bytes_base64"], validate=True)
+    try:
+        text = content.decode("utf-8")
+    except UnicodeDecodeError:
+        text = "Binary source retained byte-for-byte in the proposal's source evidence."
+    else:
+        structured = bool(re.search(r"(?im)^\s*(?:```|~~~)json\b", text))
+        try:
+            json.loads(text)
+        except ValueError:
+            pass
+        else:
+            structured = True
+        if structured:
+            text = "Structured source retained byte-for-byte in the proposal's source evidence."
+    return f"### {source['id']}\n\nOrigin: {source['origin']}\n\nSHA-256: {source['sha256']}\n\n{text}\n"
+
+
+def initial_narrative(document):
+    return (f"# {document['title']}\n\nContext: {document['id']}\n\n"
+            "Planning capture; not admission or execution authority.\n\n## Captured Intent\n\n"
+            + "\n".join(source_narrative(source) for source in document["sources"])
+            + "\n## Request And Decision Record\n\n")
+
+
+def change_narrative(previous, document):
+    lines = []
+    for source in document["sources"][len(previous["sources"]):]:
+        lines.append(source_narrative(source))
+    for name in ("workflow", "proposal"):
+        if previous.get(name) != document.get(name):
+            lines.append(f"Updated {name}; exact structured subject: {contract.digest(document.get(name))}.\n")
+    return "\n### Saved Change\n\n" + "\n".join(lines) if lines else ""
+
+
 def validate_capture(document):
     contract.digest(document)
     schema = contract.object_schema({
@@ -160,7 +214,8 @@ def validate_capture(document):
         "origin": {"anyOf": [{"type": "null"}, contract.object_schema({
             "phase_id": contract.TEXT, "specification_revision": contract.POSITIVE,
             "contract_digest": contract.HASH, "contract": contract.SPECIFICATION})]},
-    }, {"proposal": contract.PROPOSAL, "workflow": {"type": "object"}, "context": {"type": "object"}})
+    }, {"proposal": contract.PROPOSAL, "workflow": {"type": "object"}, "context": {"type": "object"},
+        "capture_sha256": contract.HASH})
     contract.validate_shape(document, schema, "capture")
     contract.require(bool(CONTEXT_ID.fullmatch(document["id"])), "invalid capture identity")
     contract.require((document["kind"] == "horizon") == document["id"].startswith("H"), "context kind/identity mismatch")
@@ -195,7 +250,6 @@ def validate_capture(document):
 
 def decode_capture(content, identity):
     raw = content.decode("utf-8")
-    contract.require(raw.startswith("---\n"), "capture metadata envelope is missing")
 
     def unique_object(pairs):
         values = {}
@@ -204,16 +258,27 @@ def decode_capture(content, identity):
             values[name] = value
         return values
 
-    document, offset = json.JSONDecoder(object_pairs_hook=unique_object).raw_decode(raw[4:])
-    contract.require(raw[4 + offset:].startswith("\n---\n"), "capture metadata boundary is invalid")
+    if raw.startswith("---\n"):
+        document, offset = json.JSONDecoder(object_pairs_hook=unique_object).raw_decode(raw[4:])
+        contract.require(raw[4 + offset:].startswith("\n---\n"), "capture metadata boundary is invalid")
+        expected = render_legacy(document)
+    else:
+        document = json.loads(raw, object_pairs_hook=unique_object)
+        expected = render(document)
     validate_capture(document)
     contract.require(document["id"] == identity, "capture identity/path mismatch")
-    contract.require(raw == render(document), "capture text differs from its retained metadata; reconcile before use")
+    contract.require(raw == expected, "capture text differs from its retained metadata; reconcile before use")
     return document
 
 
 def read_capture(filename):
-    return decode_capture(filename.read_bytes(), filename.stem)
+    document = decode_capture(filename.read_bytes(), document_identity(filename))
+    if filename.suffix == ".json":
+        narrative = narrative_path(filename)
+        contract.require(not narrative.is_symlink(), "capture narrative must not be a symlink")
+        contract.require(narrative.is_file() and hashlib.sha256(narrative.read_bytes()).hexdigest() == document.get("capture_sha256"),
+                         "capture/proposal pair mismatch; recover the paired files before use")
+    return document
 
 
 def create_capture(args):
@@ -245,7 +310,14 @@ def create_capture(args):
         return {"path": str(destination), "id": args.id, "created": False, "admitted": False}
     ensure_directory(args.root, destination.parent)
     ensure_directory(args.root, assets_path(args.root, args.id))
+    narrative = initial_narrative(document).encode("utf-8")
+    document["capture_sha256"] = hashlib.sha256(narrative).hexdigest()
     try:
+        try:
+            publish_new_bytes(narrative_path(destination), narrative)
+        except FileExistsError:
+            contract.require(narrative_path(destination).read_bytes() == narrative,
+                             "existing capture narrative differs from creation inputs")
         publish_new_bytes(destination, render(document).encode("utf-8"))
     except FileExistsError as error:
         raise contract.ContractError("capture identity was concurrently created; inspect and retry exact inputs") from error
@@ -303,6 +375,8 @@ def update_proposal(args):
         contract.require(proposal["revision"] == (current_proposal["revision"] + 1 if current_proposal else 1),
                          "changed proposal requires the next explicit proposal revision")
         document["proposal"] = proposal
+        if IDENTITY.fullmatch(args.id) and document.get("workflow", {}).get("planning"):
+            document["workflow"]["planning"]["status"] = "complete"
         return publish_capture(args.root, destination, original, document)
 
 
@@ -335,7 +409,7 @@ def replace_bytes(destination, original, content):
             staged.unlink(missing_ok=True)
 
 
-def publish_capture(root, destination, original, document):
+def publish_capture(root, destination, original, document, record=None):
     validate_capture(document)
     previous = read_capture(destination)
     contract.require(document["id"] == previous["id"], "capture identity is immutable")
@@ -347,6 +421,25 @@ def publish_capture(root, destination, original, document):
         contract.require("proposal" in document, "current proposal cannot be silently removed")
         contract.require(document["proposal"]["revision"] == previous.get("proposal", {}).get("revision", 0) + 1,
                          "changed proposal requires the next explicit proposal revision")
+    paired = destination.suffix == ".json"
+    before_narrative = narrative_path(destination).read_bytes() if paired else b""
+    if render(document).encode("utf-8") == original and (not record or before_narrative.endswith(("\n" + record.rstrip() + "\n").encode())):
+        return {"path": str(destination), "id": document["id"], "updated": False,
+                "admitted": False, "document_digest": hashlib.sha256(original).hexdigest()}
+    appended = change_narrative(previous, document)
+    if record:
+        contract.require(paired, "narrative records are supported only by paired ad hoc captures")
+        contract.require(not re.search(r"(?im)^\s*(?:```|~~~)json\b", record), "capture records must not embed JSON blocks")
+        try:
+            json.loads(record)
+        except ValueError:
+            pass
+        else:
+            raise contract.ContractError("capture records must be Markdown narrative, not JSON")
+        appended += "\n" + record.rstrip() + "\n"
+    after_narrative = before_narrative + appended.encode("utf-8") if paired else b""
+    if paired:
+        document["capture_sha256"] = hashlib.sha256(after_narrative).hexdigest()
     published_bytes = render(document).encode("utf-8")
     result = {"path": str(destination), "id": document["id"], "updated": published_bytes != original,
               "admitted": False, "document_digest": hashlib.sha256(published_bytes).hexdigest()}
@@ -355,18 +448,31 @@ def publish_capture(root, destination, original, document):
     original_digest = hashlib.sha256(original).hexdigest()
     history = safe_path(root, assets_path(root, document["id"]) / "history")
     ensure_directory(root, history)
-    snapshot = safe_path(root, history / f"{original_digest}.md")
+    snapshot = safe_path(root, history / (f"{original_digest}-proposal.json" if paired else f"{original_digest}.md"))
     try:
         publish_new_bytes(snapshot, original)
     except FileExistsError:
         contract.require(snapshot.read_bytes() == original, "history snapshot mismatch")
         sync_directory(history)
-    replace_bytes(destination, original, published_bytes)
+    if paired:
+        narrative_snapshot = safe_path(root, history / f"{original_digest}-capture.md")
+        try:
+            publish_new_bytes(narrative_snapshot, before_narrative)
+        except FileExistsError:
+            contract.require(narrative_snapshot.read_bytes() == before_narrative, "narrative history snapshot mismatch")
+        replace_bytes(narrative_path(destination), before_narrative, after_narrative)
+        try:
+            replace_bytes(destination, original, published_bytes)
+        except BaseException:
+            replace_bytes(narrative_path(destination), after_narrative, before_narrative)
+            raise
+    else:
+        replace_bytes(destination, original, published_bytes)
     result["previous_snapshot"] = str(snapshot)
     return result
 
 
-def mutate_capture(root, context_id, expected_digest, update, confirmed):
+def mutate_capture(root, context_id, expected_digest, update, confirmed, record=None):
     root = pathlib.Path(root).resolve()
     contract.require(confirmed, "capture mutation requires explicit confirmed command authority")
     contract.require(isinstance(expected_digest, str) and bool(re.fullmatch(r"[0-9a-f]{64}", expected_digest)),
@@ -380,7 +486,7 @@ def mutate_capture(root, context_id, expected_digest, update, confirmed):
         workflow_only = isinstance(updated, dict) and {name: value for name, value in updated.items() if name != "workflow"} == {
             name: value for name, value in document.items() if name != "workflow"}
         require_mutable(document, workflow_only=workflow_only)
-        return publish_capture(root, destination, original, updated)
+        return publish_capture(root, destination, original, updated, record=record)
 
 
 def append_sources(root, context_id, expected_digest, sources, confirmed):
@@ -457,6 +563,115 @@ def append_checkpoint(root, context_id, expected_digest, manifest_path, confirme
     return {**result, "checkpoint_id": bundle_id, "provider_verified": False, "currentness": "unknown"}
 
 
+def recover_pair(root, context_id, expected_digest, expected_capture_digest, snapshot_digest, confirmed):
+    contract.require(confirmed and IDENTITY.fullmatch(context_id), "paired recovery requires explicit ad hoc confirmation")
+    for value in (expected_digest, expected_capture_digest, snapshot_digest):
+        contract.validate_shape(value, contract.HASH, "recovery digest")
+    root = pathlib.Path(root).resolve()
+    with local_writer(root):
+        destination = resolve_document(root, context_id)
+        narrative = safe_path(root, narrative_path(destination))
+        original, original_narrative = destination.read_bytes(), narrative.read_bytes()
+        observed = (hashlib.sha256(original).hexdigest(), hashlib.sha256(original_narrative).hexdigest())
+        contract.require(observed == (expected_digest, expected_capture_digest), "paired files changed since recovery was offered")
+        current = decode_capture(original, context_id)
+        contract.require(not current.get("workflow", {}).get("admission"), "admission recovery needs its owning workflow")
+        history = assets_path(root, context_id) / "history"
+        saved = safe_path(root, history / (snapshot_digest + "-proposal.json")).read_bytes()
+        saved_narrative = safe_path(root, history / (snapshot_digest + "-capture.md")).read_bytes()
+        document = decode_capture(saved, context_id)
+        contract.require(hashlib.sha256(saved).hexdigest() == snapshot_digest and
+                         hashlib.sha256(saved_narrative).hexdigest() == document["capture_sha256"], "recovery snapshot mismatch")
+        contract.require(not document.get("workflow", {}).get("admission"), "admission recovery needs its owning workflow")
+        recovery = history / ("recovery-" + expected_digest + "-" + expected_capture_digest)
+        ensure_directory(root, recovery)
+        for name, content in (("before-proposal.json", original), ("before-capture.md", original_narrative)):
+            target = safe_path(root, recovery / name)
+            if target.exists():
+                contract.require(target.read_bytes() == content, "recovery preimage mismatch")
+            else:
+                publish_new_bytes(target, content)
+        replace_bytes(narrative, original_narrative, saved_narrative)
+        replace_bytes(destination, original, saved)
+        read_capture(destination)
+    return {"id": context_id, "recovered": True, "document_digest": snapshot_digest, "admitted": False}
+
+
+def migrate_pair(root, context_id, expected_digest, candidates, confirmed):
+    contract.require(confirmed and IDENTITY.fullmatch(context_id), "migration requires explicit ad hoc confirmation")
+    root = pathlib.Path(root).resolve()
+    with local_writer(root):
+        home = safe_path(root, capture_root(root) / context_id)
+        legacy = safe_path(root, home / (context_id + ".md"))
+        raw = legacy.read_bytes()
+        contract.require(hashlib.sha256(raw).hexdigest() == expected_digest, "legacy capture changed since migration was offered")
+        document = decode_capture(raw, context_id)
+        require_mutable(document)
+        workflow = document.setdefault("workflow", {})
+        contract.require("proposal" not in document and not any(workflow.get(key) for key in ("admission", "decision", "reviews", "findings")),
+                         "only draft-only sessions can use this migration; reviewed/admitted subjects need separate recovery")
+        contract.require(set(candidates) == {"canon", "work"}, "migration needs self-contained Canon and work candidates")
+        work_spec = importlib.util.spec_from_file_location("migration_work", pathlib.Path(__file__).with_name("planning-work.py"))
+        if work_spec is None or work_spec.loader is None:
+            raise contract.ContractError("planning work validator is unavailable")
+        work = importlib.util.module_from_spec(work_spec)
+        work_spec.loader.exec_module(work)
+        current, requests = {}, []
+        for section, request in candidates.items():
+            contract.validate_shape(request, work.DRAFT_REQUEST, "migration candidate")
+            contract.require("content" in request and set(request["source_ids"]) <= {source["id"] for source in document["sources"]},
+                             "migration requires structured content and retained source references")
+            work.plain_content(request["content"])
+            current[section] = copy.deepcopy(request)
+            requests.append({"request_id": request["request_id"], "section": section,
+                             "digest": contract.digest({"section": section, "request": request})})
+        workflow["planning"] = {"status": "draft", "current": current, "requests": requests}
+        inventory = {}
+        for filename in sorted(home.rglob("*")):
+            safe_path(root, filename)
+            if filename.is_file():
+                inventory[filename.relative_to(home).as_posix()] = filename.read_bytes()
+        narrative = initial_narrative(document)
+        for name, content in inventory.items():
+            if name.startswith("assets/requests/") and name.endswith(".md") and not name.endswith("-source.md"):
+                label = re.sub(r"^\d+-", "", pathlib.PurePosixPath(name).stem).replace("-", " ")
+                narrative += f"\n## Historical {label.title()}\n\n" + content.decode("utf-8") + "\n"
+        narrative += "\n## Format Migration\n\nOriginal files are retained byte-for-byte in the legacy history archive. Historical commands are evidence, not current instructions. The paired proposal remains an incomplete candidate; no admission or phase start occurred.\n"
+        narrative_bytes = narrative.encode("utf-8")
+        document["capture_sha256"] = hashlib.sha256(narrative_bytes).hexdigest()
+        validate_capture(document)
+        with tempfile.TemporaryDirectory(prefix=".adhoc-migration-", dir=home.parent) as temporary:
+            staging = pathlib.Path(temporary) / context_id
+            history = staging / "assets/history"
+            history.mkdir(parents=True)
+            archive = history / ("legacy-" + expected_digest + ".zip")
+            with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as bundle:
+                for name, content in inventory.items():
+                    bundle.writestr(name, content)
+            with zipfile.ZipFile(archive) as bundle:
+                contract.require({name: bundle.read(name) for name in bundle.namelist()} == inventory, "migration archive mismatch")
+            publish_new_bytes(staging / (context_id + "-capture.md"), narrative_bytes)
+            publish_new_bytes(staging / (context_id + "-proposal.json"), render(document).encode("utf-8"))
+            read_capture(staging / (context_id + "-proposal.json"))
+            observed = {}
+            for filename in home.rglob("*"):
+                safe_path(root, filename)
+                if filename.is_file():
+                    observed[filename.relative_to(home).as_posix()] = filename.read_bytes()
+            contract.require(observed == inventory, "session changed during migration")
+            backup = pathlib.Path(temporary) / "original"
+            os.rename(home, backup)
+            try:
+                os.rename(staging, home)
+            except BaseException:
+                os.rename(backup, home)
+                raise
+            sync_directory(home.parent)
+            shutil.rmtree(backup)
+    return {"id": context_id, "migrated": True, "preserved_files": len(inventory), "admitted": False,
+            "path": str(home / (context_id + "-proposal.json")), "document_digest": hashlib.sha256(render(document).encode()).hexdigest()}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -490,6 +705,19 @@ def main():
     checkpoint.add_argument("--expected-digest", required=True)
     checkpoint.add_argument("--manifest", type=pathlib.Path, required=True)
     checkpoint.add_argument("--confirmed", action="store_true")
+    for name in ("migrate-pair", "recover-pair", "record"):
+        operation = commands.add_parser(name)
+        operation.add_argument("--root", type=pathlib.Path, default=pathlib.Path.cwd())
+        operation.add_argument("--id", required=True)
+        operation.add_argument("--expected-digest", required=True)
+        operation.add_argument("--confirmed", action="store_true")
+        if name == "migrate-pair":
+            operation.add_argument("--candidate", type=pathlib.Path, required=True)
+        elif name == "recover-pair":
+            operation.add_argument("--expected-capture-digest", required=True)
+            operation.add_argument("--snapshot", required=True)
+        else:
+            operation.add_argument("--record", type=pathlib.Path, required=True)
     for command in ("list", "inspect"):
         reader = commands.add_parser(command)
         reader.add_argument("--root", type=pathlib.Path, default=pathlib.Path.cwd())
@@ -507,14 +735,24 @@ def main():
             result = append_sources(args.root, args.id, args.expected_digest, args.sources, args.confirmed)
         elif args.command == "retain-checkpoint":
             result = append_checkpoint(args.root, args.id, args.expected_digest, args.manifest, args.confirmed)
+        elif args.command == "migrate-pair":
+            candidates = json.load(sys.stdin) if str(args.candidate) == "-" else contract.load_json(args.candidate)
+            result = migrate_pair(args.root, args.id, args.expected_digest, candidates, args.confirmed)
+        elif args.command == "recover-pair":
+            result = recover_pair(args.root, args.id, args.expected_digest, args.expected_capture_digest, args.snapshot, args.confirmed)
+        elif args.command == "record":
+            record = sys.stdin.read() if str(args.record) == "-" else args.record.read_text()
+            contract.require(bool(record.strip()), "record text is required")
+            result = mutate_capture(args.root, args.id, args.expected_digest, lambda value: value, args.confirmed, record=record)
         elif args.command == "inspect":
             result = read_capture(resolve_document(args.root, args.id))
         else:
             result = []
-            for filename in sorted(capture_root(args.root).glob("ADHOC-*/*.md")):
-                contract.require(filename.parent.name == filename.stem, "capture identity/path mismatch")
-                document = read_capture(capture_path(args.root, filename.stem))
-                contract.require(document["id"] == filename.stem, "capture identity/path mismatch")
+            for filename in sorted(capture_root(args.root).glob("ADHOC-*/*-proposal.json")):
+                identity = document_identity(filename)
+                contract.require(filename.parent.name == identity, "capture identity/path mismatch")
+                document = read_capture(capture_path(args.root, identity))
+                contract.require(document["id"] == identity, "capture identity/path mismatch")
                 result.append({name: document[name] for name in ("id", "kind", "title", "author", "created_at")})
         print(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False))
         return 0

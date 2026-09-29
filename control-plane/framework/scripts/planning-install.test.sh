@@ -137,7 +137,8 @@ with tempfile.TemporaryDirectory(prefix="cp-planning-install-") as temporary:
         "--id", identity, "--title", "Installed fixture", "--author", "Fixture", "--source", str(source_file),
         "--confirmed"], check=True, capture_output=True, text=True)
     session = session_root / "control-plane/ad-hoc" / identity
-    assert Path(json.loads(created.stdout)["path"]) == session / (identity + ".md")
+    assert Path(json.loads(created.stdout)["path"]) == session / (identity + "-proposal.json")
+    assert (session / (identity + "-capture.md")).is_file()
     assert (session / "assets").is_dir()
     assert not (session.parent / "assets").exists()
     passed("installed capture writer creates the per-session document and assets layout")

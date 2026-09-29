@@ -18,12 +18,14 @@ module_spec.loader.exec_module(evidence)
 capture = evidence.capture
 contract = evidence.contract
 FILES = ("base.json", "proposal.json", "reviews.json", "decision.json", "execution.json", "result.json",
-         "capture.md", "review-input.json")
+         "review-input.json")
 SPECIFICATION_PATH = "control-plane/operational/SPECIFICATION.json"
 EXECUTION_PATH = "control-plane/state/execution.json"
 
 
 def eligible(document):
+    contract.require(document.get("workflow", {}).get("planning", {}).get("status") != "draft",
+                     "draft candidate is incomplete; explicitly complete the proposal before admission")
     context = document.get("context", {})
     contract.require(context.get("state", "planning") == "planning", "terminal or suspended source cannot authorize admission")
     contract.require(not context.get("transfer_pending") and not context.get("transferred_to"), "transferred or competing source refuses admission")
@@ -35,7 +37,7 @@ def decode_capture(raw):
     return document
 
 
-def bundle_payload(document, raw, base_bytes, execution_bytes, decision_id):
+def bundle_payload(document, raw, base_bytes, execution_bytes, decision_id, narrative=None):
     eligible(document)
     final, reviews = evidence.selected_decision(document, decision_id)
     base = evidence.load_bytes(base_bytes)
@@ -46,7 +48,12 @@ def bundle_payload(document, raw, base_bytes, execution_bytes, decision_id):
     payload = {"base.json": base_bytes, "proposal.json": evidence.encoded(document["proposal"]),
                "reviews.json": evidence.encoded(reviews), "decision.json": evidence.encoded(final["decision"]),
                "execution.json": execution_bytes, "result.json": evidence.encoded(validation["result"]),
-               "capture.md": raw, "review-input.json": evidence.encoded(evidence.subject(document))}
+               ("capture-proposal.json" if capture.IDENTITY.fullmatch(document["id"]) else "capture.md"): raw,
+               "review-input.json": evidence.encoded(evidence.subject(document))}
+    if capture.IDENTITY.fullmatch(document["id"]):
+        contract.require(narrative is not None and hashlib.sha256(narrative).hexdigest() == document["capture_sha256"],
+                         "admission capture/proposal pair mismatch")
+        payload["capture-narrative.md"] = narrative
     manifest = {"schema": "cp-admission-bundle-v1", "context_id": document["id"], "decision_id": decision_id,
                 "subjects": evidence.subjects(document), "finalized_decision_digest": contract.digest(final),
                 "base_digest": contract.digest(base), "decision_digest": contract.digest(final["decision"]),
@@ -60,18 +67,20 @@ def verify_directory(root, directory, expected_identity=None):
     expected_identity = expected_identity or directory.name
     contract.validate_shape(expected_identity, contract.HASH, "bundle identity")
     contract.require(directory.is_dir(), "bundle directory missing")
-    contract.require({item.name for item in directory.iterdir()} == {*FILES, "manifest.json"}, "unexpected or missing bundle files")
+    capture_name = "capture-proposal.json" if (directory / "capture-proposal.json").exists() else "capture.md"
+    files = (*FILES, capture_name, "capture-narrative.md") if capture_name.endswith(".json") else (*FILES, capture_name)
+    contract.require({item.name for item in directory.iterdir()} == {*files, "manifest.json"}, "unexpected or missing bundle files")
     payload = {}
-    for name in (*FILES, "manifest.json"):
+    for name in (*files, "manifest.json"):
         filename = evidence.confined(root, directory / name)
         contract.require(filename.is_file(), "bundle artifact must be a regular file")
         payload[name] = filename.read_bytes()
     manifest = evidence.load_bytes(payload["manifest.json"])
     contract.require(contract.digest(manifest) == expected_identity, "bundle manifest digest mismatch")
-    contract.require(manifest.get("schema") == "cp-admission-bundle-v1" and set(manifest["files"]) == set(FILES), "invalid bundle manifest")
-    contract.require(all(hashlib.sha256(payload[name]).hexdigest() == manifest["files"][name] for name in FILES), "bundle bytes were tampered with")
-    document = decode_capture(payload["capture.md"])
-    rebuilt, validation = bundle_payload(document, payload["capture.md"], payload["base.json"], payload["execution.json"], manifest["decision_id"])
+    contract.require(manifest.get("schema") == "cp-admission-bundle-v1" and set(manifest["files"]) == set(files), "invalid bundle manifest")
+    contract.require(all(hashlib.sha256(payload[name]).hexdigest() == manifest["files"][name] for name in files), "bundle bytes were tampered with")
+    document = decode_capture(payload[capture_name])
+    rebuilt, validation = bundle_payload(document, payload[capture_name], payload["base.json"], payload["execution.json"], manifest["decision_id"], payload.get("capture-narrative.md"))
     contract.require(rebuilt == payload, "bundle differs from exact validated evidence/result")
     return manifest, document, payload, validation
 
@@ -113,8 +122,9 @@ def prepare(root, context_id, decision_id, base_path, execution_path, expected_d
                 return checked
             return {"status": "prepared-local", "bundle_id": identity, "bundle": str(directory), "created": False,
                     "revision": checked["result"]["revision"], "warnings": evidence.warnings(document), "live_admission": False}
+        narrative = capture.narrative_path(filename).read_bytes() if capture.IDENTITY.fullmatch(context_id) else None
         payload, validation = bundle_payload(document, raw, evidence.confined(root, base_path).read_bytes(),
-                                             evidence.confined(root, execution_path).read_bytes(), decision_id)
+                             evidence.confined(root, execution_path).read_bytes(), decision_id, narrative)
         if payload is None:
             return {"status": "already-applied", **validation}
         manifest = evidence.load_bytes(payload["manifest.json"])

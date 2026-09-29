@@ -17,8 +17,10 @@ Activate `.cp-venv`; all helpers below live in `control-plane/framework/scripts/
 
 Use `planning-capture.py inspect --root ROOT --id ID` and `resolve_document(root, ID)` for
 ADHOC and new HNNN documents. Each ADHOC/discovery session owns
-`control-plane/ad-hoc/ID/ID.md` and its sibling `assets/` directory; do not create a flat
-capture, shared sibling assets tree, or another ID directory inside those assets.
+`control-plane/ad-hoc/ID/ID-capture.md` and `ID-proposal.json`, with optional `assets/`.
+The resolver returns the proposal JSON; its digest binds the separate capture Markdown.
+Keep one self-contained current Canon/work candidate, not numbered active draft files.
+Use the policy's format-separation rule; no routine requests directory or metadata sidecar.
 New horizons have `kind: horizon`, `origin: null`, and
 `planning/HNNN.md` in their packet. Do not synthesize an ADHOC identity or require a tracker.
 For an omitted context, inspect `planning-context.py --root ROOT list` and `discover`, show
@@ -29,11 +31,12 @@ Historical H000 remains unchanged; no implicit migration or renumbering.
 
 Before each write state its purpose, exact context/path, selected IDs, and excluded scope.
 Obtain an explicit request or confirmation of that exact operation. Retain the fully substituted
-command, input digests, and verbatim real confirmation in an explicitly named supporting record
-under `control-plane/ad-hoc/ID/assets/requests/` for ADHOC/discovery or the horizon
-capture's sibling `assets/ID/requests/` for HNNN. These supporting directories may be
-established before capture creation. Input/request/report files there are not another
-maintained plan. Do not include credentials. `--confirmed` records an observed confirmation;
+command, input digests, and verbatim real confirmation in the ad hoc capture's chronological
+request/decision record. Use transient inputs and `--record FILE` with draft/propose or
+evidence mutations; `planning-capture.py record --root ROOT --id ID --expected-digest SHA
+--record - --confirmed` appends Markdown from stdin without a separate receipt file.
+For HNNN only, retain supporting records under the capture's sibling `assets/ID/requests/`.
+No input/request/report is another maintained plan. Do not include credentials. `--confirmed` records an observed confirmation;
 helpers cannot authenticate people. Re-read the current document digest before preparing a new
 offer; on drift stop and explain the difference, never silently refresh a confirmed operation.
 Preserve workflow.findings/reviews/decision/admission through their owning APIs.
@@ -113,11 +116,19 @@ python3 control-plane/framework/scripts/planning-work.py --root ROOT --context I
 python3 control-plane/framework/scripts/planning-work.py --root ROOT --context ID propose --request COMPLETE.json --base BASE.json --execution EXECUTION.json --expected-digest SHA --confirmed
 ```
 
-`draft --section work` is the other partial mode. DRAFT.json has exactly `request_id`, `text`,
-`source_ids`, `questions`, `schema_expansions`; the last three are string arrays and source_ids
-must select retained sources. Repeated identical request IDs are idempotent; revised drafts use
-a new request ID and identify what they supersede in text. `workflow.planning.drafts` is history,
-not executable content. Existing full proposals remain unchanged until explicitly replaced.
+`draft --section work` is the other partial mode. For ad hoc input, supply `request_id`,
+`content` (a structured object), `source_ids`, `questions`, `schema_expansions`; the last
+three are string arrays and source_ids select retained sources. Use `--request -` for
+JSON stdin instead of a retained request file. A plain `text` summary remains an input
+compatibility form, but Markdown-formatted draft text is refused for ad hoc contexts.
+Each operation replaces the complete current section under `workflow.planning.current`,
+preserving the other section. Supply all retained meaning, not instructions to consult old
+drafts. Compact request-ID/digest records provide idempotency without copying every draft.
+Superseded content lives in paired history. New draft work marks the candidate `draft` and
+blocks admission even if an older complete proposal remains. Explicit `propose` marks it
+`complete`; the separate independent review and admission gates still apply.
+HNNN keeps the existing `text` input and `workflow.planning.drafts` history until its
+laydown design is settled; do not apply ad hoc migration to horizons.
 
 Only explicit `--complete` planning authorizes a complete admission proposal. COMPLETE.json has
 exactly `result` (complete `canon`, `phases`, `dag` content) and `started_dispositions` (map).
@@ -146,6 +157,21 @@ closes either register. Formal independent review and approval are separate step
 Report changed files, exact inputs, draft/proposal revision, checked/unexamined scope, unresolved
 questions, stale evidence and next offered command. Drafts report `readiness: not-assessed`.
 No product edits, operational writes, tracker state, admission, hosted publication, or start.
+
+## Ad Hoc Migration And Recovery
+
+Operator-directed storage migration is separate from product planning. The Steward can use
+`planning-capture.py migrate-pair --root ROOT --id ID --expected-digest LEGACY_SHA
+--candidate INPUT --confirmed` for a draft-only session with explicitly reconciled Canon
+and work content. INPUT may be `-` for stdin. The helper verifies and archives every old
+file byte-for-byte, folds source notes/receipts into capture, and swaps in the pair. It
+refuses sessions with a complete proposal or review/admission evidence. No silent migration.
+
+For a mismatched pair, inspect the retained snapshots and exact current hashes, then offer
+`planning-capture.py recover-pair --root ROOT --id ID --expected-digest CURRENT_JSON_SHA
+--expected-capture-digest CURRENT_MD_SHA --snapshot PRIOR_JSON_SHA --confirmed`.
+It retains observed preimages and restores the selected pair; it cannot recover admission
+authority. Do not reconstruct content from guesses or bypass a mismatch by direct editing.
 
 For diagrams load [diagram checkpoint](../diagram-checkpoint/SKILL.md) and its policy.
 `planning-capture.py retain-checkpoint --root ROOT --id ID --expected-digest SHA --manifest FILE

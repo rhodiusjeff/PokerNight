@@ -94,7 +94,7 @@ def tree_files(repository, commit, prefix):
 
 def branch_document(remote, commit, identity):
     contract.require(bool(capture.CONTEXT_ID.fullmatch(identity)), "invalid context ID")
-    prefix = "control-plane/horizons" if identity.startswith("H") else f"control-plane/ad-hoc/{identity}/{identity}.md"
+    prefix = "control-plane/horizons" if identity.startswith("H") else f"control-plane/ad-hoc/{identity}/{identity}-proposal.json"
     paths = git(remote, "ls-tree", "-rz", "--name-only", commit, "--", prefix).split(b"\0")
     matches = [value.decode() for value in paths if value and
                (value.decode().endswith("/planning/" + identity + ".md") if identity.startswith("H") else value.decode() == prefix)]
@@ -109,6 +109,12 @@ def source_inventory(remote, commit, identity):
     home = str(pathlib.PurePosixPath(relative).parent.parent) if identity.startswith("H") else str(pathlib.PurePosixPath(relative).parent / "assets")
     files = tree_files(remote, commit, home)
     files[relative] = raw
+    if capture.IDENTITY.fullmatch(identity):
+        companion = str(capture.narrative_path(pathlib.PurePosixPath(relative)))
+        narrative = tree_files(remote, commit, companion)
+        contract.require(companion in narrative and context.digest_bytes(narrative[companion]) == document["capture_sha256"],
+                         "published capture/proposal pair mismatch")
+        files.update(narrative)
     return relative, document, [{"path": name, "sha256": context.digest_bytes(content),
                                  "bytes_base64": base64.b64encode(content).decode()} for name, content in sorted(files.items())]
 
@@ -264,12 +270,19 @@ def publication_files(offered, remote):
         assets = pathlib.PurePosixPath(relative).parent / "assets"
         if identity.startswith("H"):
             assets = assets / identity
-        return str(assets / "history" / (context.digest_bytes(raw) + ".md"))
+        suffix = "-proposal.json" if capture.IDENTITY.fullmatch(identity) else ".md"
+        return str(assets / "history" / (context.digest_bytes(raw) + suffix))
     shared = {publication["offer"]: encoded(offered)}
     source_files = {**shared, source_path: source_bytes, history(source_path, source["id"], original_source): original_source}
     destination_files = {**shared, destination_path: destination_bytes,
                          history(destination_path, destination["id"], original_destination): original_destination,
                          prefix + "/manifest.json": encoded(request["transfer"])}
+    source_narrative_history = None
+    if capture.IDENTITY.fullmatch(source["id"]):
+        companion = str(capture.narrative_path(pathlib.PurePosixPath(source_path)))
+        source_narrative = next(base64.b64decode(entry["bytes_base64"]) for entry in request["transfer"]["inventory"] if entry["path"] == companion)
+        source_narrative_history = history(source_path, source["id"], original_source).removesuffix("-proposal.json") + "-capture.md"
+        source_files[source_narrative_history] = source_narrative
     for entry in request["transfer"]["inventory"]:
         destination_files[prefix + "/" + entry["sha256"]] = base64.b64decode(entry["bytes_base64"])
     existing_source = tree_files(remote, request["expected_destination_tip"], source_path)
@@ -277,6 +290,8 @@ def publication_files(offered, remote):
         contract.require(existing_source[source_path] == original_source, "destination branch has a competing source document")
         destination_files[source_path] = source_bytes
         destination_files[history(source_path, source["id"], original_source)] = original_source
+        if source_narrative_history:
+            destination_files[source_narrative_history] = source_narrative
     return {"source": source_files, "destination": destination_files}, before, {source_path: source_bytes, destination_path: destination_bytes}
 
 
@@ -466,7 +481,7 @@ def publish(root, offered, confirmed, coordinated, fail_at=None):
             raw = filename.read_bytes()
             contract.require(raw in (before[relative], content), "local receipt changed after verification")
             if raw != content:
-                capture.publish_capture(root, filename, raw, capture.decode_capture(content, pathlib.PurePosixPath(relative).stem))
+                capture.publish_capture(root, filename, raw, capture.decode_capture(content, capture.document_identity(pathlib.PurePosixPath(relative))))
             if index == 0:
                 inject(fail_at, "after-source-receipt")
         checked_completion(request, computed)
@@ -527,9 +542,9 @@ def guard(root, document):
             paths = git(remote, "ls-tree", "-rz", "--name-only", commit, "--", "control-plane/horizons", "control-plane/ad-hoc").split(b"\0")
             for raw_path in paths:
                 name = raw_path.decode()
-                identity = pathlib.PurePosixPath(name).stem
+                identity = capture.document_identity(pathlib.PurePosixPath(name))
                 if not capture.CONTEXT_ID.fullmatch(identity) or not (name.endswith("/planning/" + identity + ".md")
-                        or name == f"control-plane/ad-hoc/{identity}/{identity}.md"):
+                        or name == f"control-plane/ad-hoc/{identity}/{identity}-proposal.json"):
                     continue
                 candidate_document = capture.decode_capture(tree_files(remote, commit, name)[name], identity)
                 candidate_context = candidate_document.get("context", {})

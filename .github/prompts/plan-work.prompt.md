@@ -18,8 +18,8 @@ proposal permission; `--complete` is not review/approval/admission permission.
 
 - `--capture ad-hoc|discovery`: collect exact originals, title and author; use capture new-id
   then capture, with verified origin phase/specification for discovery. Use
-  `control-plane/ad-hoc/ID/ID.md` and session-local `assets/requests/`; no flat capture
-  or shared ad hoc assets tree.
+  `control-plane/ad-hoc/ID/ID-capture.md` and `ID-proposal.json`. Keep JSON and Markdown
+  separate; fold routine requests/confirmations into capture, not `assets/requests/`.
 - `--append`: retain selected additional sources using the current document digest.
 - `--defer`: capture/revise only the explicitly named register item, preserving origin/guardrail.
 - `--include`: descriptive selection walkthrough, exact selected IDs and association disclosure,
@@ -28,7 +28,9 @@ proposal permission; `--complete` is not review/approval/admission permission.
   evidence. `--apply` additionally requires an exact offered correction/finding and confirmation;
   append the correction, preserve originals and verify disposition. No consolidation side effect.
 - `--canon` or `--work`: load the corresponding skill and persist partial drafts using
-  `planning-work.py draft --section canon|work`; preserve unresolved questions and rich meaning.
+  `planning-work.py draft --section canon|work`; for ad hoc, replace one current structured
+  section while preserving the other and all retained meaning. Use transient/stdin request
+  input; preserve old paired revisions in history, not numbered active draft files.
 - `--complete`: derive a full explicit result from settled inputs and supplied base/execution,
   show compose output, then confirmed propose. No fake phases or implicit started dispositions.
 - `--assess`: proposal-assessment's new-context advisory REVIEW round, not independent readiness.
