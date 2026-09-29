@@ -48,6 +48,13 @@ baseline remains outstanding.
 
 ### Next Isolated E2E Trial
 
+Current correction (2026-09-29): use the SAME normal `/admit-plan` workflow in an
+isolated target, without --trial or a trial transport. Replace the historical commands
+below with --publish, --merge, --verify, --close and --retire. Queue/train enforcement
+is deferred by the Operator; exact review/approval and separate merge confirmation
+remain required. The runtime now defaults to real origin-selected gh/glab publication.
+The older trial sequence below is retained as provenance, not the current invocation recipe.
+
 The controller's `forge-cli-trial` path is implemented and locally exercised through
 public offer/create/resume/merge-trial/verify-trial dispatch. See the dated controller
 consult for exact tests and limits. Hosted E2E has not run; obtain the Operator's go-ahead

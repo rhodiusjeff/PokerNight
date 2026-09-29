@@ -1,16 +1,48 @@
 ---
 name: guided-admission
-description: "Use for explicitly invoked /admit-plan review, exact decision, bundle preparation and local/mock publication, or explicitly selected isolated gh/glab trial publication and application verification. Never production admission or product start."
+description: "Use for explicitly invoked /admit-plan independent review, exact approval or waiver, real origin-selected gh/glab publication, separately confirmed integration, application verification and recovery. Admission does not start product work."
 user-invocable: false
 ---
-# Guided Admission: Local/Mock And Isolated Trials
+# Guided Admission
 
-The default is LOCAL/MOCK. The legacy real GitHub transport is implemented behind a trusted in-process owner boundary and tested
-with injected I/O. It is not activated by this skill: public `--transport github` refuses.
-Do not construct an owner/coordination callback, set credentials, invoke private hosted APIs,
-or treat arbitrary CI/protection digests as verified authority. Installing a live owner requires
-separate reviewed integration and evidence. The isolated CLI trial below is a distinct scoped
-path, not an activation override or a substitute for protected admission.
+The normal publication helper defaults to `forge-cli`: real gh/glab operations selected
+from origin with explicit repository, target and subject binding. Use the existing CLI
+authentication; never print tokens or manufacture owner callbacks/evidence. Local mocks
+belong to deterministic tests. A published PR/MR is not approval to merge or start work.
+
+## Normal Workflow
+
+Complete the actual review/decision and bundle steps below. Offer/create/resume use the
+normal transport without a test flag. Retain `scope: repository-admission` in the exact
+offer confirmation alongside actual attribution. Source and target are pinned; no unrelated
+implementation commits enter the isolated candidate. Review must cover that exact subject.
+
+```text
+python3 control-plane/framework/scripts/planning-publication.py --root ROOT preflight --target BRANCH
+python3 control-plane/framework/scripts/planning-publication.py --root ROOT offer --bundle BUNDLE --target refs/heads/BRANCH
+python3 control-plane/framework/scripts/planning-publication.py --root ROOT create --attempt ATTEMPT-ID --offer OFFER.json --confirmation CONFIRMATION.json --confirmed
+python3 control-plane/framework/scripts/planning-publication.py --root ROOT resume --attempt ATTEMPT-ID --confirmed
+python3 control-plane/framework/scripts/planning-publication.py --root ROOT merge --attempt ATTEMPT-ID --confirmation MERGE.json --confirmed
+python3 control-plane/framework/scripts/planning-publication.py --root ROOT verify --attempt ATTEMPT-ID --confirmed
+python3 control-plane/framework/scripts/planning-publication.py --root ROOT close --attempt ATTEMPT-ID --confirmation CLOSE.json --confirmed
+python3 control-plane/framework/scripts/planning-publication.py --root ROOT retire --attempt ATTEMPT-ID --confirmation RETIRE.json --confirmed
+```
+
+`merge`, `close` and `retire` each require separate exact confirmation containing actual
+attribution, `attempt_id`, `offer_digest`, `operation`, `request_number` and candidate `commit`.
+Normal merge uses separately confirmed operator integration with exact candidate SHA and
+fresh target checks. Queue/train enforcement is deferred by the Operator to a later version.
+Preflight checks actual identity, write permission and supported merge method; protection
+is reported, not a requirement to configure a queue. Respect existing forge checks;
+never request a bypass/admin merge, silently fall back to mocks or alter settings. These
+checks do not exclude every external concurrent/bypass writer; report that limit explicitly.
+
+Report `published`, `integration-requested`, `applied` or `retired` accurately. `verify`
+checks actual target ancestry/tree, Canon/phases/DAG, exact evidence/history/revision and
+unchanged execution state. Open/closed-unmerged requests fail application verification.
+Retirement requires an exact closed request and verified non-integration; only then can a
+fresh confirmed attempt replace its claim. An uncertain write requires reconciliation of
+the same attempt, not another POST. These operations never execute the proposed phases.
 
 Read-only forge inspection is available through
 `planning-publication.py --root ROOT inspect-origin [--target BRANCH]`.
@@ -20,7 +52,11 @@ and reports branch protection and remaining blockers. Verified custom hosts can 
 This command can contact the forge but writes no remote or local state. Its success
 does not enable hosted publication or certify required checks/serialized integration.
 
-## Explicit Isolated CLI Trial
+## Legacy Trial Compatibility
+
+The following flags preserve previously recorded trial attempts only. They are not the
+normal workflow or a fallback when production prerequisites fail. New manual acceptance
+must exercise the normal commands in an isolated test environment.
 
 Only `/admit-plan ID --trial` with a selected disposable repository/worktree and explicit
 `cp-admission-trial/NAME` target selects this scope. Preserve the normal independent review,
@@ -100,7 +136,7 @@ Send only `input` from export-review for the initial assessment; retain the acco
 Provide previous findings separately for reconciliation after that assessment. Require exact source,
 Canon/definition, full specification, DAG, base, whole-diff isolation and execution-impact coverage.
 The report gives findings first and one scoped verdict: `Not Ready`, `Near Ready`, or
-`Ready for local/mock admission review`; hosted enforcement is explicitly unverified.
+`Ready for admission review`; report actual forge enforcement limitations separately.
 Keep advisory assessments and independent readiness evidence distinct. Prior reviews/decisions
 are excluded from the clean subject, not recursively presented as new evidence.
 
@@ -167,10 +203,10 @@ Prepare retains exact inputs and computed result under capture assets; it writes
 specification. Bundle validation and semantic review do not replace actual approval. Publication
 accepts an explicit local heads ref only. Save the exact offer JSON; confirmation adds its exact
 `offer_digest` to actual attribution. Explain and confirm one attempt, its isolated clone/commit,
-excluded dirty/parent implementation, local mock request and lack of network transport. Create
-then resume that same ID once. Inspect the actual result; do not loop or claim merge. A success
-may say `authorized-for-merge`, but always qualify `transport: local-mock`, `live_admission: false`.
-No actual source refs/index/worktree updates, hosted push/PR, live authorization or merge occurs.
+excluded dirty/parent implementation, selected origin/target and real Git push/PR/MR effects.
+Create then resume that same ID once. Inspect the actual published result; do not loop or
+claim integration. No source refs/index/worktree updates occur; the isolated candidate is
+pushed to its owned admission branch. Publication does not bypass review or authorize merge.
 
 ## Conflict, Reentry And Withdrawal
 
@@ -185,16 +221,16 @@ clone or force-push it. Reenter the named admission command only with explicit a
 ```text
 python3 control-plane/framework/scripts/planning-publication.py --root ROOT inspect --attempt ATTEMPT-ID
 python3 control-plane/framework/scripts/planning-publication.py --root ROOT resume --attempt ATTEMPT-ID --confirmed
-python3 control-plane/framework/scripts/planning-publication.py --root ROOT close-mock --attempt ATTEMPT-ID --confirmation CONFIRMATION.json --confirmed
-python3 control-plane/framework/scripts/planning-publication.py --root ROOT withdraw --attempt ATTEMPT-ID --confirmation CONFIRMATION.json --confirmed
+python3 control-plane/framework/scripts/planning-publication.py --root ROOT close --attempt ATTEMPT-ID --confirmation CLOSE.json --confirmed
+python3 control-plane/framework/scripts/planning-publication.py --root ROOT retire --attempt ATTEMPT-ID --confirmation RETIRE.json --confirmed
 ```
 
 On failure or interruption, inspect first and present the same attempt and exact recovery action.
-Confirmed retry reuses its request, never a duplicate attempt. `already-applied` reports the exact
-existing revision, not a new admission. Withdrawal requires separate explicit direction and actual
-attribution; close-mock closes the local mock request, then withdraw verifies closure/target state
-before allowing planning again. Never fabricate `request_closed`, delete attempts, reuse withdrawn
-IDs, or infer source abandonment from withdrawal. The publication wrapper owns closure checks.
+Confirmed retry reuses its request, never a duplicate attempt. `applied` reports the exact
+existing result, not another revision. Withdrawal guidance closes the exact request and then
+separately confirms retirement after target non-integration checks. Never fabricate closure,
+delete attempts, reuse retired IDs, or infer source abandonment. Existing mock attempts use
+their explicitly selected legacy transport; do not silently convert their identity or evidence.
 
 Return exact subjects, independent review/verdict, findings dispositions, actual decision, bundle,
 attempt status, performed checks and next boundary. Report every unresolved higher condition.

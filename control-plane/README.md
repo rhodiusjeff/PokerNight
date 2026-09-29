@@ -7,8 +7,9 @@ another project's requirements, state, architecture, or history.
 ## Start Here
 
 LOCAL MOD - HARVEST TO CPB: Operator-authorized V0.8.1 local workflow integration.
-New file-backed planning is available; hosted admission and new operational execution remain
-disabled. Installation, fixture tests and local/mock authorization are not release approval.
+File-backed planning and real origin-selected gh/glab publication are available. Integration
+requires actual repository preflight; new operational start remains an incomplete compatibility
+boundary. Installation and fixture tests are not release approval.
 
 1. Activate `.cp-venv` before launching VS Code or Claude Code. An already-running
    editor may need its Python environment selected or terminal activated separately.
@@ -26,14 +27,14 @@ disabled. Installation, fixture tests and local/mock authorization are not relea
    advisory `--assess` remain distinct. Use `--complete` only for a full proposed result against
    an explicit operational base and execution snapshot. Missing decisions are not fabricated.
 7. Explicit `/admit-plan ID` guides exact independent review, distinct findings, actual approval
-   or waiver, bundle validation and one confirmed LOCAL/MOCK publication attempt. It cannot
-   authenticate actors, publish to a forge, merge, or start product work.
+   or waiver, bundle validation and one confirmed real publication attempt. Separate `--merge`
+   performs operator-confirmed integration; `--verify` checks actual application. No implicit product start.
 
-Explicit `/admit-plan ID --trial` is the isolated-test exception: origin-selected gh/glab
-publishes a real candidate to a nondefault `cp-admission-trial/` target. Merge/closure
-require separate exact confirmations. Post-merge verification reports `applied-trial`
-only after exact Canon/phases/DAG and evidence readback; it grants no protected admission
-or product-start authority. The default local/mock and production refusal remain intact.
+The normal command is the path to validate in an isolated test environment. Old mock/trial
+formats remain for existing evidence and deterministic tests, not as the default or a
+fallback for missing prerequisites. Missing credentials/permissions or unsupported merge
+methods produce concrete preflight failures. Queue/train enforcement is deferred to a later
+version by the Operator; existing forge restrictions are still respected.
 
 Read the [user guide](framework/docs/control-system-user-guide.md) and canonical
 [planning skill](../.github/skills/planning-workflow/SKILL.md) /
@@ -50,7 +51,7 @@ route by their capture format to the shared skills, not legacy complete-tracker 
 Separate `/prepare-next-prompt ID` and `/start-prompt-execution ID` remain owning boundaries.
 For new operational results they only inspect prerequisites and report the live-execution block;
 the in-process start/bind writer is implemented but its live owner and public activation remain
-disabled. Likewise, the real GitHub transport code is tested offline but not publicly enabled.
+disabled. Admission publication now uses the real origin-selected CLI path separately.
 Legacy execution gates remain intact; no fixture authority or mock evidence grants live use.
 
 ## Ownership

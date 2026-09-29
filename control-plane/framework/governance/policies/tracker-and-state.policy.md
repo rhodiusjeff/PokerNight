@@ -2,12 +2,12 @@
 
 ## V0.8.1 Shared File-Backed Planning
 
-LOCAL MOD - HARVEST TO CPB (2026-09-29): the guided-admission skill's explicitly selected
-isolated CLI trial exception permits helper-owned trial candidate commits, pushes and
-separately confirmed PR/MR merge/closure on nondefault cp-admission-trial/ targets.
-Separately confirmed trial retirement permits claim replacement only after closed-request
+LOCAL MOD - HARVEST TO CPB (2026-09-29): explicitly invoked guided admission permits
+helper-owned isolated candidate commits/pushes and separately confirmed operator
+PR/MR integration requests, closure and application verification on explicit targets.
+Separately confirmed retirement permits claim replacement only after closed-request
 and non-integration checks; it does not delete the old claim or reuse its attempt ID.
-The existing attempt journal owns published-trial/applied-trial/trial-retired evidence; no second
+The existing attempt journal owns published/integration-requested/applied/retired evidence; no second
 tracker or production authorization is created. See approval-and-review.policy.md.
 This narrow exception does not alter legacy trackers, instance state or execution progress.
 
@@ -23,15 +23,15 @@ request, offer, report and real-confirmation files under the selected capture's 
 Before capture creation that supporting path may be established under `control-plane/ad-hoc/assets/ID/`;
 for an uncaptured horizon, explicitly selected working inputs may live in `control-plane/workbench/`.
 No arbitrary callbacks/scripts from request files. Helpers own the maintained capture/register,
-immutable preimages, local bindings/recovery and local/mock attempt outputs; do not hand-edit them.
+immutable preimages, local bindings/recovery and attempt outputs; do not hand-edit them.
 
 `/horizon` explicitly owns create/activate/leave/suspend/abandon/absorb and create --from escalation
 through planning-context. Creation includes a disclosed remote tag reservation, not planning-branch
 publication. Source retirement across branches remains `local-only/incomplete`; portable completion
 is false. `/plan-work` owns separately selected capture, deferred selection, scrub, drafting and
 complete proposal operations. `/admit-plan` guides independent review, actual approval/waiver and
-one local/mock publication attempt with separately confirmed reentry/withdrawal. None changes
-instance lifecycle or grants operational admission. Existing conflict-recovery grants remain intact.
+one real publication attempt with separately confirmed integration/reentry/withdrawal. None
+changes instance lifecycle or starts product work. Existing conflict-recovery grants remain intact.
 
 Capture precedes proposal. Deferred inclusion requires explicit IDs/revisions and disclosed existing
 associations; declined/unselected records are unchanged. Scrub maintains source interpretation,
@@ -50,7 +50,8 @@ the implemented transactional start/bind writer has no installed live owner or p
 Do not claim preparation or execution from this check.
 
 These grants exclude helper edits, product edits, direct Canon/specification, execution/tracker
-mutation, real-repository commits/pushes, forge actions, live authorization and merge. Confirmation
+mutation, unrelated source-branch commits/pushes and forge administration. Only the exact
+confirmed admission-helper effects above are permitted. Confirmation
 flags represent actual recorded confirmation, not authentication. No automatic semantic approval.
 
 **Scope:** instance-localized — provenance marker for lift/assimilation classification (framework-canon = unmodified CPB template · instance-localized = canon amended/localized by this instance · instance-born = originated in this instance, upstreaming candidate).

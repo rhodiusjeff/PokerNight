@@ -40,7 +40,8 @@ class OriginPreflightTests(unittest.TestCase):
 				self.assertEqual(result["cli"], "gh" if provider == "github" else "glab")
 				self.assertFalse(result["write_performed"])
 				self.assertFalse(result["live_admission"])
-				self.assertIn("target branch is unprotected", result["blockers"])
+				self.assertFalse(result["target"]["protected"])
+				self.assertFalse(result["queue_train_enforced"])
 
 	def test_changed_origin_refuses(self):
 		client = mock.Mock()
@@ -231,13 +232,15 @@ class TrialControllerTests(unittest.TestCase):
 
 	def cli(self, operation, *arguments):
 		output, errors = io.StringIO(), io.StringIO()
-		with mock.patch.object(sys, "argv", ["publication", "--root", str(self.root), "--transport", "forge-cli-trial", operation, *map(str, arguments)]), \
+		transport = [] if getattr(self, "normal", False) else ["--transport", "forge-cli-trial"]
+		with mock.patch.object(sys, "argv", ["publication", "--root", str(self.root), *transport, operation, *map(str, arguments)]), \
 			 contextlib.redirect_stdout(output), contextlib.redirect_stderr(errors):
 			self.assertEqual(publication.main(), 0, errors.getvalue())
 		return json.loads(output.getvalue())
 
-	def setup_trial(self, provider="github"):
-		self.target_branch = "cp-admission-trial/fixture"
+	def setup_trial(self, provider="github", normal=False):
+		self.normal = normal
+		self.target_branch = "integration" if normal else "cp-admission-trial/fixture"
 		self.git(self.root, "update-ref", "refs/heads/" + self.target_branch, self.target)
 		local = self.context_offer("f", phase_dag=True)
 		self.selected = publication.forge.ForgeRepository(provider, provider + ".com", "fixture/repo")
@@ -254,6 +257,7 @@ class TrialControllerTests(unittest.TestCase):
 		self.client.push_candidate.side_effect = self.push_candidate
 		self.client.create_request.side_effect = self.create_request
 		self.client.merge_request.side_effect = self.merge_request
+		self.client.request_integration.side_effect = self.merge_request
 		self.client.fetch_target.side_effect = lambda *args: self.remote_target
 		self.client.close_request.side_effect = self.close_request
 		for patcher in (mock.patch.object(publication.forge, "repository_from_origin", return_value=self.selected),
@@ -261,7 +265,8 @@ class TrialControllerTests(unittest.TestCase):
 			patcher.start()
 			self.addCleanup(patcher.stop)
 		self.offered = self.cli("offer", "--bundle", local["offer"]["bundle"], "--target", "refs/heads/" + self.target_branch)
-		self.confirmation = {**self.authority, "offer_digest": self.offered["offer_digest"], "scope": "isolated-unprotected-trial"}
+		self.confirmation = {**self.authority, "offer_digest": self.offered["offer_digest"],
+			"scope": "repository-admission" if normal else "isolated-unprotected-trial"}
 		offer_path, confirmation_path = self.root / "trial-offer.json", self.root / "trial-confirmation.json"
 		offer_path.write_text(json.dumps(self.offered))
 		confirmation_path.write_text(json.dumps(self.confirmation))
@@ -477,6 +482,92 @@ class TrialControllerTests(unittest.TestCase):
 		self.assertEqual(publication.journal(self.root, directory), completed)
 		with self.assertRaisesRegex(ValueError, "changed confirmation"):
 			publication.run_trial(self.root, "trial-attempt", "retire-trial", True, {**confirmation, "rationale": "Changed"})
+
+
+class NormalControllerTests(unittest.TestCase):
+	setUp = TrialControllerTests.setUp
+	cli = TrialControllerTests.cli
+	context_offer = TrialControllerTests.context_offer
+	push_candidate = TrialControllerTests.push_candidate
+	create_request = TrialControllerTests.create_request
+	merge_request = TrialControllerTests.merge_request
+	close_request = TrialControllerTests.close_request
+	operation_confirmation = TrialControllerTests.operation_confirmation
+
+	def setup_normal(self, provider="github"):
+		TrialControllerTests.setup_trial(self, provider, normal=True)
+
+	def application(self, provider):
+		self.setup_normal(provider)
+		self.assertEqual(self.offered["offer"]["transport"], "forge-cli")
+		self.assertEqual(self.offered["offer"]["scope"], "repository-admission")
+		self.assertEqual(self.offered["offer"]["target_ref"], "refs/heads/integration")
+		before = self.capture.read_capture(self.capture.resolve_document(self.root, self.offered["offer"]["context_id"]))
+		published = self.cli("resume", "--attempt", "trial-attempt", "--confirmed")
+		self.assertEqual(published["state"], "published")
+		self.assertEqual(self.cli("resume", "--attempt", "trial-attempt", "--confirmed"), published)
+		self.assertEqual(self.creates, 1)
+		confirmation = self.root / "merge.json"
+		confirmation.write_text(json.dumps(self.operation_confirmation("merge")))
+		queued = self.cli("merge", "--attempt", "trial-attempt", "--confirmation", confirmation, "--confirmed")
+		self.assertEqual(queued["state"], "applied")
+		verified = self.cli("verify", "--attempt", "trial-attempt", "--confirmed")
+		self.assertEqual(verified["state"], "applied")
+		self.assertEqual(verified["transport"], "forge-cli")
+		self.assertTrue(verified["live_admission"])
+		self.assertTrue(verified["application_verified"])
+		self.assertFalse(verified["protected_enforcement_verified"])
+		actual = publication.planning_git.blob_json(self.sandbox, verified["target_commit"], publication.admission.SPECIFICATION_PATH)
+		self.assertEqual(actual["content"], before["proposal"]["result"])
+		self.assertEqual(actual["revision"], 1)
+		self.assertEqual(self.cli("verify", "--attempt", "trial-attempt", "--confirmed"), verified)
+		self.assertEqual(self.merges, 1)
+
+	def test_github_normal_default_applies_canon_and_dag(self):
+		self.application("github")
+
+	def test_gitlab_normal_default_applies_canon_and_dag(self):
+		self.application("gitlab")
+
+	def test_normal_retirement_and_replacement(self):
+		self.setup_normal()
+		self.cli("resume", "--attempt", "trial-attempt", "--confirmed")
+		for operation in ("close", "retire"):
+			confirmation = self.root / (operation + ".json")
+			confirmation.write_text(json.dumps(self.operation_confirmation(operation)))
+			result = self.cli(operation, "--attempt", "trial-attempt", "--confirmation", confirmation, "--confirmed")
+		self.assertEqual(result["state"], "retired")
+		publication.create_attempt(self.root, self.offered, "replacement", self.confirmation, True)
+		self.assertEqual(self.cli("retire", "--attempt", "trial-attempt", "--confirmation", confirmation, "--confirmed"), result)
+		with self.assertRaisesRegex(ValueError, "retired"):
+			publication.run_cli(self.root, "trial-attempt", "resume", True)
+
+	def test_normal_integration_missing_permission_never_merges(self):
+		self.setup_normal()
+		self.cli("resume", "--attempt", "trial-attempt", "--confirmed")
+		self.client.request_integration.side_effect = ValueError("authenticated actor lacks repository write permission")
+		with self.assertRaisesRegex(ValueError, "write permission"):
+			publication.run_cli(self.root, "trial-attempt", "merge", True, self.operation_confirmation("merge"))
+		self.assertEqual(self.merges, 0)
+
+	def test_normal_lost_reply_reconciles_once(self):
+		self.setup_normal()
+		self.lost_reply = True
+		with self.assertRaises(publication.forge.UncertainRequest):
+			publication.run_cli(self.root, "trial-attempt", "resume", True)
+		self.cli("resume", "--attempt", "trial-attempt", "--confirmed")
+		self.assertEqual(self.creates, 1)
+
+	def test_normal_close_survives_source_edits(self):
+		self.setup_normal()
+		self.cli("resume", "--attempt", "trial-attempt", "--confirmed")
+		filename = self.capture.resolve_document(self.root, self.offered["offer"]["context_id"])
+		document = self.capture.read_capture(filename)
+		document["proposal"]["revision"] += 1
+		filename.write_text(self.capture.render(document))
+		result = publication.run_cli(self.root, "trial-attempt", "close", True, self.operation_confirmation("close"))
+		self.assertEqual(result["state"], "closed-unmerged")
+		self.assertEqual(self.capture.read_capture(filename), document)
 
 
 class TransferPublicationGuards(unittest.TestCase):

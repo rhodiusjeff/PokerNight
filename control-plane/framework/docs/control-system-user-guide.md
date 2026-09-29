@@ -8,8 +8,9 @@ for new `cp-planning-capture-v1` documents. Existing H000/legacy workflows retai
 
 Codegen, Planning and Design, and Lifecycle Facilitator can guide all new planning modes through
 the same skills without switching persona. Their grants allow only selected planning inputs,
-helper-owned capture/register/evidence writes and explicitly confirmed local/mock operations.
-They do not allow arbitrary code, direct Canon/specification, tracker, execution or forge writes.
+helper-owned capture/register/evidence writes and exact-confirmed origin-selected gh/glab
+admission operations. They do not allow arbitrary code, direct Canon/specification, tracker,
+execution or forge-administration writes.
 
 | Command | Purpose and boundary |
 | --- | --- |
@@ -25,7 +26,7 @@ They do not allow arbitrary code, direct Canon/specification, tracker, execution
 | `/plan-work ID --canon` / `--work` | Iterative partial candidates, questions and provenance |
 | `/plan-work ID --complete` | Complete proposed Canon/phases/DAG result, not executable work |
 | `/plan-work ID --assess` | Advisory REVIEW findings, not independent readiness |
-| `/admit-plan ID` | LOCAL/MOCK exact independent review, actual decision and one publication attempt |
+| `/admit-plan ID` | Exact independent review, actual decision and one real origin-selected publication attempt |
 
 All three new commands support read-only `--help`. Arguments and live APIs are maintained in
 the [planning workflow](../../../.github/skills/planning-workflow/SKILL.md),
@@ -49,7 +50,7 @@ transaction. Both require exact supplied base/execution and expected current cap
 Add/modify/obsolete operations retain identities/history. Started work requires explicit
 `preserve-bound-contract`; family membership does not create dependencies or reopen completed work.
 
-### Evidence And Local Mock Publication
+### Evidence And Publication
 
 SCRUB and REVIEW findings have independent stable identities and histories. Resolutions require
 actual verification; agreement alone is still open. Omission and cross-links never close findings.
@@ -59,7 +60,7 @@ Exact current reviews and both finding registers feed an actual approval or waiv
 digests and validate structure but never authenticate people, sign, or infer checklist approval.
 Open findings are disclosed/acknowledged, not automatically forced into a waiver per finding.
 
-`/admit-plan ID --prepare` retains a complete validated bundle. `--publish` confirms one local/mock
+`/admit-plan ID --prepare` retains a complete validated bundle. `--publish` confirms one real
 offer and isolated attempt. `--resume ATTEMPT-ID` inspects and reuses that attempt; `--withdraw
 ATTEMPT-ID` confirms request closure and withdrawal without erasing history. Semantic stale bases
 remain distinct from text conflicts; the existing conflict-recovery skill owns exact Approve
@@ -69,16 +70,17 @@ Local mock authorization is not a hosted PR, merge, protected-target attestation
 The read-only `planning-publication.py --root ROOT inspect-origin` command selects `gh`
 or `glab` from the actual origin and reports repository identity, target commit, protection
 and unmet integration checks. `--target BRANCH` selects a remote branch; verified custom
-hosts use `--host-provider HOST=github|gitlab`. The CLI adapters support PR/MR operations,
-with an explicit `/admit-plan ID --trial` controller path for nondefault
-`cp-admission-trial/` targets. It uses real reviewed bundles, isolated Git candidates and
-journaled publication/retry. Separate exact `--merge-trial` or `--close-trial` confirmations
-are required. `--verify-trial` fetches and checks the merged target's exact candidate tree,
-result/evidence, one revision advance, preserved history and unchanged execution bindings.
-Results are `published-trial` or `applied-trial`, never protected admission or execution
-authority. Normal production admission remains disabled; GitLab live verification is outstanding.
-`--verify-trial` fails for any unmerged request, including a closed one. After confirmed
-closure, separately confirmed `--retire-trial` checks that the old change was not integrated
+hosts use `--host-provider HOST=github|gitlab`. Normal admission uses real reviewed bundles,
+isolated Git candidates and journaled publication/retry. Separate exact `--merge` or
+`--close` confirmations are required. Merge is operator-confirmed with exact candidate SHA;
+queue/train enforcement is deferred for this version. `preflight --target BRANCH` reports
+actual permissions and merge-method conditions. `--verify` checks
+the integrated target's exact candidate tree, result/evidence, one revision advance,
+preserved history and unchanged execution bindings. `applied` means verified application,
+not full historical protection/bypass certification or product start. GitLab live verification
+remains outstanding. Old trial flags preserve existing records only, not the normal path.
+`--verify` fails for any unmerged request, including a closed one. After confirmed
+closure, separately confirmed `--retire` checks that the old change was not integrated
 and allows a newly confirmed replacement attempt. Old attempt history is retained and its
 ID cannot be reused. See the guided-admission skill for exact confirmation fields.
 Cross-branch source retirement remains `local-only/incomplete`, `portable_complete: false`.

@@ -226,11 +226,59 @@ class ProviderRequestTests(unittest.TestCase):
 
 
 class InitialGuards(unittest.TestCase):
+    def test_integration_preflight_refuses_unprotected_target(self):
+        client = forge.ForgeCLI(forge.parse_origin("https://github.com/fixture/repo"))
+        with mock.patch.object(client, "inspect_repository", return_value={"id": 12}), \
+             mock.patch.object(client, "branch", return_value={"protected": False}), \
+             mock.patch.object(client, "api") as api, self.assertRaisesRegex(ValueError, "unprotected"):
+            client.queue_preflight("main")
+        api.assert_not_called()
+
+    def test_github_requires_queue_and_bound_admission_check(self):
+        client = forge.ForgeCLI(forge.parse_origin("https://github.com/fixture/repo"))
+        rules = [{"type": "merge_queue", "parameters": {"max_entries_to_merge": 1, "merge_method": "MERGE"}},
+                 {"type": "required_status_checks", "parameters": {"required_status_checks": [
+                     {"context": "planning-admission", "integration_id": 42}]}}]
+        with mock.patch.object(client, "inspect_repository", return_value={"id": 12, "owner": {"type": "Organization"}}), \
+             mock.patch.object(client, "branch", return_value={"protected": True, "commit": "a" * 40}), \
+             mock.patch.object(client, "api", return_value=rules):
+            self.assertEqual(client.queue_preflight("main")["integration_mode"], "queue")
+            rules[0]["parameters"]["max_entries_to_merge"] = 2
+            with self.assertRaisesRegex(ValueError, "single-entry"):
+                client.queue_preflight("main")
+            rules[0]["parameters"]["max_entries_to_merge"] = 1
+            rules[1]["parameters"]["required_status_checks"] = []
+            with self.assertRaisesRegex(ValueError, "planning-admission"):
+                client.queue_preflight("main")
+
+    def test_gitlab_requires_train_and_no_direct_push(self):
+        client = forge.ForgeCLI(forge.parse_origin("https://gitlab.com/fixture/repo"))
+        repository = {"id": 12, "merge_trains_enabled": True, "merge_pipelines_enabled": True,
+                      "only_allow_merge_if_pipeline_succeeds": True, "merge_method": "merge"}
+        protection = {"name": "main", "allow_force_push": False, "push_access_levels": [{"access_level": 0}]}
+        with mock.patch.object(client, "inspect_repository", return_value=repository), \
+             mock.patch.object(client, "branch", return_value={"protected": True, "commit": "a" * 40}), \
+             mock.patch.object(client, "api", return_value=protection):
+            self.assertEqual(client.queue_preflight("main")["integration_mode"], "merge-train")
+            protection["push_access_levels"] = [{"access_level": 40}]
+            with self.assertRaisesRegex(ValueError, "direct pushes"):
+                client.queue_preflight("main")
+
+    def test_normal_integration_requires_exact_confirmation(self):
+        client = forge.ForgeCLI(forge.parse_origin("https://github.com/fixture/repo"))
+        request = {"number": 2, "repository_id": 12, "target": "main", "commit": "b" * 40, "state": "open"}
+        with mock.patch.object(client, "integration_preflight", return_value={"repository_id": 12, "target": {"commit": "a" * 40}}), \
+             mock.patch.object(client, "merge_request", return_value={**request, "state": "merged"}) as merge:
+            self.assertEqual(client.request_integration(request, "a" * 40, confirmed=True)["state"], "merged")
+            merge.assert_called_once_with(request, "a" * 40, confirmed=True)
+            with self.assertRaisesRegex(ValueError, "exact confirmation"):
+                client.request_integration(request, "a" * 40)
+
     def test_trial_merge_payloads_and_readback(self):
         for provider in ("github", "gitlab"):
             client = forge.ForgeCLI(forge.parse_origin("https://" + provider + ".com/fixture/repo"))
             request = {"number": 3, "repository_id": 12, "target": "cp-admission-trial/base", "commit": "a" * 40, "state": "open"}
-            with mock.patch.object(client, "inspect_repository", return_value={"default_branch": "main"}), \
+            with mock.patch.object(client, "inspect_repository", return_value={"id": 12, "default_branch": "main"}), \
                  mock.patch.object(client, "read_request", side_effect=[request, {**request, "state": "merged"}]), \
                  mock.patch.object(client, "branch", return_value={"commit": "b" * 40}), mock.patch.object(client, "api", return_value={}) as api:
                 result = client.merge_request(request, "b" * 40, confirmed=True)
@@ -241,8 +289,32 @@ class InitialGuards(unittest.TestCase):
                     self.assertEqual(api.call_args.args[2]["merge_method"], "merge")
                 else:
                     self.assertFalse(api.call_args.args[2]["squash"])
-            with self.assertRaisesRegex(ValueError, "isolated trial"):
-                client.merge_request({**request, "target": "main"}, "b" * 40, confirmed=True)
+            with self.assertRaisesRegex(ValueError, "exact confirmation"):
+                client.merge_request({**request, "target": "main"}, "b" * 40)
+
+    def test_normal_preflight_allows_personal_unprotected_repository(self):
+        client = forge.ForgeCLI(forge.parse_origin("https://github.com/fixture/repo"))
+        repository = {"id": 12, "owner": {"type": "User"}, "permissions": {"push": True}, "allow_merge_commit": True}
+        with mock.patch.object(client, "inspect_repository", return_value=repository), \
+             mock.patch.object(client, "branch", return_value={"protected": False, "commit": "a" * 40}), \
+             mock.patch.object(client, "api", return_value={"id": 23}):
+            result = client.integration_preflight("main")
+            self.assertEqual(result["integration_mode"], "operator-confirmed")
+            self.assertFalse(result["queue_train_enforced"])
+            repository["permissions"] = {"push": False}
+            with self.assertRaisesRegex(ValueError, "write permission"):
+                client.integration_preflight("main")
+
+    def test_gitlab_normal_preflight_checks_developer_access_without_trains(self):
+        client = forge.ForgeCLI(forge.parse_origin("https://gitlab.com/fixture/repo"))
+        repository = {"id": 12, "permissions": {"group_access": {"access_level": 30}}, "merge_method": "merge"}
+        with mock.patch.object(client, "inspect_repository", return_value=repository), \
+             mock.patch.object(client, "branch", return_value={"protected": False, "commit": "a" * 40}), \
+             mock.patch.object(client, "api", return_value={"id": 23}):
+            self.assertEqual(client.integration_preflight("main")["integration_mode"], "operator-confirmed")
+            repository["permissions"]["group_access"]["access_level"] = 10
+            with self.assertRaisesRegex(ValueError, "developer access"):
+                client.integration_preflight("main")
 
     def test_before_create_hook_runs_before_post(self):
         client = forge.ForgeCLI(forge.parse_origin("https://github.com/fixture/repo"))

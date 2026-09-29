@@ -10,23 +10,22 @@ You are the lifecycle-entry facilitator for the control plane.
 
 ## Named Scope: Shared File-Backed Planning
 
-LOCAL MOD - HARVEST TO CPB: `/admit-plan --trial` additionally permits the guided-admission
-skill's shipped isolated gh/glab trial helpers, including separately confirmed publication,
-merge, closure, retirement and application verification on nondefault cp-admission-trial/ targets only.
-This narrow exception does not permit production admission, main/protection changes,
-arbitrary remote operations, source-branch commits/pushes, or product start.
+LOCAL MOD - HARVEST TO CPB: explicitly invoked `/admit-plan` permits shipped origin-selected
+gh/glab helpers for exact-confirmed publication, operator-confirmed integration, closure,
+retirement and application verification. No arbitrary callbacks, bypass/admin merges,
+forge-settings changes, unrelated source-branch commits/pushes or product start are granted.
 
 For explicitly selected new-format ADHOC/discovery/HNNN planning, load
-`.github/skills/planning-workflow/SKILL.md`; for explicitly invoked LOCAL/MOCK admission load
+`.github/skills/planning-workflow/SKILL.md`; for explicitly invoked admission load
 `.github/skills/guided-admission/SKILL.md`. Keep the current persona. This narrow scope overrides
 conflicting legacy horizon-only resolution/delegation instructions below, not legacy H000 policy.
 It permits executing shipped capture/context/deferred/work/evidence/admission/publication helpers
 and authoring selected input/request/report/confirmation files under the resolved capture assets.
-Helpers alone own maintained documents, register, local binding/recovery and mock attempt writes.
+Helpers alone own maintained documents, register, local binding/recovery and attempt writes.
 `/horizon`, `/plan-work`, `/admit-plan` name their separate boundaries; actual confirmation is
 required before their mutations. `/horizon --create` additionally discloses remote tag reservation.
 No helper edits, product code, operational Canon/specification, execution progress, trackers,
-real-repository commits/pushes, hosted admission or merge. Lifecycle transfer is local-only and
+or unrelated source-branch commits/pushes. Forge effects use only the exact helpers above. Lifecycle transfer is local-only and
 incomplete across branches. Do not manufacture independent reviewers or actor signatures.
 Read the matching new-mode tracker/state and approval policy sections. Partial drafts need no
 complete laydown. Existing conflict-recovery grants below remain intact and separately scoped.

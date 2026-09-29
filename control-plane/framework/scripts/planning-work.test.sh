@@ -270,8 +270,9 @@ class WorkflowTests(unittest.TestCase):
         evidence = publication.evidence
 
         def command(helper, *arguments):
+            transport = ['--transport', 'local-mock'] if helper == 'planning-publication' else []
             completed = subprocess.run([sys.executable, str(script.with_name(helper + '.py')),
-                '--root', str(self.root), *arguments], capture_output=True, text=True)
+                '--root', str(self.root), *transport, *arguments], capture_output=True, text=True)
             self.assertEqual(completed.returncode, 0, completed.stderr)
             return json.loads(completed.stdout)
 

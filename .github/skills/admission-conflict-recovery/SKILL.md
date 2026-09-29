@@ -17,7 +17,8 @@ Read the exact proposal/context, repository, recorded proposal/target refs, base
 previous recovery offer. Do not guess targets or substitute another effort's identity. The helper
 observes local refs only, not live forge freshness. Report any required fetch as a separate action
 owned by the existing workflow. Source dirty work is preserved and excluded: only committed
-proposal content is inspected/rebased. Live admission remains disabled during this upgrade.
+proposal content is inspected/rebased. Publication and integration use the separately invoked
+guided-admission workflow and its actual repository checks; rebase is not admission.
 
 ## Inspect And Explain
 

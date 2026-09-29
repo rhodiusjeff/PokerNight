@@ -124,3 +124,40 @@ No new live setup, publication or merge is invoked by this implementation handof
 Actual proposed content, review/approval, target and merge confirmation are next-run
 subjects. Verify post-merge target bytes/history/revision and idempotent retry before
 claiming test success. PR merge is not phase execution.
+
+## Production-Ready Command Requirement (2026-09-29)
+
+Operator direction: "Why do we still have skills that show local/mock? All skills and
+command should be production ready".
+
+Delivered in-scope commands/skills must implement actual repository operations, not
+expose local/mock or trial-only behavior as the finished product. Select gh/glab from
+origin, preserve real review/confirmation boundaries and validate repository prerequisites.
+Test isolation and injected responses belong in fixtures; a separate trial path does
+not establish that the normal user command works.
+
+The current /admit-plan default, unconditional production transport refusal and trial-only
+alternative do not satisfy that criterion. Deferring protected merge/start verification
+did not declare these workflows complete. Finish coherent normal runtime, skill/prompt,
+caller and adapter integration, then manually validate that same path in an isolated
+test environment. Changing labels alone would misrepresent runtime capability.
+
+This does not waive exact-subject approval, separate operation invocation, protected
+integration, preserved history or forge-administration authority. Unavailable capabilities
+must be reported as concrete blockers requiring an explicit decision, not disguised by
+fabricated proof, weaker guarantees or a permanent mock-only default. Deferred execution
+redesign remains separate from the in-scope execution-consumer compatibility work.
+
+## Queue And Train Enforcement Deferred (2026-09-29)
+
+Asked to select the normal integration contract, the Operator said: "We are going to
+skip queue/train enforcement. We will get to that in another version".
+
+This supersedes mandatory queue/train enforcement for this version. Use explicitly
+confirmed, one-at-a-time operator integration through origin-selected gh/glab. Retain
+exact review/decision validation, immutable candidate/attempt identity, expected source
+SHA, target freshness, real permissions, and post-merge content/history/revision checks.
+Respect checks actually configured at the forge; never request an admin/bypass operation.
+These checks do not exclude all external concurrent or bypass writers. No queue is
+configured or certified here, and personal/unprotected repositories are not blocked merely
+for lacking one. This decision invokes no live merge, phase start or lifecycle completion.

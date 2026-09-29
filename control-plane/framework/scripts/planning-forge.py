@@ -268,10 +268,8 @@ class ForgeCLI:
         return observed
 
     def merge_request(self, expected, target_commit, *, confirmed=False):
-        require(confirmed is True and expected["target"].startswith("cp-admission-trial/"),
-                "merge requires exact confirmation and an isolated trial target")
-        require(self.inspect_repository()["default_branch"] != expected["target"],
-                "trial cannot merge into the default branch")
+        require(confirmed is True, "merge requires exact confirmation")
+        require(self.inspect_repository()["id"] == expected["repository_id"], "merge repository changed")
         current = self.read_request(expected["number"], expected["repository_id"])
         require(current == expected and current["state"] == "open", "merge request subject changed")
         require(self.branch(expected["target"])["commit"] == target_commit, "remote target commit changed")
@@ -281,6 +279,66 @@ class ForgeCLI:
         observed = self.read_request(expected["number"], expected["repository_id"])
         require(observed == {**expected, "state": "merged"}, "merge not observed; reconcile before retry")
         return observed
+
+    def queue_preflight(self, target):
+        repository = self.inspect_repository()
+        branch = self.branch(target)
+        require(branch["protected"], "target branch is unprotected; configure protected integration before merging")
+        if self.repository.provider == "github":
+            require(repository.get("owner", {}).get("type") == "Organization",
+                "GitHub merge queues require an organization-owned repository")
+            rules = self.api("GET", self.repository.api_path + "/rules/branches/" + quote(target, safe=""))
+            require(isinstance(rules, list), "cannot establish target rules")
+            queues = [rule.get("parameters", {}) for rule in rules if rule.get("type") == "merge_queue"]
+            require(len(queues) == 1 and queues[0].get("max_entries_to_merge") == 1,
+                "target requires a single-entry merge queue")
+            require(queues[0].get("merge_method") == "MERGE", "admission verification requires merge-commit integration")
+            checks = [check for rule in rules if rule.get("type") == "required_status_checks"
+                  for check in rule.get("parameters", {}).get("required_status_checks", [])]
+            require(any(check.get("context") == "planning-admission" and type(check.get("integration_id")) is int
+                and check["integration_id"] > 0 for check in checks),
+                "target must require the planning-admission check from a pinned integration")
+        else:
+            require(repository.get("merge_trains_enabled") is True and repository.get("merge_pipelines_enabled") is True
+                and repository.get("only_allow_merge_if_pipeline_succeeds") is True,
+                "GitLab target requires merge trains, merged-result pipelines and successful-pipeline enforcement")
+            require(repository.get("merge_method") in ("merge", "ff"), "unsupported GitLab integration method")
+            protection = self.api("GET", self.repository.api_path + "/protected_branches/" + quote(target, safe=""))
+            require(protection.get("name") == target and protection.get("allow_force_push") is False,
+                "exact target protection must prohibit force pushes")
+            levels = protection.get("push_access_levels")
+            require(isinstance(levels, list) and levels and all(level.get("access_level") == 0
+                and not level.get("deploy_key_id") for level in levels), "protected target must prohibit direct pushes")
+        return {"repository_id": repository["id"], "target": branch, "provider": self.repository.provider,
+            "required_check": "planning-admission", "integration_mode": "queue" if self.repository.provider == "github" else "merge-train"}
+
+    def integration_preflight(self, target):
+        repository = self.inspect_repository()
+        branch = self.branch(target)
+        actor = self.api("GET", "user")
+        require(isinstance(actor, dict) and type(actor.get("id")) is int and actor["id"] > 0,
+                "authenticated forge identity unavailable")
+        if self.repository.provider == "github":
+            permissions = repository.get("permissions", {})
+            require(any(permissions.get(name) is True for name in ("push", "maintain", "admin")),
+                    "authenticated actor lacks repository write permission")
+            require(repository.get("allow_merge_commit") is True, "repository must allow merge commits for exact candidate verification")
+        else:
+            permissions = repository.get("permissions", {})
+            require(any(type((permissions.get(name) or {}).get("access_level")) is int
+                        and permissions[name]["access_level"] >= 30 for name in ("project_access", "group_access")),
+                    "authenticated actor lacks project developer access")
+            require(repository.get("merge_method") in ("merge", "ff"), "repository must support merge-commit or fast-forward integration")
+        return {"repository_id": repository["id"], "target": branch, "provider": self.repository.provider,
+                "actor_id": actor["id"], "integration_mode": "operator-confirmed",
+                "queue_train_enforced": False}
+
+    def request_integration(self, expected, target_commit, *, confirmed=False):
+        require(confirmed is True, "integration requires exact confirmation")
+        preflight = self.integration_preflight(expected["target"])
+        require(preflight["repository_id"] == expected["repository_id"]
+            and preflight["target"]["commit"] == target_commit, "integration repository or target changed")
+        return self.merge_request(expected, target_commit, confirmed=True)
 
     def _remote_git(self, sandbox, operation, refspec):
         require(operation in ("push", "fetch", "ls-remote"), "unsupported Git operation")
@@ -322,8 +380,8 @@ class ForgeCLI:
 
     def push_candidate(self, sandbox, branch, commit, target, target_commit):
         require(branch.startswith("cp-admission/") and bool(IDENTITY.fullmatch(branch.removeprefix("cp-admission/")))
-                and target.startswith("cp-admission-trial/") and bool(SHA.fullmatch(commit)),
-                "invalid isolated trial push")
+                and isinstance(target, str) and bool(target) and target != branch
+                and bool(SHA.fullmatch(commit)) and bool(SHA.fullmatch(target_commit)), "invalid admission push")
         require(self.branch(target)["commit"] == target_commit, "remote target commit changed")
         remote_ref = "refs/heads/" + branch
         existing = self._remote_git(sandbox, "ls-remote", remote_ref).strip()
@@ -336,7 +394,7 @@ class ForgeCLI:
         require(self.branch(target)["commit"] == target_commit, "remote target commit changed")
 
     def fetch_target(self, sandbox, branch):
-        require(branch.startswith("cp-admission-trial/"), "only isolated trial targets may be fetched")
+        require(isinstance(branch, str) and bool(branch) and not branch.startswith("-"), "explicit target branch required")
         commit = self.branch(branch)["commit"]
         self._remote_git(sandbox, "fetch", "refs/heads/" + branch)
         require(self.branch(branch)["commit"] == commit, "remote target changed during fetch")

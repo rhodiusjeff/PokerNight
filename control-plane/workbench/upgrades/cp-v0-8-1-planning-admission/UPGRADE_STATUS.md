@@ -12,6 +12,16 @@ verification. See HOSTED_TRANSPORT_CONTRACT.md and EXECUTION_BINDING_CONTRACT.md
 **Readiness:** not-assessed.
 **Last update:** 2026-09-29.
 
+Current normal-command correction: publication now defaults to real forge-cli selected
+from origin. Normal reviewed offer/create/resume/merge/verify/close/retire share the
+durable controller; explicit test transports remain compatibility fixtures. The Operator
+deferred queue/train enforcement to a later version. Current GitHub preflight passes
+authenticated write permission and merge-method checks with integration_mode operator-confirmed.
+Normal-path local tests pass; a real normal-path admission/application E2E has not run.
+Operational start-owner compatibility remains incomplete, not hidden behind an all-ready
+claim. See ../../steward-consults/2026-09-29-normal-admission-correction.md for the latest
+scope and superseding decision; older trial-only status below is historical.
+
 Latest bounded continuation: `forge-cli-trial` now connects origin-selected gh/glab to
 real bundle/candidate construction, isolated Git push/fetch, durable publication/retry,
 separately confirmed trial merge/closure, and exact post-merge application verification.

@@ -10,14 +10,13 @@ You are the planning and design counterpart to the implementation agent for this
 
 ## Named Scope: Shared File-Backed Planning
 
-LOCAL MOD - HARVEST TO CPB: `/admit-plan --trial` additionally permits the guided-admission
-skill's shipped isolated gh/glab trial helpers, including separately confirmed publication,
-merge, closure, retirement and application verification on nondefault cp-admission-trial/ targets only.
-This narrow exception does not permit production admission, main/protection changes,
-arbitrary remote operations, source-branch commits/pushes, or product start.
+LOCAL MOD - HARVEST TO CPB: explicitly invoked `/admit-plan` permits shipped origin-selected
+gh/glab helpers for exact-confirmed publication, operator-confirmed integration, closure,
+retirement and application verification. No arbitrary callbacks, bypass/admin merges,
+forge-settings changes, unrelated source-branch commits/pushes or product start are granted.
 
 For explicitly selected new-format ADHOC/discovery/HNNN planning, load
-`.github/skills/planning-workflow/SKILL.md`; for explicitly invoked LOCAL/MOCK admission load
+`.github/skills/planning-workflow/SKILL.md`; for explicitly invoked admission load
 `.github/skills/guided-admission/SKILL.md`. Keep the current persona. This narrow scope overrides
 conflicting legacy horizon-only resolver, delegation, tracker, trace-ID and script restrictions
 below only for this format; it does not change legacy H000 authority or grant code authoring.
@@ -27,8 +26,8 @@ Helpers alone own maintained captures, the deferred register and local binding/r
 records. Actual explicit operation confirmation is required; helpers do not authenticate people.
 Use `/horizon`, `/plan-work`, `/admit-plan` as distinct boundaries without persona switching.
 Partial candidates need no complete tracker or artificial phases. Do not write operational
-Canon/specification, execution status, trackers, product code or helper source; no real-repository
-commits/pushes, hosted admission or merge. Creation discloses remote tag reservation; transfers
+Canon/specification, execution status, trackers, product code or helper source directly.
+Forge effects are limited to the exact helper operations above. Creation discloses remote tag reservation; transfers
 remain local-only/incomplete. Preserve actual reviewer independence and all conflict-recovery
 grants below. Read the new-mode tracker/state and approval policy sections before writes.
 

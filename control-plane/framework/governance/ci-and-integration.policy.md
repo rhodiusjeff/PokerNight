@@ -139,6 +139,13 @@ narrowing requires reviewed configuration and an explicit replacement evidence p
 
 ## 9. Pull Request and Merge Queue/Train
 
+LOCAL MOD - HARVEST TO CPB (2026-09-29): the Operator deferred queue/train enforcement
+for the current V0.8.1 planning/admission release. Its normal path uses separately
+confirmed operator integration, exact source SHA, target freshness and post-merge
+verification while respecting forge checks already configured. The queue/train model
+below is future enforcement guidance, not a blocking prerequisite for this version.
+No exclusion of all concurrent external or bypass writes is claimed by that limited model.
+
 PR CI provides early feedback. Queue/train CI reruns required checks on the exact speculative
 candidate containing the latest protected target and any earlier queued entries selected by the
 forge.
