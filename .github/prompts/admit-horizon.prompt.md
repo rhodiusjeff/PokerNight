@@ -4,6 +4,13 @@ name: "Admit Horizon"
 argument-hint: "Horizon ID, optionally followed by --approval-evidence <packet-local-path> or --help"
 agent: "Control Plane: Lifecycle Facilitator"
 ---
+FORMAT GUARD: help remains read-only. If the named horizon has a new
+`cp-planning-capture-v1` document, do not run the legacy tracker/branch/PR flow below. Load
+[guided admission](../skills/guided-admission/SKILL.md), explain LOCAL/MOCK-only publication,
+and offer `/admit-plan ID --publish` with its exact prerequisites. Wait for explicit invocation;
+legacy admission intent does not authorize a different boundary or hosted adapter. Actual legacy
+H000 admission remains supported below. Missing/malformed new captures refuse, not fall back.
+
 INVOCATION CONTRACT: this prompt must be invoked from inside the `Control Plane: Lifecycle Facilitator` persona. If you are reading this from any other persona, stop and switch before continuing. Admission is a mutating governance boundary and executes only from explicit operator invocation or confirmation.
 
 Admit a prepared horizon for execution.
@@ -39,6 +46,11 @@ Interpret arguments as `<HNNN> [--approval-evidence <path>]`. If omitted, infer 
 
 ## Guardrails
 
+- For conflicts, stale bases or interrupted planning rebases, report the actual refusal and load
+	`.github/skills/admission-conflict-recovery/SKILL.md`. Separately confirmed isolated recovery
+	does not satisfy or retry this boundary. Preserve dirty work and operation ownership; changed
+	bundles return to shaping/preparation and current review/decision evidence. A clean Git merge
+	is not semantic validation or protected-target admission.
 - Do not merge the admission PR, start phases, create codegen branches, or claim effective admission before protected-target visibility.
 - Do not target a horizon-specific unprotected integration branch. Phase PRs later target the shared protected repository integration branch.
 - Do not change specification/prompts during admission; return to shaping and prepare a new bundle.

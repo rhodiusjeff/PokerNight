@@ -1,10 +1,31 @@
 ---
 description: "Establish the preconditions /start-prompt-execution requires for the next prompt or phase: phase branch exists and is active, tracker aligned, carry-forward applied, and execution-model alignment verified. Success is invariant establishment, not state reporting."
 name: "Prepare Next Prompt"
-argument-hint: "Next prompt or phase ID, optionally followed by --branch-name <other>, --adopt-worktree, or --help"
+argument-hint: "Next prompt or phase ID, optionally --target-ref <full-ref>, --branch-name <other>, --adopt-worktree, or --help"
 agent: "Project: Codegen"
 ---
 INVOCATION CONTRACT: this prompt must be invoked from inside the `Project: Codegen` persona. If you are reading this from any other persona — default Copilot, Project: Closeout, Project: Planning and Design, or any other — stop. Switch to `Project: Codegen` before continuing. Persona binding is the writable-scope guardrail; running this prompt outside its declared persona silently inherits the wrong scope. Prep mutates the working tree (creates branches, may align tracker rows); persona-scope discipline is non-negotiable here.
+
+## Operational Source Dispatch Before Legacy Prep
+
+Help returns before any command. Otherwise resolve the explicit phase read-only first with
+`python3 control-plane/framework/scripts/resolve-horizon.py ID --root ROOT`, adding
+`--target-ref FULL_REF` only when explicitly supplied (otherwise configured selection applies).
+Do not infer a new operational phase from a nonexistent horizon tracker; omitted IDs require
+explicit selection. On `source: operational`, use separate `specification`, `execution`,
+`status_path`, `phase_contract`, contract revision/digest, target commit and dependency fields.
+Null horizon/tracker/ledger paths stay null. Do not manufacture files or use H000 as fallback.
+
+Run `python3 control-plane/framework/scripts/planning-execution.py --root ROOT check-start ID
+--target-ref FULL_REF --expected-target-commit COMMIT --expected-specification-digest SPEC_SHA
+--expected-execution-digest EXEC_SHA` using the exact returned values. This is read-only and
+may report satisfied prerequisites; it is not preparation or executable readiness. Report the
+actual `execution_blocker` and the resolver's `--require-executable` refusal: live protected
+integration is disabled. An in-process owner-gated start/bind writer is implemented, but no trusted
+live owner is installed. Never manufacture fixture authority to invoke it. Stop before branch, timing,
+tracker or execution writes, even with `--adopt-worktree`. No bypass or success declaration.
+This operational branch overrides the legacy four-invariant workflow below; legacy source
+results still require its executable guard and unchanged packet/model/worktree checks.
 
 CHARTER: this prompt's success state is invariant establishment, not state reporting. The framework invariants prep is responsible for establishing, in order:
 

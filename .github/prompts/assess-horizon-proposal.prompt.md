@@ -4,6 +4,14 @@ name: "Assess Horizon Proposal"
 argument-hint: "Optional HNNN and assessment scope, or --help"
 agent: "Control Plane: Lifecycle Facilitator"
 ---
+NEW-CONTEXT DISPATCH: after help handling, inspect the selected ID through
+`planning-capture.py inspect --root ROOT --id ID`. For a resolved new-format capture use
+[proposal assessment](../skills/proposal-assessment/SKILL.md)'s new-context REVIEW-round procedure
+under the caller's narrow grant. It overrides legacy delegation/placement rules below, not the
+read-only assessment or invocation boundary. Retain this command's timing. No complete tracker,
+formal readiness, approval or automatic admission is required. Actual legacy packets retain the
+procedure below; malformed/missing new documents refuse instead of silently selecting legacy.
+
 INVOCATION CONTRACT: run only under `Control Plane: Lifecycle Facilitator` on explicit Operator
 invocation or confirmation. Assessment grants no approval, admission, correction, or start authority.
 

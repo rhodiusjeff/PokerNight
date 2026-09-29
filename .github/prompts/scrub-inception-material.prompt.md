@@ -4,6 +4,14 @@ name: "Scrub Inception Material"
 argument-hint: "Optional HNNN and scope; --apply for authorized source corrections, or --archive-and-scrub --review-id <id> --source-revision <ref>; --help"
 agent: "Control Plane: Lifecycle Facilitator"
 ---
+NEW-CONTEXT DISPATCH: after help handling, resolve the selected capture through
+`planning-capture.py inspect --root ROOT --id ID`. New-format ADHOC/HNNN uses
+[inception scrub](../skills/inception-scrub/SKILL.md)'s new-context branch under the caller's
+narrow grant, overriding legacy persona/placement rules below, not actual apply confirmation.
+This invocation authorizes only its stated assessment or exactly confirmed correction. Retain
+this command's timing and original captured bytes; append corrections, never consolidate here.
+Malformed/missing new captures refuse. Actual legacy H000 retains the full procedure below.
+
 INVOCATION CONTRACT: run only under `Control Plane: Lifecycle Facilitator` on explicit Operator
 invocation or confirmation. This source-maintenance command grants no Canon or execution authority.
 

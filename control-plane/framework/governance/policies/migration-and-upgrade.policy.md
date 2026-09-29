@@ -1,5 +1,8 @@
 # Migration and Upgrade Policy
 
+**LOCAL MOD - HARVEST TO CPB (2026-09-28):** Selected working packets and current instance-state
+semantics replace the hardcoded upgrade archive. Completed archives remain read-only.
+
 **Scope:** framework-canon — provenance marker for lift/assimilation classification (framework-canon = unmodified CPB template · instance-localized = canon amended/localized by this instance · instance-born = originated in this instance, upstreaming candidate).
 
 ## 1. Objective and Scope
@@ -15,10 +18,10 @@ Out of scope:
 
 ## 2. Context and References
 Read alongside:
-- `../lifecycle/CONTROL_PLANE_STATE.json`
+- `control-plane/state/CONTROL_PLANE_STATE.json`
 - packet-local `horizons/*/HORIZON_STATE.json` plus derived repository state
-- `../migration/MIGRATION_STATUS.md`
-- `../upgrade/UPGRADE_STATUS.md`
+- the selected `control-plane/workbench/upgrades/<upgrade-id>/UPGRADE_STATUS.md`
+- `.github/prompts/control-plane-upgrade.prompt.md`
 - `control-plane/framework/docs/control-system-user-guide.md`
 
 ## 3. Assumptions and Constraints
@@ -27,16 +30,31 @@ Assumptions:
 - Lifecycle transitions may temporarily restrict or suspend ordinary implementation prompts.
 
 Constraints:
-- Migration, upgrade, and new-horizon operations must record lifecycle mode in `CONTROL_PLANE_STATE.json`.
-- Normal implementation prompts stop when lifecycle mode is non-operational (formerly steady-state) and operations are `restricted` or `suspended`.
+- Upgrade entry records `state: upgrading`, `active_lifecycle_agent`, and `active_upgrade_packet`
+  in schema-valid instance state. The selected packet is the transition plan, not a horizon.
+- Normal product implementation stops while instance state is `upgrading`, `suspended`, or `ops-work`.
+  Separately authorized framework work follows its selected controller and writer charter.
 - Reset is explicit and pre-cutover; it is not a default recovery path after cutover starts.
 
 ## 4. Requirements and Acceptance Criteria
 Requirements:
-- Migration work is governed by `control-plane/archive/migration-closeout-2026-06/` while the repo is in migration mode.
-- Upgrade work is governed by `control-plane/archive/upgrade-0.4.x/` while the repo is in upgrade mode.
-- Horizon work is governed by the active horizon packet while the repo is in horizon mode.
+- The migration entry route is retired; its archived packets are historical, not current authority.
+- New upgrade work uses `control-plane/workbench/upgrades/<upgrade-id>/`, selected by explicit ID
+  or matching instance pointer. Archive packets cannot be resumed/reset as mutable current work.
+  Reusing an incomplete packet requires explicit resume/recovery and matching baseline/branch.
+- Help, analysis-only, and preflight refusal write nothing, including timing. Preflight validates
+  schema, packet identity, writer authority, dirty-work preservation and controller compatibility.
+- New entry requires `operational` without a competing controller. Resume cannot override OPS,
+  contradictory pointers, completed status or a different lifecycle agent; never infer recovery.
+- The Facilitator owns entry and confirmation-bound exit. The generated coordinator retains its
+  scope; explicitly authorized framework implementation belongs to Steward. No product-code,
+  publication, or forge authority follows from entry alone.
+- Packet reset requires explicit invocation, pre-cutover state, and verified preservation of the
+  previous attempt. Disposable test-state reset is a separately authorized operation.
+- Horizon work follows its resolved packet and installed horizon policy.
 - Lifecycle exit back to operational (formerly steady-state) is explicit and auditable.
+- Confirmed upgrade exit requires acceptance evidence and publication posture, byte-preserved
+  coordinator archival, cleared active pointers and schema validation. Entry success is not exit.
 
 Acceptance criteria:
 - Lifecycle packet and lifecycle state stay aligned.

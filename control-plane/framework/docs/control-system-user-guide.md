@@ -1,11 +1,106 @@
 # Control System User Guide
 
+## V0.8.1 Local Planning Entry
+
+LOCAL MOD - HARVEST TO CPB: authorized local workflow integration, not hosted admission or
+release certification. This section supersedes conflicting horizon-only planning guidance below
+for new `cp-planning-capture-v1` documents. Existing H000/legacy workflows retain their authority.
+
+Codegen, Planning and Design, and Lifecycle Facilitator can guide all new planning modes through
+the same skills without switching persona. Their grants allow only selected planning inputs,
+helper-owned capture/register/evidence writes and explicitly confirmed local/mock operations.
+They do not allow arbitrary code, direct Canon/specification, tracker, execution or forge writes.
+
+| Command | Purpose and boundary |
+| --- | --- |
+| `/horizon --create` | Create a new planning context with disclosed remote tag reservation; not admission |
+| `/horizon --activate ID` / `--leave ID` | Explicit worktree/branch-scoped binding or unbinding |
+| `/horizon --suspend ID` / `--abandon ID` | Distinct confirmed lifecycle outcomes; no inferred retirement |
+| `/horizon --absorb SOURCE --into HNNN` | Confirm exact local transfer; cross-branch publication incomplete |
+| `/horizon --create --from ID` | Create destination, then separately confirm escalation transfer |
+| `/plan-work --capture ad-hoc` | Preserve original intent before deriving a proposal |
+| `/plan-work --capture discovery` | Preserve exact execution-origin phase/specification, not amend it |
+| `/plan-work ID --include` | Discuss relevant deferred items and include only explicit selected IDs |
+| `/plan-work ID --scrub` | Source-quality findings; `--apply` requires exact correction confirmation |
+| `/plan-work ID --canon` / `--work` | Iterative partial candidates, questions and provenance |
+| `/plan-work ID --complete` | Complete proposed Canon/phases/DAG result, not executable work |
+| `/plan-work ID --assess` | Advisory REVIEW findings, not independent readiness |
+| `/admit-plan ID` | LOCAL/MOCK exact independent review, actual decision and one publication attempt |
+
+All three new commands support read-only `--help`. Arguments and live APIs are maintained in
+the [planning workflow](../../../.github/skills/planning-workflow/SKILL.md),
+[guided admission](../../../.github/skills/guided-admission/SKILL.md), and
+[/horizon prompt](../../../.github/prompts/horizon.prompt.md). Activate `.cp-venv` first.
+
+### Drafts And Complete Proposals
+
+One maintained capture document retains original sources and proposal separately. ADHOC remains
+under `control-plane/ad-hoc/`; a new horizon resolves its own `planning/HNNN.md`. No substitute
+ADHOC identity or fake horizon tracker is created. A single repository deferred register preserves
+origin, guardrail, reopen conditions, revisions and associations. The walkthrough explains intent,
+origin, relevance, scope, testing implications, questions and recommendation; declined records
+remain untouched. Existing destination associations are disclosed before explicit inclusion.
+
+`planning-work.py draft --section canon|work` stores partial text and questions in workflow.planning,
+without invented phase/trace IDs. Rich definitions/clauses remain in text/source provenance;
+unsupported structure is labelled schema expansion, not dropped or made a new kernel kind.
+`compose` is read-only; confirmed `propose` writes a complete explicit delta/result using the capture
+transaction. Both require exact supplied base/execution and expected current capture digest.
+Add/modify/obsolete operations retain identities/history. Started work requires explicit
+`preserve-bound-contract`; family membership does not create dependencies or reopen completed work.
+
+### Evidence And Local Mock Publication
+
+SCRUB and REVIEW findings have independent stable identities and histories. Resolutions require
+actual verification; agreement alone is still open. Omission and cross-links never close findings.
+An independent reviewer receives the exact clean subject; previous findings are delivered
+separately for reconciliation. A different persona label does not establish independence.
+Exact current reviews and both finding registers feed an actual approval or waiver. Helpers bind
+digests and validate structure but never authenticate people, sign, or infer checklist approval.
+Open findings are disclosed/acknowledged, not automatically forced into a waiver per finding.
+
+`/admit-plan ID --prepare` retains a complete validated bundle. `--publish` confirms one local/mock
+offer and isolated attempt. `--resume ATTEMPT-ID` inspects and reuses that attempt; `--withdraw
+ATTEMPT-ID` confirms request closure and withdrawal without erasing history. Semantic stale bases
+remain distinct from text conflicts; the existing conflict-recovery skill owns exact Approve
+Rebase/defer and owned continue/abort. Changed subjects require refreshed evidence and decisions.
+
+Local mock authorization is not a hosted PR, merge, protected-target attestation, or product start.
+The read-only `planning-publication.py --root ROOT inspect-origin` command selects `gh`
+or `glab` from the actual origin and reports repository identity, target commit, protection
+and unmet integration checks. `--target BRANCH` selects a remote branch; verified custom
+hosts use `--host-provider HOST=github|gitlab`. The CLI adapters support PR/MR operations,
+with an explicit `/admit-plan ID --trial` controller path for nondefault
+`cp-admission-trial/` targets. It uses real reviewed bundles, isolated Git candidates and
+journaled publication/retry. Separate exact `--merge-trial` or `--close-trial` confirmations
+are required. `--verify-trial` fetches and checks the merged target's exact candidate tree,
+result/evidence, one revision advance, preserved history and unchanged execution bindings.
+Results are `published-trial` or `applied-trial`, never protected admission or execution
+authority. Normal production admission remains disabled; GitLab live verification is outstanding.
+Cross-branch source retirement remains `local-only/incomplete`, `portable_complete: false`.
+Offline diagram retention verifies bytes only; the diagram-checkpoint skill owns actual provider,
+native/render consistency and currentness checks. No remote scene operations are invented.
+
+### Execution And Legacy Compatibility
+
+Operational readers separate versioned specification from progress/retained execution contracts.
+Resolver `source: operational` returns null horizon/tracker/ledger fields and an explicit selected
+target commit. Prepare/start may run `planning-execution.py check-start` read-only but every
+operational `--require-executable` refuses: live enforcement and an actual start/bind writer are
+not installed as a usable public workflow. The transactional start/bind writer is implemented
+and tested offline; its trusted live caller and public activation remain absent. No timing,
+branch, tracker or product writes follow structural prerequisite checks.
+Legacy H000 routing, tracker admission and mapped timing remain unchanged. New capture-format
+shaping routes to shared skills, not old complete-laydown gates. Claude wrapper regeneration/parity
+is a separate integration-owner step; no new command wrapper is claimed from prompt creation alone.
+
 > **SHAPE V1 RETIREMENT NOTICE (2026-07-19):** the five-phase instantiation flow
 > (`/instantiate-assess|dry-run|inflate|promote`, `/review-approval-packet`) and the brownfield
 > migration route (`/control-plane-migrate`) are RETIRED — archived byte-exact in
 > `control-plane/archive/retired-lifecycle-surfaces-0.4.x/` (see its RETIREMENT_README).
-> The current model is one door: install the control plane from CPB, then declare horizons
-> (`/control-plane-new-horizon`) with admission review and approval. Sections below describing
+> The legacy V0.8 model installs the control plane from CPB, then declares horizons
+> (`/control-plane-new-horizon`) with admission review and approval. New-format local planning
+> uses the V0.8.1 entry above. Sections below describing
 > the retired flows are preserved as historical procedure until this guide's CPB 1.0 rewrite,
 > and are marked accordingly.
 
@@ -796,23 +891,49 @@ Minimum migration packet artifacts:
 
 ## Upgrade workflow
 
+**LOCAL MOD - HARVEST TO CPB (2026-09-28):** Selected working packets replace the historical
+hardcoded archive destination. Existing completed upgrade records remain read-only.
+
 Use `/control-plane-upgrade` when a meaningful control plane already exists but needs baseline evolution.
 
 What it does:
-- sets instance state to `"upgrading"` (CONTROL_PLANE_STATE.json)
-- creates upgrade packet under `control-plane/archive/upgrade-0.4.x/`
-- generates project-specific upgrade agent
+- checks baseline, dirty work, schema, selected packet and authorized owner before writing
+- creates a packet under `control-plane/workbench/upgrades/<upgrade-id>/`
+- generates a packet-bound coordinator without granting it runtime-editing authority
+- sets `state: upgrading` with matching `active_upgrade_packet` and agent pointers
 - preserves project-local variations unless operator chooses replacement
 
 Upgrade packet artifacts:
+- `README.md`
 - `UPGRADE_STATUS.md`
 - `UPGRADE_OPERATOR_INPUT.md`
 - `COMPATIBILITY_NOTES.md`
 - `UPGRADE_PLAN.md`
 
-Reset rule matches migration semantics:
-- reset only pre-cutover
-- resume or mop-up post-cutover
+Use `--upgrade-id <slug>` for new entry. `--help` and `--analysis-only` do not write or open timing.
+`--resume` uses the active pointer, not an archive or branch-name guess. `--reset` is explicit,
+pre-cutover only, and preserves prior-attempt evidence. After cutover use resume/mop-up; a separately
+authorized disposable test reset is not permission to reset upgrade history.
+
+Lifecycle Facilitator owns entry. Explicitly authorized framework implementation belongs to
+Steward; generating a coordinator cannot bypass either charter. The selected packet owns scope,
+cutover, task-list links, acceptance checks, blockers, progress-log location, and recovery.
+Completion requires evidence and explicit confirmation before returning to `operational`, clearing
+pointers, and preserving the coordinator in a unique archive. Entry is not successful implementation
+or integration. Publication and forge administration remain separate.
+
+## Admission Conflict Recovery
+
+**LOCAL MOD - HARVEST TO CPB (2026-09-28):** The shared
+`.github/skills/admission-conflict-recovery/SKILL.md` supports Planning, Codegen and Facilitator
+when a proposal encounters a text conflict or stale base. Its `planning-git.py` helper inspects
+committed refs in a disposable clone. `Approve Rebase` authorizes only the exact offered isolated
+rebase; deferral leaves work unchanged. Substantive resolution and continue/abort have separate
+scoped confirmations. Source branches are not changed or force-pushed.
+
+Recovery success returns to proposal/base/result and affected review/decision revalidation; it is
+not admission. Local merge tests do not need a hosted merge queue. Forge publication and protected
+enforcement are separate capabilities, not implied by a clean Git merge or a passing fixture.
 
 ## Horizon tag protection and allocator remote
 

@@ -5,6 +5,17 @@ user-invocable: true
 ---
 # Diagram Checkpoint
 
+## New File-Backed Context
+
+For ADHOC/new HNNN capture documents, use
+[planning workflow](../planning-workflow/SKILL.md) only for destination resolution and the
+`planning-capture.py retain-checkpoint` transaction. This replaces horizon-only placement, not
+the provider checks below. Offline retention returns `provider_verified: false` and
+`currentness: unknown`; hashes alone do not certify native reopenability, readable render,
+same-scene consistency or current provider state. Keep the selected provider and all exact
+native/render/assets. Missing tools block provider verification; no invented remote operations.
+Legacy placement and provider authority remain unchanged.
+
 ## Contract
 
 Read [checkpoint policy](../../../control-plane/framework/governance/policies/diagram-checkpoint.policy.md)

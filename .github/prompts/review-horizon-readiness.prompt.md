@@ -4,6 +4,16 @@ name: "Review Horizon Readiness"
 argument-hint: "Horizon ID, optionally --exploratory or --profile successor-admission|planning-baseline|implementation-baseline|replanning, or --help"
 agent: "Control Plane: Lifecycle Facilitator"
 ---
+NEW-CONTEXT DISPATCH: after help handling, resolve the explicitly selected ID using
+`planning-capture.py inspect --root ROOT --id ID`. For new-format captures, `--exploratory`
+uses [proposal assessment](../skills/proposal-assessment/SKILL.md)'s new-context branch.
+Otherwise use only the independent-review portion of
+[guided admission](../skills/guided-admission/SKILL.md), retaining exact inputs and separate
+findings. This overrides legacy profile/placement/delegation below, not review independence.
+Retain the invoking authorized caller and this command's timing. Do not invoke `/admit-plan`,
+draft/finalize decisions or publish. Report readiness only for local/mock admission review,
+with hosted/start blockers. Actual legacy packets retain all named-profile gates below.
+
 INVOCATION CONTRACT: this prompt must be invoked from inside the `Control Plane: Lifecycle Facilitator` persona. If you are reading this from any other persona, stop and switch before continuing. This is advisory and read-only.
 
 Review a horizon packet for a named readiness boundary. The specialist remains read-only; the Facilitator persists its returned report at `approvals/HORIZON_READINESS_REVIEW.md` without modifying reviewed inputs.

@@ -5,6 +5,19 @@ user-invocable: false
 ---
 # Proposal Assessment
 
+## New File-Backed Context
+
+For a resolved `cp-planning-capture-v1` ADHOC or HNNN document, use
+[planning workflow](../planning-workflow/SKILL.md) for advisory assessment and its evidence API.
+This branch overrides the legacy resolver, Facilitator-only persistence and report destination
+below, under the caller's narrow grant. Preserve read-only assessment of the selected inputs;
+persist only an attributed REVIEW round through `planning-evidence.py round`. Keep SCRUB and
+REVIEW findings separate, preserve IDs/history, and never resolve findings by omission.
+Partial candidates can be assessed without a full proposal or tracker. This is not independent
+readiness: that exact review and actual decision belong to separately invoked
+[guided admission](../guided-admission/SKILL.md). Report `readiness: not-assessed` here.
+The unchanged procedure below applies only to actual legacy packets.
+
 Use the "Iterative Pre-Admission Planning" policy in
 `control-plane/framework/governance/policies/tracker-and-state.policy.md` and the active charter.
 The assessing specialist stays read-only; Lifecycle Facilitator persists the returned report.

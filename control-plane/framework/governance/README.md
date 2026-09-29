@@ -26,7 +26,7 @@ Common operator routes:
 |---|---|---|
 | Continue admitted product work | The executing horizon's `TRACKER.json` and phase prompt | Singleton maintenance in `cp-ops-work/` |
 | Introduce a new body of work | `/control-plane-new-horizon --help`, then the shaping/readiness/preparation/admission commands | Adding rows to H000's tracker or using inflation terminology |
-| Upgrade the control-plane framework | Read **Transition Status** below; `/control-plane-upgrade --help` is orientation-only until its shape-v1 state contract is reconciled | Product implementation or a new horizon |
+| Upgrade the control-plane framework | `/control-plane-upgrade --help`, then explicit selected-packet entry under Lifecycle Facilitator | Product implementation or a new horizon |
 | Repair or evolve governance | Select **Project: Control Plane Steward** | Editing product source |
 | Assess or configure repository CI/forge integration | Select **Project: CI & Integration Architect**, then begin with `/ci-assess --help` | Product implementation or forge-admin mutation |
 | Record a future idea owned by the active horizon | That horizon's planning notes | A tracker row or operations-ledger entry |
@@ -52,8 +52,9 @@ compatibility-register retirement, and `/close-horizon` sealing.
 
 The installed `/control-plane-new-horizon` prompt now orchestrates mint and declaration through
 the tested runtimes and names admission as a separate explicit boundary. The installed
-`/control-plane-upgrade` prompt still retains the pre-shape-v1 state contract; do not use that
-upgrade prompt for mutation until its surfaces are reconciled and verified.
+`/control-plane-upgrade` prompt selects a working packet under `control-plane/workbench/upgrades/`
+and validates the instance-state contract before mutation. Entry, separately authorized Steward
+implementation, and confirmed completion remain distinct. Archives are not new-upgrade destinations.
 In the VS Code persona picker, their required display name is **Control Plane: Lifecycle
 Facilitator**; the backing charter file retains the historical filename
 `.github/agents/inception-facilitator.agent.md`.
@@ -146,8 +147,9 @@ New work must not be appended to H000's tracker.
 ### Framework Upgrades
 
 The intended entry command is `/control-plane-upgrade`, bound to the **Control Plane: Lifecycle
-Facilitator** persona. Its mutating path still uses the pre-shape-v1 state contract, so use only
-`/control-plane-upgrade --help` in this checkout. An upgrade changes the CPB-owned framework and
+Facilitator** persona. Use `--upgrade-id <slug>` for new entry, `--analysis-only` for read-only
+assessment, and `--resume` for the matching active packet. Explicit pre-cutover `--reset` preserves
+the prior attempt and never resets completed archives. An upgrade changes the CPB-owned framework and
 may temporarily move instance state to `upgrading`; it is not a product phase and does not belong
 in a horizon tracker.
 

@@ -1,5 +1,58 @@
 # Approval and Review Policy
 
+## V0.8.1 File-Backed Review And Local Mock Admission
+
+LOCAL MOD - HARVEST TO CPB (2026-09-29): explicitly selected `/admit-plan --trial` is a
+narrow exception to local/mock-only publication below. Shipped helpers may publish a
+reviewed/confirmed test bundle to a nondefault cp-admission-trial/ target through origin-
+selected gh/glab, then separately confirm merge or closure and verify application.
+Publication records `published-trial`, not authorized-for-merge. Verified exact application
+records `applied-trial`; neither grants protected admission or execution authority.
+Preserve normal exact independent review/decision requirements, attempt history and actual
+operation confirmations. This trial path claims no queue/train, cross-clone exclusion or
+bypass enforcement and cannot be used as a production approval workaround. It is available
+for the Operator's requested E2E test; no test run or merge is implied by implementation.
+
+LOCAL MOD - HARVEST TO CPB: applies only to new-format planning captures; legacy horizon/OPS
+review, ledger, closeout and completion authority below is unchanged. Both primary callers and
+Facilitator use the same narrow guided-admission skill, never grant themselves actor authority.
+
+Source SCRUB findings and proposal REVIEW findings have distinct stable IDs, rounds and history.
+Omission is not resolution; cross-links cannot close another register. Explicit dispositions retain
+attribution and evidence; applied resolution additionally needs verification, deferral a revisit,
+supersession a successor. Agreed-but-unapplied changes stay open. Subject drift makes old evidence
+visibly stale, not erased. Advisory candidate assessment is not independent readiness review.
+
+Independent review consumes the exact current clean capture/proposal/source subject, excluding old
+reports and author conclusions. Previous findings are supplied separately for reconciliation.
+Record the actual reviewer, scope, retained report/input bytes and distinct findings. A different
+name/persona or `independent: true` cannot establish independence. A report must assess sources,
+Canon/definitions, complete specifications, DAG, base, isolation and affected execution; it gives
+findings first and a scoped local/mock readiness verdict. No hosted or execution readiness claim.
+
+Decision drafts may be incomplete and never authorize anything. Final approval/waiver binds the
+exact proposal and selected current reviews plus current findings posture. Require actual actor,
+authority, date, scope, reviewed checklist, integration/DAG assessments, acknowledged warnings,
+satisfied conditions, signoff and real invocation provenance. Waiver includes reason and honest
+alternative review, not a switch bypassing integrity. Unresolved findings require acknowledgment,
+not silent closure or a mandatory separate waiver per finding. The author cannot self-attest as
+an independent reviewer; commands never invent signatures or auto-fill checklist approvals.
+
+`planning-evidence.py finalize-decision` checks the exact draft-record digest and a different
+confirmation digest of its decision member. An existing current decision requires explicit
+supersession. Changed sources/proposal/reviews/findings posture requires fresh applicable evidence
+and confirmation. `--confirmed` merely records consent already observed by the caller.
+
+`/admit-plan` is LOCAL/MOCK ONLY: validated exact bundles, isolated local candidate commits and
+mock request/authorization records through shipped helpers. Offer confirmation pins offer_digest;
+one publication attempt retains its identity on reentry, failure or withdrawal. Closure and target
+checks precede withdrawal; never fabricate a closed request or reuse a withdrawn attempt. Text
+conflicts and semantic stale bases are separate; existing admission-conflict-recovery owns exact
+rebase/continue/abort decisions. Local/mock authorization is not hosted admission or merge.
+Incomplete cross-branch source retirement remains a publication limitation, not full absorption.
+Operational start is disabled even after all local checks pass; separate prepare/start commands
+must refuse executable authority. No product, tracker, execution or instance lifecycle mutation.
+
 **Scope:** instance-localized — provenance marker for lift/assimilation classification (framework-canon = unmodified CPB template · instance-localized = canon amended/localized by this instance · instance-born = originated in this instance, upstreaming candidate).
 
 ## 1. Objective and Scope

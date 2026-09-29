@@ -4,6 +4,14 @@ name: "Prepare Horizon Admission"
 argument-hint: "Optional horizon ID, optionally followed by --tracker <path> or --help"
 agent: "Control Plane: Lifecycle Facilitator"
 ---
+FORMAT GUARD: help remains read-only. Before legacy preparation, inspect the named packet.
+A new `cp-planning-capture-v1` document uses the shared file-backed workflow, not
+PROPOSED_TRACKER/HORIZON_STATE preparation. Explain the different decision-before-bundle order,
+load [guided admission](../skills/guided-admission/SKILL.md), and offer
+`/admit-plan ID --prepare` with its exact prerequisites. Wait for explicit invocation; this old
+command does not authorize the new boundary. Never manufacture a legacy tracker to pass it.
+Only actual legacy packets continue below; malformed new documents refuse, not fall back.
+
 INVOCATION CONTRACT: this prompt must be invoked from inside the `Control Plane: Lifecycle Facilitator` persona. If you are reading this from any other persona, stop and switch before continuing. Preparation freezes proposed authority but does not grant execution.
 
 Prepare a complete execution-admission bundle for a shaped horizon.

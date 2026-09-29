@@ -1,10 +1,11 @@
 {
   "schema": "cpb-instance-state-v2",
-  "state": "operational",
-  "active_lifecycle_agent": null,
+  "state": "upgrading",
+  "active_lifecycle_agent": ".github/agents/project-control-plane-upgrade.agent.md",
+  "active_upgrade_packet": "control-plane/workbench/upgrades/cp-v0-8-1-planning-admission",
   "cpb_version": "1.0.0-shape-v1",
   "active_lanes": "derived from control-plane/horizons/*/HORIZON_STATE.json plus active TRACKER.json files",
-  "last_updated": "2026-09-25",
+  "last_updated": "2026-09-28",
   "state_vocabulary": {
     "operational": "boundary operations and horizon work proceed per packet-local admission, closure, and tracker authority",
     "ops-work": "exclusive singleton control-plane runtime and governance work",
@@ -51,6 +52,16 @@
       "date": "2026-09-25",
       "kind": "upgrade-complete",
       "summary": "Operator explicitly approved returning to operational on repair/UG-003-timing-routing before PR #5 merges, superseding the merge-first completion sequence. UG-003 is locally verified with 23 routing and 2 harvest checks passing and local review finding UG003-R1 resolved. Branch-local upgrade completion is recorded; protected-main integration remains pending. Archive the temporary UG-003 agent and clear its active reference. Preserve H000 admission and failed CP-101 evidence; no phase preparation, execution, or session recovery is authorized by this transition."
+    },
+    {
+      "date": "2026-09-28",
+      "kind": "upgrade-entry",
+      "invocation_source": "operator-confirmation",
+      "upgrade_id": "cp-v0-8-1-planning-admission",
+      "packet": "control-plane/workbench/upgrades/cp-v0-8-1-planning-admission",
+      "branch": "upgrade/cp-v0.8.1-planning-admission",
+      "baseline_sha": "95f3ff1599937dc0231879fba42ca5d325d588c3",
+      "summary": "Operator confirmed CP V0.8.1 planning/admission upgrade execution and necessary entry repair. Reconciled entry contracts and instance schema passed 7 static/schema checks, 23 timing-routing checks and 2 harvest checks. New packet and coordinator verified before activation. Steward owns authorized framework implementation; populated-install migration and timing redesign are deferred. Local CP test-state/timing resets are permitted after applicable source preservation checks. No product execution, publication, forge administration, or lifecycle completion is implied. Old upgrade and H000 records remain unchanged."
     }
   ]
 }

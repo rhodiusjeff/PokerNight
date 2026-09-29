@@ -5,6 +5,19 @@ user-invocable: false
 ---
 # Work Plan Shaping
 
+## New File-Backed Context
+
+For a resolved `cp-planning-capture-v1` ADHOC or HNNN document, use
+[planning workflow](../planning-workflow/SKILL.md). This branch overrides the horizon-only
+delegation, advisory-layout and tracker-laydown procedure below for this format only.
+Codegen, Planning or Facilitator may guide decomposition under its explicit narrow grant.
+Use `planning-work.py draft --section work` for supported partial candidates; no fake phases,
+trace IDs, graph authority or complete-tracker gate. Retain scope, acceptance, dependencies,
+questions and rework implications in text. An explicit complete request uses compose/propose
+with the full result and exact base/execution inputs, never creates a legacy proposed tracker.
+Started/completed contracts require explicit preservation dispositions; family is not dependency.
+Actual legacy packets retain all procedures and authority below; do not migrate H000 implicitly.
+
 ## Contract
 
 Planning owns decomposition; Lifecycle Facilitator owns the invoking command and lifecycle context.

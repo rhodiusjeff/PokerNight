@@ -1,10 +1,32 @@
 ---
 description: "Validate readiness, including execution-model alignment, and then proceed into governed implementation for a named prompt or phase using the active control-plane docs."
 name: "Start Prompt Execution"
-argument-hint: "Prompt or phase ID, optionally followed by --analysis-only or --help"
+argument-hint: "Prompt or phase ID, optionally --target-ref <full-ref>, --analysis-only or --help"
 agent: "Project: Codegen"
 ---
 INVOCATION CONTRACT: this prompt must be invoked from inside the `Project: Codegen` persona. If you are reading this from any other persona — default Copilot, Project: Closeout, Project: Planning and Design, or any other — stop. Switch to `Project: Codegen` before continuing. Persona binding is the writable-scope guardrail; running this prompt outside its declared persona silently inherits the wrong scope.
+
+## Operational Source Dispatch Before Legacy Start
+
+Help returns without running commands. Otherwise resolve the selected phase read-only through
+`python3 control-plane/framework/scripts/resolve-horizon.py ID --root ROOT`, with an explicitly
+supplied `--target-ref FULL_REF` or existing configured selection. Require an explicit ID if no
+singular confirmed target exists; never read a fake operational horizon tracker.
+If `source: operational`, load separate specification/execution/status fields and exact
+`phase_contract`, retained-bound/current contract, Canon, DAG and dependency context. Horizon,
+tracker and ledger fields are null, not missing artifacts to create or replace with H000.
+
+Run the read-only `python3 control-plane/framework/scripts/planning-execution.py --root ROOT
+check-start ID --target-ref FULL_REF --expected-target-commit COMMIT
+--expected-specification-digest SPEC_SHA --expected-execution-digest EXEC_SHA` with the resolver's
+exact values. Report prerequisites and actual `execution_blocker`; executable resolution with
+`--require-executable` always refuses this lane. A tested in-process owner-gated start/bind writer
+now exists, but no trusted owner is installed and public start/bind activation remains disabled.
+Do not construct a fixture authority callback or use untrusted receipts to bypass this boundary.
+Stop without timing, branch, tracker, execution or product writes. `--analysis-only` cannot bypass
+this block, and successful structural checks are not a start. Do not claim `phase-in-progress`.
+This branch overrides the legacy workflow below only for operational results. Legacy results
+continue through their unchanged executable admission, branch, model and tracker gates.
 
 Start execution of the named prompt or phase.
 
