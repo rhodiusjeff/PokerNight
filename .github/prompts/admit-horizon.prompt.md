@@ -6,7 +6,7 @@ agent: "Control Plane: Lifecycle Facilitator"
 ---
 FORMAT GUARD: help remains read-only. If the named horizon has a new
 `cp-planning-capture-v1` document, do not run the legacy tracker/branch/PR flow below. Load
-[guided admission](../skills/guided-admission/SKILL.md), explain LOCAL/MOCK-only publication,
+[guided admission](../skills/guided-admission/SKILL.md), explain real origin-selected gh/glab publication,
 and offer `/admit-plan ID --publish` with its exact prerequisites. Wait for explicit invocation;
 legacy admission intent does not authorize a different boundary or hosted adapter. Actual legacy
 H000 admission remains supported below. Missing/malformed new captures refuse, not fall back.

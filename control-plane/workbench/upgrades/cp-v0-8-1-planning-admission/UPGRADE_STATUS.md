@@ -1,48 +1,39 @@
 # Upgrade Status
 
 **Upgrade:** `cp-v0-8-1-planning-admission`.
-**Current phase:** Local implementation verified; remaining provider/hosted/execution gates pending.
-**Implementation:** Shared planning, context/deferred/work/evidence, local/mock admission, local-Git transfer/recovery, execution readers and distribution/validation tooling.
-**Remaining:** C2 live provider verification; E3 trusted hosted-owner activation/verification; E5 live execution-owner activation; F2/F3 hosted configuration and enforcement verification.
-
-The 2026-09-29 continuation implements the previously missing GitHub transport and transactional
-start/bind code with offline tests and independent review fixes. Public activation remains disabled
-by the Operator's confirmed scope. The checklist remains 28/33: implemented code is not live gate
-verification. See HOSTED_TRANSPORT_CONTRACT.md and EXECUTION_BINDING_CONTRACT.md for exact APIs.
+**Current phase:** Normal planning/admission implemented; operational manual validation pending.
+**Implementation:** Shared capture/planning/evidence, repository-owned Canon/phase/DAG specification,
+origin-selected gh/glab publication, separately confirmed integration, exact application verification
+and recoverable close/retire/reentry. The normal public transport is forge-cli.
+**Remaining:** E3 live normal-workflow acceptance and GitLab live verification; E5 operational
+start/closeout/completion consumer work identified for the 0.8.2 follow-up. C2 diagram-provider
+verification and F2/F3 queue/train enforcement are explicitly deferred, not current blockers.
 **Readiness:** not-assessed.
 **Last update:** 2026-09-29.
 
-Current normal-command correction: publication now defaults to real forge-cli selected
-from origin. Normal reviewed offer/create/resume/merge/verify/close/retire share the
-durable controller; explicit test transports remain compatibility fixtures. The Operator
-deferred queue/train enforcement to a later version. Current GitHub preflight passes
-authenticated write permission and merge-method checks with integration_mode operator-confirmed.
-Normal-path local tests pass; a real normal-path admission/application E2E has not run.
-Operational start-owner compatibility remains incomplete, not hidden behind an all-ready
-claim. See ../../steward-consults/2026-09-29-normal-admission-correction.md for the latest
-scope and superseding decision; older trial-only status below is historical.
+The normal command is the operational manual-validation path; do not reintroduce a
+mock-only default or a separate trial recipe. Existing configured forge checks apply;
+this version uses exact-confirmed operator integration without queue/train enforcement.
+Current GitHub permission/merge-method preflight has passed, but no real normal-workflow
+admission/application run has completed. H000 was removed; no horizon should be restored
+from historical instructions. Deep-discovery has been removed as OBE.
 
-Latest bounded continuation: `forge-cli-trial` now connects origin-selected gh/glab to
-real bundle/candidate construction, isolated Git push/fetch, durable publication/retry,
-separately confirmed trial merge/closure, and exact post-merge application verification.
-Seven command-driven controller tests (Canon, two phases, requires edge), six dispatch
-checks, 53 forge checks and 17 workflow checks passed. Hosted E2E remains pending; the
-Operator requested notification before that run. Earlier PR #7 proves transport only.
-Production merge enforcement/start and C2 diagram verification remain deferred. GitLab
-CLI/live target unavailable. See [the E2E handoff](../../steward-consults/2026-09-29-trial-controller-e2e-handoff.md)
-and UPGRADE_PLAN.md for exact scope, evidence and next confirmations. No new live action
-or lifecycle transition occurred. Earlier package evidence remains historical.
+Operational tracking is independent of horizons. Definitions/ownership guidance now reflects
+that contract; legacy packet consumers refuse operational results rather than inventing
+tracker/ledger paths. Those guards do not implement phase start or completion.
 
 **Checklist:** 28 of 33 tasks checked against local evidence, not a percentage-of-effort estimate.
-The consolidated [local implementation report](LOCAL_IMPLEMENTATION_REPORT.md) owns the current
-test/trial summary and remaining limits. Earlier entries below are retained implementation history.
+Current command evidence and limits are in the
+[normal admission correction](../../steward-consults/2026-09-29-normal-admission-correction.md).
+The [local implementation report](LOCAL_IMPLEMENTATION_REPORT.md), packet lane contracts and
+entries below describe earlier snapshots; do not use their old mock/trial limits as current routing.
 
 | ID | Summary | Impact | Required action | Owner | Status | Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
 | UP081-ENTRY-001 | Facilitator could not implement or delegate framework repair | Previous entry attempt stopped | Steward selected; scoped repair and bound lifecycle entry performed | Steward / Facilitator | Resolved | Handoff section 27; entry checks and matching instance pointers |
 | UP081-ENTRY-R1 | Reset preservation ordered after mutation | Unsafe or impossible reset sequence | Preflight feasibility, then verified snapshot before initialization | Steward | Fixed; independent document re-review found no further issue | Steward consult; entry suite |
 | UP081-ENTRY-R2 | Timing operation discriminator absent in literals | Entry could be confused with completed upgrade | Add operation and upgrade identity to invocation/completion metadata | Steward | Fixed; independent document re-review found no further issue | Steward consult; entry suite |
-| UP081-FORGE-001 | Personal repository lacks supported merge queue and main protection | Live admission cannot enforce the accepted serialized integration contract | Operator chose to defer live tests and continue local implementation; keep live admission disabled | Operator / CI owner | Deferred; release gate remains open | PLANNING_CONTRACT.md; progress decision |
+| UP081-FORGE-001 | Historical queue-only integration constraint | Superseded for this version by explicit operator-confirmed integration | Do not reimpose queue/train enforcement; respect actual forge restrictions and exact confirmations | Operator / CI owner | Queue/train work deferred to later version | UPGRADE_OPERATOR_INPUT.md: Queue And Train Enforcement Deferred |
 
 ## Earlier Evidence
 
@@ -63,8 +54,10 @@ planning item, product phase, admission MR or deferred record was created by the
 
 ## Next Action
 
-Review the consolidated report and disposition the five explicit remaining gates. Do not repeat
-entry or erase the completed local implementation. Hosted testing remains deferred; no stronger
-live/production claim is available from local evidence. After an explicitly accepted completion
-posture, `/control-plane-upgrade --resume` owns the completion review and separately confirmed
-return-to-operational. No lifecycle completion, real publication or product execution is invoked.
+Proceed to the separately authorized operational manual-validation setup using the current
+normal commands and actual selected inputs. Review/approve the exact proposed Canon and
+phase/DAG change, publish its PR/MR, separately confirm integration, and verify the target.
+No synthetic approvals, test-only transport or per-horizon operational tracker belongs in
+that procedure. Do not repeat entry or reset implementation. Instance remains upgrading;
+only explicitly invoked lifecycle completion may return it to operational. No setup,
+publication, merge or phase execution is invoked by this status document.

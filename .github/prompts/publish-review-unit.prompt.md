@@ -8,6 +8,13 @@ INVOCATION CONTRACT: this prompt must be invoked from inside the `Project: Close
 
 Use the slash-command argument as an optional `<review_unit_or_phase_id>` to publish for review.
 
+LOCAL MOD - HARVEST TO CPB (2026-09-29): after read-only help, resolve a supplied phase
+before accessing any packet. For `source: operational`, repository specification/progress
+owns the work and null packet/tracker/ledger fields are intentional. Operational review-unit
+publication integration awaits the 0.8.2 consumer update; report that missing writer and
+stop before timing, artifact, tracker, commit or forge changes. The packet-ledger workflow
+below applies only to legacy results; it must not invent an owning horizon for new work.
+
 Standing roles: this command publishes grouped review units, republishes after review-driven rework, and resumes a collapsed self-unit closeout whose publication half failed (phase resting at `Closed`, ledger row at `Reserved` — see `/closeout-prompt`'s failure semantics). Self-boundary units normally publish inside `/closeout-prompt` in the same governed run; invoking this command standalone for a self unit is legitimate exactly when that run stopped early (`--evidence-only`) or failed.
 
 If the slash-command argument contains `--help` or `-h`, do not execute publication. Output concise help only with:

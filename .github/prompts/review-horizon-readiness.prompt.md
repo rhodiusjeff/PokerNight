@@ -37,15 +37,12 @@ and profile flags before writing. Resolve the packet with
 shaping candidate. For non-exploratory review, resolve the profile from packet intent when omitted;
 ask if ambiguous.
 
-## H000 Criteria Pilot
+## Explicit Criteria Inputs
 
-LOCAL MOD, 2026-09-17 - HARVEST TO CPB: for this repository's `H000-initial-inception` only,
-load `control-plane/horizons/H000-initial-inception/specification/requirements/readiness-assessment-criteria-direction.md`,
-especially "H000 V0.8 Assessment Pilot", and pass its exact version/digest and scoped inputs to
-the reviewer. Apply its mode-specific evidence and calibration contract in the existing report.
-The named-boundary trial is supplemental semantic evidence, not replacement criteria for installed
-V0.8 checks or a second readiness verdict. Invocation, profiles, timing, custody, approval and
-admission rules below remain unchanged; the V1 Operator override does not apply to this controller.
+Use the selected packet/profile and explicitly supplied project criteria. Additional criteria
+must have an exact path/version/digest and cannot replace installed boundary checks or create
+a second readiness verdict. Do not assume an example H000 pilot exists. Invocation, timing,
+custody and actual approval requirements remain unchanged.
 
 ## Exploratory Assessment
 

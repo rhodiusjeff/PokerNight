@@ -22,8 +22,8 @@ A Claude Code session in this repo auto-loads `CLAUDE.md` (which points at the c
 
 - **Commands** (`.claude/commands/`) — one generated wrapper per canonical prompt plus
 	hand-maintained `/cp` and `/persona`.
-	The wrappers originate from `.claude/scripts/generate-command-adapters.py`; the installed
-	`/review-canon` wrapper has the documented command-local read-only state exception below.
+	The wrappers originate from `.claude/scripts/generate-command-adapters.py` and expose
+	only the currently installed canonical prompts.
 - **Subagents** (`.claude/agents/cp-*`) — isolated-context persona execution with pinned models and restricted tool grants mapped from each charter's declared tools (mapping table: HARNESS_ADAPTERS §2a). `cp-ci-integration` loads the canonical CI Architect charter and is limited to bounded, pre-authorized non-interactive work.
 - **Two invocation shapes.** *Hat mode* (main thread): `/persona` or any wrapper — interactive, operator can be asked questions, inherits the session model. *Delegated mode* (subagent): bounded non-interactive work only. **The interactivity rule is the one hard semantic difference from Copilot:** subagents cannot ask the operator anything, and governed prompts routinely require operator confirmation, so the governed loop always runs in the main thread (HARNESS_ADAPTERS §2a).
 
@@ -42,6 +42,11 @@ Session-level hats rely on layer 1 only — same trust level as Copilot. If pers
 Summarized from HARNESS_ADAPTERS §2b (authoritative): governance-mutating work requires a frontier-class model; small/fast-class models are permitted only for read-only work (tutoring, explanation, non-mutating audits). Claude-side subagent pins are checker-backed; everything else — including all Copilot-side model choice — is VERIFY-register, checked by the operator at session start. Record the driving model per governed run; the timing-log `model_id` covariate (pending amendment on `ops/mopup-plan-amendment`) is the durable record and the prerequisite for the cross-model comparison study.
 
 ## 5. The governed loop under Claude Code
+
+The phase execution table below describes legacy execution compatibility. New operational
+phases use repository specification/progress; current start and closeout consumers report
+their pending 0.8.2 integration rather than creating horizon tracker/ledger paths. Planning
+and normal admission use the shared skills independently of those unfinished execution paths.
 
 | Step | Command | Persona (auto-bound) | Notes under Claude Code |
 |---|---|---|---|
@@ -62,65 +67,27 @@ Sidetracks (`/sidetrack-*`) behave identically to Copilot. All other prompt fami
 
 CI setup also runs in the main thread when interactive: `/persona ci`, then `/ci-assess`, `/ci-design`, `/ci-configure`, `/ci-verify-forge`, or `/ci-audit`. Ordinary CI jobs never run Claude or adopt a persona; they execute deterministic repository scripts.
 
-New-horizon shaping/admission also runs in the main thread:
+New-format planning/admission also runs in the main thread:
 
 ```text
-/control-plane-new-horizon
-/shape-horizon-execution HNNN
-/review-horizon-readiness HNNN --profile successor-admission
-/prepare-horizon-admission HNNN
-/admit-horizon HNNN
+/horizon --create
+/plan-work ID --canon
+/plan-work ID --work
+/plan-work ID --complete
+/admit-plan ID
 ```
 
-The first command creates the horizon shaping branch. The final command creates the admission
-branch/PR. Phase execution remains refused until protected integration contains the admitted bundle.
+The first command creates a bounded planning context only after its explicit confirmations.
+The final workflow requires exact review/approval and separately confirmed real publication
+and integration. It updates repository authority, not a per-horizon operational tracker.
 
-### Installed canon review and planned promotion under Claude
+### Operational Canon Review
 
-Claude now exposes the generated `/review-canon` wrapper. It loads the canonical prompt and binds
-`Project: Planning and Design`, which adopts `canon-review-read-only` mode for that invocation. The
-only installed form is:
-
-```text
-/review-canon <HNNN>:<synchronization-id> --scope candidate
-```
-
-Run it explicitly in the main thread. The runtime authenticates one fixed protected profile that
-derives repository identity, candidate/canon/discovery/horizon refs, catalogs, validator/
-interpreter/requirements bytes, provider tree, authority/history identity, limits, locks, and
-allowed output parents. The operator supplies only candidate/scope and a pre-created authorized
-output root. Dirty, substituted, missing, ambiguous, or unfixtureable inputs fail closed. A
-project-owned protected profile is not seeded, so invocation without that profile returns
-`profile-not-installed`; disposable repositories with `deterministic-fixture-v1` exercise the full
-path.
-
-The wrapper originates from `.github/prompts/review-canon.prompt.md` through
-`.claude/scripts/generate-command-adapters.py`, with one intentional command-local read-only
-exception: `/review-canon` adopts Planning in memory and never creates or refreshes
-`.claude/.persona-state` or `.claude/state/active-persona.json`. Regeneration that restores the
-generic persona-state write is customization drift and the focused contract test refuses it.
-`/review-code`, candidate publication, closeout, reminders, hooks, and controllers may print the
-exact recommended command with `review_status: not-invoked`, but may not execute it. The installed
-deterministic fixture provider uses only a minimal-environment Python child with sockets and child
-process creation denied; it is not a Claude subagent.
-
-Package B also installs fixture/mock machine contracts for escalation projection and structured
-decision attestation, but no live LLM provider or live escalation/forge adapter or listener.
-Package C Checkpoint 1 installs 19 strict authority schemas and deterministic structural fixtures,
-including a separate clear-result `PROMOTION_AUTHORITY_GRANT` with no escalation identifier and an
-exact candidate/CHR/repository/ref/postimage/write-set/expiry scope. Package B `AUTHORITY_GRANT`
-remains decision-required only. Binding roles require their exact route schema IDs, and every
-manifest requires a non-empty declared-first event chain ending at its recorded state;
-Package B replay, composition, publication, Package D candidate intake, Package E promotion
-operations, Package F promotion CI/merge queue, and automatic invocation remain uninstalled. A
-clear CHR is not approval; Package C requires a separate explicit human approval request/decision/
-grant/attestation and refuses an actual escalation artifact on that route. No installed Package B
-operation mutates canon, horizons, state, refs, forge state, disposition, or promotion artifacts.
-The prompt emits no invented timing actions because the current timing vocabulary has no
-candidate-review session contract.
-
-Do not substitute `/review-code`, an OPS lifecycle command, a hand-written Claude adapter, or ad hoc
-branch mutation for `/review-canon` or the still-uninstalled promotion boundaries.
+Use `/admit-plan ID --review-only` in the current shared planning persona. The exact
+proposal must receive independent review before actual Operator approval/waiver; neither
+review nor publication authorizes a merge or phase start implicitly. The former fixture-only
+canon-review wrapper is removed. Experimental promotion runtimes are not operational
+commands and must not be substituted for normal admission.
 
 ## 6. Dual-harness operation
 

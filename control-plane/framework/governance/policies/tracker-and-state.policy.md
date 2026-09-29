@@ -382,12 +382,9 @@ unverified bindings rather than declaring the corpus organized or current merely
 A handoff links current sources, proposals, questions and exact relevant revisions; it is not a
 copied plan, substitute tracker, approval or instruction to invoke the next boundary automatically.
 
-Grounding: September's authorized capture and source-correction history (`f31226e`, `0ca584d`,
-`600087a`), iterative-planning rules (`4a61929`), and H000's
-[proposal relocation record](../../../horizons/H000-initial-inception/specification/consolidation/README.md#relocation-record-2026-09-20).
-The inspected August 20-September 20 history and current packet show overlapping legacy homes;
-they do not establish a universal layout by precedent. This policy makes the forward routing
-explicit without reclassifying all past artifacts or importing an exemplar's architecture.
+Historical source projects used overlapping capture/consolidation homes. Those examples
+are not installed project evidence or a universal layout. This policy owns forward routing
+without depending on an absent example horizon or reclassifying historical artifacts.
 
 ### Governed Vocabulary
 

@@ -33,7 +33,7 @@ proposal permission; `--complete` is not review/approval/admission permission.
 
 For actual legacy H000 packets use the existing skill procedure and named command authority;
 do not migrate them or treat a malformed new document as legacy. New horizons are created only
-by explicit [/horizon](horizon.prompt.md). Formal LOCAL/MOCK review/decision/publication belongs
+by explicit [/horizon](horizon.prompt.md). Exact review/decision and real origin-selected publication belong
 to separately invoked [/admit-plan](admit-plan.prompt.md).
 
 Verify the returned document digest, selected scope, preserved originals and actual helper result.

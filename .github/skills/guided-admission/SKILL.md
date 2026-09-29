@@ -52,58 +52,6 @@ and reports branch protection and remaining blockers. Verified custom hosts can 
 This command can contact the forge but writes no remote or local state. Its success
 does not enable hosted publication or certify required checks/serialized integration.
 
-## Legacy Trial Compatibility
-
-The following flags preserve previously recorded trial attempts only. They are not the
-normal workflow or a fallback when production prerequisites fail. New manual acceptance
-must exercise the normal commands in an isolated test environment.
-
-Only `/admit-plan ID --trial` with a selected disposable repository/worktree and explicit
-`cp-admission-trial/NAME` target selects this scope. Preserve the normal independent review,
-exact approval/waiver and bundle requirements below. Use actual actors/confirmations; label
-synthetic evidence only in deterministic test fixtures, not the Operator's live review.
-Trial default-branch, production-admission and product-start mutations remain forbidden.
-The target must already contain a valid test specification/execution baseline at the exact
-local target ref. Establishing that fixture is a separately confirmed test setup, not
-permission to reset the source repository or publish unrelated implementation changes.
-
-Use the same offer/create sequence below with `--transport forge-cli-trial`. Offer resolves
-origin to gh/glab and retains its host/repository ID and exact target. Confirmation adds
-`scope: isolated-unprotected-trial` to the actual attribution and offer_digest. The helper
-creates an isolated candidate and pushes only `cp-admission/ATTEMPT-ID`, with no source
-branch commit or force push. Confirm the exact target and network effects before resume.
-
-```text
-python3 control-plane/framework/scripts/planning-publication.py --root ROOT --transport forge-cli-trial offer --bundle BUNDLE --target refs/heads/cp-admission-trial/NAME
-python3 control-plane/framework/scripts/planning-publication.py --root ROOT --transport forge-cli-trial create --attempt ATTEMPT-ID --offer OFFER.json --confirmation CONFIRMATION.json --confirmed
-python3 control-plane/framework/scripts/planning-publication.py --root ROOT --transport forge-cli-trial resume --attempt ATTEMPT-ID --confirmed
-python3 control-plane/framework/scripts/planning-publication.py --root ROOT --transport forge-cli-trial merge-trial --attempt ATTEMPT-ID --confirmation MERGE.json --confirmed
-python3 control-plane/framework/scripts/planning-publication.py --root ROOT --transport forge-cli-trial verify-trial --attempt ATTEMPT-ID --confirmed
-python3 control-plane/framework/scripts/planning-publication.py --root ROOT --transport forge-cli-trial close-trial --attempt ATTEMPT-ID --confirmation CLOSE.json --confirmed
-python3 control-plane/framework/scripts/planning-publication.py --root ROOT --transport forge-cli-trial retire-trial --attempt ATTEMPT-ID --confirmation RETIRE.json --confirmed
-```
-
-Merge, close and retirement are separate offered operations, never inferred from publication consent.
-Their confirmation files require actual attribution plus `attempt_id`, `offer_digest`,
-`operation` (merge-trial, close-trial or retire-trial), `request_number` and candidate `commit`.
-Merge reports `applied-trial` only after fetching the target and verifying exact candidate
-tree, specification/evidence bytes, one revision advance, history and unchanged execution.
-`published-trial` grants no merge authorization. Both keep `live_admission: false`.
-Verification exits nonzero for open or closed-unmerged requests; only actual verified
-application succeeds. After closure, separately confirmed retirement checks that the exact
-request is still closed and its proposal/candidate are absent from the fetched target.
-It appends `trial-retired` without erasing the claim or history. A fresh confirmed attempt
-may then replace that claim; the retired ID cannot be reused. An exact retirement retry
-is idempotent even after a replacement exists. Changed confirmation refuses. Source edits
-or unrelated target advancement do not require restoring stale content to retire an old
-attempt; remote request/target changes during verification still refuse. Retiring a trial
-does not claim production withdrawal or cross-clone writer exclusion.
-Trial PR/MR closure is not withdrawal of production authorization. Do not use mock withdrawal
-for a trial, silently reuse its identity, or erase its journal. Uncertain writes require
-inspection/reconciliation of the same attempt; do not generate a replacement request.
-These checks establish application mechanics, not cross-clone exclusion, queue/train or
-bypass enforcement. A changed target stops; no automatic rebase/force-push follows.
-
 LOCAL MOD - HARVEST TO CPB: authorized V0.8.1 workflow integration.
 Use the caller's narrow shared-planning grant and
 [approval policy](../../../control-plane/framework/governance/policies/approval-and-review.policy.md).

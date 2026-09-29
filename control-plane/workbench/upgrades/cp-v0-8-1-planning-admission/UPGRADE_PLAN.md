@@ -1,7 +1,7 @@
 # Upgrade Plan
 
 **Upgrade:** `cp-v0-8-1-planning-admission`.
-**Current phase:** Local implementation verified; five explicit gates remain in LOCAL_IMPLEMENTATION_REPORT.md.
+**Current phase:** Normal planning/admission implemented; operational manual validation pending. Execution-consumer follow-up is identified for 0.8.2.
 **Cutover started: yes**
 
 Cutover started with the Operator-authorized instance-schema and entry-contract edits in this
@@ -17,6 +17,9 @@ single checklist and use-case inventory. Do not create an independent tracker or
 This plan supplies sequencing and recovery, not a second status graph.
 
 ## Sequence
+
+The following sequence records the implementation effort. Entry and completed foundation
+work must not be restarted; use Current Operational Validation below for the next action.
 
 1. Finish entry repair, validate selected packet and schema, then activate it under the confirmed
    upgrade command. Preserve old archive/history and record the actual branch baseline.
@@ -41,48 +44,34 @@ until green, no unseen-activity claims, and no credentials/private reasoning in 
 
 Entry baseline: `upgrade-entry.test.sh` 7 checks (0.072 s), `timing-routing.test.sh` 23 checks
 (20.556 s), `timing-harvest.test.sh` 2 checks (0.118 s), on macOS with Bash and PowerShell.
-Static contracts are classified separately from real runtime and agent behavior. A6's broader
-baseline remains outstanding.
+Static contracts are classified separately from real runtime and agent behavior. A6 baseline
+evidence is recorded in the single checklist; those past run subjects are not new release approval.
 
 ## Recovery And Completion
 
-### Next Isolated E2E Trial
+### Current Operational Validation
 
-Current correction (2026-09-29): use the SAME normal `/admit-plan` workflow in an
-isolated target, without --trial or a trial transport. Replace the historical commands
-below with --publish, --merge, --verify, --close and --retire. Queue/train enforcement
-is deferred by the Operator; exact review/approval and separate merge confirmation
-remain required. The runtime now defaults to real origin-selected gh/glab publication.
-The older trial sequence below is retained as provenance, not the current invocation recipe.
+Use the installed normal commands, actual selected inputs and origin-selected gh/glab.
+Test-only transports, synthetic approvals and fixture identifiers are not operational inputs.
+Preserve previous trial evidence in its dated reports rather than copying its recipe here.
 
-The controller's `forge-cli-trial` path is implemented and locally exercised through
-public offer/create/resume/merge-trial/verify-trial dispatch. See the dated controller
-consult for exact tests and limits. Hosted E2E has not run; obtain the Operator's go-ahead
-for the named trial before remote setup or merge. Do not confuse PR execution with
-executing the proposed phases.
+1. Explicitly select the working checkout, repository target, source pack and baseline.
+   Confirm any setup writes separately; do not recreate H000 or reset implementation.
+2. Capture the original inputs and shape proposed Canon, phase specifications and DAG
+   through shared planning. The repository owns the operational tracker, not the horizon.
+3. Obtain independent review, record the Operator's exact approval/waiver and prepare
+   the complete validated admission bundle. No planning discussion counts as approval.
+4. Explicitly invoke `/admit-plan CONTEXT-ID --publish`, confirm the exact candidate and
+   target, and inspect the real PR/MR. Retry the same attempt without duplicate publication.
+5. Separately confirm `/admit-plan CONTEXT-ID --merge ATTEMPT-ID`, then use `--verify`
+   to check actual Canon/phases/DAG, one revision advance, preserved evidence/history
+   and unchanged execution/unrelated content. Reverification must not apply twice.
+6. Exercise stale-target refusal and, for a separately selected abandoned proposal,
+   confirmed close/retire/replacement. Preserve resulting evidence and explicitly agree cleanup.
 
-1. Use a disposable checkout and unique cp-admission-trial/ target on the existing
-   PokerNight origin, with a valid test specification/execution baseline and no change
-   to main or protection. Confirm branch creation and cleanup explicitly.
-2. Capture a small test proposal: add TEST-REQ-1, add TEST-PHASE-A and TEST-PHASE-B linked
-   to it, and add a requires edge from A to B. Preserve an unrelated baseline record
-   and execution bindings so unchanged-content assertions are observable. These are
-   proposed fixture identities, not admitted product requirements or executable phases.
-3. Obtain independent review of the exact test proposal, record actual Operator approval
-   or waiver, and prepare the immutable admission bundle. Do not relabel synthetic
-   test-suite actors as this live review or approval.
-4. Explicitly invoke /admit-plan CONTEXT-ID --trial --publish; confirm the exact offer,
-   origin, target and isolated scope. Resume the same attempt to demonstrate one PR.
-5. Offer /admit-plan CONTEXT-ID --trial --merge-trial ATTEMPT-ID with exact request number,
-   candidate/target and effects. Only after separate confirmation, merge the trial PR.
-6. Verify actual target Canon, phases, dependency edge, one revision advance, retained
-   admission evidence/history, unchanged unrelated records and execution bytes. Re-run
-   verification and merge recovery to prove no second revision/write. A stale competing
-   candidate must refuse. Preserve evidence before confirmed cleanup of only trial refs.
-
-This proves hosted application mechanics, not queue/train, bypass enforcement or product
-start. The implementation's checks require exact candidate ancestry and target-tree equality;
-unexpected additional target changes are a verification failure, not silently accepted.
+Queue/train enforcement is deferred to a later release; existing forge restrictions still
+apply. Admission verification is not product start. Operational execution/closeout consumer
+implementation remains pending for 0.8.2. This document invokes none of these operations.
 
 Keep current edits and append a truthful progress checkpoint on interruption. Resume the exact
 packet and branch; do not recreate the old upgrade, reset Git, or restart completed trials without

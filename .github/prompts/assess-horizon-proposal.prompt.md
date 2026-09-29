@@ -25,14 +25,12 @@ then delegate to `Bootstrap: Horizon Readiness Reviewer` explicitly in proposal-
 The specialist stays read-only; persist only the report permitted by the skill. Do not invoke
 formal readiness or repair the reviewed sources/proposals.
 
-## H000 Criteria Pilot
+## Explicit Criteria Inputs
 
-LOCAL MOD, 2026-09-17 - HARVEST TO CPB: for this repository's `H000-initial-inception` only,
-load `control-plane/horizons/H000-initial-inception/specification/requirements/readiness-assessment-criteria-direction.md`,
-especially "H000 V0.8 Assessment Pilot". Pass its exact version/digest, the bounded subject, next
-activity, and selected criteria scope to the reviewer. Include the document's criterion results
-and calibration observations in the existing exploratory report. Criteria stay in that document;
-this reference does not introduce a readiness verdict or change installed authorization rules.
+When project-specific criteria are explicitly supplied, pass their exact path/version/digest,
+bounded subject and selected scope to the reviewer. Do not assume an example horizon or
+pilot file exists. Criteria remain source inputs; they create no new readiness verdict or
+authorization beyond the selected assessment mode.
 
 ## Timing And Return
 

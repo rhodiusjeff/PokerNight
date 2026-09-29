@@ -14,8 +14,8 @@ Normal publication uses the origin-selected gh/glab path. `--merge`, `--close` a
 `--retire` require an exact attempt and separate actual operation confirmation; publication
 never implies merge consent. `--verify` fails for unmerged requests. `--withdraw` guides
 confirmed close followed by separately confirmed retirement; no production approval is
-erased. Legacy --trial options may resume existing trial records under the skill's narrow
-compatibility rules, never as a fallback for missing production prerequisites.
+erased. Historical test-only attempts are not operational evidence; do not route new work
+through a test transport or bypass missing production prerequisites.
 
 Load [guided admission](../skills/guided-admission/SKILL.md). Run its installed evidence,
 admission and publication APIs, not hypothetical forge commands. `--help` only describes actual

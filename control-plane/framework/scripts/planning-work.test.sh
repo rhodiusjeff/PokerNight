@@ -357,6 +357,9 @@ class WorkflowTests(unittest.TestCase):
             metadata = yaml.safe_load((repository / '.github/prompts' / (name + '.prompt.md')).read_text().split('---', 2)[1])
             self.assertTrue(metadata['description'])
             self.assertNotIn('agent', metadata)
+        for name in ('plan-work', 'admit-horizon'):
+            text = (repository / '.github/prompts' / (name + '.prompt.md')).read_text()
+            self.assertNotIn('LOCAL/MOCK', text)
         for name in ('inception-facilitator', 'project-planning-design', 'project-codegen'):
             text = (repository / '.github/agents' / (name + '.agent.md')).read_text()
             self.assertIn('## Named Scope: Shared File-Backed Planning', text)
@@ -364,6 +367,21 @@ class WorkflowTests(unittest.TestCase):
             self.assertIn('.github/skills/guided-admission/SKILL.md', text)
 
     def test_documented_builder_help_and_duplicate_json(self):
+        for name in ('deep-discovery-classify', 'deep-discovery-run', 'deep-discovery-closeout', 'review-canon'):
+            self.assertFalse((repository / '.github/prompts' / (name + '.prompt.md')).exists())
+            self.assertFalse((repository / '.claude/commands' / (name + '.md')).exists())
+        glossary = (repository / 'control-plane/framework/docs/GLOSSARY.md').read_text()
+        self.assertNotIn('unit of parallel execution', glossary)
+        self.assertNotIn("embedded in the horizon's `TRACKER.json`", glossary)
+        governance = (repository / 'control-plane/framework/governance/README.md').read_text()
+        self.assertNotIn('There is no single tracker shared', governance)
+        skill = (repository / '.github/skills/guided-admission/SKILL.md').read_text()
+        self.assertNotIn('forge-cli-trial', skill)
+        self.assertNotIn('## Legacy Trial Compatibility', skill)
+        for name in ('closeout-prompt', 'complete-phase', 'publish-review-unit'):
+            text = (repository / '.github/prompts' / (name + '.prompt.md')).read_text()
+            self.assertIn('source: operational', text)
+            self.assertIn('0.8.2', text)
         for operation in ('draft', 'compose', 'propose'):
             completed = subprocess.run([sys.executable, str(script), '--context', self.identity, operation, '--help'],
                                        capture_output=True, text=True)

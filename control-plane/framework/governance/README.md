@@ -10,12 +10,15 @@ plane. It explains how governed work is admitted, executed, reviewed, and record
 
 ## Operator Start Here
 
+LOCAL MOD - HARVEST TO CPB (2026-09-29): repository-owned operational tracking and
+normal origin-selected admission supersede unqualified per-horizon execution guidance.
+
 For a quick answer to "what can run now?", read these in order:
 
 1. [`CONTROL_PLANE_STATE.json`](../../state/CONTROL_PLANE_STATE.json) — can governed work run on this control-plane instance at all?
-2. `framework/scripts/resolve-horizon.py <phase-id>` — which packet owns the phase, and may it execute?
-3. The returned packet's `HORIZON_STATE.json` and `TRACKER.json` — recorded boundary state and executable phase authority.
-4. The target phase prompt under the selected horizon's `phases/` directory — what exactly is authorized for that phase?
+2. `framework/scripts/resolve-horizon.py <phase-id>` with the explicit/configured target — is the source operational or legacy?
+3. For operational results, the repository's specification/progress and exact governing contract; horizon/tracker/ledger fields are intentionally null.
+4. For explicitly legacy results only, the returned packet state, tracker and phase prompt. Never manufacture these for operational work.
 
 Horizon state and phase resolution are governed by
 [`policies/horizon-lifecycle-and-state.policy.md`](policies/horizon-lifecycle-and-state.policy.md).
@@ -24,13 +27,13 @@ Common operator routes:
 
 | Need | Start with | Do not confuse it with |
 |---|---|---|
-| Continue admitted product work | The executing horizon's `TRACKER.json` and phase prompt | Singleton maintenance in `cp-ops-work/` |
-| Introduce a new body of work | `/control-plane-new-horizon --help`, then the shaping/readiness/preparation/admission commands | Adding rows to H000's tracker or using inflation terminology |
+| Inspect admitted product work | Repository specification/progress and the phase's resolved governing contract | A planning horizon or an implied start command |
+| Introduce a new body of work | `/plan-work` for capture/drafts, explicit `/horizon --create` for bounded planning, then `/admit-plan` | Creating a per-horizon operational tracker |
 | Upgrade the control-plane framework | `/control-plane-upgrade --help`, then explicit selected-packet entry under Lifecycle Facilitator | Product implementation or a new horizon |
 | Repair or evolve governance | Select **Project: Control Plane Steward** | Editing product source |
 | Assess or configure repository CI/forge integration | Select **Project: CI & Integration Architect**, then begin with `/ci-assess --help` | Product implementation or forge-admin mutation |
-| Record a future idea owned by the active horizon | That horizon's planning notes | A tracker row or operations-ledger entry |
-| Preserve a candidate for a future horizon | `control-plane/workbench/` until horizon admission is operational | Assigning it to H000 by default |
+| Record a future idea | Explicit deferred capture through shared planning | Scheduling executable work or changing Canon |
+| Preserve a candidate for later planning | Selected capture or `control-plane/workbench/` with provenance | Assigning execution ownership to a horizon |
 
 Governance boundary commands require an explicit operator invocation. A conversational remark
 such as "start the next phase" or "ship it" is intent, not authorization to mutate governance
@@ -43,15 +46,15 @@ the **Project: Control Plane Steward** to adjudicate the path.
 
 ## Transition Status
 
-H000's instance/horizon state split is installed. Tag-based identifier minting, target-pinned
-shaping branches, declaration/inception scaffolding, complete admission bundles, admission-time
-tracker creation, protected-target effectiveness checks, phase-to-horizon resolution, and local
-tag/packet reconciliation are executable. Remaining transition work includes structured local
-specification/phase trace schemas, operating-mode enforcement, canon synchronization, final
-compatibility-register retirement, and `/close-horizon` sealing.
+Normal planning and admission use shared capture/proposal/evidence helpers and origin-selected
+gh/glab publication, separately confirmed integration and exact application verification.
+The tracker is repository-owned: Canon/phases/DAG in operational/SPECIFICATION.json,
+progress in state/execution.json. Queue/train enforcement is deferred for this version.
+Operational start/bind and downstream closeout/completion integration are not yet complete;
+current commands must report that gap rather than route operational work into a legacy packet.
 
-The installed `/control-plane-new-horizon` prompt now orchestrates mint and declaration through
-the tested runtimes and names admission as a separate explicit boundary. The installed
+The legacy `/control-plane-new-horizon` path is retained for compatible existing packets;
+new-format bounded planning uses `/horizon`. The installed
 `/control-plane-upgrade` prompt selects a working packet under `control-plane/workbench/upgrades/`
 and validates the instance-state contract before mutation. Entry, separately authorized Steward
 implementation, and confirmed completion remain distinct. Archives are not new-upgrade destinations.
@@ -62,18 +65,16 @@ Facilitator**; the backing charter file retains the historical filename
 ## The Model In 90 Seconds
 
 - A **control-plane instance** is the complete governance installation in this repository.
-- A **horizon** is a bounded body of admitted work with its own tracker, evidence, timing,
-  approvals, phases, and side tracks.
+- A **horizon** is a bounded planning container for sources, proposals, findings and provenance.
 - The **instance state** answers whether governed work can run anywhere on the plane.
-- The **horizon register** records the lock-table contract: declaration gives a horizon its
-	lease, packet root, lifecycle, dependencies, and admission evidence.
-- A horizon's **tracker** is its execution authority. There is no single tracker shared by all
-  horizons.
+- A planning context's local binding is not operational authority or a repository-wide lock.
+- One repository-owned **specification/DAG** governs admitted work regardless of proposal origin;
+	separate **execution progress** retains each started phase's governing contract.
 - The **operations ledger** records non-product work that outlives any one horizon, such as
   control-plane surgery, framework upgrades, and harvest runs.
-- A horizon packet is mutable while executing and is designed to seal when the horizon closes.
+- Planning lifecycle operations never implicitly start or complete execution.
 
-The lifecycle recorded by the register is:
+For retained legacy packets only, the former lifecycle representation is:
 
 Recorded admission is `declared | inception | admitted | rejected`; progress is derived; closure
 is recorded by `sealed_at`. **Mint-before-name** reserves the next `HNNN` identifier with the
@@ -85,12 +86,13 @@ concurrent operators from claiming the same horizon number.
 | Question | Authoritative surface |
 |---|---|
 | Can the plane operate? | [`state/CONTROL_PLANE_STATE.json`](../../state/CONTROL_PLANE_STATE.json) |
-| Does a horizon exist, and may a named phase execute? | Packet folder + `HORIZON_STATE.json`, resolved by `framework/scripts/resolve-horizon.py` |
-| What product work is executable? | That horizon's `TRACKER.json` |
-| What are a phase's scope and acceptance conditions? | The phase prompt inside that horizon |
-| Where is review-unit evidence? | That horizon's `ledgers/REVIEW_UNIT_LEDGER.json` |
+| Does a planning horizon exist? | Its planning context/packet; existence is not execution permission |
+| What work is admitted? | Repository `operational/SPECIFICATION.json` at the selected integration commit |
+| What are a phase's scope and acceptance conditions? | Its resolved current or retained governing contract |
+| Where is execution progress? | Repository `state/execution.json`, separate from specification revision |
+| Where is review-unit evidence? | Explicitly legacy packet ledgers only; new operational completion ownership remains pending |
 | Where is significant control-plane maintenance governed? | repository-root `cp-ops-work/` state, tracker, phase packets, and evidence |
-| Where are project requirements and stories? | `control-plane/canon/` |
+| Where are project requirements and stories? | Admitted operational specification; established `control-plane/canon/` authorities retain their explicit scope |
 | Where are operator working notes? | `control-plane/workbench/` |
 | Where is immutable historical evidence? | `control-plane/archive/` |
 
@@ -105,8 +107,7 @@ directories.
 
 | Domain | What lives here | Operational surface governed |
 |---|---|---|
-| [`policies/`](policies/) | Approval/review, tracker/state, branch/PR, migration/upgrade rules | Instance state, horizon trackers, branches, and review evidence |
-| [`deep-discovery/`](deep-discovery/) | Brownfield discovery protocol and classifier | Horizon discovery and inception records |
+| [`policies/`](policies/) | Approval/review, tracker/state, branch/PR and upgrade rules | Repository specification/progress, planning contexts and explicit legacy compatibility |
 | [`timing/`](timing/) | Timing-log specification | Instance and horizon `timing/` data plus timing runtimes |
 | [`sanity/`](sanity/) | Sanity runtime and lint specifications | `state/sanity/` reports and control-plane checks |
 | [`closeout/`](closeout/) | Prompt/phase closeout procedures and templates | Phase closeout reports inside horizon packets |
@@ -127,22 +128,19 @@ define document kind.
 
 Normal execution requires both of these conditions:
 
-1. Instance state is `operational`.
-2. The selected horizon's register entry is `executing`.
+1. Instance state permits execution.
+2. The phase resolves to admitted work and its actual execution-start prerequisites are satisfied.
 
-The selected horizon's tracker and phase prompt then govern preparation, execution, review,
-closeout, and completion. Those boundaries remain distinct so evidence can show which decision
-was made and when.
+The repository-owned contract and progress govern new-format work. The incomplete operational
+start/closeout consumers are not enabled by this documentation. Explicit legacy phases retain
+their existing packet workflow. Preparation, execution, review and completion remain distinct.
 
 ### New Horizons
 
-The entry command is `/control-plane-new-horizon`, bound to the **Control Plane: Lifecycle
-Facilitator** persona. It is an explicit lifecycle boundary, not an ordinary planning
-conversation. Mint/declaration and admission are implemented as separate mechanics so a packet
-can be shaped and reviewed before executable tracker authority exists.
-
-Admission evidence belongs in the new horizon packet and is digest-bound to the proposed tracker.
-New work must not be appended to H000's tracker.
+New-format entry is explicit `/horizon --create`, through the shared planning skill.
+Planning can shape a proposal without executable authority. `/admit-plan` reviews/decides
+and publishes changes to the repository's shared specification, not a horizon-owned tracker.
+Ad hoc and discovery proposals use that same path without requiring a horizon.
 
 ### Framework Upgrades
 
@@ -164,13 +162,11 @@ serially through `/start-ops-phase` and `/closeout-ops-phase`, then closes and r
 `/closeout-ops-work` and `/exit-ops-work`. Authority is rooted in `cp-ops-work/`, not the retired
 instance OPS ledger.
 
-### Historical H000 Exception
+### Legacy Compatibility
 
-H000 predates the current horizon machinery. Its register entry records
-`admission-by-instantiation-equivalence` rather than pretending that today's admission workflow
-ran retroactively. The retired 0.4.x instantiation and migration commands are preserved under
-[`archive/retired-lifecycle-surfaces-0.4.x/`](../../archive/retired-lifecycle-surfaces-0.4.x/)
-for audit and historical interpretation only.
+Existing packet trackers, review ledgers and historical lifecycle evidence are interpreted
+only by their explicitly selected legacy contracts. No historical H000 exception is assumed
+for this installation. [Archived records](../../archive/) are evidence, not active defaults.
 
 ## Enforcement Language
 
@@ -217,7 +213,9 @@ governance.
 |---|---|
 | Framework policy, specification, or template | `control-plane/framework/governance/` |
 | Project requirement, story, decision, or living standard | `control-plane/canon/` |
-| Horizon tracker, approval, phase, timing, ledger, or side track | That horizon's packet |
+| New operational Canon/phase/DAG and execution progress | Repository `operational/` and `state/`, respectively |
+| Planning captures/proposals and provenance | The selected planning context |
+| Legacy tracker, approval, phase, timing, ledger, or side track | Its explicitly resolved legacy packet only |
 | Instance state or instance-lifetime operations | `control-plane/state/` |
 | Operator analysis or draft working material | `control-plane/workbench/` |
 | Append-only exhibits | `control-plane/evidence/` |
@@ -255,4 +253,4 @@ Use these customization boundaries:
 - [Migration and upgrade policy](policies/migration-and-upgrade.policy.md)
 - [Admission templates and current limitations](admission/README.md)
 - [Framework glossary](../docs/GLOSSARY.md)
-- [Project glossary](../../canon/GLOSSARY.md)
+- Project glossary: use `control-plane/canon/GLOSSARY.md` only when that project-owned authority has been established.
