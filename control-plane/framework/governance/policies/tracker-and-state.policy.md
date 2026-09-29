@@ -1,5 +1,59 @@
 # Tracker and State Policy
 
+## V0.8.1 Shared File-Backed Planning
+
+LOCAL MOD - HARVEST TO CPB (2026-09-29): explicitly invoked guided admission permits
+helper-owned isolated candidate commits/pushes and separately confirmed operator
+PR/MR integration requests, closure and application verification on explicit targets.
+Separately confirmed retirement permits claim replacement only after closed-request
+and non-integration checks; it does not delete the old claim or reuse its attempt ID.
+The existing attempt journal owns published/integration-requested/applied/retired evidence; no second
+tracker or production authorization is created. See approval-and-review.policy.md.
+This narrow exception does not alter legacy trackers, instance state or execution progress.
+
+LOCAL MOD - HARVEST TO CPB: Operator-authorized V0.8.1 integration. This section overrides
+conflicting legacy horizon-only planning/placement requirements below only for resolved
+`cp-planning-capture-v1` ADHOC/discovery/HNNN documents. Legacy H000 and OPS authority is unchanged.
+
+Codegen, Planning and Design, and Lifecycle Facilitator share narrow writer grants through
+`.github/skills/planning-workflow/SKILL.md` and `.github/skills/guided-admission/SKILL.md`.
+No persona switch is required. They may execute unmodified planning-capture/context/deferred/work/
+evidence/admission/publication helpers for explicitly selected operations and author exact source,
+request, offer, report and real-confirmation files under the selected capture's `assets/ID/requests/`.
+Before capture creation that supporting path may be established under `control-plane/ad-hoc/assets/ID/`;
+for an uncaptured horizon, explicitly selected working inputs may live in `control-plane/workbench/`.
+No arbitrary callbacks/scripts from request files. Helpers own the maintained capture/register,
+immutable preimages, local bindings/recovery and attempt outputs; do not hand-edit them.
+
+`/horizon` explicitly owns create/activate/leave/suspend/abandon/absorb and create --from escalation
+through planning-context. Creation includes a disclosed remote tag reservation, not planning-branch
+publication. Source retirement across branches remains `local-only/incomplete`; portable completion
+is false. `/plan-work` owns separately selected capture, deferred selection, scrub, drafting and
+complete proposal operations. `/admit-plan` guides independent review, actual approval/waiver and
+one real publication attempt with separately confirmed integration/reentry/withdrawal. None
+changes instance lifecycle or starts product work. Existing conflict-recovery grants remain intact.
+
+Capture precedes proposal. Deferred inclusion requires explicit IDs/revisions and disclosed existing
+associations; declined/unselected records are unchanged. Scrub maintains source interpretation,
+not candidate Canon; consolidation and work shaping are separate. Iterative drafts live solely in
+`workflow.planning` and may retain questions/unsupported schema expansion without fake phase/trace
+IDs. Complete proposal content is the one Canon/phases/DAG candidate, not a parallel tracker.
+Evidence owns workflow.findings/reviews/decision/admission and preserves independent histories.
+
+The versioned specification is `control-plane/operational/SPECIFICATION.json`; progress and retained
+started contracts are separate in `control-plane/state/execution.json`. Progress never increments
+specification revision. Resolver results with `source: operational` have null horizon/tracker/ledger
+fields; never construct substitute H000 paths. Actual dependencies, not family membership, gate
+work. Bound contracts stay intact under amendments; only explicit preservation is supported here.
+`planning-execution.py check-start` is read-only. Every operational `--require-executable` refuses;
+the implemented transactional start/bind writer has no installed live owner or public activation.
+Do not claim preparation or execution from this check.
+
+These grants exclude helper edits, product edits, direct Canon/specification, execution/tracker
+mutation, unrelated source-branch commits/pushes and forge administration. Only the exact
+confirmed admission-helper effects above are permitted. Confirmation
+flags represent actual recorded confirmation, not authentication. No automatic semantic approval.
+
 **Scope:** instance-localized — provenance marker for lift/assimilation classification (framework-canon = unmodified CPB template · instance-localized = canon amended/localized by this instance · instance-born = originated in this instance, upstreaming candidate).
 
 ## 1. Objective and Scope
@@ -173,6 +227,25 @@ not automatically invoke scrub. Neither procedure is a mandatory prerequisite to
 The old combined `--archive-and-scrub` profile is source-only under the scrub command; prior
 combined-round artifacts remain historical. It no longer emits proposed Canon or readiness.
 
+### Admission Conflict Recovery
+
+**LOCAL MOD - HARVEST TO CPB (2026-09-28):** Planning and Design, Codegen, and Lifecycle Facilitator
+may use `.github/skills/admission-conflict-recovery/SKILL.md` to inspect selected proposal/target
+refs and manage explicitly confirmed isolated recovery. This is not general admission, lifecycle,
+product implementation, source-branch, publication, or forge authority.
+
+Inspect/offer/status/defer need no admitted product phase. Start/continue/abort require the actual
+scoped Operator confirmation and current offer/resolution digest. The runtime writes only ignored
+worktree-local recovery state and its isolated clone under `control-plane/state/planning-local/`;
+source refs/index/worktree, operational Canon, trackers and review/approval evidence are unchanged.
+Mechanical Git replay is not permission to author product resolutions. Planning/Facilitator retain
+their product-code prohibition; Codegen requires explicit scope for substantive product edits.
+
+Record offered command and actual confirmation in existing owning workflow evidence. The helper's
+`--confirmed` flag is not a signature. Git success returns to proposal/base/result and affected
+review/decision revalidation, never automatic admission. No source force-push, hosted publication
+or automatic selection of a conflict side is granted.
+
 ### Planning Artifact Placement And Movement
 
 **LOCAL MOD, 2026-09-20 - HARVEST TO CPB:** Operator-directed organization policy for
@@ -309,12 +382,9 @@ unverified bindings rather than declaring the corpus organized or current merely
 A handoff links current sources, proposals, questions and exact relevant revisions; it is not a
 copied plan, substitute tracker, approval or instruction to invoke the next boundary automatically.
 
-Grounding: September's authorized capture and source-correction history (`f31226e`, `0ca584d`,
-`600087a`), iterative-planning rules (`4a61929`), and H000's
-[proposal relocation record](../../../horizons/H000-initial-inception/specification/consolidation/README.md#relocation-record-2026-09-20).
-The inspected August 20-September 20 history and current packet show overlapping legacy homes;
-they do not establish a universal layout by precedent. This policy makes the forward routing
-explicit without reclassifying all past artifacts or importing an exemplar's architecture.
+Historical source projects used overlapping capture/consolidation homes. Those examples
+are not installed project evidence or a universal layout. This policy owns forward routing
+without depending on an absent example horizon or reclassifying historical artifacts.
 
 ### Governed Vocabulary
 

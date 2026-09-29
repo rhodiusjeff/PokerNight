@@ -1506,3 +1506,73 @@ historical migration remain future work, not prerequisites for this planning/adm
 Operator-visible test progress, results, waits, and bounded runs remain required; implement that
 visibility through runner output/progress reporting without using it to introduce the deferred
 timing-storage redesign. The companion task document records this scope constraint.
+
+## 27. Upgrade Execution Authorization And Entry Handoff (2026-09-28)
+
+**Owner:** Repository-level CP V0.8.1 upgrade planning, not H000. This section records later
+Operator directions and supersedes conflicting preservation and migration assumptions above.
+The implementation checklist remains in the companion task document; no duplicate tracker is created.
+
+### Confirmed Operator Decisions
+
+- The Operator reports the Poker Night inception work has been lifted out. Verify the external
+  manifest and source hashes before deleting repository originals; this session has not verified it.
+- Admitted work, any or all timing logs, and other repository-local CP state may be removed/reset
+  when useful to execute the upgrade tests. This is a scoped test-reset permission, not a request
+  to erase Git history, unrelated project assets, or the framework implementation being developed.
+- Migration of populated V0.8 installations is deferred. Removing an old CP and reinstalling
+  V0.8.1 is a possible later approach, not a migration feature required by this release.
+- Use `/control-plane-upgrade` for entry. The Operator explicitly permits necessary changes to
+  that command and subsequently confirmed execution of the control-plane upgrade. No further
+  blanket implementation permission is needed; preserve the persona and boundary contracts.
+- Maintain a monitorable progress JSONL and surface only issues requiring Operator resolution.
+  Keep ordinary timing behavior unchanged; permission to delete test logs does not authorize
+  timing-storage redesign, the OTel sink, or changes to default retention policy.
+- No commit, push, merge, or forge-administration operation has been authorized by this exchange.
+
+### Entry Evidence And Actual Blocker
+
+At entry the worktree was clean on `upgrade/cp-v0.8.1-planning-admission`, HEAD `95f3ff1`.
+The instance records `operational` and no active lifecycle agent. The confirmed invocation is
+recorded in `../state/timing/LC-UPGRADE__20260929T022028Z__029391009084.jsonl` with
+`metadata.invocation_source: operator-confirmation`; the UTC date is September 29.
+
+The installed upgrade prompt uses the v2 instance state, but still hardcodes the prior
+`archive/upgrade-0.4.x/` packet. The governance index prohibits mutating entry until reconciliation.
+The prior packet records cutover started and branch-local completion; it must not be mistaken
+for a new pre-cutover V0.8.1 effort. Entry repair must reconcile prompt, policy, documentation,
+packet discovery, state linkage, and resume/reset semantics together.
+
+**UP081-ENTRY-001:** Implementation-owner handoff required. Current phase: entry assessment.
+Impact: framework entry repair and runtime implementation cannot proceed in the current persona.
+Owner: Operator for agent selection; Project: Control Plane Steward for the authorized repair.
+Status: blocked. Last update: 2026-09-28 (2026-09-29 UTC).
+
+The bound Lifecycle Facilitator and its generated upgrade agent prohibit runtime edits. The
+Steward charter permits explicitly requested cross-boundary framework repairs, as used in UG-003,
+but Steward is not an available delegate in this session. Creating another generated planning
+agent cannot expand those grants. Select **Project: Control Plane Steward** in the main session
+and continue the already authorized CP V0.8.1 work from this section and the companion checklist.
+Repair the entry path before activating a fresh upgrade packet; return to the bound lifecycle
+command for its state operations. Do not repeat answered scope questions or silently resume UG-003.
+
+Progress is maintained at
+`../state/validation-runs/cp-v0.8.1-upgrade/progress.jsonl`. It records observed actions/results,
+not private reasoning, and is separate from governed timing. No ignore-policy change was made.
+The shaping resolver found no inception candidate; this explicitly repository-owned work is not
+assigned to the admitted H000 packet. No framework runtime, lifecycle state, admitted work, or
+historical log has been changed or deleted. No implementation tests or independent review ran.
+
+### Subsequent Steward Entry (2026-09-28)
+
+The preceding blocked checkpoint is historical. The Operator selected Steward and confirmed
+"proceed". The entry prompt, instance schema, policy, guides, and Claude wrapper were repaired;
+7 entry-contract/schema checks, 23 timing-routing checks and 2 harvest checks passed. Independent
+Risk Review identified two document defects; their fixes received a bounded re-review with no
+further findings. These are not full planning-feature or real-agent stress results.
+
+The selected packet is `control-plane/workbench/upgrades/cp-v0-8-1-planning-admission/`.
+Validated instance pointers now name that packet and its coordinator in `upgrading` state.
+UP081-ENTRY-001 and checklist A1/G-08 are resolved. Steward owns authorized implementation;
+Facilitator retains lifecycle entry/exit. Prior upgrade archives and H000 remain unchanged.
+Progress continues in the same JSONL; the single task checklist owns remaining work.

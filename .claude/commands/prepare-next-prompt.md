@@ -1,6 +1,6 @@
 ---
 description: "Establish the preconditions /start-prompt-execution requires for the next prompt or phase: phase branch exists and is active, tracker aligned, carry-forward applied, and execution-model alignment verified. Success is invariant establishment, not state reporting."
-argument-hint: "Next prompt or phase ID, optionally followed by --branch-name <other>, --adopt-worktree, or --help"
+argument-hint: "Next prompt or phase ID, optionally --target-ref <full-ref>, --branch-name <other>, --adopt-worktree, or --help"
 ---
 Execute the canonical control-plane prompt `.github/prompts/prepare-next-prompt.prompt.md` with arguments `$ARGUMENTS`. This command is a harness adapter (see `control-plane/framework/governance/harness/harness-adapters.md`) and carries no policy of its own.
 

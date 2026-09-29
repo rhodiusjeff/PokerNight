@@ -4,6 +4,16 @@ name: "Review Horizon Readiness"
 argument-hint: "Horizon ID, optionally --exploratory or --profile successor-admission|planning-baseline|implementation-baseline|replanning, or --help"
 agent: "Control Plane: Lifecycle Facilitator"
 ---
+NEW-CONTEXT DISPATCH: after help handling, resolve the explicitly selected ID using
+`planning-capture.py inspect --root ROOT --id ID`. For new-format captures, `--exploratory`
+uses [proposal assessment](../skills/proposal-assessment/SKILL.md)'s new-context branch.
+Otherwise use only the independent-review portion of
+[guided admission](../skills/guided-admission/SKILL.md), retaining exact inputs and separate
+findings. This overrides legacy profile/placement/delegation below, not review independence.
+Retain the invoking authorized caller and this command's timing. Do not invoke `/admit-plan`,
+draft/finalize decisions or publish. Report readiness only for local/mock admission review,
+with hosted/start blockers. Actual legacy packets retain all named-profile gates below.
+
 INVOCATION CONTRACT: this prompt must be invoked from inside the `Control Plane: Lifecycle Facilitator` persona. If you are reading this from any other persona, stop and switch before continuing. This is advisory and read-only.
 
 Review a horizon packet for a named readiness boundary. The specialist remains read-only; the Facilitator persists its returned report at `approvals/HORIZON_READINESS_REVIEW.md` without modifying reviewed inputs.
@@ -27,15 +37,12 @@ and profile flags before writing. Resolve the packet with
 shaping candidate. For non-exploratory review, resolve the profile from packet intent when omitted;
 ask if ambiguous.
 
-## H000 Criteria Pilot
+## Explicit Criteria Inputs
 
-LOCAL MOD, 2026-09-17 - HARVEST TO CPB: for this repository's `H000-initial-inception` only,
-load `control-plane/horizons/H000-initial-inception/specification/requirements/readiness-assessment-criteria-direction.md`,
-especially "H000 V0.8 Assessment Pilot", and pass its exact version/digest and scoped inputs to
-the reviewer. Apply its mode-specific evidence and calibration contract in the existing report.
-The named-boundary trial is supplemental semantic evidence, not replacement criteria for installed
-V0.8 checks or a second readiness verdict. Invocation, profiles, timing, custody, approval and
-admission rules below remain unchanged; the V1 Operator override does not apply to this controller.
+Use the selected packet/profile and explicitly supplied project criteria. Additional criteria
+must have an exact path/version/digest and cannot replace installed boundary checks or create
+a second readiness verdict. Do not assume an example H000 pilot exists. Invocation, timing,
+custody and actual approval requirements remain unchanged.
 
 ## Exploratory Assessment
 

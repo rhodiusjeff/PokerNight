@@ -4,6 +4,13 @@ name: "Record Horizon Admission Decision"
 argument-hint: "Optional HNNN, then --approve or --waive --reason <text>, plus --actor, --authority, --scope, optional --conditions, or --help"
 agent: "Control Plane: Lifecycle Facilitator"
 ---
+FORMAT GUARD: help remains read-only. New `cp-planning-capture-v1` HNNN/ADHOC decisions use
+[guided admission](../skills/guided-admission/SKILL.md)'s exact evidence request and digest
+bindings, not legacy bundle approval Markdown. Inspect and explain the actual current subjects,
+then offer `/admit-plan ID` and wait for invocation of its exact decision step. Do not transplant
+this command's legacy flags into a fabricated signature or current decision. Only actual legacy
+packets follow the unchanged decision procedure below; malformed new captures refuse.
+
 INVOCATION CONTRACT: this prompt must run under `Control Plane: Lifecycle Facilitator`. It records a decision already made by the named authority; it never decides approval, waives policy on its own, or admits the horizon. Execute only from explicit operator invocation or confirmation.
 
 If the argument contains `--help` or `-h`, explain purpose, required decision/identity/scope fields, waiver rationale, target inference, output path, invalidation behavior, and examples. Do not modify files or open timing.

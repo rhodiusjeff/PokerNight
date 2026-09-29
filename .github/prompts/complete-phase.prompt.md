@@ -8,6 +8,13 @@ INVOCATION CONTRACT: this prompt must be invoked from inside the `Project: Close
 
 Use the slash-command argument as the prompt or phase ID to mark Done.
 
+LOCAL MOD - HARVEST TO CPB (2026-09-29): resolve the phase before loading packet fields.
+For `source: operational`, use repository specification/progress for inspection only.
+The operational completion writer is not installed; report the pending 0.8.2 consumer
+update and stop before any tracker, acceptance, timing, commit or forge mutation. Null
+horizon/tracker/ledger values must not be replaced with fabricated packet paths. The
+completion workflow below applies only to explicitly legacy resolver results.
+
 If the slash-command argument contains `--help` or `-h`, do not execute completion. Output concise help only with:
 - command purpose (operator-facing phase-completion that runs after `/closeout-prompt` produces the report)
 - required and optional arguments

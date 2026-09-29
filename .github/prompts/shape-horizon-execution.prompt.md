@@ -4,6 +4,15 @@ name: "Shape Horizon Execution"
 argument-hint: "Optional HNNN and scope; --complete for full proposed laydown; --exploratory is a default-mode alias; or --help"
 agent: "Control Plane: Lifecycle Facilitator"
 ---
+NEW-CONTEXT DISPATCH: after help handling, inspect the selected ID with
+`planning-capture.py inspect --root ROOT --id ID`. A resolved new-format capture uses
+[work shaping](../skills/work-plan-shaping/SKILL.md)'s new-context branch directly under the
+current authorized caller, without mandatory delegation or old tracker laydown. Default is
+partial `draft --section work`; explicit `--complete` composes/proposes the complete result
+against supplied base/execution. Retain this command's timing and separate admission boundary.
+This dispatch overrides only conflicting legacy rules below; actual legacy packets retain them.
+Missing/malformed new documents refuse; never synthesize an ADHOC identity for a horizon.
+
 INVOCATION CONTRACT: this prompt must be invoked from inside the `Control Plane: Lifecycle Facilitator` persona. The Facilitator resolves lifecycle context and invokes `Project: Planning and Design` as the bounded execution-laydown specialist. This workflow shapes proposed execution authority but does not admit the horizon.
 
 For `--help`/`-h`, explain iterative default, complete laydown, outputs, verification and examples;

@@ -8,6 +8,13 @@ INVOCATION CONTRACT: this prompt must be invoked from inside the `Project: Close
 
 Use the slash-command argument as the prompt or phase ID to close out.
 
+LOCAL MOD - HARVEST TO CPB (2026-09-29): before using any packet paths below, resolve
+the phase and inspect `source`. For `source: operational`, the repository specification
+and execution status are authoritative; null packet/tracker/ledger fields are intentional.
+Do not create a horizon tracker or change execution state. Report that repository-level
+operational closeout ownership/writes await the 0.8.2 consumer update, and stop before
+timing, artifact, commit or publication writes. The workflow below is legacy-only.
+
 If the slash-command argument contains `--help` or `-h`, do not execute closeout. Output concise help only with:
 - command purpose
 - required and optional arguments

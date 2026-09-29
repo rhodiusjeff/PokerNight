@@ -128,6 +128,14 @@ import pathlib
 import sys
 
 root = pathlib.Path(sys.argv[1])
+if not (root / ".github/prompts/review-canon.prompt.md").exists():
+    assert not (root / ".claude/commands/review-canon.md").exists()
+    charter = (root / ".github/agents/project-planning-design.agent.md").read_text()
+    assert "experimental fixture-only canon-review command is retired" in charter
+    assert "## Named Mode: canon-review-read-only" not in charter
+    assert (root / ".github/skills/guided-admission/SKILL.md").is_file()
+    print("operational fixture command retired; preceding runtime fixture checks remain applicable")
+    raise SystemExit(0)
 prompt = (root / ".github/prompts/review-canon.prompt.md").read_text()
 charter = (root / ".github/agents/project-planning-design.agent.md").read_text()
 guide = (root / "control-plane/framework/docs/control-system-user-guide.md").read_text()

@@ -5,6 +5,18 @@ user-invocable: false
 ---
 # Inception Scrub
 
+## New File-Backed Context
+
+For a resolved `cp-planning-capture-v1` ADHOC or HNNN document, use the source-scrub procedure
+in [planning workflow](../planning-workflow/SKILL.md). This branch overrides the horizon-only
+resolver, report destination and required persona switch below for this format only. Codegen,
+Planning or Facilitator uses its narrow grant; discussion is still not correction authority.
+Offer `/plan-work ID --scrub FINDING-ID --apply` with the exact before/after interpretation and
+wait for real confirmation. Record SCRUB rounds/dispositions via `planning-evidence.py`; preserve
+original capture bytes and append attributed corrections through `planning-capture.py append`.
+Keep unapplied fixes open and consolidation separate. Never edit workflow-owned evidence directly.
+All legacy H000 command bindings, approvals and frozen profiles below remain unchanged.
+
 ## Contract
 
 Use under Planning or Lifecycle Facilitator with a named Horizon and bounded source scope.

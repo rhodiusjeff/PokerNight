@@ -103,6 +103,9 @@ Phase-session lifecycle events:
 - `session-transcript-reconciled` — appended by `timing-harvest.sh` (source `harvest`), never by the live runtime; carries `session_marker`, `copilot_session_id`, `method`, and `disposition` in metadata
 
 Slash-command and governance-operation invocation events:
+- `/horizon-invoked` — V0.8.1 planning lifecycle, `LC-HORIZON`; not operational admission.
+- `/plan-work-invoked` — V0.8.1 bounded planning mutation, `IN-PLAN`.
+- `/admit-plan-invoked` — V0.8.1 local/mock admission workflow, `LC-HORIZON`; outcome metadata distinguishes mock transport.
 - `/phase-specification-invoked`
 - `/prepare-next-prompt-invoked`
 - `/start-prompt-execution-invoked`
@@ -160,6 +163,9 @@ These new action names grant no invocation authority and change no historical ev
 - `/control-plane-horizon-promote-invoked` *(replay-only; superseded by digest-bound `horizon-packet.py admit`)*
 
 Corresponding completion events:
+- `/horizon-complete`
+- `/plan-work-complete`
+- `/admit-plan-complete`
 - `/phase-specification-complete`
 - `/prepare-next-prompt-complete`
 - `/start-prompt-execution-complete`

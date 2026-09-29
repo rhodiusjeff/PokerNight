@@ -4,6 +4,14 @@ name: "Consolidate Inception Material"
 argument-hint: "Optional HNNN and source scope; --exploratory is a compatibility alias; or --help"
 agent: "Control Plane: Lifecycle Facilitator"
 ---
+NEW-CONTEXT DISPATCH: after read-only help handling, inspect the explicitly selected ID with
+`planning-capture.py inspect --root ROOT --id ID`. For a resolved new-format capture, use the
+new-context branch of [Canon consolidation](../skills/canon-consolidation/SKILL.md), preserving
+the current authorized caller and this invocation's bounded consolidation scope. That branch
+overrides the legacy resolver/placement/persona requirements below; retain this command's timing.
+Do not invoke another command or scrub sources. Missing/malformed new documents refuse rather
+than fall back. Only actual legacy packets use the unchanged procedure below.
+
 INVOCATION CONTRACT: this prompt must be invoked from inside the `Control Plane: Lifecycle Facilitator` persona. If you are reading this from any other persona — default Copilot, a project-side persona, or any other bootstrap-side persona — stop. Switch to `Control Plane: Lifecycle Facilitator` before continuing. Persona binding is the writable-scope guardrail; running this prompt outside its declared persona silently inherits the wrong scope.
 
 For `--help`/`-h`, explain purpose, scope, proposal reconciliation, scrub distinction, outputs,

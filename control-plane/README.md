@@ -1,4 +1,4 @@
-# Portable V0.8 Control Plane
+# Portable V0.8 Control Plane With Local V0.8.1 Planning
 
 This is the V0.8-derived controller maintained in ControlPlane, packaged for a new
 macOS/Linux Git repository. It is not the proposed V1 product and does not import
@@ -6,25 +6,53 @@ another project's requirements, state, architecture, or history.
 
 ## Start Here
 
+LOCAL MOD - HARVEST TO CPB: Operator-authorized V0.8.1 local workflow integration.
+File-backed planning and real origin-selected gh/glab publication are available. Integration
+requires actual repository preflight; new operational start remains an incomplete compatibility
+boundary. Installation and fixture tests are not release approval.
+
 1. Activate `.cp-venv` before launching VS Code or Claude Code. An already-running
    editor may need its Python environment selected or terminal activated separately.
-2. Review the installed files, then commit the baseline yourself. Installation does
-   not stage, commit, push, create branches, or configure forge protections.
-3. Configure the intended remote and protected integration target and push the baseline.
-   Git author identity, remote access, and permission to reserve horizon tags are needed.
-4. In Copilot select **Control Plane: Lifecycle Facilitator**. In Claude Code use
-   `/persona facilitator` (or invoke the same-named workflow wrapper directly).
-5. Explicitly invoke `/control-plane-new-horizon --target main --remote origin`,
-   substituting your actual target and remote. The command fetches the target, reserves
-   an annotated remote horizon tag, and creates a shaping branch and inception packet.
-6. Describe the intended outcome, scope, owner, environment, dependencies, and constraints.
-   Continue shaping requirements and design in the packet. No executable tracker exists yet.
-7. `/shape-horizon-execution HNNN` shapes candidate work. Request `--complete` explicitly
-   when complete phase prompts and a proposed tracker are desired. Readiness review,
-   admission preparation, approval, and admission remain separate explicit boundaries.
+2. Use **Project: Planning and Design**, **Project: Codegen**, or **Control Plane: Lifecycle
+   Facilitator**. All three guide the same shared skills with narrow explicit writer grants.
+3. Capture original intent first: `/plan-work --capture ad-hoc`, or `--capture discovery` with
+   a verified originating phase/specification. No horizon or executable work is needed.
+4. For a new horizon explicitly invoke `/horizon --create`. Supply source files, title, slug,
+   author and intended remote/target. Confirm the disclosed annotated-tag reservation and
+   branch creation. `/horizon --help` describes activation, leave, suspension, abandonment,
+   absorption and `--create --from` escalation; transfers remain local-only/incomplete.
+5. Use `/plan-work ID --include` for a descriptive deferred-item selection walkthrough.
+   Only explicitly selected IDs are included; declined items and original source bytes survive.
+6. Use `/plan-work ID --canon` or `--work` for partial drafts. Source-quality `--scrub` and
+   advisory `--assess` remain distinct. Use `--complete` only for a full proposed result against
+   an explicit operational base and execution snapshot. Missing decisions are not fabricated.
+7. Explicit `/admit-plan ID` guides exact independent review, distinct findings, actual approval
+   or waiver, bundle validation and one confirmed real publication attempt. Separate `--merge`
+   performs operator-confirmed integration; `--verify` checks actual application. No implicit product start.
 
-Use `/control-plane-new-horizon --help` for non-mutating command help. Installation and
-passing checks do not declare a horizon, admit work, or authorize implementation.
+The normal command is the path to validate in an isolated test environment. Old mock/trial
+formats remain for existing evidence and deterministic tests, not as the default or a
+fallback for missing prerequisites. Missing credentials/permissions or unsupported merge
+methods produce concrete preflight failures. Queue/train enforcement is deferred to a later
+version by the Operator; existing forge restrictions are still respected.
+
+Read the [user guide](framework/docs/control-system-user-guide.md) and canonical
+[planning skill](../.github/skills/planning-workflow/SKILL.md) /
+[admission skill](../.github/skills/guided-admission/SKILL.md) for actual CLI/request contracts.
+Copilot prompts are canonical; generated Claude wrappers must be refreshed and checked by the
+adapter owner before claiming parity for newly added commands.
+
+## Legacy H000 Path
+
+Existing legacy packets retain `/control-plane-new-horizon` resume, consolidation and shaping,
+named-profile readiness, `/prepare-horizon-admission`, decision and `/admit-horizon` boundaries.
+They are not converted to new captures or a new specification automatically. New HNNN documents
+route by their capture format to the shared skills, not legacy complete-tracker gating.
+Separate `/prepare-next-prompt ID` and `/start-prompt-execution ID` remain owning boundaries.
+For new operational results they only inspect prerequisites and report the live-execution block;
+the in-process start/bind writer is implemented but its live owner and public activation remain
+disabled. Admission publication now uses the real origin-selected CLI path separately.
+Legacy execution gates remain intact; no fixture authority or mock evidence grants live use.
 
 ## Ownership
 
@@ -33,6 +61,9 @@ passing checks do not declare a horizon, admit work, or authorize implementation
 | `framework/` | Reusable policies, templates, scripts, and framework documentation |
 | `canon/` | Project-owned requirements and standards, established through governed work |
 | `horizons/` | Project-owned planning packets, then admitted trackers and phase artifacts |
+| `ad-hoc/` | New-format ad hoc/discovery captures and retained supporting evidence |
+| `deferred/` | One repository-level deferred register with explicit selected inclusions |
+| `operational/` | New versioned specification and retained admission bundles, not execution progress |
 | `state/` | Instance mode, installation receipt, and runtime evidence |
 | `workbench/` | Operator working notes within authorized scope |
 | `evidence/` | Instance evidence, populated as needed |
@@ -53,8 +84,9 @@ sections explicitly marked retired. Use this starting guide and the current cano
 prompts for entry. Historical project examples do not establish this project's policy.
 
 The full operational sanity command expects later-stage Canon, trackers, and optional
-capabilities. It is not a fresh-install acceptance test. Use the distribution's
-`installer/verify.py` before project-specific changes for that purpose.
+capabilities. It is not a fresh-install acceptance test. The installed local distribution helper
+is `framework/scripts/planning-install.py`; consult its `--help` for explicit temporary
+destinations. No absent external installer is required or represented as installed here.
 
 ## Deliberate Limits
 

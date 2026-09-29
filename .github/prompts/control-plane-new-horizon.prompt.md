@@ -4,6 +4,13 @@ name: "Control Plane - New Horizon"
 argument-hint: "Optional: --target <branch> --remote <name> --analysis-only --resume --reset --adopt-worktree --help"
 agent: "Control Plane: Lifecycle Facilitator"
 ---
+V0.8.1 ROUTING: [/horizon](horizon.prompt.md) is the forward new-format lifecycle command.
+This command remains the legacy packet workflow, especially existing H000 resume. For a request
+for new-format capture-based planning, explain and offer `/horizon --create` (or its explicitly
+named activate/resume action), then wait for invocation. Do not silently change command provenance,
+convert a new capture with horizon-packet.py, or reset a new-format context using legacy flags.
+Help explains both routes without mutation; actual legacy requests continue below unchanged.
+
 INVOCATION CONTRACT: this prompt must be invoked from inside the `Control Plane: Lifecycle Facilitator` persona. If you are reading this from any other persona, stop. Switch to `Control Plane: Lifecycle Facilitator` before continuing. Persona binding is the writable-scope guardrail; running this prompt outside its declared persona silently inherits the wrong scope.
 
 Start, resume, or explicitly reset a new-horizon planning and admission cycle for a repository that already has a control plane.

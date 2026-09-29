@@ -31,6 +31,14 @@
   "active_lanes": {
    "type": "string"
   },
+  "active_lifecycle_agent": {
+   "type": ["string", "null"],
+   "pattern": "^\\.github/agents/[a-z0-9][a-z0-9-]*\\.agent\\.md$"
+  },
+  "active_upgrade_packet": {
+   "type": ["string", "null"],
+   "pattern": "^control-plane/workbench/upgrades/[a-z0-9][a-z0-9-]*$"
+  },
   "ops_in_progress": {
    "type": "string"
   },
@@ -62,9 +70,17 @@
    "items": {
     "type": "object",
     "required": [
-     "date",
-     "entry"
-    ]
+    "date"
+      ],
+      "anyOf": [
+    {"required": ["entry"]},
+    {"required": ["summary"]}
+      ],
+      "properties": {
+    "date": {"type": "string", "minLength": 1},
+    "entry": {"type": "string", "minLength": 1},
+    "summary": {"type": "string", "minLength": 1}
+      }
    }
   }
  }

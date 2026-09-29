@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Resolve a phase ID to exactly one owning horizon packet.
+"""Resolve a phase ID to one legacy horizon or an explicit operational target.
 
 Usage:
   resolve-horizon.py <phase-id> [--require-executable] [--include-archive]
-      [--field <name>] [--root <repo-root>]
+    [--field <name>] [--root <repo-root>] [--target-ref <full-ref>]
 
     resolve-horizon.py --review-unit <review-unit-id> [--field <name>]
             [--root <repo-root>]
@@ -11,8 +11,10 @@ Usage:
 Default output is JSON. Fields: horizon, packet_name, packet, state, tracker, archive,
 phases, ledgers, timing, source, phase_status. `--include-archive` is evidence-only and is
 incompatible with `--require-executable`.
+Operational results have no horizon or tracker; live executable claims are disabled.
 """
 import argparse
+import importlib.util
 import json
 import pathlib
 import re
@@ -106,10 +108,23 @@ def verify_admission_visible(root, packet, state):
         )
 
 
-def resolve(root, phase_id, require_executable=False, include_archive=False):
+def resolve(root, phase_id, require_executable=False, include_archive=False, target_ref=None):
     if require_executable and include_archive:
         raise ValueError("--include-archive cannot be used with --require-executable")
     found = candidates(root, phase_id, include_archive)
+    markers = (root / "control-plane/state/operational-context.json",
+               root / "control-plane/operational/SPECIFICATION.json")
+    if target_ref is not None or any(marker.exists() or marker.is_symlink() for marker in markers):
+        sys.dont_write_bytecode = True
+        location = pathlib.Path(__file__).with_name("planning-execution.py")
+        spec = importlib.util.spec_from_file_location("planning_execution", location)
+        operational = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(operational)
+        try:
+            return operational.resolve(root, phase_id, require_executable, target_ref=target_ref,
+                                       include_archive=include_archive)
+        except operational.PhaseNotFound:
+            pass
     if not found:
         suffix = " active tracker" if not include_archive else " tracker or archive"
         raise ValueError(f"phase {phase_id!r} was not found in any horizon{suffix}")
@@ -185,24 +200,30 @@ def main():
     parser.add_argument("--require-executable", action="store_true")
     parser.add_argument("--include-archive", action="store_true")
     parser.add_argument("--field")
+    parser.add_argument("--target-ref")
     parser.add_argument("--root", type=pathlib.Path, default=pathlib.Path.cwd())
     args = parser.parse_args()
     try:
         if bool(args.phase_id) == bool(args.review_unit):
             raise ValueError("name exactly one phase ID or --review-unit ID")
         if args.review_unit:
-            if args.require_executable or args.include_archive:
+            if args.require_executable or args.include_archive or args.target_ref:
                 raise ValueError("review-unit resolution does not accept phase execution flags")
             result = resolve_review_unit(args.root.resolve(), args.review_unit)
         else:
-            result = resolve(args.root.resolve(), args.phase_id, args.require_executable, args.include_archive)
+            result = resolve(args.root.resolve(), args.phase_id, args.require_executable,
+                             args.include_archive, args.target_ref)
         if args.field:
             if args.field not in result:
                 raise ValueError(f"unknown field {args.field!r}")
-            print(result[args.field])
+            value = result[args.field]
+            if result.get("source") == "operational" and not isinstance(value, str):
+                print(json.dumps(value))
+            else:
+                print(value)
         else:
             print(json.dumps(result, indent=1))
-    except ValueError as exc:
+    except (OSError, ValueError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     return 0

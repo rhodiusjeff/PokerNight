@@ -8,12 +8,13 @@ deliberately not inlined anywhere — follow the link. **Project-specific produc
 
 ## Authority And Vocabulary Maintenance
 
-**LOCAL MOD, 2026-09-20 - HARVEST TO CPB:** This is the installed V0.8 vocabulary reference,
+**LOCAL MOD, 2026-09-29 - HARVEST TO CPB:** This is the installed V0.8.1 vocabulary reference,
 not the proposed V1 product lexicon. Governing policies and exact execution contracts control
 in a conflict; report disagreement rather than resolving it by editing a glossary alone.
 Terminology handling is owned by
 [Governed Vocabulary](../governance/policies/tracker-and-state.policy.md#governed-vocabulary).
-Existing entries are retained; this pass does not certify their completeness or source pins.
+Repository-owned operational definitions below follow the accepted planning/execution split.
+Entries explicitly labelled legacy apply only to retained legacy packets, not new planning.
 Use the file revision and section/term to identify legacy entries until governed identities
 are established. Changes need source evidence, preserved meaning and consumer impact analysis.
 
@@ -34,23 +35,23 @@ The governed record types of the control plane. Each is schema-templated
 
 | Type | What it is | Lives in |
 |---|---|---|
-| Horizon packet | A horizon's complete self-contained record: manifest, inception, approvals, phases, tracker, ledgers, sidetracks, timing. Mutable while executing; SEALS at `/close-horizon` | `horizons/HNNN-<slug>/` |
-| Phase prompt | The governed specification a codegen agent executes — scope, constraints, acceptance criteria, test suite | packet `phases/prompts/` |
-| Tracker node | One phase's execution status + evidence links; hand-edited by the governing closeout/completion workflow at gates (`cpb-horizon-tracker-v3`; human view via `render-view.py`) | packet `TRACKER.json` |
-| Planning note (DPN) | A durable future-phase reminder that is NOT yet admitted work — survives session loss; graduates via admission or closes | packet `phases/planning/DEFERRED_PLANNING_NOTES.md` |
+| Horizon packet | A bounded planning container holding captured intent, proposals, findings and provenance; does not own operational execution | `horizons/HNNN-<slug>/` |
+| Phase specification | Admitted scope, constraints and acceptance conditions; proposal origin does not own execution | `operational/SPECIFICATION.json` under `content.phases`; legacy prompts only under explicitly resolved legacy packets |
+| Tracker node | A repository-owned phase definition with separate execution progress and retained governing contract | definition in `operational/SPECIFICATION.json`; progress in `state/execution.json` |
+| Planning note (DPN) | A future-work reminder, not admitted work; new deferred items retain origin and explicit selection | `deferred/`; legacy packet planning notes remain historical/compatibility data |
 | Decision record (CDR) | A dated, attributed operator decision with rationale — the "why" that outlives chat | canon open-questions/assumptions log |
-| Review unit (RU) | The evidence bundle proving a phase's review actually happened: publication, merge, or explicit waiver | packet `ledgers/REVIEW_UNIT_LEDGER.json` |
-| Closeout report | A phase's terminal record: what shipped, deviations, findings dispositions | packet `phases/closeout/` |
-| Carry-forward report | Lessons applied FORWARD to unexecuted prompts — never rewrites history | packet `phases/closeout/` |
-| Side track (ST) | Declared timeboxed exploration off the lane's main path; adjudicated (abandon/graduate/transfer) at horizon close | packet `ledgers/SIDETRACK_TRACKER.md` + `sidetracks/` |
+| Review unit (RU) | Evidence of review publication, merge or explicit policy disposition | legacy packet `ledgers/REVIEW_UNIT_LEDGER.json`; new operational completion integration is deferred, not a reason to create a horizon ledger |
+| Closeout report | Terminal implementation evidence and findings dispositions | legacy packet `phases/closeout/`; repository-level operational consumer integration remains pending |
+| Carry-forward report | Forward reconciliation of affected unexecuted contracts, never historical rewriting | owning review/closeout surface; legacy packet paths apply only to legacy work |
+| Side track (ST) | Legacy declared exploration under the installed packet-local sidetrack workflow | explicitly resolved legacy packet ledger and `sidetracks/`; not an operational tracker owner |
 | OPS campaign (OPSC-NNN) | Singleton exclusive control-plane runtime/governance work unit; horizon-shaped but never product authority | repository-root `cp-ops-work/` |
 | OPS phase (OPS-NNN) | One prompt-backed serial phase inside the active OPS campaign | `cp-ops-work/TRACKER.json` + `phases/OPS-NNN-*/` |
 | OPS phase authority | Digest-bound prompt, non-product path set, models, tests, and reviews required before phase start | phase `PHASE_AUTHORITY.json` |
 | OPS campaign review evidence | Merged review, merge SHA, review URL, and explicit approval required for exit preparation | `cp-ops-work/evidence/REVIEW_EVIDENCE.json` |
 | Steward consult record | Verbatim mandate + findings of a steward consultation — governance evidence, never edited after writing | `workbench/steward-consults/` |
-| Timing session | Append-only JSONL of a governed execution window's events; joins to harness transcripts via session markers | packet `timing/` (lane) or `state/timing/` (ops) |
+| Timing session | Append-only JSONL of governed operations, joined to transcripts via session markers | `state/timing/` for repository operations; legacy packet timing where explicitly resolved |
 | Sanity report | Machine-emitted plane health check (JSON+MD), point-in-time evidence | `state/sanity/reports/` |
-| DAG | The dependency graph + approved execution order for admitted phases — embedded in the lane's `TRACKER.json` (v2 unification, 2026-07-20); typed edges hard\|soft\|calendar | packet `TRACKER.json` |
+| DAG | Repository-owned admitted phase dependencies and execution order, versioned with Canon and phase specifications | `operational/SPECIFICATION.json` under `content.dag`; legacy tracker shapes are compatibility only |
 | Schema template | The canonical shape of any type above: scaffold source, sanity validator, harvest parser key, upgrade-morph unit | `framework/templates/` |
 
 ## Governance & framework
@@ -59,16 +60,16 @@ The governed record types of the control plane. Each is schema-templated
 |---|---|
 | CPB | Control Plane Bootstrap — the upstream framework this control plane is installed from |
 | CP | Control Plane; also the phase-family prefix (see CP-NNN) |
-| Horizon | A governed, self-contained unit of planned work (H000, H001, …) — the unit of parallel execution. Minted via `horizon/HNNN`; declared/admitted/closed through packet-local `HORIZON_STATE.json`. **'Lane' is retired as a synonym (CDR-008, 2026-07-21).** |
+| Horizon | A bounded planning context identified by HNNN. Proposes changes to the repository's shared operational specification; it is not an execution owner. Identity reservation and planning lifecycle do not admit work. |
 | Inception | The inquiry phase of opening a horizon — filling its packet with intent, requirements, risks |
-| Horizon shaping | Pre-admission work on `horizon/HNNN-<slug>`: inception/specification, readiness, complete phase prompts, and proposed tracker/DAG. The shaping branch is not integration truth. |
-| Prepared for admission | The complete horizon execution packet is frozen in `admission/ADMISSION_BUNDLE.json`; status remains `inception` and no executable tracker exists. |
-| **Execution admission** | The operator-gated boundary that creates tracker/ledger authority on `admission/HNNN`; it becomes effective only after the admission PR lands on protected integration. *(Replaces retired "instantiation"/"inflation" for horizon work.)* |
+| Horizon shaping | Capture, scrub, consolidate and assess a proposed Canon/phase/DAG change through shared planning skills. Neither a draft nor a planning branch is operational authority. |
+| Prepared for admission | An exact reviewed and approved/waived proposal has a validated immutable bundle. This does not mean published, integrated or executable. |
+| **Execution admission** | Review/decision, publication and integration of a change to the shared repository specification. Effectiveness requires matching target history; starting a phase is a separate boundary. Legacy `/admit-horizon` tracker creation is not the new workflow. |
 | Boundary operation | Any command that crosses a governance gate — executes ONLY on explicit operator invocation. Includes the product phase loop, `/enter-ops-work`, `/start-ops-phase`, `/closeout-ops-phase`, `/closeout-ops-work`, `/exit-ops-work`, `/contract-verify`, `/sidetrack-*`, and lifecycle-entry commands |
 | GATE / VERIFY / RECORD | Claim Register voices: deterministically checked / agent-checked at a named checkpoint / advisory expectation |
-| DAG | Directed acyclic graph — phase dependencies and approved execution ordering embedded in the horizon's `TRACKER.json` |
-| Canon | The project-owned living spec (`canon/`): requirements, story registries, decisions — mutated only through governed gates |
-| Two-zone mutability | Packets are mutable while their horizon executes, sealed at close; canon is mutable only via gates; archives are never rewritten |
+| DAG | Directed acyclic graph owned by the repository, not the planning horizon; admitted dependencies and order live in the shared specification |
+| Canon | Project-owned requirements/definitions/specification, changed through governed admission; new admitted Canon lives in `operational/SPECIFICATION.json`, while existing `canon/` authorities retain their explicit legacy scope |
+| Two-zone mutability | Planning material evolves with preserved provenance; operational contracts change through admitted revisions; frozen evidence and archives are never rewritten |
 
 ## Phase & work identifiers
 

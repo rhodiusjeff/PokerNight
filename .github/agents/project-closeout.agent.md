@@ -8,8 +8,17 @@ argument-hint: "Provide the phase or prompt ID to close and any review constrain
 ---
 You are the prompt closeout specialist for this project.
 
+## Operational Source Boundary
+
+LOCAL MOD - HARVEST TO CPB (2026-09-29): inspect the resolver's source before reading
+packet fields. New operational phases belong to the repository specification and separate
+execution progress, not a horizon. Their null tracker/ledger/packet fields must not be
+replaced with synthetic paths. Repository-level closeout/completion/review-publication
+writers await the 0.8.2 consumer update; report that limit and stop before mutation.
+Packet-based instructions below are legacy-only. OPS keeps its separate existing owner.
+
 ## Mission
-- Resolve the named phase to its owning horizon packet, execute that packet's closeout procedure, and apply downstream contract verification only under its governing boundary.
+- Resolve the named phase's actual source; execute packet closeout only for legacy results and apply downstream verification only under its governing boundary.
 - Produce evidence-backed closeout outputs: test summary, review findings, residual risks, and lessons learned.
 - Link closeout evidence to the corresponding git review artifacts, including pull request number and URL when they exist.
 - Keep tracker status accurate without violating approval gates.
@@ -17,7 +26,7 @@ You are the prompt closeout specialist for this project.
 - Close OPS phases and campaigns through `cp-ops-work` without treating them as product horizons.
 
 ## Default Writable Scope
-- Resolver-selected horizon closeout/tracker/review surfaces for phase commands.
+- Explicitly legacy resolver-selected packet closeout/tracker/review surfaces for phase commands.
 - `cp-ops-work` phase closeout and campaign evidence/state for explicitly invoked OPS boundaries.
 - Closeout-owned timing and evidence paths named by the active command.
 
@@ -38,7 +47,7 @@ runtime/schemas, candidate closeout or review evidence, and protected-target sta
 product horizon or touch horizon tracker/acceptance state.
 
 For phase commands, read:
-1. Run `control-plane/framework/scripts/resolve-horizon.py <phase-id>` and read the returned packet's tracker, phases, ledgers, state, and timing paths
+1. Run `control-plane/framework/scripts/resolve-horizon.py <phase-id>`; inspect source first and apply the Operational Source Boundary above before reading any packet fields.
 2. control-plane/framework/governance/codegen-agent-context-and-tracker.policy.md
 3. The active prompt artifact selected by the user
 4. control-plane/framework/governance/closeout/pc-010-prompt-closeout-and-lessons-learned.spec.md

@@ -1,0 +1,78 @@
+*** Begin Patch
+*** Update File: /Users/jmsimpson/Documents/GitHub/PokerNight/control-plane/framework/scripts/planning-publication.py
+@@
+-        contract.require(not any(event["state"] == "withdrawn" for event in events),
+-                         "withdrawn attempt identity cannot be reused")
++        contract.require(not any(event["state"] in ("withdrawn", "trial-retired") for event in events),
++                         "withdrawn or retired attempt identity cannot be reused")
+@@
+-                contract.require(previous_events and previous_events[-1]["state"] == "withdrawn", "competing publication attempt requires withdrawal")
++                contract.require(previous_events and previous_events[-1]["state"] in ("withdrawn", "trial-retired"),
++                                 "competing publication attempt requires withdrawal or explicit trial retirement")
+@@
+-def run_trial(root, identity, operation, confirmed, confirmation=None):
+-    contract.require(confirmed and operation in ("resume", "merge-trial", "close-trial", "verify-trial"),
++def retire_trial(root, directory, header, client, commit, request, confirmation):
++    contract.require(request["state"] == "closed", "only a closed unmerged trial can be retired")
++    value = header["offer"]
++    claim = contract.load_json(evidence.confined(root, home(root) / "claims" / (value["context_id"] + ".json")))
++    contract.require(claim == {"attempt_id": header["id"], "bundle_id": value["bundle_id"]},
++                     "another attempt owns the proposal claim")
++    sandbox = evidence.confined(root, directory / "repository")
++    target = client.fetch_target(sandbox, request["target"])
++    specification = planning_git.blob_json(sandbox, target, admission.SPECIFICATION_PATH)
++    contract.validate_specification(specification)
++    contract.require(not any(entry["proposal_id"] == value["context_id"] for entry in specification["admissions"]),
++                     "trial proposal already integrated; retirement refused")
++    contract.require(planning_git.git(sandbox, "merge-base", "--is-ancestor", commit, target, check=False).returncode == 1,
++                     "trial candidate already integrated or ancestry unavailable")
++    contract.require(client.find_requests(request["source"], request["repository_id"]) == [request],
++                     "trial request changed during retirement")
++    contract.require(client.branch(request["target"])["commit"] == target, "trial target changed during retirement")
++    result = {"attempt_id": header["id"], "state": "trial-retired", "request": request,
++              "target_commit": target, "confirmation": copy.deepcopy(confirmation), "live_admission": False}
++    append_event(root, directory, "trial-retired", result)
++    return result
++
++
++def run_trial(root, identity, operation, confirmed, confirmation=None):
++    contract.require(confirmed and operation in ("resume", "merge-trial", "close-trial", "verify-trial", "retire-trial"),
+                      "exact confirmed trial operation required")
+     root, directory, header = load_attempt(root, identity)
+-    if operation in ("merge-trial", "close-trial"):
++    if operation in ("merge-trial", "close-trial", "retire-trial"):
+@@
+     with attempt_lock(root, directory):
+         events = journal(root, directory)
++        retired = [event for event in events if event["state"] == "trial-retired"]
++        if retired:
++            contract.require(operation == "retire-trial", "retired trial cannot resume or verify application")
++            contract.require(retired[-1]["data"]["confirmation"] == confirmation, "retirement retry changed confirmation")
++            return retired[-1]["data"]
+         contract.require(not any(event["state"] == "withdrawn" for event in events), "withdrawn trial cannot resume")
+@@
+             known = [event["data"]["number"] for event in events if event["state"] == "trial-request-observed"]
+             contract.require(not known or all(number == request["number"] for number in known), "trial request identity changed")
++            if operation in ("merge-trial", "close-trial", "retire-trial"):
++                contract.require(confirmation.get("request_number") == request["number"]
++                                 and confirmation.get("commit") == commit, "confirmation differs from exact request/commit")
++            if operation == "retire-trial":
++                return retire_trial(root, directory, header, client, commit, request, confirmation)
+             if request["state"] == "merged":
+                 return verify_trial_application(root, directory, header, client, commit, request)
+             if request["state"] == "closed":
++                contract.require(operation != "verify-trial", "trial request has not merged")
+                 append_event(root, directory, "trial-request-closed", request)
+                 return {"attempt_id": identity, "state": "closed-unmerged", "request": request, "live_admission": False}
+         fresh(root, header)
++        contract.require(operation != "retire-trial", "exact closed trial request is required for retirement")
+@@
+-    for name in ("create", "resume", "inspect", "close-mock", "withdraw", "merge-trial", "close-trial", "verify-trial"):
++    for name in ("create", "resume", "inspect", "close-mock", "withdraw", "merge-trial", "close-trial", "verify-trial", "retire-trial"):
+@@
+-        if name in ("create", "close-mock", "withdraw", "merge-trial", "close-trial"):
++        if name in ("create", "close-mock", "withdraw", "merge-trial", "close-trial", "retire-trial"):
+@@
+-        if args.command in ("merge-trial", "close-trial", "verify-trial"):
++        if args.command in ("merge-trial", "close-trial", "verify-trial", "retire-trial"):
+*** End Patch

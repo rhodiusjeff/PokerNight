@@ -1,0 +1,15 @@
+{
+  "schema": "cp-operational-specification-v1",
+  "revision": 0,
+  "previous_revision": null,
+  "content": {
+    "canon": {},
+    "phases": {},
+    "dag": {
+      "order": [],
+      "edges": []
+    }
+  },
+  "content_digest": "9e68cfd3b722be80786e30560b14aa4ae4f0da2fc575025c4dad33309416e5f7",
+  "admissions": []
+}

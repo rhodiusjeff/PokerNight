@@ -1,6 +1,6 @@
 ---
 description: "Validate readiness, including execution-model alignment, and then proceed into governed implementation for a named prompt or phase using the active control-plane docs."
-argument-hint: "Prompt or phase ID, optionally followed by --analysis-only or --help"
+argument-hint: "Prompt or phase ID, optionally --target-ref <full-ref>, --analysis-only or --help"
 ---
 Execute the canonical control-plane prompt `.github/prompts/start-prompt-execution.prompt.md` with arguments `$ARGUMENTS`. This command is a harness adapter (see `control-plane/framework/governance/harness/harness-adapters.md`) and carries no policy of its own.
 

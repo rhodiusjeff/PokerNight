@@ -52,7 +52,7 @@ Do not open a timing session. Rendering is a transient read/projection operation
 ```text
 /render-view horizons
 /render-view horizons --stdout
-/render-view tracker control-plane/horizons/H000-initial-inception/TRACKER.json
-/render-view archive control-plane/horizons/H000-initial-inception/TRACKER_ARCHIVE.json --force
+/render-view tracker <resolved-legacy-packet>/TRACKER.json
+/render-view archive <resolved-legacy-packet>/TRACKER_ARCHIVE.json --force
 /render-view state control-plane/state/CONTROL_PLANE_STATE.json --stdout
 ```

@@ -66,13 +66,23 @@ When a prompt deviates from user stories, follow this protocol:
 
 ## 8. Tracker Policy and Authority
 
-<!-- LOCAL MOD (horizon-state v3, 2026-07-21) - HARVEST TO CPB: singleton-tracker doctrine replaced by horizon trackers. -->
-Each admitted horizon owns its authoritative tracker at `control-plane/horizons/<HNNN-slug>/TRACKER.json`. The same JSON carries phase state and the embedded dependency DAG. Named phases resolve to their packet through `framework/scripts/resolve-horizon.py`. Significant control-plane runtime/governance work is governed separately by the singleton repository-root `cp-ops-work/` campaign and never rides a product horizon tracker. Each horizon tracker is:
+LOCAL MOD - HARVEST TO CPB (2026-09-29): new-format tracking belongs to the repository,
+not to the horizon that proposed a change. One `control-plane/operational/SPECIFICATION.json`
+contains admitted Canon, governing phase specifications and the DAG. Execution progress and
+retained started contracts are separate in `control-plane/state/execution.json`. Admission
+advances the specification revision; execution progress does not. Horizon/ad-hoc/discovery
+captures supply provenance, never a parallel execution authority.
 
-- **Source of truth** for prompt status (not started / in-progress / reviewing / merged)
-- **Updated at every prompt completion** by the governing closeout/completion workflow before the completion PR is merged
-- **Immutable after merge** — historical records are preserved; new status entries are appended
-- **Derived from historical CODEX tracker sources** during Wave 2+ governance translation
+Resolve a named phase through `framework/scripts/resolve-horizon.py`. For `source: operational`,
+use the returned specification/execution/status and exact contract fields; null horizon,
+tracker and ledger fields are intentional. Do not create a horizon tracker or attach the
+phase to a planning horizon. Closeout/completion integration for these results remains
+pending; report the missing owner rather than mutating a legacy tracker.
+
+Explicit legacy results retain their packet-local `TRACKER.json` / `TRACKER_ARCHIVE.json`
+and existing review evidence. That is compatibility, not the ownership model for new work.
+Significant framework runtime/governance work remains under its selected upgrade packet or
+the separate `cp-ops-work/` campaign, never a product horizon by inference.
 
 ### Tracker Update Responsibilities
 
@@ -82,7 +92,7 @@ Each admitted horizon owns its authoritative tracker at `control-plane/horizons/
 
 ### Accessing the Current Tracker
 
-1. **For quick reference**: Resolve the phase and read its owning horizon's `TRACKER.json`
+1. **For quick reference**: Resolve the phase; use repository specification/progress for operational results and packet trackers only for explicitly legacy results.
 2. **For historical evidence**: Check the log link in the tracker row (points to immutable archive evidence under `control-plane/archive/codex/log/`)
 3. **For archive queries**: Completed nodes roll content-identical to the lane's `TRACKER_ARCHIVE.json` under the C8 active-window rule (queued + in-flight + last 2-3 completed); there is no time-based archival. (Dead pre-C8 90-day rule removed 2026-07-19.)
 
@@ -95,7 +105,7 @@ Each admitted horizon owns its authoritative tracker at `control-plane/horizons/
 - `control-plane/` is the only active governance root
 - All new prompt development uses control-plane structure
 - Legacy execution logs and reviews remain immutable as archived evidence under `control-plane/archive/codex/`
-- See `control-plane/horizons/H000-initial-inception/discovery/AUTHORITY_AND_CUTOVER_POLICY.md` for full cutover timeline and rationale
+- Project-specific cutover records, when present, are historical evidence; no hardcoded example horizon is portable authority.
 
 ---
 *Acronyms and identifiers: see [GLOSSARY](../docs/GLOSSARY.md).*

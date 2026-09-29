@@ -64,7 +64,7 @@ Gate A minimum checks:
 	- `control-plane/canon/INCEPTION_USER_STORIES_CANONICAL.json`
 	- `control-plane/canon/USER_STORY_REGISTRY_CANONICAL.json`
 	- `control-plane/canon/USER_STORY_CATALOG_CANONICAL.json`
-	- `control-plane/horizons/H000-initial-inception/PRE_PROMPT_IMPLEMENTATION_BASELINE_CATALOG.md` (when classification changes)
+	- The explicitly selected legacy implementation-state classification catalog, when classification changes; never infer an example horizon path.
 - Direct edits to `docs/product/user-stories.md` fail Gate A unless the closeout artifact and review-unit ledger both record an explicit waiver reason.
 
 Gate B minimum checks:

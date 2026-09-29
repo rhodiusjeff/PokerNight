@@ -5,6 +5,19 @@ user-invocable: false
 ---
 # Canon Consolidation
 
+## New File-Backed Context
+
+For a resolved `cp-planning-capture-v1` ADHOC or HNNN document, use
+[planning workflow](../planning-workflow/SKILL.md), especially its Canon draft/complete procedure.
+This branch overrides the horizon-only owner, resolver, output and complete-laydown assumptions
+below, not legacy authority. Codegen, Planning or Facilitator uses its explicit narrow grant.
+Preserve the semantic reconciliation, inventory, provenance and rework checks below in draft text.
+Write only through `planning-work.py draft --section canon` or an explicitly complete proposal;
+never direct operational Canon. Source scrub remains separate. Rich definitions/clauses stay in
+text/provenance; label unrepresented schema expansion, never invent additional kernel kinds.
+No tracker, phase files, formal review or approval is required for partial candidates.
+If no new-format document exists in an actual legacy packet, follow the unchanged procedure below.
+
 ## Contract
 
 Read `control-plane/framework/governance/policies/tracker-and-state.policy.md`, section
