@@ -65,7 +65,12 @@ class WorkflowTests(unittest.TestCase):
         reserved = {'findings': {}, 'reviews': [], 'decision': {'drafts': []}, 'admission': {}}
         capture.mutate_capture(self.root, self.identity, self.digest(),
             lambda document: {**document, 'workflow': copy.deepcopy(reserved)}, True)
-        work.draft(self.root, self.identity, 'canon', self.request, self.digest(), True)
+        original = self.path.read_bytes()
+        result = work.draft(self.root, self.identity, 'canon', self.request, self.digest(), True)
+        snapshot = self.path.parent / 'assets/history' / (hashlib.sha256(original).hexdigest() + '.md')
+        self.assertEqual(pathlib.Path(result['previous_snapshot']), snapshot)
+        self.assertEqual(snapshot.read_bytes(), original)
+        self.assertFalse((self.path.parent / 'assets' / self.identity).exists())
         document = capture.read_capture(self.path)
         self.assertNotIn('proposal', document)
         self.assertEqual(document['workflow']['planning']['drafts'][0]['text'], self.request['text'])

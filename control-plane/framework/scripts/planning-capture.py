@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Create or inspect local planning captures; never admit, schedule, or publish work."""
+"""Create or inspect local planning captures; never admit, schedule, or publish work.
+
+LOCAL MOD - HARVEST TO CPB: operator-directed per-session ad hoc storage.
+"""
 
 import argparse
 import base64
@@ -63,9 +66,17 @@ def capture_root(root):
 def capture_path(root, identity):
     contract.require(bool(IDENTITY.fullmatch(identity)), "invalid capture identity")
     home = capture_root(root)
-    target = home / f"{identity}.md"
-    contract.require(not target.is_symlink(), "capture entry must not be a symlink")
-    return target
+    contract.require(not (home / f"{identity}.md").exists(),
+                     "legacy flat capture exists; relocate the session before use")
+    return safe_path(root, home / identity / f"{identity}.md")
+
+
+def assets_path(root, context_id):
+    destination = resolve_document(root, context_id)
+    assets = destination.parent / "assets"
+    if not IDENTITY.fullmatch(context_id):
+        assets = assets / context_id
+    return safe_path(root, assets)
 
 
 def canonical_source(filename, index):
@@ -233,6 +244,7 @@ def create_capture(args):
                          "capture identity already names different inputs")
         return {"path": str(destination), "id": args.id, "created": False, "admitted": False}
     ensure_directory(args.root, destination.parent)
+    ensure_directory(args.root, assets_path(args.root, args.id))
     try:
         publish_new_bytes(destination, render(document).encode("utf-8"))
     except FileExistsError as error:
@@ -341,7 +353,7 @@ def publish_capture(root, destination, original, document):
     if published_bytes == original:
         return result
     original_digest = hashlib.sha256(original).hexdigest()
-    history = safe_path(root, destination.parent / "assets" / document["id"] / "history")
+    history = safe_path(root, assets_path(root, document["id"]) / "history")
     ensure_directory(root, history)
     snapshot = safe_path(root, history / f"{original_digest}.md")
     try:
@@ -499,7 +511,8 @@ def main():
             result = read_capture(resolve_document(args.root, args.id))
         else:
             result = []
-            for filename in sorted(capture_root(args.root).glob("ADHOC-*.md")):
+            for filename in sorted(capture_root(args.root).glob("ADHOC-*/*.md")):
+                contract.require(filename.parent.name == filename.stem, "capture identity/path mismatch")
                 document = read_capture(capture_path(args.root, filename.stem))
                 contract.require(document["id"] == filename.stem, "capture identity/path mismatch")
                 result.append({name: document[name] for name in ("id", "kind", "title", "author", "created_at")})

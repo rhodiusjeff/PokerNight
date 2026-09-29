@@ -434,6 +434,9 @@ class TransferTests(unittest.TestCase):
         self.source = identity
         self.source_path = capture.resolve_document(self.repo, identity)
         self.original = self.source_path.read_bytes()
+        asset = self.source_path.parent / "assets/requests/source.bin"
+        asset.parent.mkdir(parents=True)
+        asset.write_bytes(b"Ad hoc transfer asset\x00")
         self.commit()
         context.git(self.repo, "push", "fixture", "planning/source")
         self.source_tip = transfer.reference(self.remote, "planning/source")
@@ -447,12 +450,18 @@ class TransferTests(unittest.TestCase):
             "planning/source", "planning/destination", "main", self.source_tip, self.destination_tip, self.target)
         transfer.import_source(self.repo, imported, True, True)
         self.assertEqual(self.source_path.read_bytes(), self.original)
+        self.assertEqual(asset.read_bytes(), b"Ad hoc transfer asset\x00")
         offered = context.transfer_offer(self.repo, identity, self.destination, "escalate")
         context.transfer(self.repo, offered, True, True)
         publication = transfer.offer_publication(self.repo, offered, "adhoc-transfer", str(self.remote), self.source_tip,
             self.destination_tip, "main", self.target, "Transfer fixture", "transfer@example.invalid", source_branch="planning/source")
         transfer.publish(self.repo, publication, True, True)
         self.assertEqual(capture.read_capture(self.source_path)["author"], "Actual original author")
+        published_tip = transfer.reference(self.remote, "planning/source")
+        history_prefix = (self.source_path.parent / "assets/history").relative_to(self.repo).as_posix()
+        self.assertTrue(transfer.tree_files(self.remote, published_tip, history_prefix))
+        context.git(self.repo, "fetch", "fixture")
+        self.assertIn(identity, [item["id"] for item in context.discover(self.repo)["contexts"]])
         for remote_url in ("../remote.git", str(self.remote), self.remote.as_uri()):
             with self.subTest(remote_url=remote_url):
                 context.git(stale, "remote", "set-url", "fixture", remote_url)

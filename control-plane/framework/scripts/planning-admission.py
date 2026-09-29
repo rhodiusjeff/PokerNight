@@ -106,7 +106,7 @@ def prepare(root, context_id, decision_id, base_path, execution_path, expected_d
         if authorization.get("status") == "authorized-for-merge":
             identity = authorization.get("bundle_id")
             contract.validate_shape(identity, contract.HASH, "authorized bundle identity")
-            directory = filename.parent / "assets" / context_id / "admission" / identity
+            directory = capture.assets_path(root, context_id) / "admission" / identity
             checked = validate_bundle(root, directory, base_path, execution_path)
             contract.require(checked["manifest"]["decision_id"] == decision_id, "authorized decision differs; withdraw before changing it")
             if checked["already_applied_revision"] is not None:
@@ -122,7 +122,7 @@ def prepare(root, context_id, decision_id, base_path, execution_path, expected_d
         admission = document.get("workflow", {}).get("admission", {})
         contract.require(admission.get("status") != "authorized-for-merge" or admission.get("bundle_id") == identity,
                          "withdraw the competing authorization before preparing another bundle")
-        directory = filename.parent / "assets" / context_id / "admission" / identity
+        directory = capture.assets_path(root, context_id) / "admission" / identity
         created = publish_bundle(root, directory, payload)
         return {"status": "prepared-local", "bundle_id": identity, "bundle": str(directory), "created": created,
                 "revision": validation["result"]["revision"], "warnings": evidence.warnings(document), "live_admission": False}

@@ -36,7 +36,10 @@ the [planning workflow](../../../.github/skills/planning-workflow/SKILL.md),
 ### Drafts And Complete Proposals
 
 One maintained capture document retains original sources and proposal separately. ADHOC remains
-under `control-plane/ad-hoc/`; a new horizon resolves its own `planning/HNNN.md`. No substitute
+under `control-plane/ad-hoc/ADHOC-<id>/ADHOC-<id>.md`, with requests, history and admission
+bundles beneath the same session's `assets/` directory. There is no shared ad hoc assets
+tree or repeated ID directory beneath those assets. Discovery captures use this same layout.
+A new horizon resolves its own `planning/HNNN.md` with unchanged horizon asset placement. No substitute
 ADHOC identity or fake horizon tracker is created. A single repository deferred register preserves
 origin, guardrail, reopen conditions, revisions and associations. The walkthrough explains intent,
 origin, relevance, scope, testing implications, questions and recommendation; declined records

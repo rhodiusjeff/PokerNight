@@ -19,8 +19,11 @@ Codegen, Planning and Design, and Lifecycle Facilitator share narrow writer gran
 `.github/skills/planning-workflow/SKILL.md` and `.github/skills/guided-admission/SKILL.md`.
 No persona switch is required. They may execute unmodified planning-capture/context/deferred/work/
 evidence/admission/publication helpers for explicitly selected operations and author exact source,
-request, offer, report and real-confirmation files under the selected capture's `assets/ID/requests/`.
-Before capture creation that supporting path may be established under `control-plane/ad-hoc/assets/ID/`;
+request, offer, report and real-confirmation files under `control-plane/ad-hoc/ID/assets/requests/`
+for ADHOC/discovery, or the horizon capture's sibling `assets/ID/requests/` for HNNN.
+Each ADHOC/discovery capture is `control-plane/ad-hoc/ID/ID.md`; all its supporting assets
+live in that session's `assets/`, without another ID directory. Before capture creation
+that supporting path may be established under `control-plane/ad-hoc/ID/assets/requests/`;
 for an uncaptured horizon, explicitly selected working inputs may live in `control-plane/workbench/`.
 No arbitrary callbacks/scripts from request files. Helpers own the maintained capture/register,
 immutable preimages, local bindings/recovery and attempt outputs; do not hand-edit them.

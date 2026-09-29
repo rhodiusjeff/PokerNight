@@ -364,12 +364,20 @@ class ContextTests(unittest.TestCase):
         identity = "ADHOC-" + "a" * 32
         capture.create_capture(argparse.Namespace(root=self.repository, id=identity, kind="ad-hoc", title="Ad hoc", author="Fixture",
                                                  sources=[self.source], origin_phase=None, origin_specification=None, confirmed=True))
+        session = capture.resolve_document(self.repository, identity).parent
+        asset = session / "assets/requests/source.bin"
+        asset.parent.mkdir(parents=True)
+        asset.write_bytes(b"Retained ad hoc asset\x00")
+        self.assertIn(identity, [item["id"] for item in context.list_contexts(self.repository)["contexts"]])
         destination = self.create()["id"]
         offer = context.transfer_offer(self.repository, identity, destination, "escalate")
+        self.assertIn(asset.relative_to(self.repository.resolve()).as_posix(), [entry["path"] for entry in offer["inventory"]])
         context.transfer(self.repository, offer, True, True)
         self.assertEqual(self.read(identity)["id"], identity)
         self.assertEqual(self.read(identity)["context"]["state"], "escalated")
         self.assertEqual(self.read(destination)["sources"][-1]["id"], identity + ":source-1")
+        self.assertTrue(list((session / "assets/history").glob("*.md")))
+        self.assertFalse((session / "assets" / identity).exists())
 
     def test_transfer_asset_escape_refused(self):
         source, destination = self.pair()

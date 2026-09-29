@@ -67,7 +67,8 @@ def inspect_context(root, identity):
 
 def list_contexts(root):
     root = pathlib.Path(root).resolve()
-    documents = list(capture.capture_root(root).glob("ADHOC-*.md"))
+    documents = list(capture.capture_root(root).glob("ADHOC-*/*.md"))
+    contract.require(all(filename.parent.name == filename.stem for filename in documents), "capture identity/path mismatch")
     horizons = capture.safe_path(root, root / "control-plane/horizons")
     documents.extend(horizons.glob("H*/planning/H*.md"))
     contexts = [inspect_context(root, filename.stem) for filename in sorted(documents)]
@@ -96,7 +97,7 @@ def discover(root):
             if not capture.CONTEXT_ID.fullmatch(identity):
                 continue
             if not (re.fullmatch(r"control-plane/horizons/H[0-8][0-9]{2}(?:-[a-z0-9-]+)?/planning/H[0-8][0-9]{2}\.md", relative)
-                    or re.fullmatch(r"control-plane/ad-hoc/ADHOC-[0-9a-f]{32}\.md", relative)):
+                    or relative == f"control-plane/ad-hoc/{identity}/{identity}.md"):
                 continue
             contract.require(metadata.split()[0] in (b"100644", b"100755"), "published context must be a regular file")
             content = git(root, "cat-file", "blob", metadata.split()[2].decode()).stdout
@@ -415,7 +416,7 @@ def recover_reservation(root, operation_id, identity, expected_digest, confirmed
 
 def transfer_inventory(root, identity):
     document = capture.resolve_document(root, identity)
-    home = document.parent.parent if identity.startswith("H") else document.parent / "assets" / identity
+    home = document.parent.parent if identity.startswith("H") else capture.assets_path(root, identity)
     files = {document.relative_to(pathlib.Path(root).resolve()).as_posix(): document.read_bytes()}
     if home.exists():
         for filename in sorted(home.rglob("*")):
@@ -431,7 +432,7 @@ def verify_transfer_source(root, source_path, offer, expected_document):
     entries = {entry["path"]: entry for entry in offer["inventory"]}
     current = transfer_inventory(root, offer["source"])
     source_relative = source_path.relative_to(pathlib.Path(root).resolve()).as_posix()
-    history_prefix = (source_path.parent / "assets" / offer["source"] / "history").relative_to(pathlib.Path(root).resolve()).as_posix() + "/"
+    history_prefix = (capture.assets_path(root, offer["source"]) / "history").relative_to(pathlib.Path(root).resolve()).as_posix() + "/"
     for entry in current:
         if entry["path"] == source_relative:
             contract.require(base64.b64decode(entry["bytes_base64"]) == capture.render(expected_document).encode(),
@@ -490,7 +491,7 @@ def transfer(root, offer, confirmed, coordinated):
         contract.require(branch(root) == offer["branch"], "transfer recovery requires the recorded branch")
         source_path = capture.resolve_document(root, offer["source"])
         destination_path = capture.resolve_document(root, offer["destination"])
-        receipt_home = capture.safe_path(root, destination_path.parent / "assets" / offer["destination"] / "transfers" / operation_id)
+        receipt_home = capture.safe_path(root, capture.assets_path(root, offer["destination"]) / "transfers" / operation_id)
         capture.ensure_directory(root, receipt_home)
         for entry in offer["inventory"]:
             content = base64.b64decode(entry["bytes_base64"], validate=True)

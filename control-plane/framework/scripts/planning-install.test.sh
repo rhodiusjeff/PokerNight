@@ -6,6 +6,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 
@@ -126,6 +127,20 @@ with tempfile.TemporaryDirectory(prefix="cp-planning-install-") as temporary:
     assert state["active_upgrade_packet"] is None and state["notes"] == []
     assert (actual / "control-plane/framework/scripts/timing-log.sh").exists()
     passed(f"actual repository lift preserves source; {len(real['files'])} verified files")
+    session_root = base / "installed-helper-session"
+    session_root.mkdir()
+    source_file = base / "planning-source.txt"
+    source_file.write_bytes(b"Installed helper layout fixture\n")
+    identity = "ADHOC-" + "a" * 32
+    installed_capture = actual / "control-plane/framework/scripts/planning-capture.py"
+    created = subprocess.run([sys.executable, str(installed_capture), "capture", "--root", str(session_root),
+        "--id", identity, "--title", "Installed fixture", "--author", "Fixture", "--source", str(source_file),
+        "--confirmed"], check=True, capture_output=True, text=True)
+    session = session_root / "control-plane/ad-hoc" / identity
+    assert Path(json.loads(created.stdout)["path"]) == session / (identity + ".md")
+    assert (session / "assets").is_dir()
+    assert not (session.parent / "assets").exists()
+    passed("installed capture writer creates the per-session document and assets layout")
     (actual / "extra-empty-directory").mkdir()
     refuses(lambda: module.verify(actual))
     passed("unexpected directories refuse verification")

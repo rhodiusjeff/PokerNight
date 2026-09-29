@@ -88,6 +88,8 @@ class CaptureTests(unittest.TestCase):
         first = self.capture("--confirmed")
         self.assertEqual(first.returncode, 0, first.stderr)
         document = pathlib.Path(json.loads(first.stdout)["path"])
+        self.assertEqual(document, self.repository.resolve() / "control-plane/ad-hoc" / self.identity / (self.identity + ".md"))
+        self.assertTrue((document.parent / "assets").is_dir())
         before = document.read_bytes()
         repeated = self.capture("--confirmed")
         self.assertEqual(repeated.returncode, 0, repeated.stderr)
@@ -98,6 +100,9 @@ class CaptureTests(unittest.TestCase):
         source = json.loads(inspected.stdout)["sources"][0]
         self.assertEqual(base64.b64decode(source["bytes_base64"]), self.source.read_bytes())
         self.assertEqual(len(list(document.parent.glob("*.md"))), 1)
+        listed = self.run_command("list", "--root", str(self.repository))
+        self.assertEqual(listed.returncode, 0, listed.stderr)
+        self.assertEqual([item["id"] for item in json.loads(listed.stdout)], [self.identity])
 
     def test_changed_source_cannot_reuse_identity(self):
         self.assertEqual(self.capture("--confirmed").returncode, 0)
@@ -105,6 +110,28 @@ class CaptureTests(unittest.TestCase):
         result = self.capture("--confirmed")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("different inputs", result.stderr)
+
+    def test_flat_capture_refuses_duplicate_authority(self):
+        created = self.capture("--confirmed")
+        self.assertEqual(created.returncode, 0, created.stderr)
+        document = pathlib.Path(json.loads(created.stdout)["path"])
+        original = document.read_bytes()
+        flat = document.parent.parent / document.name
+        document.rename(flat)
+        refused = self.capture("--confirmed")
+        self.assertNotEqual(refused.returncode, 0)
+        self.assertIn("legacy flat capture", refused.stderr)
+        self.assertEqual(flat.read_bytes(), original)
+        self.assertFalse(document.exists())
+
+    def test_session_directory_symlink_is_refused(self):
+        home = self.repository / "control-plane/ad-hoc"
+        home.mkdir(parents=True)
+        (home / self.identity).symlink_to(self.folder)
+        refused = self.capture("--confirmed")
+        self.assertNotEqual(refused.returncode, 0)
+        self.assertIn("symlink", refused.stderr)
+        self.assertFalse((self.folder / (self.identity + ".md")).exists())
 
     def test_creation_retry_preserves_workflow_context_and_terminal_state(self):
         document, proposal = self.proposal_inputs()
@@ -210,6 +237,7 @@ class CaptureTests(unittest.TestCase):
         result = self.propose(expected)
         self.assertEqual(result.returncode, 0, result.stderr)
         output = json.loads(result.stdout)
+        self.assertEqual(pathlib.Path(output["previous_snapshot"]), document.parent / "assets/history" / (expected + ".md"))
         self.assertEqual(pathlib.Path(output["previous_snapshot"]).read_bytes(), original)
         retry = self.propose(expected)
         self.assertEqual(retry.returncode, 0, retry.stderr)
@@ -274,7 +302,7 @@ class CaptureTests(unittest.TestCase):
         with mock.patch.object(capture_module, "sync_directory", lambda directory: synchronized.append(directory.resolve())):
             capture_module.update_proposal(arguments)
         home = document.parent.resolve()
-        for parent in (home, home / "assets", home / "assets" / self.identity):
+        for parent in (home, home / "assets"):
             self.assertIn(parent, synchronized)
 
     def test_interrupted_snapshot_is_synced_before_retry_replacement(self):
@@ -305,7 +333,7 @@ class CaptureTests(unittest.TestCase):
 
         with mock.patch.object(capture_module, "sync_directory", sync), mock.patch.object(capture_module.os, "replace", replace):
             self.assertTrue(capture_module.update_proposal(arguments)["updated"])
-        history = document.parent / "assets" / self.identity / "history"
+        history = document.parent / "assets/history"
         self.assertLess(events.index(("sync", history.resolve())), events.index(("replace", document.resolve())))
 
     def test_identity_minting_and_invalid_id(self):

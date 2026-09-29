@@ -61,7 +61,7 @@ Legacy execution gates remain intact; no fixture authority or mock evidence gran
 | `framework/` | Reusable policies, templates, scripts, and framework documentation |
 | `canon/` | Project-owned requirements and standards, established through governed work |
 | `horizons/` | Project-owned planning packets, then admitted trackers and phase artifacts |
-| `ad-hoc/` | New-format ad hoc/discovery captures and retained supporting evidence |
+| `ad-hoc/` | One `ADHOC-<id>/` session folder containing `ADHOC-<id>.md` and its `assets/` |
 | `deferred/` | One repository-level deferred register with explicit selected inclusions |
 | `operational/` | New versioned specification and retained admission bundles, not execution progress |
 | `state/` | Instance mode, installation receipt, and runtime evidence |

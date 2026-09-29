@@ -94,7 +94,7 @@ def tree_files(repository, commit, prefix):
 
 def branch_document(remote, commit, identity):
     contract.require(bool(capture.CONTEXT_ID.fullmatch(identity)), "invalid context ID")
-    prefix = "control-plane/horizons" if identity.startswith("H") else "control-plane/ad-hoc/" + identity + ".md"
+    prefix = "control-plane/horizons" if identity.startswith("H") else f"control-plane/ad-hoc/{identity}/{identity}.md"
     paths = git(remote, "ls-tree", "-rz", "--name-only", commit, "--", prefix).split(b"\0")
     matches = [value.decode() for value in paths if value and
                (value.decode().endswith("/planning/" + identity + ".md") if identity.startswith("H") else value.decode() == prefix)]
@@ -106,7 +106,7 @@ def branch_document(remote, commit, identity):
 
 def source_inventory(remote, commit, identity):
     relative, raw, document = branch_document(remote, commit, identity)
-    home = str(pathlib.PurePosixPath(relative).parent.parent) if identity.startswith("H") else "control-plane/ad-hoc/assets/" + identity
+    home = str(pathlib.PurePosixPath(relative).parent.parent) if identity.startswith("H") else str(pathlib.PurePosixPath(relative).parent / "assets")
     files = tree_files(remote, commit, home)
     files[relative] = raw
     return relative, document, [{"path": name, "sha256": context.digest_bytes(content),
@@ -261,7 +261,10 @@ def publication_files(offered, remote):
     destination["context"]["transfers"][-1].update({"publication": "local-git-verified", "publication_evidence": publication})
     source_bytes, destination_bytes = capture.render(source).encode(), capture.render(destination).encode()
     def history(relative, identity, raw):
-        return str(pathlib.PurePosixPath(relative).parent / "assets" / identity / "history" / (context.digest_bytes(raw) + ".md"))
+        assets = pathlib.PurePosixPath(relative).parent / "assets"
+        if identity.startswith("H"):
+            assets = assets / identity
+        return str(assets / "history" / (context.digest_bytes(raw) + ".md"))
     shared = {publication["offer"]: encoded(offered)}
     source_files = {**shared, source_path: source_bytes, history(source_path, source["id"], original_source): original_source}
     destination_files = {**shared, destination_path: destination_bytes,
@@ -286,7 +289,7 @@ def check_local(root, request, before, after):
     source_path = capture.resolve_document(root, request["source"])
     context.verify_transfer_source(root, source_path, request["transfer"], capture.read_capture(source_path))
     destination = capture.resolve_document(root, request["destination"])
-    prefix = destination.parent / "assets" / request["destination"] / "transfers" / request["transfer"]["operation_id"]
+    prefix = capture.assets_path(root, request["destination"]) / "transfers" / request["transfer"]["operation_id"]
     contract.require(contract.load_json(capture.safe_path(root, prefix / "manifest.json")) == request["transfer"], "local transfer manifest changed")
     for entry in request["transfer"]["inventory"]:
         contract.require(capture.safe_path(root, prefix / entry["sha256"]).read_bytes() == base64.b64decode(entry["bytes_base64"]),
@@ -526,7 +529,7 @@ def guard(root, document):
                 name = raw_path.decode()
                 identity = pathlib.PurePosixPath(name).stem
                 if not capture.CONTEXT_ID.fullmatch(identity) or not (name.endswith("/planning/" + identity + ".md")
-                        or name == "control-plane/ad-hoc/" + identity + ".md"):
+                        or name == f"control-plane/ad-hoc/{identity}/{identity}.md"):
                     continue
                 candidate_document = capture.decode_capture(tree_files(remote, commit, name)[name], identity)
                 candidate_context = candidate_document.get("context", {})

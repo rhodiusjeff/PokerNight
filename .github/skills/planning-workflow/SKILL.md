@@ -16,7 +16,10 @@ Read the exact selected capture, sources, applicable base and execution inputs, 
 Activate `.cp-venv`; all helpers below live in `control-plane/framework/scripts/`.
 
 Use `planning-capture.py inspect --root ROOT --id ID` and `resolve_document(root, ID)` for
-ADHOC and new HNNN documents. New horizons have `kind: horizon`, `origin: null`, and
+ADHOC and new HNNN documents. Each ADHOC/discovery session owns
+`control-plane/ad-hoc/ID/ID.md` and its sibling `assets/` directory; do not create a flat
+capture, shared sibling assets tree, or another ID directory inside those assets.
+New horizons have `kind: horizon`, `origin: null`, and
 `planning/HNNN.md` in their packet. Do not synthesize an ADHOC identity or require a tracker.
 For an omitted context, inspect `planning-context.py --root ROOT list` and `discover`, show
 the branch-scoped binding and alternatives, and confirm a singular selection. Ambiguity stops
@@ -27,7 +30,9 @@ Historical H000 remains unchanged; no implicit migration or renumbering.
 Before each write state its purpose, exact context/path, selected IDs, and excluded scope.
 Obtain an explicit request or confirmation of that exact operation. Retain the fully substituted
 command, input digests, and verbatim real confirmation in an explicitly named supporting record
-under the capture's `assets/ID/requests/`. Input/request/report files there are not another
+under `control-plane/ad-hoc/ID/assets/requests/` for ADHOC/discovery or the horizon
+capture's sibling `assets/ID/requests/` for HNNN. These supporting directories may be
+established before capture creation. Input/request/report files there are not another
 maintained plan. Do not include credentials. `--confirmed` records an observed confirmation;
 helpers cannot authenticate people. Re-read the current document digest before preparing a new
 offer; on drift stop and explain the difference, never silently refresh a confirmed operation.

@@ -65,6 +65,7 @@ class Fixture(unittest.TestCase):
         self.execution_path.write_bytes(evidence.encoded({'phases': {}, 'contracts': {}}))
 
     def save(self):
+        self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text(capture.render(self.document))
 
     def finalize(self, identity='decision-1', supersedes=None):
@@ -103,6 +104,7 @@ class AdmissionTests(Fixture):
     def test_snapshot_exact_bytes_and_idempotent_retry(self):
         raw = self.path.read_bytes()
         first, second = self.prepare(), self.prepare()
+        self.assertEqual(pathlib.Path(first['bundle']), self.path.parent / 'assets/admission' / first['bundle_id'])
         self.assertEqual(first['bundle_id'], second['bundle_id'])
         self.assertFalse(second['created'])
         self.assertEqual((pathlib.Path(first['bundle']) / 'capture.md').read_bytes(), raw)

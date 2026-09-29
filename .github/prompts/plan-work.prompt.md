@@ -17,7 +17,9 @@ Select one mode per operation; resolve ambiguity with the Operator. A capture co
 proposal permission; `--complete` is not review/approval/admission permission.
 
 - `--capture ad-hoc|discovery`: collect exact originals, title and author; use capture new-id
-  then capture, with verified origin phase/specification for discovery.
+  then capture, with verified origin phase/specification for discovery. Use
+  `control-plane/ad-hoc/ID/ID.md` and session-local `assets/requests/`; no flat capture
+  or shared ad hoc assets tree.
 - `--append`: retain selected additional sources using the current document digest.
 - `--defer`: capture/revise only the explicitly named register item, preserving origin/guardrail.
 - `--include`: descriptive selection walkthrough, exact selected IDs and association disclosure,
