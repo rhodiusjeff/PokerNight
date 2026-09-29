@@ -1,0 +1,4 @@
+{
+  "schema": "cp-operational-context-v1",
+  "target_ref": "refs/heads/main"
+}

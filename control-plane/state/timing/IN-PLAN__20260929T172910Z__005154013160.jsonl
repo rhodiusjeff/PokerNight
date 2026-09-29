@@ -1,0 +1,4 @@
+{"timestamp":"2026-09-29T17:29:10Z","session_id":"20260929T172910Z__005154013160","phase_id":"IN-PLAN","action":"phase-session-opened","source":"runtime","persona":"Project: Planning and Design","metadata":{"copilot_session_id":"e25ba0ba-10ac-4e53-8f82-f20d9cdcee6e","copilot_session_id_source":"resolver","model_id":"unresolved","harness":"copilot","session_marker":"cpbm-20260929T172910Z-e0d9ea45ff74"}}
+{"timestamp":"2026-09-29T17:29:10Z","session_id":"20260929T172910Z__005154013160","phase_id":"IN-PLAN","action":"/plan-work-invoked","source":"runtime","metadata":{"invocation_source":"operator-confirmation"}}
+{"timestamp":"2026-09-29T17:31:17Z","session_id":"20260929T172910Z__005154013160","phase_id":"IN-PLAN","action":"/plan-work-complete","source":"runtime","outcome":"success"}
+{"timestamp":"2026-09-29T17:31:17Z","session_id":"20260929T172910Z__005154013160","phase_id":"IN-PLAN","action":"phase-session-completed","source":"runtime","outcome":"success"}
