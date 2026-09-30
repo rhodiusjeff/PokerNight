@@ -41,7 +41,7 @@ If approval is absent, present the design digest and required approval shape, th
 5. Add only approved helper scripts/Just targets and test fixtures. Keep product behavior unchanged.
 6. Pin runner images and tool versions; use reviewed actions and least-privilege workflow permissions.
 7. Generate a provider administrator checklist under `control-plane/workbench/ci/`.
-8. Run local syntax/schema/unit checks and the repository sanity gate.
+8. Run local syntax/schema/unit checks required by the approved CI design.
 9. Record a configuration manifest listing every created/updated path, selected profile version, stable check name, and validation result.
 
 ## Forbidden Forge Mutations
@@ -57,7 +57,7 @@ Do not change branch protection, rulesets, required checks, merge queue/train se
 
 ## Verification
 
-- Validate workflow/pipeline syntax, profile schema, helper tests, frontmatter/bindings, and control-plane sanity.
+- Validate workflow/pipeline syntax, profile schema, helper tests, and frontmatter/bindings.
 - Verify no forge-admin mutation occurred.
 - Verify every changed path is approval-listed.
 - End with the administrator checklist and `/ci-verify-forge` as the next command after repository changes and forge settings are applied.

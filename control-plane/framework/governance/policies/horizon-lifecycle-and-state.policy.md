@@ -154,5 +154,5 @@ preferred over mutation of a sealed packet.
 ## 8. Enforcement
 
 - **GATE, target:** JSON Schema validation, tag/packet reconciliation, and phase-to-horizon
-  execution checks run in sanity/CI and their owning boundary commands.
+  execution checks run in their owning boundary commands and explicitly configured CI profiles.
 - **RECORD:** unreconciled mints are always visible but do not fail local checks.

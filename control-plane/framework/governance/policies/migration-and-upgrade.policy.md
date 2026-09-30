@@ -87,7 +87,7 @@ Chosen approach:
 - Keep lifecycle transitions first-class and mode-gated.
 
 ## 9. Validation Plan
-- Verify lifecycle-state and packet alignment using the sanity runtime.
+- Verify lifecycle-state and packet alignment at the explicitly invoked transition boundary.
 - Verify operational prompts refuse operational (formerly steady-state) execution during restricted transitions.
 - Verify cutover and blocker visibility in the active packet.
 

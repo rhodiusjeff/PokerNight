@@ -2,6 +2,20 @@
 
 **Scope:** instance-born — provenance marker for lift/assimilation classification (framework-canon = unmodified CPB template · instance-localized = canon amended/localized by this instance · instance-born = originated in this instance, upstreaming candidate).
 
+## Format Scope
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): the CP-TRACE grammar and registry whitelist
+below are an explicit legacy code-trace contract. Preserve existing markers and their
+identities. They do not allocate IDs for new-format Canon or tracker work.
+
+New-format planning/review references use exact CR record IDs/revisions and the existing
+work ID/revision under [Planning Identity Policy](../policies/planning-identity.policy.md).
+Resolve them through CANON.json and the repository tracker/archive under Canon And Work
+Context Resolution in [Tracker And State Policy](../policies/tracker-and-state.policy.md).
+Do not translate CR records into CPR/CPN/USC/AT names to satisfy the legacy linter.
+Work-to-Phase allocation and new-format code-marker integration remain deferred with
+product execution; a planning reference does not assert that those linters support it.
+
 ## 1. Objective and Scope
 
 Define the trace-marker convention that ties generated code back to the governed phase and the specific driving artifacts (requirements, user stories, acceptance tests) that caused it to exist — completing the traceability chain horizon → requirement/story → phase prompt → commit → code. Steward-consulted design 2026-07-08 (see `CONTROL_PLANE_MODS_2026-07-08.md`).
@@ -72,14 +86,11 @@ Requirements and registry stories carry an `Origin` column: `system:ticket_id`, 
 
 ## 6. Enforcement (Claim Register voicing)
 
-GATE — checker: `control-plane-sanity.sh` surface lint, catalogued in `sanity-runtime.spec.md` §6a:
-- `lint-trace-grammar` — every `CP-TRACE` line in code roots parses against §2.
-- `lint-trace-ids` — every cited phase ID resolves in the tracker (including any future tracker archive — trace resolution must survive tracker windowing), and every artifact ID resolves in its authority surface.
-- `lint-origin-format` — every non-blank Origin cell parses per §5.
-
-Trace-lint scan domain is code roots only (`packages/`, `scripts/`, `infrastructure/`; excluding `node_modules/`, build output, `*.g.dart`, `migrations/archive/`). Governance prose is excluded so this spec can quote its own grammar — the prose-lint rules and code-lint rules have deliberately different domains.
-
-Firing moment for the three lint rules above: `/closeout-prompt` requires a passing operational (formerly steady-state) sanity run at evidence freeze and records the report path in the closeout report. This is what makes the checker fire on every governed phase rather than existing unexecuted.
+LOCAL MOD - HARVEST TO CPB (2026-09-30): the Operator removed the general sanity
+runtime and its automatic evidence-freeze lint gate. This specification claims no
+installed deterministic trace checker. The grammar, identity-resolution and Origin
+contracts above remain applicable to the explicitly selected legacy profile; the
+existing review duties below remain unchanged. No replacement automatic gate is added.
 
 VERIFY:
 - Semantic correctness of citations (the code actually implements the cited artifact) — checkpoint: Codegen slice review and terminal `/review-code`; persona: Codegen.

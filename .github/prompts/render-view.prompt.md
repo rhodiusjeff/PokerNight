@@ -27,7 +27,7 @@ Interpret arguments using exactly one of these forms:
 
 1. Resolve the repository root from `.cpb.yaml` and run from that root.
 2. Accept only view kinds `tracker`, `archive`, `register`, `state`, or `horizons`; accept only flags `--stdout` and `--force` after help handling.
-3. For `tracker`, `archive`, `register`, and `state`, require exactly one repository-local existing JSON source path. Refuse paths outside the repository.
+3. For `tracker`, `archive`, `register`, and `state`, require exactly one repository-local existing JSON source path. Refuse paths outside the repository. Check the source schema before calling the renderer: tracker/archive views currently use the legacy cpb-horizon schemas, register uses cpb-register-v1, and state uses the installed instance-state schema. The new cp-canon-records-v1 and cp-repository-tracker(-archive)-v1 forms are not supported; report that boundary rather than coercing or rewriting source data.
 4. For `horizons`, accept no source path; the renderer discovers visible packet state and tracker/archive inputs.
 5. Execute:
    - `python3 control-plane/framework/scripts/render-view.py <kind> <source-path> [flags]`, or

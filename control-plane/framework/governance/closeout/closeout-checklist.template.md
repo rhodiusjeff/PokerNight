@@ -11,7 +11,6 @@
 - Test summary with pass, fail, and blocked counts.
 - Findings ordered by severity, each with a terminal disposition.
 - Trace evidence: units named as implementation evidence carry active-phase `CP-TRACE` markers (CODE_TRACEABILITY_SPEC).
-- Sanity-run report path from the evidence-freeze operational (formerly steady-state) run.
 - Residual risk list with containment strategy.
 - Lessons learned with concrete carry-forward actions.
 - Tracker action statement.

@@ -9,7 +9,9 @@ INVOCATION CONTRACT: this prompt must be invoked from inside the `Project: Close
 Use the slash-command argument as the prompt or phase ID to close out.
 
 LOCAL MOD - HARVEST TO CPB (2026-09-29): before using any packet paths below, resolve
-the phase and inspect `source`. For `source: operational`, the repository specification
+the phase and inspect `source`. For `source: repository`, inspect its tracker/archive and
+retained contracts, then stop: the repository product-closeout writer is not installed.
+For `source: operational`, the repository specification
 and execution status are authoritative; null packet/tracker/ledger fields are intentional.
 Do not create a horizon tracker or change execution state. Report that repository-level
 operational closeout ownership/writes await the 0.8.2 consumer update, and stop before
@@ -39,7 +41,7 @@ Required workflow:
 - Record an evidence-backed closeout packet using the repository's closeout conventions.
 - Verify every review finding (slice reviews and terminal review) carries a terminal disposition (`fix-in-slice` with re-review evidence, `defer` with due phase, or `operator-adjudicate` with the operator's decision) before freezing evidence; a finding without a terminal disposition blocks closeout (VERIFY — checkpoint: this step, persona: Closeout).
 - Verify trace placement (VERIFY per `control-plane/framework/governance/traceability/code-traceability.spec.md`): every code unit the closeout report names as implementation evidence carries a parseable `CP-TRACE` marker citing the active phase (origin or chain append).
-- Run the operational (formerly steady-state) sanity check at evidence freeze — `control-plane/framework/scripts/control-plane-sanity.sh run --operation operational (formerly steady-state)` — and record the report path in the closeout report; a failing run blocks evidence freeze. This is the firing moment for the surface-lint GATE rules, including trace grammar/ID resolution.
+<!-- LOCAL MOD - HARVEST TO CPB (2026-09-30): Operator removed the general sanity runtime and its evidence-freeze gate. Existing review and scoped test obligations remain. -->
 - Summarize findings with their dispositions, test results, residual risks, and downstream contract-alignment recommendations.
 - Capture review-publication evidence in the closeout artifact: final commit SHA, pushed review branch, and review identifier or URL when a repository-visible review artifact exists.
 - Move the tracker row to `In Review` only after publication evidence exists, unless the request explicitly asked for `--evidence-only`.

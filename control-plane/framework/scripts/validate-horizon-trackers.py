@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate cpb-horizon-tracker-v3 packets without third-party dependencies.
 
-This runtime is the executable contract authority used by both Bash and PowerShell sanity.
+This runtime validates the legacy tracker/archive contract at its owning boundaries.
 The adjacent JSON Schema files are interchange and management-plane contracts; this script
 enforces the same local shape plus cross-file and graph invariants JSON Schema cannot express.
 

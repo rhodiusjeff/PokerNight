@@ -1,7 +1,7 @@
 {
  "local_mod": "OPS register analytics normalization, 2026-08-07 - HARVEST TO CPB",
  "schema": "cpb-register-catalog-v1",
- "purpose": "Per-register-kind validation contract for cpb-register-v1 files. The sanity registers gate enforces: envelope keys, kind membership here, unique id_field values, required_fields PRESENT per entry (null is a legal value meaning the md-era em-dash 'none'), entry keys subset of columns, enum_fields value membership, home path, scope, and horizon non-null when scope is lane. Homes are glob patterns (fnmatch) — lane kinds have one home per horizon packet.",
+ "purpose": "Per-register-kind validation contract for cpb-register-v1 files: envelope keys, kind membership here, unique id_field values, required_fields PRESENT per entry (null is a legal value meaning the md-era em-dash 'none'), entry keys subset of columns, enum_fields value membership, home path, scope, and horizon non-null when scope is lane. Homes are glob patterns (fnmatch) — lane kinds have one home per horizon packet. This catalog does not establish an automatic enforcement gate.",
  "kinds": {
   "review-unit-ledger": {
    "home": "horizons/*/ledgers/REVIEW_UNIT_LEDGER.json",
