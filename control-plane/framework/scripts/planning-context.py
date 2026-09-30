@@ -70,6 +70,8 @@ def list_contexts(root):
     documents = list(capture.capture_root(root).glob("*/*-proposal.json"))
     contract.require(all(filename.parent.name == capture.document_identity(filename) for filename in documents), "capture identity/path mismatch")
     horizons = capture.safe_path(root, root / "control-plane/horizons")
+    contract.require(not any(horizons.glob("H*/*-proposal.json")) and not any(horizons.glob("H*/*-capture.md")),
+                     "current-format horizon inventory is unavailable until its discovery slice; inspect an explicit ID")
     documents.extend(horizons.glob("H*/planning/H*.md"))
     contexts = [inspect_context(root, capture.document_identity(filename)) for filename in sorted(documents)]
     binding_path = local_path(root, "binding.json")
@@ -88,7 +90,7 @@ def planning_status(root):
         kind = lifecycle.get("kind", document.get("kind"))
         if kind not in ("ad-hoc", "horizon"):
             continue
-        state = lifecycle.get("state", "planning")
+        state = lifecycle.get("lifecycle", {}).get("state", "planning") if document.get("schema") == "cp-plan-change-set-v1" else lifecycle.get("state", "planning")
         if state not in ("planning", "suspended", "authorized-for-merge"):
             continue
         workflow = document.get("workflow", {})
@@ -167,6 +169,8 @@ def work_inventory(root):
 
 
 def admission_clear(document):
+    contract.require(document.get("schema") != "cp-plan-change-set-v1",
+                     "current-format lifecycle and transfer writers are unavailable; HR-01 supports pair storage only")
     context = document.get("context", {})
     contract.require(context.get("state", "planning") != "authorized-for-merge",
                      "authorized-for-merge requires explicit verified withdrawal by admission owner")

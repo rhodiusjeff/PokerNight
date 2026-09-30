@@ -19,7 +19,8 @@ Use deterministic typed forms and revision-pinned relationships; no invented fie
 relationship aliases. The read-only validate-canon-records.py helper is permitted for
 validation, not admission or arbitrary code execution. New-format admission dispatches
 through the separately invoked guided-admission workflow; do not flatten Canon into the
-older kernel. Horizon laydown changes remain deferred.
+older kernel. HR-01 supports current-horizon pair storage; creation/migration and
+lifecycle/admission command integration remain separate slices.
 
 Use the [Planning Change-Set Policy](../../control-plane/framework/governance/policies/plan-change-set.policy.md)
 for cp-plan-change-set-v1 proposals. The shipped planning-change-set.py validation,

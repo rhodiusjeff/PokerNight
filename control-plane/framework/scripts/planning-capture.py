@@ -69,13 +69,20 @@ def resolve_document(root, context_id):
     if not parsed["legacy"]:
         packet = safe_path(root, home / context_id)
         contract.require(packet.is_dir(), "full horizon identity is not present")
-        return safe_path(root, packet / "planning" / (context_id + ".md"))
-    packets = [packet for packet in sorted(home.glob(context_id + "-*"))
-               if not re.fullmatch(identity_policy.HORIZON_PATTERN, packet.name)]
-    if (home / context_id).exists():
-        packets.append(home / context_id)
-    contract.require(len(packets) == 1, "horizon packet missing or ambiguous; select an existing identity")
-    return safe_path(root, packets[0] / "planning" / (context_id + ".md"))
+    else:
+        packets = [packet for packet in sorted(home.glob(context_id + "-*"))
+                   if not re.fullmatch(identity_policy.HORIZON_PATTERN, packet.name)]
+        if (home / context_id).exists():
+            packets.append(home / context_id)
+        contract.require(len(packets) == 1, "horizon packet missing or ambiguous; select an existing identity")
+        packet = packets[0]
+    paired = safe_path(root, packet / (context_id + "-proposal.json"))
+    narrative = safe_path(root, narrative_path(paired))
+    legacy = safe_path(root, packet / "planning" / (context_id + ".md"))
+    if paired.exists() or narrative.exists():
+        contract.require(not legacy.exists(), "mixed horizon layouts; explicit migration required")
+        return paired
+    return legacy
 
 
 def capture_root(root):
@@ -107,7 +114,7 @@ def narrative_path(filename):
 def assets_path(root, context_id):
     destination = resolve_document(root, context_id)
     assets = destination.parent / "assets"
-    if not IDENTITY.fullmatch(context_id):
+    if destination.suffix != ".json":
         assets = assets / context_id
     return safe_path(root, assets)
 
@@ -229,6 +236,8 @@ def change_narrative(previous, document):
 
 
 def validate_capture(document):
+    contract.require(isinstance(document, dict) and document.get("schema") in
+                     ("cp-plan-change-set-v1", "cp-planning-capture-v1"), "unsupported planning document schema")
     if document.get("schema") == "cp-plan-change-set-v1":
         change_set_module().shape(document)
         return
@@ -288,11 +297,13 @@ def decode_capture(content, identity):
     if raw.startswith("---\n"):
         document, offset = json.JSONDecoder(object_pairs_hook=unique_object).raw_decode(raw[4:])
         contract.require(raw[4 + offset:].startswith("\n---\n"), "capture metadata boundary is invalid")
+        validate_capture(document)
+        contract.require(document["schema"] == "cp-planning-capture-v1", "change sets require separate JSON and Markdown files")
         expected = render_legacy(document)
     else:
         document = json.loads(raw, object_pairs_hook=unique_object)
+        validate_capture(document)
         expected = render(document)
-    validate_capture(document)
     contract.require(document["id"] == identity, "capture identity/path mismatch")
     contract.require(raw == expected, "capture text differs from its retained metadata; reconcile before use")
     return document
@@ -300,6 +311,16 @@ def decode_capture(content, identity):
 
 def read_capture(filename):
     document = decode_capture(filename.read_bytes(), document_identity(filename))
+    if document["schema"] == "cp-plan-change-set-v1":
+        contract.require(filename.suffix == ".json", "change sets require a proposal JSON file")
+        home = "horizons" if document["context"]["kind"] == "horizon" else "ad-hoc"
+        relative = pathlib.PurePosixPath("control-plane") / home / document["id"] / (document["id"] + "-capture.md")
+        narrative = narrative_path(filename).absolute()
+        contract.require("git_commit" not in document["capture"] and document["capture"]["path"] == relative.as_posix() and
+                 narrative.parts[-len(relative.parts):] == relative.parts,
+                         "working capture reference must identify its companion file")
+    elif filename.suffix == ".json":
+        contract.require(document["kind"] != "horizon", "horizon pair requires change-set format")
     if filename.suffix == ".json":
         narrative = narrative_path(filename)
         contract.require(not narrative.is_symlink(), "capture narrative must not be a symlink")
@@ -624,12 +645,13 @@ def append_checkpoint(root, context_id, expected_digest, manifest_path, confirme
 
 
 def recover_pair(root, context_id, expected_digest, expected_capture_digest, snapshot_digest, confirmed):
-    contract.require(confirmed and IDENTITY.fullmatch(context_id), "paired recovery requires explicit ad hoc confirmation")
+    contract.require(confirmed and CONTEXT_ID.fullmatch(context_id), "paired recovery requires explicit context confirmation")
     for value in (expected_digest, expected_capture_digest, snapshot_digest):
         contract.validate_shape(value, contract.HASH, "recovery digest")
     root = pathlib.Path(root).resolve()
     with local_writer(root):
         destination = resolve_document(root, context_id)
+        contract.require(destination.suffix == ".json", "legacy horizon recovery requires its owning workflow")
         narrative = safe_path(root, narrative_path(destination))
         original, original_narrative = destination.read_bytes(), narrative.read_bytes()
         observed = (hashlib.sha256(original).hexdigest(), hashlib.sha256(original_narrative).hexdigest())
@@ -640,6 +662,13 @@ def recover_pair(root, context_id, expected_digest, expected_capture_digest, sna
         saved = safe_path(root, history / (snapshot_digest + "-proposal.json")).read_bytes()
         saved_narrative = safe_path(root, history / (snapshot_digest + "-capture.md")).read_bytes()
         document = decode_capture(saved, context_id)
+        if current["schema"] == "cp-plan-change-set-v1" or document["schema"] == "cp-plan-change-set-v1":
+            changes = change_set_module()
+            contract.require(current["schema"] == document["schema"], "format recovery requires explicit migration")
+            contract.require(changes.lifecycle_state(current) == "planning", "lifecycle recovery requires its owning workflow")
+            contract.require(all(current.get(key) == document.get(key) for key in ("context", "author", "created_at", "identity")),
+                             "recovery cannot change lifecycle or identity/provenance")
+            changes.helper("planning-change-evidence").assert_mutable(root, context_id)
         expected_capture = document["capture"]["sha256"] if document.get("schema") == "cp-plan-change-set-v1" else document["capture_sha256"]
         contract.require(hashlib.sha256(saved).hexdigest() == snapshot_digest and
                  hashlib.sha256(saved_narrative).hexdigest() == expected_capture, "recovery snapshot mismatch")

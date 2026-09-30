@@ -56,7 +56,12 @@ For `cp-plan-change-set-v1`, use the
 typed changes, same-base preconditions, full replacement records and derived-only previews.
 Route draft edits to planning-change-set.py save and explicit completion to complete;
 do not run the legacy draft/compose/propose APIs on a change-set document. The shared
-schema applies to all planning origins; horizon physical laydown remains deferred.
+schema and paired saves apply to all planning origins. HR-01 current horizons use
+`control-plane/horizons/ID/ID-proposal.json`, `ID-capture.md` and `assets/`; preserve optional
+`context.lifecycle` and immutable identity/origin. Old horizon captures are read-only to this
+writer, with no implicit migration. Creation/binding and current-horizon lifecycle/discovery
+and admission integration remain unavailable until their later slices. Status refuses when
+current horizon pairs would otherwise be omitted; use explicit-ID inspection in the meantime.
 Change-set admission uses the format-dispatched guided-admission workflow under its
 separate invocation/confirmation gates, never a parallel authority or a drafting side effect.
 

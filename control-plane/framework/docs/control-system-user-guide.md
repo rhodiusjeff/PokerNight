@@ -25,11 +25,11 @@ Legacy HNNN/tag procedures below are compatibility surfaces, not the new minting
 [Planning Change-Set Policy](../governance/policies/plan-change-set.policy.md) defines
 cp-plan-change-set-v1 for all planning origins. It stores explicit typed changes against
 an exact base, source references without Base64, and no maintained result snapshot.
-Use planning-change-set.py for validation/preview and paired ad hoc/discovery saves;
+Use planning-change-set.py for validation/preview and paired ad hoc/discovery/horizon saves;
 explicit complete is separate from draft save. Existing legacy draft/evidence/admission
 draft APIs below do not accept this format. Evidence, admission and publication commands
-now dispatch change sets to the repository Canon/tracker/archive implementation. Horizon
-physical laydown and product start/completion remain pending. Neither schema validity nor
+now dispatch change sets to the repository Canon/tracker/archive implementation. Current-horizon
+admission integration and product start/completion remain pending. Neither schema validity nor
 a complete save starts work. The guided-admission skill documents exact evidence inputs
 and optional separately confirmed post-merge source-branch synchronization.
 
@@ -77,8 +77,9 @@ transient or supplied on stdin. No routine requests directory or metadata sideca
 Prior paired revisions live in `assets/history/`; genuine attachments and immutable admission
 evidence may remain assets. Original bytes survive migration in a verified legacy archive.
 The pair is digest-bound: missing/mismatched members refuse, with explicit snapshot recovery.
-A new horizon resolves `control-plane/horizons/<ID>/planning/<ID>.md`, using the full
-`HNNN-<slug>-<hex4>` identity with unchanged horizon asset placement. No substitute
+HR-01 current-format horizon pairs resolve `control-plane/horizons/<ID>/<ID>-proposal.json`
+with `<ID>-capture.md` and `assets/` beside it. Existing old-format horizons still resolve
+`planning/<ID>.md` without conversion. Use the full `HNNN-<slug>-<hex4>` identity. No substitute
 ADHOC identity or fake horizon tracker is created. A single repository deferred register preserves
 origin, guardrail, reopen conditions, revisions and associations. The walkthrough explains intent,
 origin, relevance, scope, testing implications, questions and recommendation; declined records
@@ -86,7 +87,12 @@ remain untouched. Existing destination associations are disclosed before explici
 
 For `cp-plan-change-set-v1`, use `planning-change-set.py save` for partial drafts,
 `preview` for the derived result and explicitly confirmed `complete` for a complete
-proposal. The legacy commands in the next paragraph apply only to `cp-planning-capture-v1`.
+proposal. Optional lifecycle metadata is schema-validated and preserved by saves; absence
+means planning without rewriting. Explicit-ID inspection and pair recovery are supported.
+Current-format horizon creation/binding, lifecycle/discovery and admission/closure remain later
+slices. Until then lifecycle/admission writers and inventory of current horizon pairs refuse
+explicitly; the command table above describes retained old-format behavior, not new-pair support.
+The legacy commands in the next paragraph apply only to `cp-planning-capture-v1`.
 
 For that legacy capture format, `planning-work.py draft --section canon|work` replaces the selected ad hoc section in
 `workflow.planning.current`, preserving the other section. Each section is self-contained;

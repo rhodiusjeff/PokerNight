@@ -80,7 +80,9 @@ legacy behavior, not a second authority to retain alongside the new layout.
 Follow [Artifact Formats And Ad Hoc Storage](framework/governance/policies/tracker-and-state.policy.md#artifact-formats-and-ad-hoc-storage):
 separate Markdown and JSON, use related stems with distinct role suffixes, and keep one
 current ad hoc capture/proposal pair. Requests and confirmations belong in capture;
-superseded revisions belong in history. Horizon laydown redesign remains deferred.
+superseded revisions belong in history. HR-01 adds shared current-horizon pair storage;
+creation/binding, discovery/lifecycle and horizon admission integration remain later slices.
+See [change-set storage and lifecycle](framework/governance/policies/plan-change-set.policy.md#context-lifecycle-and-pair-storage).
 
 | Path | Owner and purpose |
 |---|---|

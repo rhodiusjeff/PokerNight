@@ -50,7 +50,7 @@ def work(identity='work'):
 
 
 class ChangeTests(unittest.TestCase):
-    def repository_fixture(self):
+    def repository_fixture(self, kind='ad-hoc', minted=False):
         temporary=tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         folder=pathlib.Path(temporary.name).resolve()
@@ -65,9 +65,10 @@ class ChangeTests(unittest.TestCase):
             filename.write_bytes(changes.encoded(value))
         git('add','control-plane')
         git('commit','--quiet','-m','Empty operational fixture')
-        document=proposal([add(record())])
+        document=proposal([add(record())],kind)
         document.update(status='complete',base=repository.reference(folder,'refs/heads/main'))
-        filename=folder/'control-plane/ad-hoc'/document['id']/(document['id']+'-proposal.json')
+        home='control-plane/horizons' if kind == 'horizon' else 'control-plane/ad-hoc'
+        filename=folder/home/document['id']/(document['id']+'-proposal.json')
         filename.parent.mkdir(parents=True)
         narrative=capture.narrative_path(filename)
         narrative.write_text('Operator fixture requirements\n')
@@ -75,8 +76,256 @@ class ChangeTests(unittest.TestCase):
         source=folder/'source.md'
         source.write_text('A player makes legal moves.\n')
         document['sources'][0]['sha256']=hashlib.sha256(source.read_bytes()).hexdigest()
+        if kind == 'discovery':
+            (folder/'contract.json').write_bytes(b'Exact originating contract\n')
+            document['context']['origin']['contract']['sha256']=hashlib.sha256((folder/'contract.json').read_bytes()).hexdigest()
+        if minted:
+            issued=changes.identity_policy.mint(folder,kind,'fixture','fixture-create','Fixture',document['context'].get('origin'),True)
+            document['id']=document['context']['id']=issued['id']
+            bindings=[{'change_id':change['change_id'],'operation':change['operation'],'target':change['target'],
+                       'kind':change['value']['kind']} for change in document['changes']]
+            allocated=changes.identity_policy.reserve_records(folder,document['id'],'fixture-records',bindings,confirmed=True)
+            document['identity']={'mint':{'operation_id':issued['operation_id'],'request_digest':issued['request_digest']},
+                'allocation':allocated['state'],'aliases':{'contexts':[],'canon':{},'changes':{}}}
+            for change in document['changes']:
+                change['change_id']=allocated['mapping']['changes'][change['change_id']]
+                change['target']['id']=change['value']['id']=allocated['mapping']['canon'][change['value']['id']]
+            filename=folder/home/document['id']/(document['id']+'-proposal.json')
+            filename.parent.mkdir(parents=True)
+            new_narrative=capture.narrative_path(filename)
+            new_narrative.write_bytes(narrative.read_bytes())
+            narrative=new_narrative
+            document['capture']['path']=narrative.relative_to(folder).as_posix()
         filename.write_bytes(changes.encoded(document))
         return folder,document,repository,filename
+
+    def lifecycle_event(self, action='create', preimage=None):
+        event={'operation_id':'fixture-'+action,'action':action,'actor':'Fixture Operator',
+               'invocation_source':'operator-command','timestamp':'2026-09-30T12:00:00Z','preimage':preimage}
+        if action in ('suspend','abandon','close'):
+            event['reason']='Fixture disposition'
+        if action == 'suspend':
+            event['next_step']='Resume after inspection'
+        return event
+
+    def test_paired_save_across_all_scopes(self):
+        for kind in ('ad-hoc','discovery','horizon'):
+            with self.subTest(kind=kind):
+                folder,document,repository,filename=self.repository_fixture(kind,minted=True)
+                document.update(status='draft')
+                document['context']['lifecycle']={'state':'planning','events':[self.lifecycle_event()]}
+                filename.write_bytes(changes.encoded(document))
+                before=filename.read_bytes()
+                narrative=capture.narrative_path(filename).read_bytes()
+                expected=hashlib.sha256(before).hexdigest()
+                self.assertEqual(capture.resolve_document(folder,document['id']),filename)
+                changed=copy.deepcopy(document)
+                changed.update(status='draft',revision=2,title='Revised fixture')
+                result=changes.save(folder,document['id'],changed,expected,'Operator requested a draft revision.')
+                current=capture.read_capture(filename)
+                self.assertTrue(result['updated'])
+                self.assertEqual(current['context'],document['context'])
+                self.assertEqual(current['identity'],document['identity'])
+                self.assertEqual(current['sources'],document['sources'])
+                self.assertEqual(capture.assets_path(folder,document['id']),filename.parent/'assets')
+                self.assertEqual((capture.assets_path(folder,document['id'])/'history'/(expected+'-proposal.json')).read_bytes(),before)
+                self.assertEqual((capture.assets_path(folder,document['id'])/'history'/(expected+'-capture.md')).read_bytes(),narrative)
+                self.assertFalse(changes.save(folder,document['id'],changed,expected,'Operator requested a draft revision.')['updated'])
+                completed=copy.deepcopy(current)
+                completed.update(status='complete',revision=3)
+                self.assertTrue(changes.save(folder,document['id'],completed,result['document_digest'],'Operator confirmed completion.',complete=True)['updated'])
+                self.assertTrue(changes.validate(folder,capture.read_capture(filename))['base_verified'])
+
+    def test_lifecycle_schema_and_legacy_default(self):
+        changes.Draft202012Validator.check_schema(changes.canon.load_json(changes.SCHEMA_PATH))
+        document=proposal()
+        self.assertEqual(changes.lifecycle_state(document),'planning')
+        self.assertNotIn('lifecycle',document['context'])
+        preimage={'proposal':{'id':'previous-proposal','path':'assets/history/previous-proposal.json','sha256':'1'*64},
+                  'capture':{'id':'previous-capture','path':'assets/history/previous-capture.md','sha256':'2'*64}}
+        for state,action in [('planning','create'),('planning','resume'),('suspended','suspend'),('abandoned','abandon'),('closed','close')]:
+            with self.subTest(state=state,action=action):
+                lifecycle={'state':state,'events':[self.lifecycle_event(action,None if action == 'create' else preimage)]}
+                if state == 'closed':
+                    lifecycle['closure']={'applied':[{'proposal':preimage['proposal'],'attempt':preimage['capture'],'verification':preimage['capture']}],
+                        'remaining_scope':[{'scope':'Remaining candidate','disposition':'deferred','evidence':preimage['capture']}]}
+                document['context']['lifecycle']=lifecycle
+                self.assertEqual(changes.lifecycle_state(document),state)
+        invalids=[None,{}, {'state':'absorbed','events':[]},{'state':'suspended','events':[]},
+                  {'state':'planning','events':[],'extra':True}, {'state':'planning','events':[],'closure':{}}]
+        valid={'state':'planning','events':[self.lifecycle_event()]}
+        for field,bad in [('timestamp','yesterday'),('actor',''),('invocation_source','inferred'),('preimage',preimage),('extra',True)]:
+            malformed=copy.deepcopy(valid)
+            malformed['events'][0][field]=bad
+            invalids.append(malformed)
+        invalids.append({'state':'planning','events':[self.lifecycle_event(),self.lifecycle_event()]})
+        invalids.append({'state':'suspended','events':[self.lifecycle_event()]})
+        invalids.append({'state':'closed','events':[self.lifecycle_event('close',preimage)]})
+        for invalid in invalids:
+            with self.subTest(invalid=invalid):
+                document['context']['lifecycle']=invalid
+                with self.assertRaises(ValueError): changes.shape(document)
+
+    def test_save_cannot_change_identity_origin_or_lifecycle(self):
+        folder,document,repository,filename=self.repository_fixture('discovery',minted=True)
+        document['context']['lifecycle']={'state':'planning','events':[]}
+        filename.write_bytes(changes.encoded(document))
+        before=filename.read_bytes()
+        expected=hashlib.sha256(before).hexdigest()
+        for field in ('id','author','created_at','kind','origin','lifecycle'):
+            changed=copy.deepcopy(document)
+            changed.update(revision=2,status='draft')
+            if field in ('kind','origin','lifecycle'):
+                changed['context'].pop(field)
+            else:
+                changed[field]='Changed'
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError,'immutable'):
+                changes.save(folder,document['id'],changed,expected,'Attempted metadata rewrite')
+            self.assertEqual(filename.read_bytes(),before)
+
+    def test_pair_requires_exact_repository_relative_capture_path(self):
+        for kind in ('ad-hoc','discovery','horizon'):
+            with self.subTest(kind=kind):
+                folder,document,repository,filename=self.repository_fixture(kind,minted=True)
+                narrative=capture.narrative_path(filename)
+                correct=document['capture']['path']
+                self.assertEqual(capture.read_capture(filename),document)
+                for wrong in (narrative.name,document['id']+'/'+narrative.name,'other/'+correct,
+                              correct.replace('control-plane/',''),correct.replace('/'+document['id']+'/', '/other/')):
+                    invalid=copy.deepcopy(document)
+                    invalid['capture']['path']=wrong
+                    filename.write_bytes(changes.encoded(invalid))
+                    before=filename.read_bytes()
+                    with self.subTest(path=wrong), self.assertRaisesRegex(ValueError,'companion file'):
+                        capture.read_capture(capture.resolve_document(folder,document['id']))
+                    self.assertEqual(filename.read_bytes(),before)
+                filename.write_bytes(changes.encoded(document))
+                self.assertEqual(capture.read_capture(filename),document)
+
+    def test_rekey_refuses_lifecycle_without_changing_package(self):
+        folder,document,repository,filename=self.repository_fixture()
+        document['status']='draft'
+        before=changes.encoded(document)
+        filename.write_bytes(before)
+        narrative=capture.narrative_path(filename).read_bytes()
+        expected=hashlib.sha256(before).hexdigest()
+        history=filename.parent/'assets/history'
+        preimage={'proposal':{'id':'prior-proposal','path':(history/(expected+'-proposal.json')).relative_to(folder).as_posix(),'sha256':expected},
+                  'capture':{'id':'prior-capture','path':(history/(expected+'-capture.md')).relative_to(folder).as_posix(),
+                             'sha256':hashlib.sha256(narrative).hexdigest()}}
+        document['revision']+=1
+        document['context']['lifecycle']={'state':'planning','events':[self.lifecycle_event('resume',preimage)]}
+        with capture.local_writer(folder):
+            changes._publish_pair(folder,filename,before,narrative,changes.encoded(document),narrative)
+        inventory={item.relative_to(folder):item.read_bytes() for item in folder.rglob('*') if item.is_file()}
+        with self.assertRaisesRegex(ValueError,'lifecycle-bearing rekey is unavailable'):
+            changes.rekey_package(folder,document['id'],'rekey-review','review-rekey',hashlib.sha256(filename.read_bytes()).hexdigest(),True)
+        self.assertEqual(inventory,{item.relative_to(folder):item.read_bytes() for item in folder.rglob('*') if item.is_file()})
+        for reference in preimage.values(): changes.canon.verify_source(folder,reference)
+
+    def test_strict_horizon_pair_and_legacy_dispatch(self):
+        folder,document,repository,filename=self.repository_fixture('horizon',minted=True)
+        raw=filename.read_bytes()
+        narrative=capture.narrative_path(filename)
+        original_narrative=narrative.read_bytes()
+        for malformed in ({**document,'schema':'unknown'}, {**document,'unknown':True}, [],
+                          {**document,'context':{**document['context'],'id':'H001'}}):
+            filename.write_bytes(changes.encoded(malformed))
+            with self.assertRaises(ValueError): capture.read_capture(capture.resolve_document(folder,document['id']))
+        filename.write_bytes(raw.replace(b'"schema":',b'"schema":"duplicate", "schema":',1))
+        with self.assertRaisesRegex(ValueError,'duplicate'): capture.read_capture(filename)
+        filename.write_bytes(raw)
+        narrative.write_bytes(b'Unpaired edit\r\n')
+        self.assertEqual(capture.resolve_document(folder,document['id']),filename)
+        with self.assertRaisesRegex(ValueError,'pair mismatch'): capture.read_capture(filename)
+        narrative.unlink()
+        with self.assertRaisesRegex(ValueError,'pair mismatch'): capture.read_capture(filename)
+        narrative.write_bytes(original_narrative)
+        legacy=filename.parent/'planning'/(document['id']+'.md')
+        legacy.parent.mkdir()
+        old={'schema':'cp-planning-capture-v1','id':document['id'],'kind':'horizon','title':'Old fixture','author':'Fixture',
+             'created_at':'2026-09-30T00:00:00Z','sources':[capture.canonical_source(folder/'source.md',1)],'origin':None,
+             'context':{'state':'absorbed'}}
+        legacy.write_bytes(capture.render_legacy(old).encode())
+        with self.assertRaisesRegex(ValueError,'mixed horizon'): capture.resolve_document(folder,document['id'])
+        filename.unlink()
+        narrative.unlink()
+        self.assertEqual(capture.resolve_document(folder,document['id']),legacy)
+        self.assertEqual(capture.read_capture(legacy),old)
+        with self.assertRaisesRegex(ValueError,'read-only'):
+            changes.save(folder,document['id'],document,hashlib.sha256(legacy.read_bytes()).hexdigest(),'No implicit conversion')
+        self.assertEqual(capture.read_capture(legacy),old)
+        self.assertFalse(filename.exists())
+
+    def test_pair_publication_lifecycle_preimages_and_failure(self):
+        folder,document,repository,filename=self.repository_fixture('horizon',minted=True)
+        before=filename.read_bytes()
+        narrative=capture.narrative_path(filename)
+        old_narrative=narrative.read_bytes()
+        expected=hashlib.sha256(before).hexdigest()
+        history=filename.parent/'assets/history'
+        preimage={'proposal':{'id':'prior-proposal','path':(history/(expected+'-proposal.json')).relative_to(folder).as_posix(),'sha256':expected},
+                  'capture':{'id':'prior-capture','path':(history/(expected+'-capture.md')).relative_to(folder).as_posix(),
+                             'sha256':hashlib.sha256(old_narrative).hexdigest()}}
+        changed=copy.deepcopy(document)
+        changed['revision']=2
+        changed['context']['lifecycle']={'state':'suspended','events':[self.lifecycle_event('suspend',preimage)]}
+        content=changes.encoded(changed)
+        original_replace=capture.replace_bytes
+        def fail_proposal(destination,original,updated):
+            if destination == filename:
+                raise OSError('injected proposal publication failure')
+            original_replace(destination,original,updated)
+        real_helper=changes.helper
+        with mock.patch.object(changes,'helper',side_effect=lambda name: capture if name == 'planning-capture' else real_helper(name)), \
+             mock.patch.object(capture,'replace_bytes',side_effect=fail_proposal), capture.local_writer(folder):
+            with self.assertRaisesRegex(OSError,'injected'):
+                changes._publish_pair(folder,filename,before,old_narrative,content,old_narrative)
+        self.assertEqual(filename.read_bytes(),before)
+        self.assertEqual(narrative.read_bytes(),old_narrative)
+        with capture.local_writer(folder):
+            changes._publish_pair(folder,filename,before,old_narrative,content,old_narrative)
+        self.assertEqual((history/(expected+'-proposal.json')).read_bytes(),before)
+        self.assertEqual((history/(expected+'-capture.md')).read_bytes(),old_narrative)
+        for source in preimage.values(): changes.canon.verify_source(folder,source)
+        self.assertEqual(changes.lifecycle_state(capture.read_capture(filename)),'suspended')
+        with self.assertRaisesRegex(ValueError,'not mutable planning'):
+            changes.save(folder,document['id'],changed,hashlib.sha256(content).hexdigest(),'No implicit resume')
+
+    def test_horizon_pair_recovery_preserves_metadata(self):
+        folder,document,repository,filename=self.repository_fixture('horizon',minted=True)
+        before=filename.read_bytes()
+        expected=hashlib.sha256(before).hexdigest()
+        narrative=capture.narrative_path(filename)
+        before_narrative=narrative.read_bytes()
+        changed=copy.deepcopy(document)
+        changed.update(revision=2,status='draft')
+        changes.save(folder,document['id'],changed,expected,'Operator requested a new draft')
+        narrative.write_bytes(b'Interrupted narrative update\r\n')
+        result=capture.recover_pair(folder,document['id'],hashlib.sha256(filename.read_bytes()).hexdigest(),
+            hashlib.sha256(narrative.read_bytes()).hexdigest(),expected,True)
+        self.assertTrue(result['recovered'])
+        self.assertEqual(filename.read_bytes(),before)
+        self.assertEqual(narrative.read_bytes(),before_narrative)
+
+    def test_current_pair_refuses_undelivered_context_and_admission_writers(self):
+        folder,document,repository,filename=self.repository_fixture('horizon',minted=True)
+        context=changes.helper('planning-context')
+        before=filename.read_bytes()
+        expected=hashlib.sha256(before).hexdigest()
+        binding=folder/'control-plane/state/planning-local/binding.json'
+        self.assertEqual(context.inspect_context(folder,document['id'])['path'],str(filename))
+        with self.assertRaisesRegex(ValueError,'inventory is unavailable'):
+            context.planning_status(folder)
+        with self.assertRaisesRegex(ValueError,'unavailable'):
+            context.activate(folder,document['id'],True)
+        with self.assertRaisesRegex(ValueError,'unavailable'):
+            context.transition(folder,document['id'],'suspend',expected,'Fixture next step',True)
+        with self.assertRaisesRegex(ValueError,'unavailable'):
+            changes.helper('planning-admission').prepare(folder,document['id'],'no-decision',None,None,expected,True)
+        self.assertEqual(filename.read_bytes(),before)
+        self.assertFalse(binding.exists())
+        self.assertFalse((filename.parent/'assets/admission').exists())
 
     def test_repository_admission_history_and_round_trip(self):
         folder,document,repository,filename=self.repository_fixture()
@@ -203,6 +452,28 @@ class ChangeTests(unittest.TestCase):
         request['attestation']['actor']=document['author']
         with self.assertRaisesRegex(ValueError,'not independent'):
             evidence.apply(folder,document,'review',request,True)
+        retained={item.relative_to(pathlib.Path(prepared['bundle'])).as_posix():item.read_bytes()
+                  for item in pathlib.Path(prepared['bundle']).rglob('*') if item.is_file()}
+        before=filename.read_bytes()
+        expected=hashlib.sha256(before).hexdigest()
+        narrative=capture.narrative_path(filename).read_bytes()
+        history=filename.parent/'assets/history'
+        preimage={'proposal':{'id':'prior-proposal','path':(history/(expected+'-proposal.json')).relative_to(folder).as_posix(),'sha256':expected},
+                  'capture':{'id':'prior-capture','path':(history/(expected+'-capture.md')).relative_to(folder).as_posix(),
+                             'sha256':hashlib.sha256(narrative).hexdigest()}}
+        changed=copy.deepcopy(document)
+        changed['revision']+=1
+        changed['context']['lifecycle']={'state':'suspended','events':[self.lifecycle_event('suspend',preimage)]}
+        with capture.local_writer(folder):
+            changes._publish_pair(folder,filename,before,narrative,changes.encoded(changed),narrative)
+        self.assertEqual(admission.verify_directory(folder,prepared['bundle'])[0],manifest)
+        self.assertEqual(retained,{item.relative_to(pathlib.Path(prepared['bundle'])).as_posix():item.read_bytes()
+                                  for item in pathlib.Path(prepared['bundle']).rglob('*') if item.is_file()})
+        self.assertEqual((history/(expected+'-proposal.json')).read_bytes(),before)
+        with self.assertRaisesRegex(ValueError,'stale'):
+            evidence.selected(folder,changed,'decision-1')
+        with self.assertRaisesRegex(ValueError,'suspended'):
+            evidence.apply(folder,changed,'review',request,True)
 
     def test_all_planning_origins_share_schema(self):
         for kind in ('ad-hoc','horizon','discovery'):

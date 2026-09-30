@@ -113,8 +113,11 @@ Withdrawn candidates still retain their allocations and may remain historical al
 do not limit alias validation to currently visible changes.
 Historical prose/evidence keeps historical IDs. Do not reconstruct user-deleted snapshots,
 introduce Base64 sources or store a second full Canon state.
+Rekey refuses packages carrying `context.lifecycle`, including interrupted retries, until
+supported migration can preserve all lifecycle references. Retain both packages on refusal.
 
 Policy approval does not certify downstream consumers. New change-set review/admission
-and application use format-dispatched repository helpers; horizon file laydown and
-work-to-Phase allocation remain deferred. Tests and schema checks grant none of those
+and application use format-dispatched repository helpers. HR-01 adds current-horizon pair
+storage without reminting IDs; its lifecycle/admission command integration and work-to-Phase
+allocation remain deferred. Tests and schema checks grant none of those
 authority boundaries. Preserve existing invocation gates.

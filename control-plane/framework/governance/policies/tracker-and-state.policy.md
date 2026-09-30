@@ -113,8 +113,8 @@ These commands do not authorize arbitrary conflict resolutions or product edits.
 Repository phase resolution is read-only and includes archived prerequisites. Product
 start/completion consumers remain disabled for source: repository, just as the legacy
 operational start boundary remains disabled. C8 completion requirements above remain
-the contract for that later writer. Cleanup, generated views, Dolt and horizon physical
-laydown are deferred; candidate clones and journals are retained.
+the contract for that later writer. Cleanup, generated views, Dolt and current-horizon command
+integration are deferred; HR-01 pair storage follows the change-set policy. Candidate clones and journals are retained.
 
 ## Canon And Work Context Resolution
 
@@ -219,7 +219,11 @@ clarification; harvest with the shared planning skill and plan-work prompt.
   history to satisfy the new format. A verified legacy archive is historical evidence,
   not a competing live authority. Migration never approves or completes a proposal.
 
-Ad hoc pair writers are implemented; horizon planning laydown changes remain deferred.
+HR-01 pair writers support ad hoc, discovery and current-format horizons at
+`control-plane/horizons/<ID>/<ID>-capture.md` and `<ID>-proposal.json`, with shared
+`assets/history/` preservation. See the change-set policy for exact format dispatch and
+lifecycle metadata ownership. Horizon creation/migration and command integration remain
+separate slices; this storage contract does not authorize them.
 Other existing mixed report/adapter emitters remain identified migration work, not a claim
 that this policy alone converts every installed emitter. Do not introduce new mixed artifacts.
 Lifecycle, independent review, admission and phase-start authority remain separate.

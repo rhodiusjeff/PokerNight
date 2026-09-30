@@ -18,6 +18,13 @@ Read-only discovery: `python3 control-plane/framework/scripts/planning-context.p
 `discover`, and `inspect --id ID`. Discovery uses last-fetched refs, not proof of remote freshness.
 Legacy packet planning commands are retired; never reset or migrate a historical packet here.
 
+LOCAL MOD - HARVEST TO CPB (2026-09-30): HR-01 supports explicit-ID inspection and
+paired change-set edits at the new horizon home, not lifecycle commands. The operations
+below retain old-format behavior. Current-format lifecycle/transfer and admission writers
+refuse as unavailable; list/status refuses rather than omit current horizon pairs. Do not
+fall back to an old writer or manufacture a legacy capture. Creation/binding, lifecycle/
+discovery and admission/closure need their separately authorized implementation slices.
+
 | Action | Actual helper operation after confirmation |
 | --- | --- |
 | `--create` | `planning-context.py --root ROOT create --operation-id OP --slug SLUG --title TITLE --author AUTHOR --source FILE --remote REMOTE --target BRANCH --confirmed` |

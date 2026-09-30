@@ -67,7 +67,8 @@ without rewriting completed contracts or promoting proposed vocabulary to execut
    `in-progress`, `readiness: not-assessed`.
 
 Use the selected proposal format's structured representation and derived preview. A preview is
-not another maintained plan. Horizon physical laydown and work-to-Phase allocation remain deferred.
+not another maintained plan. HR-01 supports current-horizon pair storage; horizon command
+integration and work-to-Phase allocation remain separate slices.
 
 ## Complete Proposal (Explicit --complete Only)
 

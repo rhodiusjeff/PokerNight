@@ -18,6 +18,7 @@
       "properties": {
         "kind": {"enum": ["ad-hoc", "horizon", "discovery"]},
         "id": {"$ref": "canon-records.schema.json#/$defs/id"},
+        "lifecycle": {"$ref": "#/$defs/lifecycle"},
         "origin": {"type": "object", "additionalProperties": false, "required": ["phase", "contract"],
           "properties": {"phase": {"$ref": "canon-records.schema.json#/$defs/record_ref"}, "contract": {"$ref": "canon-records.schema.json#/$defs/source"}}}
       },
@@ -41,6 +42,65 @@
     "base": {"$ref": "#/$defs/base"}, "changes": {"minItems": 1}, "unresolved": {"maxItems": 0}
   }}}],
   "$defs": {
+    "lifecycle": {
+      "type": "object", "additionalProperties": false, "required": ["state", "events"],
+      "properties": {
+        "state": {"enum": ["planning", "suspended", "abandoned", "closed"]},
+        "events": {"type": "array", "items": {"$ref": "#/$defs/lifecycle_event"}},
+        "closure": {"$ref": "#/$defs/closure"}
+      },
+      "allOf": [
+        {"if": {"properties": {"state": {"const": "closed"}}}, "then": {"required": ["closure"]}, "else": {"not": {"required": ["closure"]}}},
+        {"if": {"properties": {"state": {"not": {"const": "planning"}}}}, "then": {"properties": {"events": {"minItems": 1}}}}
+      ]
+    },
+    "pair_preimage": {
+      "type": "object", "additionalProperties": false, "required": ["proposal", "capture"],
+      "properties": {
+        "proposal": {"$ref": "canon-records.schema.json#/$defs/source"},
+        "capture": {"$ref": "canon-records.schema.json#/$defs/source"}
+      }
+    },
+    "lifecycle_event": {
+      "type": "object", "additionalProperties": false,
+      "required": ["operation_id", "action", "actor", "invocation_source", "timestamp", "preimage"],
+      "properties": {
+        "operation_id": {"$ref": "canon-records.schema.json#/$defs/id"},
+        "action": {"enum": ["create", "suspend", "resume", "abandon", "close"]},
+        "actor": {"$ref": "canon-records.schema.json#/$defs/text"},
+        "invocation_source": {"enum": ["operator-command", "operator-confirmation"]},
+        "timestamp": {"type": "string", "format": "date-time"},
+        "reason": {"$ref": "canon-records.schema.json#/$defs/text"},
+        "next_step": {"$ref": "canon-records.schema.json#/$defs/text"},
+        "preimage": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/pair_preimage"}]}
+      },
+      "allOf": [
+        {"if": {"properties": {"action": {"const": "create"}}}, "then": {"properties": {"preimage": {"type": "null"}}}, "else": {"properties": {"preimage": {"$ref": "#/$defs/pair_preimage"}}}},
+        {"if": {"properties": {"action": {"enum": ["suspend", "abandon", "close"]}}}, "then": {"required": ["reason"]}},
+        {"if": {"properties": {"action": {"const": "suspend"}}}, "then": {"required": ["next_step"]}}
+      ]
+    },
+    "closure": {
+      "type": "object", "additionalProperties": false, "required": ["applied", "remaining_scope"],
+      "properties": {
+        "applied": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {
+          "type": "object", "additionalProperties": false, "required": ["proposal", "attempt", "verification"],
+          "properties": {
+            "proposal": {"$ref": "canon-records.schema.json#/$defs/source"},
+            "attempt": {"$ref": "canon-records.schema.json#/$defs/source"},
+            "verification": {"$ref": "canon-records.schema.json#/$defs/source"}
+          }
+        }},
+        "remaining_scope": {"type": "array", "items": {
+          "type": "object", "additionalProperties": false, "required": ["scope", "disposition", "evidence"],
+          "properties": {
+            "scope": {"$ref": "canon-records.schema.json#/$defs/text"},
+            "disposition": {"enum": ["applied", "deferred", "withdrawn"]},
+            "evidence": {"$ref": "canon-records.schema.json#/$defs/source"}
+          }
+        }}
+      }
+    },
     "identity": {
       "type": "object", "additionalProperties": false, "required": ["mint", "allocation", "aliases"],
       "properties": {

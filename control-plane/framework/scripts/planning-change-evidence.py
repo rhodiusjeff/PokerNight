@@ -129,6 +129,7 @@ def selected(root, proposal, identity, events=None, current_subject=None):
 
 def apply(root, proposal, operation, request, confirmed):
     require(confirmed, 'evidence operation requires actual confirmation')
+    require(changes.lifecycle_state(proposal) == 'planning', 'terminal or suspended context cannot change evidence')
     root = pathlib.Path(root).resolve()
     assert_mutable(root, proposal['id'])
     current = subject(root, proposal)
@@ -274,6 +275,8 @@ def prepare(root, identity, decision_id, expected_digest, confirmed):
         raw = filename.read_bytes()
         require(hashlib.sha256(raw).hexdigest() == expected_digest, 'proposal changed since bundle preparation')
         proposal = capture.read_capture(filename)
+        require(changes.lifecycle_state(proposal) == 'planning', 'terminal or suspended source cannot authorize admission')
+        require(proposal['context']['kind'] != 'horizon', 'current-format horizon admission is unavailable until its integration slice')
         clean = subject(root, proposal)
         events = read_events(root, identity)
         sources = {'sources/' + source['sha256'] + '.bin': source_bytes(root, source, proposal) for source in proposal['sources']}

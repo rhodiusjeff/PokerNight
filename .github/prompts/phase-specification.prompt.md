@@ -14,7 +14,7 @@ and [Planning Identity Policy](../../control-plane/framework/governance/policies
 For new-format work, use the selected change-set proposal and exact Canon/work revisions;
 recommend the separately invoked `/plan-work ID --work` path for typed work shaping.
 Do not create a legacy Phase prompt/tracker or mint CP IDs: new work-to-Phase allocation
-and horizon physical laydown remain deferred. The packet-writing procedure below applies
+remains deferred; HR-01 pair storage does not enable horizon command integration. The packet-writing procedure below applies
 only to an explicitly selected legacy horizon, never a fallback for repository results.
 
 If the slash-command argument contains `--help` or `-h`, do not write or revise a phase prompt. Output concise help only with:

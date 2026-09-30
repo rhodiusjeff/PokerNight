@@ -4,7 +4,8 @@ Follow [Artifact Formats And Ad Hoc Storage](../control-plane/framework/governan
 Keep JSON and Markdown separate. Related files share an identity stem with distinct role
 suffixes. Ad hoc planning has one evolving capture Markdown and proposal JSON; requests,
 confirmations and ordinary source notes belong in the capture, not a growing request-file
-collection. Preserve prior subjects as history. Horizon laydown changes remain deferred.
+collection. Preserve prior subjects as history. HR-01 supports current-horizon pair storage;
+creation, migration and lifecycle/admission command integration remain separate slices.
 
 ## Repository Canon And Tracker
 

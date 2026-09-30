@@ -2,11 +2,12 @@
 
 Date: 2026-09-30
 
-Status: specified for ordered slice review; boundary readiness not assessed. The Operator
+Status: HR-01 storage/schema foundation locally implemented; remaining slices await individual authorization. Boundary readiness not assessed. The Operator
 requested a migration contract and implementation-sized slices, with each slice separately
 authorized. This is not runtime implementation permission, admission or lifecycle invocation.
 See [slice contracts](UPGRADE_PLAN.md#operator-selected-refinement-slices) and
-[migration detail](MIGRATION_SKILL_SPEC.md). Runtime implementation has not started.
+[migration detail](MIGRATION_SKILL_SPEC.md). The single task inventory owns current
+scope and evidence; this specification is not another status graph.
 
 Owner: Project: Control Plane Steward within the selected `cp-v0-8-1-planning-admission`
 upgrade packet. The [existing task inventory](../../2026-09-28-cp-v0.8.1-planning-capability-tasks.md)
@@ -43,8 +44,8 @@ their historical descriptions when implementation changes.
 
 ### Latest Operator Clarifications
 
-The following 2026-09-30 decisions are reflected in the target sections below. Installed
-runtime behavior remains unchanged until separately authorized implementation:
+The following 2026-09-30 decisions are reflected in the target sections below. HR-01
+implements the pair/schema foundation only; command changes await their owning slices:
 
 - `/horizon --create` automatically activates the new horizon by writing its ID to the local binding.
 - `/horizon --activate ID` selects an already-planning horizon, never resumes suspended work.
@@ -60,8 +61,8 @@ runtime behavior remains unchanged until separately authorized implementation:
    It finalizes a selected proposal against an exact baseline, not the horizon or implementation.
    The name is selected but not installed. Finalization validates supplied complete
    content, preserves history and saves an exact revision; it does not invent missing
-   decisions or perform independent review/admission. Horizon writer support is currently
-   missing and must be delivered for the target workflow.
+   decisions or perform independent review/admission. HR-01 supplies the horizon pair writer;
+   the renamed command and broader finalization behavior remain HR-05.
 
 ### Deferred Escalation Command
 

@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from datetime import datetime
 
 from jsonschema import Draft202012Validator, FormatChecker
 from referencing import Registry, Resource
@@ -62,9 +63,25 @@ def shape(document):
     errors = list(validator.iter_errors(document))
     require(not errors, 'change-set schema: ' + (errors[0].message if errors else ''))
     context = document['context']
+    require(document['id'] == context['id'], 'proposal/context identity mismatch')
     require(identity_policy.matches_kind(context['id'], context['kind']), 'planning context kind/identity mismatch')
     identity_policy.validate_allocation(document)
+    lifecycle = context.get('lifecycle')
+    if lifecycle is not None:
+        events = lifecycle['events']
+        require(len({event['operation_id'] for event in events}) == len(events), 'duplicate lifecycle operation identity')
+        timestamps = [datetime.fromisoformat(event['timestamp'].replace('Z', '+00:00')) for event in events]
+        require(timestamps == sorted(timestamps), 'lifecycle events are not time ordered')
+        require(all(event['action'] != 'create' or index == 0 for index, event in enumerate(events)), 'create must be the first lifecycle event')
+        if events:
+            states = {'create': 'planning', 'resume': 'planning', 'suspend': 'suspended', 'abandon': 'abandoned', 'close': 'closed'}
+            require(lifecycle['state'] == states[events[-1]['action']], 'lifecycle state differs from last event')
     return document
+
+
+def lifecycle_state(document):
+    shape(document)
+    return document['context'].get('lifecycle', {}).get('state', 'planning')
 
 
 def git(root, *arguments):
@@ -329,8 +346,10 @@ def save(root, context_id, document, expected_digest, record, migrate=False, com
         destination = capture.resolve_document(root, context_id)
         before = destination.read_bytes()
         previous = capture.read_capture(destination)
+        if previous['schema'] == FORMAT:
+            require(lifecycle_state(previous) == 'planning', 'context is not mutable planning; lifecycle writer is not available for this format yet')
         old_narrative_path = capture.narrative_path(destination) if destination.suffix == '.json' else None
-        require(old_narrative_path is not None, 'horizon pair creation requires explicitly agreed packet layout; save is currently ad hoc/discovery only')
+        require(old_narrative_path is not None, 'legacy horizon capture is read-only here; explicit migration required')
         old_narrative = old_narrative_path.read_bytes()
         navigation = old_narrative
         if navigation_only:
@@ -392,22 +411,44 @@ def save(root, context_id, document, expected_digest, record, migrate=False, com
         changed['capture']['sha256'] = hashlib.sha256(after_narrative).hexdigest()
         validate(root, changed, after_narrative)
         content = encoded(changed)
-        history = capture.assets_path(root, context_id) / 'history'
-        capture.ensure_directory(root, history)
-        for suffix, raw in (('proposal.json', before), ('capture.md', old_narrative)):
-            snapshot = capture.safe_path(root, history / (expected_digest + '-' + suffix))
-            if snapshot.exists():
-                require(snapshot.read_bytes() == raw, 'history snapshot conflict')
-            else:
-                capture.publish_new_bytes(snapshot, raw)
-        capture.replace_bytes(old_narrative_path, old_narrative, after_narrative)
-        try:
-            capture.replace_bytes(destination, before, content)
-        except BaseException:
-            if destination.read_bytes() == before:
-                capture.replace_bytes(old_narrative_path, after_narrative, old_narrative)
-            raise
+        _publish_pair(root, destination, before, old_narrative, content, after_narrative)
         return {'updated': True, 'document_digest': hashlib.sha256(content).hexdigest(), 'revision': changed['revision'], 'admitted': False}
+
+
+def _publish_pair(root, destination, before, old_narrative, content, after_narrative):
+    capture = helper('planning-capture')
+    previous = capture.decode_capture(before, capture.document_identity(destination))
+    changed = capture.decode_capture(content, previous['id'])
+    require(changed['schema'] == FORMAT, 'paired publication requires change-set format')
+    old_capture_digest = previous['capture']['sha256'] if previous['schema'] == FORMAT else previous['capture_sha256']
+    require(hashlib.sha256(old_narrative).hexdigest() == old_capture_digest, 'preimage capture/proposal pair mismatch')
+    if previous['schema'] == FORMAT:
+        require(all(changed[key] == previous[key] for key in ('id', 'author', 'created_at')), 'proposal identity/provenance is immutable')
+        require({key: value for key, value in changed['context'].items() if key != 'lifecycle'} ==
+                {key: value for key, value in previous['context'].items() if key != 'lifecycle'}, 'context identity/origin is immutable')
+    narrative = capture.safe_path(root, capture.narrative_path(destination))
+    require(changed['capture']['path'] == narrative.relative_to(root).as_posix() and 'git_commit' not in changed['capture'],
+            'working capture reference must identify its companion file')
+    require(hashlib.sha256(after_narrative).hexdigest() == changed['capture']['sha256'], 'capture/proposal pair mismatch')
+    require(destination.read_bytes() == before and narrative.read_bytes() == old_narrative, 'pair changed before publication')
+    if content == before and after_narrative == old_narrative:
+        return
+    expected_digest = hashlib.sha256(before).hexdigest()
+    history = capture.assets_path(root, previous['id']) / 'history'
+    capture.ensure_directory(root, history)
+    for suffix, raw in (('proposal.json', before), ('capture.md', old_narrative)):
+        snapshot = capture.safe_path(root, history / (expected_digest + '-' + suffix))
+        if snapshot.exists():
+            require(snapshot.read_bytes() == raw, 'history snapshot conflict')
+        else:
+            capture.publish_new_bytes(snapshot, raw)
+    capture.replace_bytes(narrative, old_narrative, after_narrative)
+    try:
+        capture.replace_bytes(destination, before, content)
+    except BaseException:
+        if destination.read_bytes() == before:
+            capture.replace_bytes(narrative, after_narrative, old_narrative)
+        raise
 
 
 def retire_rekey_source(root, home, inventory):
@@ -440,6 +481,7 @@ def rekey_package(root, context_id, slug, operation_id, expected_digest, confirm
             require(matches_subject, 'identity migration retry differs from original subject')
             current_path = capture.resolve_document(root, new_id)
             current = capture.read_capture(current_path)
+            require('lifecycle' not in current['context'], 'lifecycle-bearing rekey is unavailable; preserve the package for supported migration')
             validate(root, current)
             old_home = capture.safe_path(root, root / 'control-plane/ad-hoc' / context_id)
             retire_rekey_source(root, old_home, migration['inventory'])
@@ -451,6 +493,7 @@ def rekey_package(root, context_id, slug, operation_id, expected_digest, confirm
         require(previous['schema'] == FORMAT and previous['status'] == 'draft' and 'identity' not in previous,
                 'rekey requires an unallocated draft change set')
         require(previous['context']['kind'] in ('ad-hoc', 'discovery'), 'package rekey currently supports ad hoc/discovery only')
+        require('lifecycle' not in previous['context'], 'lifecycle-bearing rekey is unavailable; preserve the package for supported migration')
         validate(root, previous)
         minted = identity_policy.mint(root, previous['context']['kind'], slug, operation_id, previous['author'],
                                      previous['context'].get('origin'), True, locked=True)

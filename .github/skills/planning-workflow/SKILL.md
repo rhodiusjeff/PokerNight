@@ -34,8 +34,11 @@ appropriate typed changes in the same proposal while preserving all unaffected c
 compose/propose builder. Record actual confirmation in capture through transient `--record`
 input. Never create numbered request files or maintain the preview as a second proposal.
 
-The paired writer currently owns ad hoc/discovery. The schema/checker accepts horizon
-origins too, but horizon physical laydown is deferred. Legacy draft mutation helpers
+The paired writer owns ad hoc/discovery and HR-01 current-format horizon pairs. Horizon
+creation/migration and lifecycle/discovery/admission command integration remain later slices.
+Explicit-ID inspection and paired edits are supported; legacy lifecycle/transfer writers and
+current-horizon admission preparation refuse as unavailable. List/status also refuses when
+current horizon pairs would otherwise be omitted. Legacy draft mutation helpers
 refuse change sets. Evidence/admission/publication commands now dispatch by format;
 use [guided admission](../guided-admission/SKILL.md) only on its explicit invocation.
 Complete or validated still does not mean reviewed, approved, admitted or executable.
@@ -69,9 +72,11 @@ ADHOC, DISC and full-ID horizon documents. Each ad hoc/discovery session owns
 The resolver returns the proposal JSON; its digest binds the separate capture Markdown.
 Keep one self-contained current Canon/work candidate, not numbered active draft files.
 Use the policy's format-separation rule; no routine requests directory or metadata sidecar.
-New horizon captures have `kind: horizon`, `origin: null`, and live at
-`control-plane/horizons/<ID>/planning/<ID>.md`, where ID is the full minted
-`HNNN-<slug>-<hex4>`. Do not abbreviate it or require a packet-local tracker.
+Current-format horizon pairs live at `control-plane/horizons/<ID>/<ID>-proposal.json`
+and `<ID>-capture.md`, with `assets/` beside them. Preserve `context.lifecycle` exactly
+through the normal writer; absent lifecycle means planning without a rewrite. Existing
+old-format horizon captures retain `planning/<ID>.md` and their old schema without conversion.
+ID is the full minted `HNNN-<slug>-<hex4>`. Do not abbreviate it or require a packet-local tracker.
 For an omitted context, inspect `planning-context.py --root ROOT list` and `discover`, show
 the branch-scoped binding and alternatives, and confirm a singular selection. Ambiguity stops
 mutation. A missing, malformed, suspended, or terminal new document is not a legacy fallback.
@@ -84,7 +89,8 @@ command, input digests, and verbatim real confirmation in the ad hoc capture's c
 request/decision record. Use transient inputs and `--record FILE` with draft/propose or
 evidence mutations; `planning-capture.py record --root ROOT --id ID --expected-digest SHA
 --record - --confirmed` appends Markdown from stdin without a separate receipt file.
-For HNNN only, retain supporting records under the capture's sibling `assets/ID/requests/`.
+For old-format HNNN only, retain supporting records under the capture's sibling `assets/ID/requests/`.
+Current-format horizons use paired saves and the same capture narrative as ad hoc/discovery.
 No input/request/report is another maintained plan. Do not include credentials. `--confirmed` records an observed confirmation;
 helpers cannot authenticate people. Re-read the current document digest before preparing a new
 offer; on drift stop and explain the difference, never silently refresh a confirmed operation.
@@ -194,8 +200,8 @@ drafts. Compact request-ID/digest records provide idempotency without copying ev
 Superseded content lives in paired history. New draft work marks the candidate `draft` and
 blocks admission even if an older complete proposal remains. Explicit `propose` marks it
 `complete`; the separate independent review and admission gates still apply.
-HNNN keeps the existing `text` input and `workflow.planning.drafts` history until its
-laydown design is settled; do not apply ad hoc migration to horizons.
+Old-format HNNN keeps the existing `text` input and `workflow.planning.drafts` history;
+current-format horizons use the change-set writer. Do not apply ad hoc migration to horizons.
 
 Only explicit `--complete` planning authorizes a complete admission proposal. COMPLETE.json has
 exactly `result` (complete `canon`, `phases`, `dag` content) and `started_dispositions` (map).
@@ -237,8 +243,10 @@ refuses sessions with a complete proposal or review/admission evidence. No silen
 For a mismatched pair, inspect the retained snapshots and exact current hashes, then offer
 `planning-capture.py recover-pair --root ROOT --id ID --expected-digest CURRENT_JSON_SHA
 --expected-capture-digest CURRENT_MD_SHA --snapshot PRIOR_JSON_SHA --confirmed`.
-It retains observed preimages and restores the selected pair; it cannot recover admission
-authority. Do not reconstruct content from guesses or bypass a mismatch by direct editing.
+It supports current pairs in all three scopes, retains observed preimages and restores the
+selected pair without changing lifecycle/identity/origin. Active publication refuses; cross-format
+or lifecycle recovery belongs to its owning workflow. It cannot recover admission authority.
+Do not reconstruct content from guesses or bypass a mismatch by direct editing.
 
 If an unreviewed draft's source origins point to unavailable pre-migration files, use
 `planning-capture.py restore-sources --root ROOT --id ID --expected-digest CURRENT_JSON_SHA

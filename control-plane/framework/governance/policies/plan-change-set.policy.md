@@ -3,6 +3,9 @@
 IDs follow [Planning Identity Policy](planning-identity.policy.md). New-style proposals
 carry helper-owned allocation metadata. The `rekey` writer preserves exact prior subjects
 and records aliases during an explicitly authorized legacy draft-package migration.
+Lifecycle-bearing packages refuse both fresh rekeys and recovery retries until a supported
+migration accounts for every lifecycle reference. No source retirement or allocation follows
+that refusal. Pair readers require the exact context-home-relative capture path, not a suffix.
 
 For a draft with local sources, `planning-change-set.py --context ID refresh-navigation
 --expected-digest SHA --confirmed` refreshes source-location sections from the verified
@@ -53,6 +56,38 @@ Required fields are `schema`, `id`, `revision`, `title`, `author`, `created_at`,
 - `unresolved` records gaps with ID, explanation and affected change IDs. An empty affects
   array means a proposal-wide gap. Do not confuse unresolved planning input with an
   intentionally proposed Open Question or Assumption Canon record.
+
+## Context Lifecycle And Pair Storage
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): Operator-authorized HR-01 storage/schema foundation.
+Current-format horizons use `control-plane/horizons/<ID>/<ID>-proposal.json` and
+`<ID>-capture.md`, with `assets/history/` beside the pair. Ad hoc/discovery homes are unchanged.
+Explicit-ID resolution recognizes both current pairs and old `planning/<ID>.md` captures;
+mixed layouts, unsupported schemas, malformed metadata and mismatched pairs refuse. Resolution
+does not migrate files. The change-set writer treats old horizon captures as read-only.
+
+Optional `context.lifecycle` uses the shared schema's strict lifecycle/event/closure definitions.
+Absence reads as `planning` without rewriting the proposal. States are `planning`, `suspended`,
+`abandoned` and `closed`; absorbed/escalated captures retain their old-format compatibility only.
+Events carry unique operation IDs, actions, actual actor/invocation provenance, ordered timestamps,
+and exact retained proposal/capture preimage references. Creation has a null preimage; suspend
+requires reason/next step; abandon/close require reason. Closed metadata additionally names
+applied proposal/attempt/verification subjects and explicit remaining-scope dispositions.
+Schema acceptance does not verify application, authorize a transition or authenticate an actor.
+Transition eligibility, receipt verification and binding cleanup belong to later lifecycle owners.
+
+Normal saves preserve the entire context, including origin and lifecycle, plus attribution and
+issued identity metadata. Non-planning contexts refuse saves. The private `_publish_pair`
+primitive is only byte publication under the owning caller's lock/authority checks, not a public
+lifecycle writer: it retains exact preimages before replacement and never rewrites review or
+admission bundles. Later owners must validate transitions and evidence before using it. A changed
+document digest does not retroactively change the historical reviewed/admitted subject.
+
+HR-01 exposes explicit-ID inspect/validate/preview, existing paired save/complete and exact paired
+recovery. It does not create or migrate horizons. Current-format activation, transfers and admission
+preparation refuse as unavailable. Current-horizon inventory also refuses instead of silently
+omitting pairs. Creation/binding, discovery/lifecycle, finalization naming and admission/closure
+remain subsequent slices; existing old-format behavior is not silently converted.
 
 ## Baseline Identity
 
@@ -181,9 +216,11 @@ draft change set, preserved context/attribution and exact source-ID/hash coverag
 record mapping must be explicit and independently inspectable; the helper cannot decide
 whether a new classification is correct. Original source files are verified and retained.
 
-The schema/checker applies to all planning types. Paired save/migration currently supports
-ad hoc and discovery; no horizon packet shape is silently changed. Horizon payloads can
-be validated/previewed under the shared schema while physical laydown remains deferred.
+The schema/checker and paired save/complete apply to all three planning types at their
+supported pair homes. Existing migration remains ad hoc/discovery only; no horizon packet
+shape is silently changed. Paired recovery requires both exact observed hashes, retained
+snapshots, unchanged lifecycle/identity/origin and no active publication. Cross-format or
+lifecycle recovery requires its owning workflow, not a generic snapshot rollback.
 Existing capture/context inspection and ad hoc listing recognize the new schema. Legacy
 draft and transfer mutations refuse change sets. Evidence/admission/publication commands
 dispatch by format to the repository implementation, never rewrite a change set as the
@@ -203,5 +240,5 @@ this format through planning-change-evidence.py and planning-repository.py. The
 owns exact multi-file baselines, typed tracker schemas, durable source/evidence storage,
 empty-legacy migration and source synchronization. planning-change-set.py baseline
 --target-ref refs/heads/BRANCH supplies the proposal's base, including all file hashes.
-Populated legacy migration, horizon file laydown, cleanup and product start/completion
+Populated legacy migration, current-horizon command integration, cleanup and product start/completion
 remain separate boundaries. Validation/preview still grants no approval or admission.

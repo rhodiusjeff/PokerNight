@@ -120,6 +120,17 @@ class IdentityTests(unittest.TestCase):
             with self.assertRaisesRegex(OSError,'interrupted retirement'):
                 changes.rekey_package(self.root,old_id,'test-planning','rekey',migrated['document_digest'],True)
         self.assertTrue(path.parent.exists())
+        pending_id=identity.local_state(self.root,capture)[1]['aliases'][old_id]
+        pending_path=capture.resolve_document(self.root,pending_id)
+        pending_bytes=pending_path.read_bytes()
+        pending=capture.read_capture(pending_path)
+        pending['context']['lifecycle']={'state':'planning','events':[]}
+        pending_path.write_bytes(changes.encoded(pending))
+        preserved={item.relative_to(self.root):item.read_bytes() for item in self.root.rglob('*') if item.is_file()}
+        with self.assertRaisesRegex(ValueError,'lifecycle-bearing rekey is unavailable'):
+            changes.rekey_package(self.root,old_id,'test-planning','rekey',migrated['document_digest'],True)
+        self.assertEqual(preserved,{item.relative_to(self.root):item.read_bytes() for item in self.root.rglob('*') if item.is_file()})
+        pending_path.write_bytes(pending_bytes)
         result=changes.rekey_package(self.root,old_id,'test-planning','rekey',migrated['document_digest'],True)
         new_path=pathlib.Path(result['path'])
         current=capture.read_capture(new_path)
