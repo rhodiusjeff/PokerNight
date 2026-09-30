@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:control-plane:repository-state:v1",
+  "$comment": "LOCAL MOD - HARVEST TO CPB: repository Canon and tracker/archive reader and writer contract.",
+  "type": "object", "additionalProperties": false,
+  "required": ["canon", "tracker", "archive"],
+  "properties": {
+    "canon": {"$ref": "canon-records.schema.json"},
+    "tracker": {"$ref": "#/$defs/tracker"},
+    "archive": {"$ref": "#/$defs/archive"}
+  },
+  "$defs": {
+    "status": {"enum": ["not-started", "in-progress", "closed", "in-review", "done", "blocked", "on-hold"]},
+    "nodes": {"type": "array", "items": {"$ref": "#/$defs/node"}},
+    "dependencies": {"type": "array", "items": {"$ref": "plan-change-set.schema.json#/$defs/dependency"}},
+    "node": {
+      "type": "object", "additionalProperties": false,
+      "required": ["work", "status", "applicability", "history", "binding", "evidence"],
+      "properties": {
+        "work": {"$ref": "plan-change-set.schema.json#/$defs/work_item"},
+        "status": {"$ref": "#/$defs/status"},
+        "applicability": {"enum": ["active", "obsolete"]},
+        "history": {"type": "array", "items": {"$ref": "plan-change-set.schema.json#/$defs/work_item"}},
+        "binding": {"oneOf": [{"type": "null"}, {
+          "type": "object", "additionalProperties": false, "required": ["work", "canon"],
+          "properties": {"work": {"$ref": "plan-change-set.schema.json#/$defs/work_item"}, "canon": {"$ref": "canon-records.schema.json"}}
+        }]},
+        "evidence": {"type": "array", "items": {"$ref": "canon-records.schema.json#/$defs/source"}}
+      }
+    },
+    "tracker": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "revision", "nodes", "dependencies", "admissions"],
+      "properties": {
+        "schema": {"const": "cp-repository-tracker-v1"}, "revision": {"type": "integer", "minimum": 0},
+        "nodes": {"$ref": "#/$defs/nodes"}, "dependencies": {"$ref": "#/$defs/dependencies"},
+        "admissions": {"type": "array", "items": {
+          "type": "object", "additionalProperties": false,
+          "required": ["id", "proposal_id", "proposal_revision", "proposal_digest", "decision_digest", "base_digest", "revision"],
+          "properties": {
+            "id": {"$ref": "canon-records.schema.json#/$defs/hash"},
+            "proposal_id": {"$ref": "canon-records.schema.json#/$defs/id"},
+            "proposal_revision": {"type": "integer", "minimum": 1},
+            "proposal_digest": {"$ref": "canon-records.schema.json#/$defs/hash"},
+            "decision_digest": {"$ref": "canon-records.schema.json#/$defs/hash"},
+            "base_digest": {"$ref": "canon-records.schema.json#/$defs/hash"},
+            "revision": {"type": "integer", "minimum": 1}
+          }
+        }}
+      }
+    },
+    "archive": {
+      "type": "object", "additionalProperties": false, "required": ["schema", "nodes", "dependencies"],
+      "properties": {"schema": {"const": "cp-repository-tracker-archive-v1"}, "nodes": {"$ref": "#/$defs/nodes"}, "dependencies": {"$ref": "#/$defs/dependencies"}}
+    }
+  }
+}

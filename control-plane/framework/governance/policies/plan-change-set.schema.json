@@ -28,6 +28,10 @@
     "base": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/base"}]},
     "sources": {"type": "array", "items": {"$ref": "canon-records.schema.json#/$defs/source"}},
     "changes": {"type": "array", "items": {"$ref": "#/$defs/change"}},
+    "execution_impact": {"type": "array", "uniqueItems": true, "items": {
+      "type": "object", "additionalProperties": false, "required": ["work", "disposition", "rationale"],
+      "properties": {"work": {"$ref": "canon-records.schema.json#/$defs/record_ref"}, "disposition": {"const": "preserve-bound-contract"}, "rationale": {"$ref": "canon-records.schema.json#/$defs/text"}}
+    }},
     "unresolved": {"type": "array", "items": {
       "type": "object", "additionalProperties": false, "required": ["id", "explanation", "affects"],
       "properties": {"id": {"$ref": "canon-records.schema.json#/$defs/id"}, "explanation": {"$ref": "canon-records.schema.json#/$defs/text"}, "affects": {"$ref": "#/$defs/ids"}}
@@ -64,7 +68,8 @@
         "canon": {"$ref": "canon-records.schema.json"},
         "work_items": {"type": "array", "items": {"$ref": "#/$defs/work_item"}},
         "dependencies": {"type": "array", "items": {"$ref": "#/$defs/dependency"}},
-        "bound_work": {"type": "array", "uniqueItems": true, "items": {"$ref": "canon-records.schema.json#/$defs/record_ref"}}
+        "bound_work": {"type": "array", "uniqueItems": true, "items": {"$ref": "canon-records.schema.json#/$defs/record_ref"}},
+        "obsolete_work": {"type": "array", "uniqueItems": true, "items": {"$ref": "canon-records.schema.json#/$defs/record_ref"}}
       }
     },
     "ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "canon-records.schema.json#/$defs/id"}},
@@ -77,7 +82,8 @@
         "git_commit": {"type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"},
         "path": {"$ref": "canon-records.schema.json#/$defs/source/properties/path"},
         "revision": {"type": "integer", "minimum": 0},
-        "sha256": {"$ref": "canon-records.schema.json#/$defs/hash"}
+        "sha256": {"$ref": "canon-records.schema.json#/$defs/hash"},
+        "files": {"type": "object", "additionalProperties": {"anyOf": [{"$ref": "canon-records.schema.json#/$defs/hash"}, {"type": "null"}]}}
       }
     },
     "absent": {"type": "object", "additionalProperties": false, "required": ["state"], "properties": {"state": {"const": "absent"}}},

@@ -48,6 +48,8 @@ def subject(document):
 
 
 def subjects(document):
+    if document.get('schema') == 'cp-change-review-state-v1':
+        return load_module('planning-change-evidence').subjects(document['_root'], document['proposal'])
     current = subject(document)
     return {"capture_digest": contract.digest(current["capture"]),
             "sources_digest": contract.digest(document["sources"]),
@@ -146,6 +148,9 @@ def disposition(document, kind, identity, request_id, status, evidence, confirme
 
 
 def warnings(document):
+    if document.get('schema') == 'cp-change-review-state-v1':
+        module = load_module('planning-change-evidence')
+        return module.warnings(module.read_events(document['_root'], document['id']))
     result = []
     current = subjects(document)["input_digest"]
     for kind, register in document.get("workflow", {}).get("findings", {}).items():
@@ -315,6 +320,8 @@ def finalize_decision(document, identity, expected_draft_digest, confirmation, c
 
 
 def selected_decision(document, identity):
+    if document.get('schema') == 'cp-change-review-state-v1':
+        return load_module('planning-change-evidence').selected(document['_root'], document['proposal'], identity)
     decisions = document.get("workflow", {}).get("decision", {})
     contract.require(decisions.get("current_id") == identity, "decision is not the current finalized selection")
     matches = [record for record in decisions.get("finalized", []) if record["id"] == identity]
@@ -406,7 +413,8 @@ def read_document(root, context_id):
     contract.require(hasattr(capture, "resolve_document"), "shared capture resolve_document API is required")
     filename = confined(root, capture.resolve_document(root, context_id))
     document = capture.read_capture(filename)
-    contract.require(document.get("schema") != "cp-plan-change-set-v1", "change-set review/evidence integration is pending; legacy evidence writer cannot reinterpret this format")
+    if document.get('schema') == 'cp-plan-change-set-v1':
+        return load_module('planning-change-evidence').read_view(root, context_id)
     validate_workflow(document)
     return filename, document
 
@@ -443,6 +451,11 @@ def main():
         command.add_argument("--record", type=pathlib.Path, help="transient Markdown narrative record for paired ad hoc capture")
     args = parser.parse_args()
     try:
+        selected_path = capture.resolve_document(args.root, args.context)
+        if capture.read_capture(selected_path).get('schema') == 'cp-plan-change-set-v1':
+            result = load_module('planning-change-evidence').cli(args)
+            print(json.dumps({**result, 'live_admission': False}, indent=2, ensure_ascii=False))
+            return 0
         filename, document = read_document(args.root, args.context)
         if args.command == "export-review":
             result = {"input": subject(document), "subjects": subjects(document)}

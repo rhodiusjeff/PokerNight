@@ -65,6 +65,8 @@ def bundle_payload(document, raw, base_bytes, execution_bytes, decision_id, narr
 
 def verify_directory(root, directory, expected_identity=None):
     directory = evidence.confined(root, directory)
+    if contract.load_json(directory / 'manifest.json').get('schema') == 'cp-change-admission-bundle-v1':
+        return evidence.load_module('planning-change-evidence').verify(root, directory, expected_identity)
     expected_identity = expected_identity or directory.name
     contract.validate_shape(expected_identity, contract.HASH, "bundle identity")
     contract.require(directory.is_dir(), "bundle directory missing")
@@ -107,6 +109,8 @@ def publish_bundle(root, directory, payload):
 
 def prepare(root, context_id, decision_id, base_path, execution_path, expected_digest, confirmed):
     contract.require(confirmed, "bundle preparation requires explicit confirmed command authority")
+    if capture.read_capture(capture.resolve_document(root, context_id)).get('schema') == 'cp-plan-change-set-v1':
+        return evidence.load_module('planning-change-evidence').prepare(root, context_id, decision_id, expected_digest, confirmed)
     root = pathlib.Path(root).resolve()
     with capture.local_writer(root):
         filename, document = evidence.read_document(root, context_id)
@@ -140,6 +144,9 @@ def prepare(root, context_id, decision_id, base_path, execution_path, expected_d
 
 
 def validate_bundle(root, directory, base_path=None, execution_path=None, check_current=True):
+    directory = evidence.confined(root, directory)
+    if contract.load_json(directory / 'manifest.json').get('schema') == 'cp-change-admission-bundle-v1':
+        return evidence.load_module('planning-change-evidence').validate_bundle(root, directory, check_current)
     manifest, snapshot, payload, validation = verify_directory(root, directory)
     if check_current:
         filename, current = evidence.read_document(root, manifest["context_id"])

@@ -5,19 +5,70 @@ user-invocable: false
 ---
 # Guided Admission
 
-If the selected document is cp-plan-change-set-v1, stop before legacy bundle preparation
-or publication: live change-set review/admission/application integration is not installed.
-The [change-set policy](../../../control-plane/framework/governance/policies/plan-change-set.policy.md)
-owns validation and draft saves, not admission. Do not flatten eleven-kind Canon into the
-old three-kind complete-result schema to bypass this boundary. Report the missing owner.
+For cp-plan-change-set-v1, the existing evidence/admission/publication CLIs dispatch to
+the shared Canon model and repository tracker/archive writer. Load the
+[change-set policy](../../../control-plane/framework/governance/policies/plan-change-set.policy.md)
+and repository storage contract. Never flatten typed Canon into the older kernel.
+Drafts remain inadmissible. Populated legacy baselines require explicit migration mapping;
+only the verified empty legacy pair can be replaced in the admission candidate.
 
 LOCAL MOD - HARVEST TO CPB (2026-09-29): load the
 [repository storage contract](../../../control-plane/framework/governance/policies/tracker-and-state.policy.md#repository-canon-and-tracker-storage-contract)
-when assessing new-format application. Its Canon and tracker/archive destinations are
-agreed, not installed runtime targets. Future application must check phase identities
-and dependency references across active and archived work and preserve completed rows
-and bound contracts. Admission does not archive phases. Do not substitute the agreed
-paths into legacy commands or invent CLI options; the change-set refusal above remains.
+when assessing new-format application. Application checks identities and dependencies
+across active/archive work and preserves completed rows and bound contracts. Admission
+does not archive phases. The proposal base binds all operational files; legacy --base
+and --execution arguments are not the new-format authority selection mechanism.
+
+## Change-Set Evidence And Bundle Inputs
+
+The commands below retain their names and explicit confirmation boundaries. For a change
+set, --expected-digest is the current proposal file SHA-256. Evidence is stored separately
+under assets/admission/evidence; it never changes the reviewed capture digest. Review
+requests retain the same request_id/review_input/report_path/observations/attestation
+fields. The returned review_id is the supplied request_id. Review input includes the
+composed result template and exact repository baseline. Assess competing obligations,
+definitions and affected work, not merely JSON/Git validity; no automatic semantic proof
+is claimed. Previous findings are supplied separately, including unresolved source findings.
+
+draft-decision retains the existing fields and selected review IDs. Its evidence_result
+is the immutable draft-event digest. Read the event's decision member and bind its digest
+in the actual finalization confirmation. Findings changed since that draft refuse. The
+bundle includes the evidence chain, separate report/input files, original capture pair,
+source bytes, exact baseline and deterministic result. New source paths are materialized
+under control-plane/evidence/admissions/<proposal-digest>/; no Base64 is introduced.
+
+Obtain a current baseline with planning-change-set.py baseline --target-ref refs/heads/BRANCH.
+Use normal complete/save to revise the proposal against it, then refresh review/decision
+as needed. Complete proposals affecting existing bound work require explicit
+execution_impact preservation entries. Sources already in the baseline resolve at its
+pinned Git commit, even when the source worktree has not caught up.
+
+## Post-Admission Working-Branch Synchronization
+
+This is a separate narrow writer grant for the invoking planning/admission personas.
+Only an explicitly invoked/confirmed synchronization of the named applied attempt and
+current working branch permits source refs/index/worktree changes. It is not product
+execution, and candidate conflict-recovery permission is not source-rebase permission.
+
+```text
+python3 control-plane/framework/scripts/planning-publication.py --root ROOT sync-offer --attempt ID --branch refs/heads/WORKING --method rebase --confirmed
+python3 control-plane/framework/scripts/planning-publication.py --root ROOT sync --attempt ID --action start --offer OFFER.json --confirmation CONFIRMATION.json --confirmed
+python3 control-plane/framework/scripts/planning-publication.py --root ROOT sync-status --attempt ID
+python3 control-plane/framework/scripts/planning-publication.py --root ROOT sync --attempt ID --action continue --offer OFFER.json --confirmation CONFIRMATION.json --confirmed
+python3 control-plane/framework/scripts/planning-publication.py --root ROOT sync --attempt ID --action abort --offer OFFER.json --confirmation CONFIRMATION.json --confirmed
+```
+
+sync-offer verifies/fetches the applied target and discloses source head, old base, exact
+target, branch and method. Confirmation carries actual actor/authority/date/rationale/
+evidence, offer_digest and action. Rebase start additionally requires an explicit true
+history_rewrite_acknowledged; never infer private branch ownership. Use --method merge
+for shared history unless rewriting is explicitly agreed. No dirty work, automatic stash,
+force-push or target-branch rewrite is allowed. Continue/abort also require the exact
+sync-status resolution_digest. Explain conflicts and obtain the substantive resolution;
+route product edits to Codegen or the Operator. Abort retains tracked resolution patches.
+If Git has ended but validation fails, inspect and obtain a scoped reconciliation decision;
+do not automatically reset. Synchronization never undoes an already applied admission.
+Cleanup remains deferred. New prompt metadata does not claim regenerated Claude wrappers.
 
 The normal publication helper defaults to `forge-cli`: real gh/glab operations selected
 from origin with explicit repository, target and subject binding. Use the existing CLI

@@ -138,6 +138,21 @@ def resolve(root, phase_id, require_executable=False, target_ref=None,
     target_ref = selected_target(root, target_ref)
     commit = target_commit(root, target_ref)
     require(expected_target_commit is None or expected_target_commit == commit, "stale target commit")
+    repository = module('planning-repository')
+    if any(repository.blob(root, commit, relative) is not None for relative in repository.PATHS.values()):
+        selected = repository.snapshot(root, commit)['state']
+        if not any(node['work']['id'] == phase_id for node in selected['tracker']['nodes'] + selected['archive']['nodes']):
+            raise PhaseNotFound(f'phase {phase_id!r} was not found in repository tracker/archive')
+        require(not module('resolve-horizon').candidates(root, phase_id, True), 'repository and legacy phase ownership is ambiguous')
+        result = repository.resolve(root, phase_id, commit)
+        require(not result['archive_only'] or include_archive, 'archive-only phase requires --include-archive for historical inspection')
+        require(expected_specification_digest is None or expected_specification_digest == result['operational_digest'], 'stale repository state')
+        require(expected_execution_digest is None or expected_execution_digest == contract.digest(selected['tracker']), 'stale repository progress')
+        require(target_commit(root, target_ref) == commit, 'target moved during resolution')
+        require(not require_executable, LIVE_BLOCKER)
+        instance = contract.load_json(local_path(root, INSTANCE))
+        return {**result, 'target_ref': target_ref, 'instance_state': instance.get('state'),
+                'execution_digest': contract.digest(selected['tracker']), 'execution_blocker': LIVE_BLOCKER, 'live_admission': False}
     specification = committed_specification(root, commit)
     require(expected_specification_digest is None or
             expected_specification_digest == specification["content_digest"], "stale specification evidence")
@@ -188,7 +203,7 @@ def check_start_prerequisites(root, phase_id, **options):
     result = resolve(root, phase_id, **options)
     require(result["instance_state"] == "operational", "start prerequisites require an operational instance")
     require(result["phase_status"] == "not-started", "phase has already started; original binding must be preserved")
-    require(result["phase_contract"]["status"] == "active", "phase is obsolete")
+    require((result['applicability'] if result['source'] == 'repository' else result['phase_contract']['status']) == 'active', 'phase is obsolete')
     require(not result["blocked_dependencies"], f"incomplete dependencies: {result['blocked_dependencies']}")
     return {**result, "prerequisites_satisfied": True}
 
@@ -615,6 +630,9 @@ def write_new(filename, value):
 
 def initialize(root, confirmed=False):
     require(confirmed is True, "initialization requires explicit --confirmed")
+    repository = module('planning-repository')
+    require(not any(local_path(root, relative).exists() for relative in repository.PATHS.values()),
+            'repository authority already exists; legacy initialization would create a competing master')
     paths = [local_path(root, relative) for relative in (SPECIFICATION, EXECUTION)]
     require(not any(filename.exists() for filename in paths),
             "initialization requires both specification and execution absent; no overwrite or migration")

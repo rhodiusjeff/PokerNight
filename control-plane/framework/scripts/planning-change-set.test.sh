@@ -50,6 +50,160 @@ def work(identity='work'):
 
 
 class ChangeTests(unittest.TestCase):
+    def repository_fixture(self):
+        temporary=tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        folder=pathlib.Path(temporary.name).resolve()
+        repository=changes.helper('planning-repository')
+        git=lambda *args: changes.git(folder,*args).decode().strip()
+        git('init','--quiet','-b','main')
+        git('config','user.name','Fixture')
+        git('config','user.email','fixture@example.invalid')
+        for relative,value in zip(repository.LEGACY,(capture.contract.empty_specification(),{'phases':{},'contracts':{}})):
+            filename=folder/relative
+            filename.parent.mkdir(parents=True,exist_ok=True)
+            filename.write_bytes(changes.encoded(value))
+        git('add','control-plane')
+        git('commit','--quiet','-m','Empty operational fixture')
+        document=proposal([add(record())])
+        document.update(status='complete',base=repository.reference(folder,'refs/heads/main'))
+        filename=folder/'control-plane/ad-hoc'/document['id']/(document['id']+'-proposal.json')
+        filename.parent.mkdir(parents=True)
+        narrative=capture.narrative_path(filename)
+        narrative.write_text('Operator fixture requirements\n')
+        document['capture'].update(path=narrative.relative_to(folder).as_posix(),sha256=hashlib.sha256(narrative.read_bytes()).hexdigest())
+        source=folder/'source.md'
+        source.write_text('A player makes legal moves.\n')
+        document['sources'][0]['sha256']=hashlib.sha256(source.read_bytes()).hexdigest()
+        filename.write_bytes(changes.encoded(document))
+        return folder,document,repository,filename
+
+    def test_repository_admission_history_and_round_trip(self):
+        folder,document,repository,filename=self.repository_fixture()
+        selected=repository.snapshot(folder,document['base']['git_commit'])
+        result=repository.compose(document,selected,'1'*64)
+        self.assertEqual(result['canon']['records'][0]['authority_status'],'admitted')
+        self.assertEqual(document['changes'][0]['value']['authority_status'],'proposed')
+        self.assertEqual(repository.validate(json.loads(json.dumps(result))),result)
+        self.assertEqual(result['tracker']['revision'],1)
+        with self.assertRaisesRegex(ValueError,'already admitted'):
+            repository.compose(document,{**selected,'state':result},'1'*64)
+        original=copy.deepcopy(result['canon']['records'][0])
+        updated=copy.deepcopy(document)
+        updated['revision']=2
+        updated['sources']=copy.deepcopy(result['canon']['sources'])
+        updated['changes']=[{'change_id':'obsolete','operation':'obsolete','target':{'type':'canon_record','id':'req'},
+            'expected':{'state':'present','revision':1,'digest':changes.digest(original)},'rationale':'Retire fixture obligation','sources':['source-1']}]
+        updated['base']['revision']=1
+        retired=repository.compose(updated,{**selected,'state':result},'2'*64)
+        self.assertEqual(retired['canon']['records'][0],original)
+        self.assertEqual(retired['canon']['records'][-1]['authority_status'],'retired')
+        self.assertEqual(repository.latest_records(retired['canon'])['req']['revision'],2)
+
+    def test_repository_partial_and_duplicate_authority_refuse(self):
+        folder,document,repository,filename=self.repository_fixture()
+        candidate=folder/repository.CANON
+        candidate.parent.mkdir(parents=True)
+        candidate.write_bytes(changes.encoded(repository.empty()['canon']))
+        with self.assertRaisesRegex(ValueError,'competing master'):
+            changes.helper('planning-execution').initialize(folder,True)
+        changes.git(folder,'add',repository.CANON)
+        changes.git(folder,'commit','--quiet','-m','Incomplete fixture state')
+        commit=changes.git(folder,'rev-parse','HEAD').decode().strip()
+        with self.assertRaisesRegex(ValueError,'incomplete repository'):
+            repository.snapshot(folder,commit)
+
+    def test_repository_archive_prerequisites_and_bound_contracts(self):
+        folder,document,repository,filename=self.repository_fixture()
+        for identity in ('finished','next'):
+            item=work(identity)
+            item.update(maturity='specified',specification={'execution_model':'Operator-selected','sizing_rationale':'Bounded',
+                'validation_plan':['Run fixture'],'failure_discovery_route':'Capture scope','review_boundary':'self','closeout_basis':'Verified merge'})
+            document['changes'].append(add(item,'work_item'))
+        edge={'from':{'id':'finished','revision':1},'to':{'id':'next','revision':1},'rationale':'Prior work','sources':['source-1']}
+        document['changes'].append(add(edge,'work_dependency','dependency'))
+        selected=repository.snapshot(folder,document['base']['git_commit'])
+        state=repository.compose(document,selected,'1'*64)
+        completed=state['tracker']['nodes'].pop(0)
+        completed['status']='done'
+        completed['binding']={'work':copy.deepcopy(completed['work']),'canon':copy.deepcopy(state['canon'])}
+        state['archive']['nodes'].append(completed)
+        state['archive']['dependencies']=state['tracker']['dependencies']
+        state['tracker']['dependencies']=[]
+        for key,relative in repository.PATHS.items():
+            destination=folder/relative
+            destination.parent.mkdir(parents=True,exist_ok=True)
+            destination.write_bytes(changes.encoded(state[key]))
+        for relative in repository.LEGACY:
+            (folder/relative).unlink()
+        changes.git(folder,'add','--',*repository.PATHS.values(),*repository.LEGACY)
+        changes.git(folder,'commit','--quiet','-m','Applied fixture and completed archive')
+        commit=changes.git(folder,'rev-parse','HEAD').decode().strip()
+        resolved=repository.resolve(folder,'next',commit)
+        self.assertEqual(resolved['dependency_statuses'],{'finished':'done'})
+        self.assertEqual(resolved['blocked_dependencies'],[])
+        self.assertTrue(repository.resolve(folder,'finished',commit)['archive_only'])
+        amended=copy.deepcopy(document)
+        amended.update(revision=2,base=repository.reference(folder,'refs/heads/main'),sources=copy.deepcopy(state['canon']['sources']))
+        successor=record(revision=2)
+        change=add(successor)
+        change.update(operation='modify',expected={'state':'present','revision':1,'digest':changes.digest(state['canon']['records'][0])})
+        amended['changes']=[change]
+        current=repository.snapshot(folder,commit)
+        with self.assertRaisesRegex(ValueError,'execution-impact'):
+            repository.compose(amended,current,'2'*64)
+        amended['execution_impact']=[{'work':{'id':'finished','revision':1},'disposition':'preserve-bound-contract','rationale':'Completed work keeps original meaning'}]
+        result=repository.compose(amended,current,'2'*64)
+        self.assertEqual(result['archive'],state['archive'])
+        self.assertEqual(result['tracker']['nodes'],state['tracker']['nodes'])
+        duplicate=copy.deepcopy(state)
+        duplicate['tracker']['nodes'].append(completed)
+        with self.assertRaisesRegex(ValueError,'duplicate phase'):
+            repository.validate(duplicate)
+
+    def test_change_review_and_exact_decision(self):
+        folder,document,repository,filename=self.repository_fixture()
+        evidence=changes.helper('planning-change-evidence')
+        authority={'actor':'Operator','authority':'Fixture only','date':'2026-09-29','rationale':'Synthetic test','evidence':'fixture://confirmation'}
+        (folder/'review.md').write_text('Independent fixture assessment of full Canon/work impact.\n')
+        request={'request_id':'review-1','review_input':evidence.subject(folder,document),'report_path':'review.md','observations':[],
+            'attestation':{**authority,'actor':'Independent Reviewer','independent':True,'scope':'Full change set and impact'}}
+        evidence.apply(folder,document,'review',request,True)
+        self.assertFalse(evidence.apply(folder,document,'review',request,True)['updated'])
+        fields={'kind':'approval','actor':'Operator','authority':'Fixture only','date':'2026-09-29','scope':'Full fixture',
+            'checklist':dict.fromkeys(capture.contract.CHECK_NAMES,True),'integration_assessment':'Reviewed exact candidate',
+            'dag_assessment':'No work changes','findings_acknowledged':[],'conditions':[],'signoff':'Fixture approval','invocation_source':'operator-confirmation'}
+        draft=evidence.apply(folder,document,'draft-decision',{'identity':'decision-1','review_ids':['review-1'],'fields':fields},True)
+        decision=evidence.read_events(folder,document['id'])[-1]['decision']
+        confirmation={**authority,'decision_digest':changes.digest(decision)}
+        evidence.apply(folder,document,'finalize-decision',{'identity':'decision-1','expected_draft_digest':draft['evidence_result'],'confirmation':confirmation},True)
+        final,reviews=evidence.selected(folder,document,'decision-1')
+        self.assertEqual(final['decision'],decision)
+        self.assertEqual(len(reviews),1)
+        admission=changes.helper('planning-admission')
+        prepared=admission.prepare(folder,document['id'],'decision-1',None,None,hashlib.sha256(filename.read_bytes()).hexdigest(),True)
+        self.assertEqual(admission.validate_bundle(folder,prepared['bundle'])['result']['tracker']['revision'],1)
+        self.assertFalse(admission.prepare(folder,document['id'],'decision-1',None,None,hashlib.sha256(filename.read_bytes()).hexdigest(),True)['created'])
+        manifest,view,payload,validation=admission.verify_directory(folder,prepared['bundle'])
+        header={'id':'fixture-attempt','offer':{'bundle':str(pathlib.Path(prepared['bundle']).relative_to(folder)),
+            'bundle_id':prepared['bundle_id'],'base_digest':manifest['base_digest'],'decision_digest':manifest['decision_digest'],
+            'proposal_digest':manifest['subjects']['proposal_digest']}}
+        files,paths=evidence.expected_files(folder,header)
+        self.assertIsNone(files[repository.LEGACY[0]])
+        self.assertIsNone(files[repository.LEGACY[1]])
+        self.assertIn(repository.CANON,files)
+        self.assertIn(repository.TRACKER,files)
+        self.assertIn(repository.ARCHIVE,files)
+        source_path=validation['result']['canon']['sources'][0]['path']
+        self.assertEqual(files[source_path],(folder/'source.md').read_bytes())
+        changed=copy.deepcopy(document)
+        changed['title']='Changed exact subject'
+        with self.assertRaisesRegex(ValueError,'stale'):
+            evidence.selected(folder,changed,'decision-1')
+        request['attestation']['actor']=document['author']
+        with self.assertRaisesRegex(ValueError,'not independent'):
+            evidence.apply(folder,document,'review',request,True)
+
     def test_all_planning_origins_share_schema(self):
         for kind in ('ad-hoc','horizon','discovery'):
             with self.subTest(kind=kind):
@@ -132,7 +286,14 @@ class ChangeTests(unittest.TestCase):
                   'expected':{'state':'present','revision':1,'digest':changes.digest(record())},'rationale':'No longer applicable','sources':['source-1']}
         result=changes.compose(proposal([deletion]),base)['result']
         self.assertEqual(result['effective_record_refs'],[])
-        self.assertEqual(result['canon']['records'],[record()])
+        self.assertEqual(result['canon']['records'][0],record())
+        self.assertEqual(result['canon']['records'][1]['revision'],2)
+        self.assertEqual(result['canon']['records'][1]['authority_status'],'retired')
+        restored=copy.deepcopy(base)
+        restored['canon']=json.loads(json.dumps(result['canon']))
+        self.assertEqual(changes.compose(proposal(),restored)['result']['effective_record_refs'],[])
+        with self.assertRaisesRegex(ValueError,'already exists'):
+            changes.compose(proposal([add(record())]),restored)
         base['work_items']=[work()]
         with self.assertRaisesRegex(ValueError,'unavailable Canon'): changes.compose(proposal([deletion]),base)
 

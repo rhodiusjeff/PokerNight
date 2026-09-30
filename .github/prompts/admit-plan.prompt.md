@@ -1,7 +1,7 @@
 ---
 name: "Admit Plan"
 description: "Guide exact review and approval, origin-selected gh/glab admission publication, separately confirmed integration, application verification and recovery."
-argument-hint: "ID [--review-only | --prepare | --publish | --resume ATTEMPT-ID | --merge ATTEMPT-ID | --verify ATTEMPT-ID | --withdraw ATTEMPT-ID | --close ATTEMPT-ID | --retire ATTEMPT-ID] [--help]"
+argument-hint: "ID [--review-only | --prepare | --publish | --resume ATTEMPT-ID | --merge ATTEMPT-ID | --verify ATTEMPT-ID | --withdraw ATTEMPT-ID | --close ATTEMPT-ID | --retire ATTEMPT-ID | --sync-offer ATTEMPT-ID | --sync ATTEMPT-ID | --sync-status ATTEMPT-ID] [--help]"
 ---
 # Admit Plan
 
@@ -21,8 +21,15 @@ Load [guided admission](../skills/guided-admission/SKILL.md). Run its installed 
 admission and publication APIs, not hypothetical forge commands. `--help` only describes actual
 arguments, exact-input/confirmation gates and repository prerequisites; no writes or timing.
 
-Require a selected existing new-format capture ID. Legacy horizon admission retains its original
-named commands; do not coerce a legacy tracker into the new schema. Default walks current
+LOCAL MOD - HARVEST TO CPB: change-set inputs now dispatch through the typed repository
+admission path. Read the shared skill's change-set evidence contract and preserve the
+legacy format branch. --sync-offer/--sync/--sync-status guide its separately confirmed
+source-branch synchronization commands; obtain exact branch/method/action and current
+offer/resolution confirmation. A successful merge does not implicitly invoke sync.
+No product start, automatic stash, cleanup, or force-push is granted.
+
+Require a selected existing new-format capture ID. Legacy packet admission commands are retired;
+do not coerce a legacy tracker into the new schema. Default walks current
 prerequisites and stops at the next missing actual review/decision/confirmation.
 `--review-only` stops after exact independent review and findings, without decision/publication.
 `--prepare` requires the selected current finalized decision and produces/validates the bundle.

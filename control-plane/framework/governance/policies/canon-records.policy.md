@@ -198,8 +198,8 @@ opinion was invoked for this initial catalogue; structural tests are not semanti
 The [Planning Change-Set Policy](plan-change-set.policy.md) now supplies the shared
 cp-plan-change-set-v1 envelope, typed changes, baseline composition and paired draft writer.
 It reuses these record definitions rather than embedding a separate full Canon result.
-The older admission kernel remains separate: the pending-integration limits below refer
-to live review/admission/application, not to the now-implemented draft change-set writer.
+The older admission kernel remains separate. New change-set evidence/admission/application
+dispatches to the repository implementation without flattening these record forms.
 Base64 is absent from new change-set sources; immutable old evidence is not rewritten.
 
 Activate `.cp-venv`, then run the read-only checker on a Canon payload:
@@ -215,13 +215,13 @@ cycles and actual source hashes. It validates source references in the supplied 
 set too. Success is structural/reference validity, never selection completeness, correct
 interpretation, review, approval, admission or readiness to execute.
 
-The existing planning/admission kernel still accepts its older three-kind complete-result
-schema. This change supplies the shared new contract and selection policy; it does not
-silently expand that kernel, migrate current drafts, remove legacy Base64 evidence or
-finalize the proposal envelope. Planning agents must use this model for record selection
-and validate separately while preparing the subsequent integration. Keep any kernel mapping
-gap explicit; do not drop typed fields, collapse kinds into text, or claim admission support.
-Horizon packet layout, repository Canon/tracker storage correction, shared complete-proposal
-schema integration and source-reference migration remain separate next design/implementation
-steps. The Operator's direction to remove Base64 is carried by this new model, not falsely
-reported as already applied to every old artifact.
+LOCAL MOD - HARVEST TO CPB: the repository writer uses this complete payload for
+CANON.json. See [Repository Storage Contract](tracker-and-state.policy.md#repository-canon-and-tracker-storage-contract).
+It retains admitted revisions; greatest revision determines applicability, with retired
+marking obsoletion. Promotion materializes a proposed record as admitted without changing
+its meaning or ID/revision; exact before/after subjects and the original proposed status
+remain bound in immutable admission evidence. Previously admitted revisions are never
+edited in place. Obsoletion produces a new retired revision rather than deleting history.
+Current relationships retain exact references; past graphs remain retrievable from bundles.
+New source bytes are retained as ordinary files without Base64. Legacy evidence is not
+rewritten. Populated legacy migration, horizon layout and product execution remain separate.

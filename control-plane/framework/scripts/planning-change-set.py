@@ -81,6 +81,13 @@ def empty_base():
 def baseline(root, reference):
     if reference is None:
         return None
+    if 'files' in reference:
+        repository = helper('planning-repository')
+        selected = repository.snapshot(root, reference['git_commit'])
+        require(reference['files'] == selected['files'] and
+                reference['sha256'] == selected['files'].get(reference['path']) and
+                reference['revision'] == selected['state']['tracker']['revision'], 'repository baseline bindings differ')
+        return repository.baseline(selected['state'])
     source = {'id': 'baseline', 'path': reference['path'], 'sha256': reference['sha256'], 'git_commit': reference['git_commit']}
     canon.verify_source(root, source)
     raw = git(root, 'show', reference['git_commit'] + ':' + reference['path'])
@@ -117,7 +124,7 @@ def compose(document, base):
     require(base is not None or document['status'] == 'draft', 'complete proposal needs an exact baseline')
     known_base = base is not None
     base = copy.deepcopy(base if known_base else empty_base())
-    require(set(base) == {'revision', 'canon', 'work_items', 'dependencies', 'bound_work'}, 'invalid baseline fields')
+    require(set(base) - {'obsolete_work'} == {'revision', 'canon', 'work_items', 'dependencies', 'bound_work'}, 'invalid baseline fields')
     errors = list(schema_validator().evolve(schema={'$ref': SCHEMA_PATH.as_uri() + '#/$defs/baseline'}).iter_errors({'schema': 'cp-plan-baseline-v1', **base}))
     require(not errors, 'baseline schema: ' + (errors[0].message if errors else ''))
     canon.validate(base['canon'])
@@ -190,6 +197,10 @@ def compose(document, base):
     if not known_base:
         return {'base_verified': False, 'preconditions': 'not-checked', 'unresolved_existing_targets': unknown, 'result': None}
     effective = copy.deepcopy(existing)
+    for reference in base.get('obsolete_work', []):
+        require(('work_item', reference['id']) in existing, 'obsolete work is missing')
+        effective.pop(('work_item', reference['id']), None)
+    bound_keys = {canon.record_key(reference) for reference in base['bound_work']}
     retired = {value['id'] for key, value in existing.items() if key[0] == 'canon_record' and value['authority_status'] in ('retired', 'superseded', 'rejected', 'deferred')}
     for identity in retired:
         effective.pop(('canon_record', identity), None)
@@ -199,6 +210,12 @@ def compose(document, base):
             effective.pop(key, None)
             if key[0] == 'canon_record':
                 retired.add(key[1])
+                tombstone = copy.deepcopy(existing[key])
+                tombstone['revision'] += 1
+                tombstone['authority_status'] = 'retired'
+                tombstone['sources'] = copy.deepcopy(change['sources'])
+                require(canon.record_key(tombstone) not in all_revisions, 'retirement revision already exists')
+                all_revisions[canon.record_key(tombstone)] = tombstone
     for change in document['changes']:
         if 'value' in change:
             key = target_key(change['target'])
@@ -207,6 +224,7 @@ def compose(document, base):
                 value = change['value']
                 require(canon.record_key(value) not in all_revisions, 'proposed revision already exists')
                 all_revisions[canon.record_key(value)] = value
+                retired.discard(key[1])
     canon_result = {'schema': 'cp-canon-records-v1', 'sources': list(sources.values()),
                     'records': list(all_revisions.values()),
                     'relationships': [value for key, value in effective.items() if key[0] == 'canon_relationship']}
@@ -219,7 +237,8 @@ def compose(document, base):
     for item in work_items:
         require(set(item['sources']) <= sources.keys(), 'work cites unresolved source')
         for reference in item['canon_refs']:
-            require(canon.record_key(reference) in all_revisions and reference['id'] not in retired, 'work refers to unavailable Canon revision')
+            require(canon.record_key(reference) in all_revisions and
+                    (reference['id'] not in retired or canon.record_key(item) in bound_keys), 'work refers to unavailable Canon revision')
         task_ids = [task['id'] for task in item['tasks']]
         require(len(task_ids) == len(set(task_ids)), 'duplicate task identity')
         task_edges = []
@@ -234,10 +253,22 @@ def compose(document, base):
         require(set(dependency['sources']) <= sources.keys(), 'dependency cites unresolved source')
     canon.reject_cycles([(canon.record_key(item['from']), canon.record_key(item['to'])) for item in dependencies], 'work dependencies')
     if base['bound_work'] and document['changes']:
-        require(document['status'] == 'draft', 'bound work needs explicit execution-impact integration before completion')
+        preserved = [canon.record_key(item['work']) for item in document.get('execution_impact', [])]
+        require(len(preserved) == len(set(preserved)), 'duplicate execution-impact disposition')
+        require(document['status'] == 'draft' or set(preserved) == bound_keys,
+            'bound work needs explicit execution-impact preservation before completion')
+        for change in document['changes']:
+            require(not (change['target']['type'] == 'work_item' and
+                 change['target']['id'] in {identity for identity, revision in bound_keys}), 'bound work cannot be rewritten')
     return {'base_verified': True, 'preconditions': 'checked', 'result': {'canon': canon_result,
             'effective_record_refs': [dict(id=value['id'], revision=value['revision']) for key, value in effective.items() if key[0] == 'canon_record'],
             'work_items': work_items, 'dependencies': dependencies}, 'admission': 'not-assessed'}
+
+
+def source_at_base(source, base, reference):
+    if base is not None and reference is not None and source in base['canon']['sources'] and 'git_commit' not in source:
+        return {**source, 'git_commit': reference['git_commit']}
+    return source
 
 
 def validate(root, document, capture_bytes=None):
@@ -247,13 +278,16 @@ def validate(root, document, capture_bytes=None):
         canon.verify_source(root, document['capture'])
     else:
         require(hashlib.sha256(capture_bytes).hexdigest() == document['capture']['sha256'], 'capture/proposal pair mismatch')
+    selected_base = baseline(root, document['base'])
     for source in document['sources']:
-        canon.verify_source(root, source)
+        canon.verify_source(root, source_at_base(source, selected_base, document['base']))
     if document['context']['kind'] == 'discovery':
         canon.verify_source(root, document['context']['origin']['contract'])
-    result = compose(document, baseline(root, document['base']))
+    result = compose(document, selected_base)
     if result['result'] is not None:
-        canon.validate(result['result']['canon'], root=root)
+        checked = copy.deepcopy(result['result']['canon'])
+        checked['sources'] = [source_at_base(source, selected_base, document['base']) for source in checked['sources']]
+        canon.validate(checked, root=root)
     result['target_freshness'] = 'not-checked; baseline is an exact committed snapshot'
     return result
 
@@ -319,6 +353,7 @@ def save(root, context_id, document, expected_digest, record, migrate=False, com
                 validate(root, previous)
                 return {'updated': False, 'document_digest': current_digest, 'admitted': False}
         require(hashlib.sha256(before).hexdigest() == expected_digest, 'proposal changed since save was offered')
+        helper('planning-change-evidence').assert_mutable(root, context_id)
         require(document['context']['id'] == context_id, 'save context mismatch')
         require(document['status'] != 'complete' or complete, 'complete proposal requires explicit complete operation')
         require(not complete or document['status'] == 'complete', 'complete operation requires complete status')
@@ -518,6 +553,8 @@ def main():
     parser.add_argument('--root', type=pathlib.Path, default=pathlib.Path.cwd())
     parser.add_argument('--context')
     commands = parser.add_subparsers(dest='command', required=True)
+    baseline_command = commands.add_parser('baseline', help='read an exact repository Canon/tracker/archive baseline')
+    baseline_command.add_argument('--target-ref', required=True)
     navigation = commands.add_parser('refresh-navigation', help='refresh local source links without changing proposal meaning')
     navigation.add_argument('--expected-digest', required=True)
     navigation.add_argument('--confirmed', action='store_true')
@@ -535,6 +572,11 @@ def main():
             command.add_argument('--confirmed', action='store_true')
     args = parser.parse_args()
     try:
+        if args.command == 'baseline':
+            require(args.target_ref.startswith('refs/heads/'), 'baseline target must be a full heads ref')
+            git(args.root, 'check-ref-format', args.target_ref)
+            print(json.dumps(helper('planning-repository').reference(args.root, args.target_ref), indent=2))
+            return 0
         if args.command == 'refresh-navigation':
             require(args.context, 'exact current context required')
             print(json.dumps(refresh_navigation(args.root, args.context, args.expected_digest, args.confirmed), indent=2))

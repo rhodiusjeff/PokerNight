@@ -37,8 +37,10 @@ Required fields are `schema`, `id`, `revision`, `title`, `author`, `created_at`,
 - `id` and context ID identify the planning subject. The initial paired writer preserves
   the existing context identity as proposal identity. `revision` starts at 1 and advances
   for each saved subject change. Identical retries do not create another revision.
-- `context.kind` is ad-hoc, horizon or discovery. Its ID is ADHOC-<uuid> for ad hoc/discovery
-  or HNNN for horizon. Discovery additionally carries an originating phase ID/revision and
+- `context.kind` is ad-hoc, horizon or discovery. New full IDs are `ADHOC-<slug>-<hex4>`,
+  `HNNN-<slug>-<hex4>` and `DISC-<slug>-<hex4>`, respectively, issued by the identity helper.
+  UUID ADHOC and bare HNNN remain explicit legacy compatibility identities, not new minting
+  forms. Discovery additionally carries an originating phase ID/revision and
   an exact contract source reference. Origin is provenance, not permission to rebind work.
 - `author` and `created_at` preserve attribution and original creation time. A timestamp,
   author string, hash or proposed status cannot authenticate consent or grant authority.
@@ -78,8 +80,9 @@ one Canon file and a repository tracker/archive pair. The baseline input above r
 a validation shape, not a competing stored authority. Integration must include archived
 completed phases when checking identity reuse, prerequisites and preservation; it must
 not interpret a rolled phase as absent or permit its restart. Repository schemas and
-the live pair-aware baseline/application writer remain pending. The current checker
-does not establish those capabilities by validating its existing baseline shape.
+the pair-aware baseline/application writer are implemented through the format-dispatched
+admission helpers. The baseline command pins all authority-file hashes; validating a
+baseline alone does not invoke application or establish admission readiness.
 
 ## Change Record Forms
 
@@ -123,15 +126,18 @@ endpoints, unique IDs/edges, revision continuity, and relationship-specific cycl
 historical record revisions available for exact references. Obsoletion must not leave an
 effective relationship or unbound work item relying on the now-inapplicable Canon lineage.
 Record modifications never silently retarget existing edge endpoints to a new revision.
+Obsoletion creates a next retired revision in composed Canon, so reload cannot restore
+old applicability. The reviewed proposal remains unchanged by admitted-status materialization.
 
 Work links carry exact Canon ID/revision references. Dependencies point from predecessor
 to successor and must resolve to effective work revisions, reject self-edges and remain
 acyclic. Internal task after links are local to their work item and receive independent
 endpoint/cycle checks; they do not create repository work dependency edges.
 
-Preserve existing bound/completed contracts. The initial checker refuses complete changes
-against a baseline containing bound work until execution-impact disposition is integrated;
-it does not synthesize preservation or reopen work. Draft impact analysis can continue.
+Preserve existing bound/completed contracts. Complete changes against bound work require
+execution_impact entries naming every bound work ID/revision, disposition
+preserve-bound-contract and substantive rationale. No entry is synthesized. Started work
+cannot be amended in place; use a new revision phase. Archive and retained bindings survive.
 
 ## Typed Work Without Invented Phases
 
@@ -179,8 +185,9 @@ The schema/checker applies to all planning types. Paired save/migration currentl
 ad hoc and discovery; no horizon packet shape is silently changed. Horizon payloads can
 be validated/previewed under the shared schema while physical laydown remains deferred.
 Existing capture/context inspection and ad hoc listing recognize the new schema. Legacy
-draft, evidence, transfer and admission mutations refuse rather than rewrite a change set
-as the older embedded full-result format.
+draft and transfer mutations refuse change sets. Evidence/admission/publication commands
+dispatch by format to the repository implementation, never rewrite a change set as the
+older embedded full-result format. Their distinct confirmations still apply.
 
 ## Admission And Remaining Integration
 
@@ -190,8 +197,11 @@ subject and change-set digest through separate evidence. A changed exact subject
 refreshed evidence. A complete save is not admission. Current source validation checks bytes
 at read time, not tamper resistance against a later writer or fresh forge conditions.
 
-Live change-set review/admission/publication, source/capture edits with pinned historical
-source references, repository Canon/tracker application, execution-impact disposition and
-horizon file laydown remain explicit integration boundaries. The existing admission helper
-refuses this format. Do not infer a usable end-to-end admission path from a successful
-schema check or migrate the operational specification merely because a preview exists.
+LOCAL MOD - HARVEST TO CPB: existing evidence/admission/publication commands now dispatch
+this format through planning-change-evidence.py and planning-repository.py. The
+[repository storage contract](tracker-and-state.policy.md#repository-canon-and-tracker-storage-contract)
+owns exact multi-file baselines, typed tracker schemas, durable source/evidence storage,
+empty-legacy migration and source synchronization. planning-change-set.py baseline
+--target-ref refs/heads/BRANCH supplies the proposal's base, including all file hashes.
+Populated legacy migration, horizon file laydown, cleanup and product start/completion
+remain separate boundaries. Validation/preview still grants no approval or admission.

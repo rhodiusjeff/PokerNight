@@ -66,7 +66,43 @@ class CanonTests(unittest.TestCase):
                 if 'canon-records' in target:
                     self.assertTrue((filename.parent / target).is_file(), (relative, target))
 
+    def test_current_paths_identity_forms_and_writer_routing(self):
+        policy = (repository / 'control-plane/framework/governance/policies/plan-change-set.policy.md').read_text()
+        envelope = policy.split('## Envelope', 1)[1].split('## Baseline Identity', 1)[0]
+        for identity in ('ADHOC-<slug>-<hex4>', 'DISC-<slug>-<hex4>', 'HNNN-<slug>-<hex4>'):
+            self.assertIn(identity, envelope)
+        self.assertNotIn('ADHOC-<uuid>', envelope)
+        self.assertNotIn('live pair-aware baseline/application writer remain pending', policy)
+        self.assertNotIn('draft, evidence, transfer and admission mutations refuse', policy)
+        for relative in ('control-plane/framework/governance/policies/tracker-and-state.policy.md',
+                         'control-plane/framework/docs/control-system-user-guide.md', 'control-plane/README.md',
+                         '.github/skills/planning-workflow/SKILL.md'):
+            text = (repository / relative).read_text()
+            self.assertNotIn('planning/HNNN.md', text, relative)
+            self.assertNotIn('ADHOC-<id>', text, relative)
+            self.assertIn('DISC', text, relative)
+        prompt = (repository / '.github/prompts/plan-work.prompt.md').read_text()
+        draft = prompt.split('- `--canon` or `--work`:', 1)[1].split('- `--complete`:', 1)[0]
+        complete = prompt.split('- `--complete`:', 1)[1].split('- `--assess`:', 1)[0]
+        for section in (draft, complete):
+            self.assertIn('cp-plan-change-set-v1', section)
+            self.assertIn('cp-planning-capture-v1', section)
+        self.assertIn('planning-change-set.py save', draft)
+        self.assertIn('planning-change-set.py complete', complete)
+
     def test_schema_and_catalogue_consistency(self):
+        for relative in ('.github/agents/project-planning-design.agent.md',
+                         '.github/agents/project-codegen.agent.md',
+                         '.github/agents/project-architecture-scrub.agent.md'):
+            text = (repository / relative).read_text()
+            context = text.split('## Required Context Load', 1)[1].split('\n## ', 1)[0]
+            self.assertIn('CANON.json', context, relative)
+            self.assertIn('TRACKER_ARCHIVE.json', context, relative)
+            self.assertIn('planning-identity.policy.md', context, relative)
+            for old_name in ('INCEPTION_REQUIREMENTS_CANONICAL.json', 'INCEPTION_USER_STORIES_CANONICAL.json', 'USER_STORY_REGISTRY_CANONICAL.json'):
+                self.assertNotIn(old_name, context, relative)
+        identity = (repository / 'control-plane/framework/governance/policies/planning-identity.policy.md').read_text()
+        self.assertIn('Work-candidate-to-Phase allocation remains a separate deferred decision', identity)
         Draft202012Validator.check_schema(schema)
         self.assertEqual(set(CONTENT), set(schema['$defs']['kind']['enum']))
         self.assertEqual(set(schema['x-relationships']), set(schema['$defs']['relationship']['properties']['kind']['enum']))

@@ -543,3 +543,109 @@ or executable phase is created by recording this scope boundary.
 Only this consult was appended. No policy, schema, runtime, proposal, Canon, tracker,
 archive, bundle, branch, remote or lifecycle state was modified. No implementation,
 independent review, test run, admission, cleanup, commit or push was performed.
+
+## Implemented: Approved Repository Admission Requirements
+
+Operator authorization (verbatim):
+
+> Ok, commit, push.  Then you are approved to implement these requirements
+
+LOCAL MOD - HARVEST TO CPB: Operator-authorized implementation of the repository
+Canon/tracker admission contract. Harvest runtime, schemas, tests, policies and entry
+guidance together. This authorization did not invoke live admission or product work.
+
+### Checkpoint
+
+Committed and pushed the related planning foundation and requirements as
+33490dfa192051b767809fcec02f93c328e0fbc2 on upgrade/cp-v0.8.1-planning-admission.
+The push also carried the already-existing local 7fd000d capture/proposal commit.
+The branch and its remote were equal afterward. Unrelated OpenSpec deletions,
+distribution-v0.8.1 work and upgrade/installer notes were left unstaged and untouched.
+Implementation changes described below remain uncommitted for review.
+
+### Implemented Behavior
+
+- planning-repository.py and repository-state.schema.json own the repository state
+	reader/composer, active/archive schema, exact file-set baselines and admission history.
+	CANON.json retains the existing shared schema. The greatest revision per ID determines
+	applicability; obsolete creates a new retired revision. Promotion copies the proposed
+	result before materializing admitted authority, preserving the reviewed proposal.
+- The tracker retains typed work, current status, applicability, work history, bound
+	contracts and evidence references. The archive uses the same node form for completed
+	work. Both partitions participate in reference/dependency/identity checks. Admission
+	preserves existing archive rows/edges and refuses in-place edits to bound work.
+- Complete proposals against bound work require explicit execution_impact preservation
+	entries. The preview and persisted state preserve retired meaning and historical
+	references through reload. Phase resolution reads both partitions without granting
+	product execution. Legacy initialization refuses if repository authority files exist.
+- The baseline command returns the exact Git commit and hashes for the three repository
+	files plus legacy presence/absence. Only the exact empty legacy specification/execution
+	pair may be replaced. Its deletion and creation of the repository files are part of one
+	isolated admission candidate; populated migration and competing/partial authorities refuse.
+- planning-change-evidence.py provides separate immutable review/decision events, reports
+	and clean review-input snapshots. Public planning-evidence.py routes by format. Actual
+	independent-review attribution, exact selection, findings posture, checklist, conditions
+	and decision confirmation are checked; no actor, consent or semantic verdict is generated.
+- Prepared bundles remain with the planning context. Published evidence lives beneath
+	control-plane/evidence/admissions/<proposal-digest>/. Source bytes are retained as files,
+	not Base64. Follow-on proposals can resolve existing sources at the pinned target even
+	if the source worktree lacks those files. Reconstructed bundles bind inputs and results.
+- The existing planning-admission.py and planning-publication.py dispatch the new format.
+	They retain origin-selected forge transport, exact isolated candidates, separate merge
+	confirmation, source-worktree preservation and retry identity. A later proposal revision
+	can replace its context's claim only after the previous admission is verified in the
+	selected target history. Active publication freezes proposal/evidence writers.
+- Verification checks the actual first integration of the candidate against its exact
+	approved tree, then validates retained evidence/admission history at the current target.
+	Later target advancement is disclosed. Stale targets refuse before merge; no distributed
+	lock, merge queue or complete concurrent-writer exclusion is claimed.
+- planning-admission-sync.py adds separately confirmed sync-offer, sync and sync-status
+	through the publication CLI. Offers pin the current branch/head/base and verified target.
+	Dirty/staged/untracked work refuses without auto-stash. Rebase requires explicit history
+	acknowledgement; merge is available for shared branches. Owned continue/abort bind exact
+	resolution digests, abort retains tracked resolution patches, and no force-push occurs.
+	A failed catch-up does not undo the target admission. Legacy-format sync is refused.
+- Shared instructions, guided admission, admit-plan metadata, storage/Canon/change-set
+	policies, execution-context policy, README and user guide describe the implementation.
+	Prepare/start/closeout/completion/review-publication prompts explicitly stop on repository
+	results until their product lifecycle writers exist, rather than falling into legacy paths.
+
+### Verification
+
+- 235 affected-planning tests passed: Canon 18, change-set/repository 19, identity 9,
+	capture 34, context 29, evidence 20, execution 60, contract 26 and work 20.
+- The final publication run passed its 14-test prelude. The 59-test controller suite
+	passed 57 methods, including all 10 new RepositoryControllerTests. Two known baseline
+	methods remain failing: HostedControllerTests.test_cli_github_and_local_entry_points_fail_closed
+	(one assertion failure), and test_warm_gate_refuses_git_replacements_and_grafts
+	(three error reports). Their earlier baseline reproduction is recorded in the existing
+	planning-storage memory and Canon/tracker walkthrough. They were not altered here.
+- New controller coverage uses real local Git candidate and merge objects with injected
+	forge responses for GitHub and GitLab. It covers Canon/two-phase/dependency application,
+	repeat verification, later target movement, missing permission, lost reply, closure,
+	retirement/replacement, stale-target refusal, a second obsoletion admission, source
+	catch-up, dirty-work refusal and conflict abort. This is not a live hosted acceptance run.
+- Focused tests caught and corrected proposal-object aliasing during promotion, resolver
+	placement, rebase branch attachment and the old single-use publication-claim restriction.
+- Editor diagnostics for the implementation/schema files and updated guidance were clear;
+	git diff --check passed. The read-only baseline command returned checkpoint 33490df's
+	verified revision-0 legacy baseline with explicit absent repository files.
+- The live ADHOC-tic-tac-toe-d45a proposal still validates as an 80-change draft with its
+	original pinned base. Git comparisons confirm no change to its files, the operational
+	specification, execution state or instance state since the checkpoint.
+
+### Limits And Handoff
+
+Cleanup, derived Markdown views, Git queues/trains and Dolt/CPv1 remain deferred. Candidate
+clones and journals are retained. Arbitrary-prose consistency still requires independent
+semantic review; structural checks are not a proof of noncontradiction. Populated legacy
+conversion requires an explicit typed mapping, not an automatic lossy migration.
+
+No live bundle, admission MR, merge, product phase start/completion, worktree synchronization
+or instance lifecycle operation was performed. Hosted acceptance and independent code
+review remain outstanding; live admission readiness was not assessed. Product execution
+and repository completion writers remain disabled. Claude-wrapper regeneration and
+distribution ZIP rebuilding were not performed or claimed; their separate owner/work
+surfaces were deliberately excluded. Existing tracker/ledger state was not changed, and
+there are no instantiated repository/horizon rows in this checkout to audit against
+completion evidence. The new state behavior was tested in disposable fixtures only.

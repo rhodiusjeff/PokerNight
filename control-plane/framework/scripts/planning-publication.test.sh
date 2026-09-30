@@ -570,6 +570,191 @@ class NormalControllerTests(unittest.TestCase):
 		self.assertEqual(self.capture.read_capture(filename), document)
 
 
+class RepositoryControllerTests(NormalControllerTests):
+
+	def context_offer(self, suffix, phase_dag=False):
+		self.change_evidence = self.evidence.load_module('planning-change-evidence')
+		self.repository = self.change_evidence.repository
+		identity = 'ADHOC-' + suffix * 32
+		source = self.root / (suffix + '.txt')
+		source.write_text('Exact typed Canon and two dependent phases.\n')
+		self.capture.create_capture(SimpleNamespace(root=self.root, id=identity, confirmed=True, sources=[source],
+			kind='ad-hoc', origin_phase=None, origin_specification=None, title='Fixture', author='Fixture Author'))
+		filename = self.capture.resolve_document(self.root, identity)
+		narrative = self.capture.narrative_path(filename)
+		sha = self.evidence.hashlib.sha256
+		canon = {'id':'REQ-1','revision':1,'kind':'functional_requirement','title':'Legal move','scope':'repository',
+			'authority_status':'proposed','sources':['source-1'],'selection_rationale':'Distinct observable obligation',
+			'content':{'obligation':'Allow legal moves','rationale':'Playable game','acceptance_direction':'Reject occupied squares'}}
+		def addition(value, kind, identity):
+			target = {'type':kind,'id':value['id']} if kind != 'work_dependency' else {'type':kind,'from':value['from'],'to':value['to']}
+			return {'change_id':identity,'operation':'add','target':target,'expected':{'state':'absent'},'value':value,'rationale':'Fixture scope','sources':['source-1']}
+		items = [addition(canon,'canon_record','add-canon')]
+		for identity_work in ('PHASE-A','PHASE-B'):
+			work = {'id':identity_work,'revision':1,'maturity':'specified','title':identity_work,'outcome':'Deliver fixture',
+				'included':['Fixture'],'excluded':[],'canon_refs':[{'id':'REQ-1','revision':1}], 'acceptance':['Fixture passes'],
+				'tasks':[],'risks':[],'sources':['source-1'],'specification':{'execution_model':'Operator-selected',
+				'sizing_rationale':'Bounded','validation_plan':['Run fixture'],'failure_discovery_route':'Capture scope',
+				'review_boundary':'self','closeout_basis':'Verified and merged'}}
+			items.append(addition(work,'work_item','add-'+identity_work))
+		items.append(addition({'from':{'id':'PHASE-A','revision':1},'to':{'id':'PHASE-B','revision':1},
+			'rationale':'Prerequisite','sources':['source-1']},'work_dependency','dependency'))
+		proposal = {'schema':'cp-plan-change-set-v1','id':identity,'revision':1,'title':'Fixture','author':'Fixture Author',
+			'created_at':'2026-09-29T00:00:00Z','context':{'kind':'ad-hoc','id':identity},'status':'complete',
+			'capture':{'id':'capture','path':narrative.relative_to(self.root).as_posix(),'sha256':sha(narrative.read_bytes()).hexdigest()},
+			'base':self.repository.reference(self.root,'refs/heads/integration'),
+			'sources':[{'id':'source-1','path':source.name,'sha256':sha(source.read_bytes()).hexdigest()}], 'changes':items,'unresolved':[]}
+		filename.write_bytes(self.repository.encoded(proposal))
+		(self.root/'review.md').write_text('Independent review of Canon, sources, semantics, two phases and dependency.\n')
+		self.change_evidence.apply(self.root,proposal,'review',{'request_id':'review-1',
+			'review_input':self.change_evidence.subject(self.root,proposal),'report_path':'review.md','observations':[],
+			'attestation':{**self.authority,'actor':'Independent Reviewer','independent':True,'scope':'Full change set'}},True)
+		fields = {'kind':'approval','actor':self.authority['actor'],'authority':self.authority['authority'],'date':self.authority['date'],
+			'scope':'Full change set','checklist':dict.fromkeys(self.contract.CHECK_NAMES,True),'integration_assessment':'Exact target',
+			'dag_assessment':'Two phases and one dependency','findings_acknowledged':[],'conditions':[],'signoff':'Synthetic approval',
+			'invocation_source':'operator-confirmation'}
+		draft = self.change_evidence.apply(self.root,proposal,'draft-decision',{'identity':'decision-1','review_ids':['review-1'],'fields':fields},True)
+		decision = self.change_evidence.read_events(self.root,identity)[-1]['decision']
+		self.change_evidence.apply(self.root,proposal,'finalize-decision',{'identity':'decision-1',
+			'expected_draft_digest':draft['evidence_result'],'confirmation':{**self.authority,'decision_digest':self.contract.digest(decision)}},True)
+		prepared = publication.admission.prepare(self.root,identity,'decision-1',None,None,sha(filename.read_bytes()).hexdigest(),True)
+		return {'offer':{'bundle':prepared['bundle']}}
+
+	def application(self, provider):
+		self.setup_normal(provider)
+		before = self.git(self.root,'rev-parse','HEAD').stdout
+		published = self.cli('resume','--attempt','trial-attempt','--confirmed')
+		self.assertEqual(published['state'],'published')
+		with self.assertRaisesRegex(ValueError,'not merged'):
+			publication.run_cli(self.root,'trial-attempt','verify',True)
+		result = publication.run_cli(self.root,'trial-attempt','merge',True,self.operation_confirmation('merge'))
+		self.assertEqual(result['state'],'applied')
+		actual = self.repository.snapshot(self.sandbox,result['target_commit'])['state']
+		self.assertEqual(actual['canon']['records'][0]['authority_status'],'admitted')
+		self.assertEqual([node['work']['id'] for node in actual['tracker']['nodes']],['PHASE-A','PHASE-B'])
+		self.assertEqual(len(actual['tracker']['dependencies']),1)
+		self.assertEqual(actual['tracker']['revision'],1)
+		self.assertEqual(self.cli('verify','--attempt','trial-attempt','--confirmed'),result)
+		self.assertEqual(self.merges,1)
+		self.assertEqual(self.git(self.root,'rev-parse','HEAD').stdout,before)
+		for relative in self.repository.LEGACY:
+			self.assertIsNone(self.repository.blob(self.sandbox,result['target_commit'],relative))
+		self.remote_target = self.git(self.sandbox,'commit-tree',self.remote_target+'^{tree}','-p',self.remote_target,
+			'-m','Later target change').stdout.decode().strip()
+		later = self.cli('verify','--attempt','trial-attempt','--confirmed')
+		self.assertTrue(later['target_advanced'])
+		self.assertEqual(later['integration_commit'],result['integration_commit'])
+
+	def test_normal_close_survives_source_edits(self):
+		self.setup_normal()
+		self.cli('resume','--attempt','trial-attempt','--confirmed')
+		filename = self.capture.resolve_document(self.root,self.offered['offer']['context_id'])
+		document = self.capture.read_capture(filename)
+		document['revision'] += 1
+		filename.write_bytes(self.repository.encoded(document))
+		result = publication.run_cli(self.root,'trial-attempt','close',True,self.operation_confirmation('close'))
+		self.assertEqual(result['state'],'closed-unmerged')
+
+	def test_stale_target_refuses_before_merge(self):
+		self.setup_normal()
+		self.cli('resume','--attempt','trial-attempt','--confirmed')
+		self.remote_target = self.git(self.sandbox,'commit-tree',self.target+'^{tree}','-p',self.target,'-m','Other admission').stdout.decode().strip()
+		with self.assertRaisesRegex(ValueError,'target moved'):
+			publication.run_cli(self.root,'trial-attempt','merge',True,self.operation_confirmation('merge'))
+		self.assertEqual(self.merges,0)
+
+	def sync_fixture(self, conflict=False):
+		self.setup_normal()
+		self.cli('resume','--attempt','trial-attempt','--confirmed')
+		applied = publication.run_cli(self.root,'trial-attempt','merge',True,self.operation_confirmation('merge'))
+		(self.root/'.git/info/exclude').write_text('/control-plane/ad-hoc/\n/control-plane/state/planning-local/\n/*.json\n/review.md\n/f.txt\n')
+		local = self.root / (publication.admission.SPECIFICATION_PATH if conflict else 'local.txt')
+		local.write_bytes(local.read_bytes()+b'\n' if conflict else b'Local work B\n')
+		self.git(self.root,'add','--',str(local.relative_to(self.root)))
+		self.git(self.root,'commit','--quiet','-m','Local work B')
+		sync = self.evidence.load_module('planning-admission-sync')
+		sync.publication = publication
+		return sync,local,applied
+
+	def test_source_sync_rebase_and_dirty_refusal(self):
+		sync,local,applied = self.sync_fixture()
+		local.write_bytes(b'Uncommitted work\n')
+		with self.assertRaisesRegex(ValueError,'dirty'):
+			sync.offer(self.root,'trial-attempt','refs/heads/planning','rebase',True)
+		local.write_bytes(b'Local work B\n')
+		offered = sync.offer(self.root,'trial-attempt','refs/heads/planning','rebase',True)
+		confirmation = {**self.authority,'action':'start','offer_digest':offered['offer_digest'],'history_rewrite_acknowledged':True}
+		result = sync.run(self.root,'trial-attempt','start',offered,confirmation,True)
+		self.assertEqual(result['state'],'sync-completed')
+		self.assertEqual(local.read_bytes(),b'Local work B\n')
+		self.assertEqual(sync.branch(self.root),'refs/heads/planning')
+		self.assertEqual(self.repository.snapshot(self.root,result['head'])['state'], self.repository.snapshot(self.sandbox,applied['target_commit'])['state'])
+		self.assertEqual(sync.run(self.root,'trial-attempt','start',offered,confirmation,True),result)
+
+	def test_source_sync_conflict_and_owned_abort(self):
+		sync,local,applied = self.sync_fixture(conflict=True)
+		original = sync.head(self.root)
+		offered = sync.offer(self.root,'trial-attempt','refs/heads/planning','rebase',True)
+		confirmation = {**self.authority,'action':'start','offer_digest':offered['offer_digest'],'history_rewrite_acknowledged':True}
+		result = sync.run(self.root,'trial-attempt','start',offered,confirmation,True)
+		self.assertEqual(result['state'],'sync-needs-reconciliation')
+		observation = sync.status(self.root,'trial-attempt')
+		abort = {**self.authority,'action':'abort','offer_digest':offered['offer_digest'],'resolution_digest':observation['resolution_digest']}
+		result = sync.run(self.root,'trial-attempt','abort',offered,abort,True)
+		self.assertEqual(result['state'],'sync-aborted')
+		self.assertEqual(sync.head(self.root),original)
+		self.assertEqual(self.remote_target,applied['target_commit'])
+
+	def test_second_admission_obsoletes_without_losing_history(self):
+		self.setup_normal()
+		self.cli('resume','--attempt','trial-attempt','--confirmed')
+		applied = publication.run_cli(self.root,'trial-attempt','merge',True,self.operation_confirmation('merge'))
+		self.git(self.root,'fetch','--quiet','--no-tags','--no-write-fetch-head',str(self.sandbox),applied['target_commit'])
+		self.git(self.root,'update-ref','refs/heads/integration',applied['target_commit'],self.target)
+		self.target = applied['target_commit']
+		state = self.repository.snapshot(self.root,self.target)['state']
+		identity = self.offered['offer']['context_id']
+		filename = self.capture.resolve_document(self.root,identity)
+		proposal = self.capture.read_capture(filename)
+		proposal['revision'] += 1
+		proposal['base'] = self.repository.reference(self.root,'refs/heads/integration')
+		proposal['sources'] = copy.deepcopy(state['canon']['sources'])
+		self.assertFalse((self.root/proposal['sources'][0]['path']).exists())
+		proposal['changes'] = []
+		for kind,item in [('canon_record',state['canon']['records'][0]), *[('work_item',node['work']) for node in state['tracker']['nodes']]]:
+			proposal['changes'].append({'change_id':'obsolete-'+item['id'],'operation':'obsolete','target':{'type':kind,'id':item['id']},
+				'expected':{'state':'present','revision':item['revision'],'digest':self.contract.digest(item)},'rationale':'Retire fixture scope','sources':['source-1']})
+		edge = state['tracker']['dependencies'][0]
+		proposal['changes'].append({'change_id':'remove-dependency','operation':'remove','target':{'type':'work_dependency','from':edge['from'],'to':edge['to']},
+			'expected':{'state':'present','digest':self.contract.digest(edge)},'rationale':'Retired work','sources':['source-1']})
+		self.change_evidence.changes.save(self.root,identity,proposal,self.evidence.hashlib.sha256(filename.read_bytes()).hexdigest(),
+			'Operator confirmed complete retirement proposal.',complete=True)
+		proposal = self.capture.read_capture(filename)
+		self.change_evidence.apply(self.root,proposal,'review',{'request_id':'review-2','review_input':self.change_evidence.subject(self.root,proposal),
+			'report_path':'review.md','observations':[],'attestation':{**self.authority,'actor':'Independent Reviewer','independent':True,'scope':'Retirement impact'}},True)
+		fields = copy.deepcopy(self.change_evidence.read_events(self.root,identity)[1]['decision'])
+		for key in ('schema','subject_digest','reviews_digest'):
+			fields.pop(key)
+		draft = self.change_evidence.apply(self.root,proposal,'draft-decision',{'identity':'decision-2','review_ids':['review-2'],'fields':fields},True)
+		decision = self.change_evidence.read_events(self.root,identity)[-1]['decision']
+		self.change_evidence.apply(self.root,proposal,'finalize-decision',{'identity':'decision-2','expected_draft_digest':draft['evidence_result'],
+			'confirmation':{**self.authority,'decision_digest':self.contract.digest(decision)},'supersedes':'decision-1'},True)
+		prepared = publication.admission.prepare(self.root,identity,'decision-2',None,None,self.evidence.hashlib.sha256(filename.read_bytes()).hexdigest(),True)
+		self.offered = publication.offer(self.root,prepared['bundle'],'refs/heads/integration',cli=True)
+		self.confirmation = {**self.authority,'offer_digest':self.offered['offer_digest'],'scope':'repository-admission'}
+		publication.create_attempt(self.root,self.offered,'second-attempt',self.confirmation,True)
+		self.remote_request = None
+		publication.run_cli(self.root,'second-attempt','resume',True)
+		confirmation = {**self.confirmation,'attempt_id':'second-attempt','operation':'merge','request_number':1,'commit':self.commit}
+		result = publication.run_cli(self.root,'second-attempt','merge',True,confirmation)
+		stored = self.repository.snapshot(self.sandbox,result['target_commit'])['state']
+		self.assertEqual(stored['tracker']['revision'],2)
+		self.assertEqual(stored['canon']['records'][0],state['canon']['records'][0])
+		self.assertEqual(stored['canon']['records'][-1]['authority_status'],'retired')
+		self.assertTrue(all(node['applicability']=='obsolete' for node in stored['tracker']['nodes']))
+		self.assertEqual(stored['tracker']['dependencies'],[])
+
+
 class TransferPublicationGuards(unittest.TestCase):
 	def setUp(self):
 		temporary = tempfile.TemporaryDirectory()
