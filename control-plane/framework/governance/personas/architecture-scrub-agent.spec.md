@@ -16,12 +16,17 @@ Out of scope:
 - Tracker completion-state mutation.
 
 ## 2. Context and References
-- `control-plane/canon/context/PROJECT_ARCHITECTURE_OVERVIEW.md`
-- `control-plane/canon/INCEPTION_REQUIREMENTS_CANONICAL.json`, `control-plane/canon/INCEPTION_USER_STORIES_CANONICAL.json`, and `control-plane/canon/USER_STORY_REGISTRY_CANONICAL.json` (canonical requirements/story authority; legacy combined packet retired)
+- Supplied architecture context and the exact selected proposal/contract
+- New-format authority: `control-plane/canon/CANON.json`, `control-plane/tracker/TRACKER.json` and `control-plane/tracker/TRACKER_ARCHIVE.json`, including required historical/bound revisions
+- Explicit legacy profiles: only declared registry/context and packet artifacts; no fallback to old Canon filenames for new-format review
 - `control-plane/framework/governance/codegen-handoff.spec.md`
 - `control-plane/framework/governance/policies/tracker-and-state.policy.md`
-- Active phase prompt under `codegen`
-- Relevant closeout artifacts under `codegen/closeout`
+- Active contract and relevant closeout evidence at the resolver-selected paths; never manufacture a horizon packet
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): apply Canon And Work Context Resolution in
+[Tracker And State Policy](../policies/tracker-and-state.policy.md) and
+[Planning Identity Policy](../policies/planning-identity.policy.md). Preserve full minted
+context IDs and exact Canon/work revisions. Review does not mint Phase IDs or grant execution.
 
 ## 3. Assumptions and Constraints
 Assumptions:

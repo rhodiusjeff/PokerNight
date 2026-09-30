@@ -24,6 +24,11 @@ Interpret slash-command arguments as:
 
 ## Required Workflow
 
+LOCAL MOD - HARVEST TO CPB (2026-09-30): this packet-local sidetrack workflow is legacy
+only. Resolve the selected work/profile first; repository/operational results and new
+change-set candidates refuse before branch, timing or tracker mutation. Do not invent
+packet paths, ST/CP allocations or a parallel repository sidetrack authority.
+
 1. Resolve `--from <CP-id>` with `resolve-horizon.py` (or infer a single in-progress phase across packet trackers, then confirm). Read the returned packet's tracker and sidetrack ledger plus the user guide.
 2. Confirm this is intentional exploratory work, not accidental wandering and not already-admitted same-family rework. If ambiguous, stop and ask for operator classification.
 3. Resolve source phase:

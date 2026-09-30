@@ -8,6 +8,15 @@ INVOCATION CONTRACT: this prompt must be invoked from inside the `Project: Plann
 
 Create or revise a control-plane phase prompt for this project.
 
+LOCAL MOD - HARVEST TO CPB (2026-09-30): load Canon And Work Context Resolution in
+[Tracker And State Policy](../../control-plane/framework/governance/policies/tracker-and-state.policy.md)
+and [Planning Identity Policy](../../control-plane/framework/governance/policies/planning-identity.policy.md).
+For new-format work, use the selected change-set proposal and exact Canon/work revisions;
+recommend the separately invoked `/plan-work ID --work` path for typed work shaping.
+Do not create a legacy Phase prompt/tracker or mint CP IDs: new work-to-Phase allocation
+and horizon physical laydown remain deferred. The packet-writing procedure below applies
+only to an explicitly selected legacy horizon, never a fallback for repository results.
+
 If the slash-command argument contains `--help` or `-h`, do not write or revise a phase prompt. Output concise help only with:
 - command purpose
 - required and optional inputs
@@ -20,12 +29,11 @@ Constraints:
 - Resolve the target horizon from an explicitly named predecessor/target phase with `resolve-horizon.py`; for a newly admitted horizon, require the operator to name its packet. Write output under that packet's phase surface and ask on ambiguity.
 - Size the phase as large as its acceptance evidence can independently verify; keep it testable and traceable to requirements and user stories.
 - When it exists, consult the resolved packet's `phases/planning/DEFERRED_PLANNING_NOTES.md` for deferred notes that should influence the phase boundary or remain explicitly deferred.
-- Story traceability must use canonical IDs from `control-plane/canon/INCEPTION_USER_STORIES_CANONICAL.json` (`CUS-*`) and `control-plane/canon/USER_STORY_REGISTRY_CANONICAL.json` (`USC-*`).
-- Requirement traceability must use canonical IDs from `control-plane/canon/INCEPTION_REQUIREMENTS_CANONICAL.json` (`CPR-*`, `CPN-*`) where applicable.
-- The prompt's Story and Requirement Traceability section is the declared source of citable IDs for code-level `CP-TRACE` markers (`control-plane/framework/governance/traceability/code-traceability.spec.md`): it must name the row-level `USC-*` (never lane-level `CUS-*` alone), `CPR-*`/`CPN-*`, and planned `AT-*` IDs Codegen may cite. A story that seems expressible only at lane level is an authoring gap in this section — resolve it to registry rows before execution.
+- Resolve requirement/story/definition references from the selected Canon profile, preserving its real IDs. New-format planning uses CANON.json record ID/revision pairs, not reminted legacy prefixes.
+- For this legacy packet-writing path, the Story and Requirement Traceability section names the existing IDs accepted by the selected legacy `CP-TRACE` contract. Preserve its row-level requirement/story/acceptance distinctions; do not coerce CR records into a legacy marker grammar.
 - Include explicit non-goals and cross-phase dependency notes.
 - Make technical prompt dependencies explicit: state what this prompt depends on, what later prompts are expected to depend on it, and any hidden prerequisite or successor edges that must be surfaced for clean DAG execution.
-- If the phase is admitted work, update the resolved horizon's unified tracker graph when this phase creates, removes, splits, admits, defers, or reorders dependency edges; otherwise record that no edge changes.
+- For explicitly legacy admitted phases, update only the selected packet graph under its governed rules; otherwise record no edge changes. New-format dependency amendments belong in proposals against the repository tracker/archive and are applied only through admission.
 - Keep the prompt non-prescriptive about concrete code structure, algorithms, or data structures unless the developer has explicitly requested those constraints.
 - Include a high-level Mermaid diagram when the phase introduces or materially changes architecture, orchestration, integration flow, state authority, async processing, security boundaries, or other design-impacting behavior that should be reviewed during phase-prompt pre-flight. Use high-contrast Mermaid theme directives when readability may vary by screen/theme, or ask the operator to confirm display contrast. Do not add diagrams by default for narrow, routine, or low-architecture implementation phases; if the choice is non-obvious, record why the diagram is included or omitted.
 - When reworking a legacy prompt, if any carried-forward functional element lacks clear canonical traceability, pause silent carry-forward and present an explicit operator decision path (admit with traceability, defer, route to another phase, or retire).

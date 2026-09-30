@@ -17,6 +17,10 @@ Interpret slash-command arguments as:
 
 ## Required Workflow
 
+LOCAL MOD - HARVEST TO CPB (2026-09-30): require an explicitly resolved legacy sidetrack
+packet. Repository/operational work and new-format candidates refuse before mutation;
+do not construct a packet, tracker or ST/CP identity from a repository work ID.
+
 1. Resolve `<sidetrack_id>` by scanning packet-local sidetrack ledgers; require exactly one owning horizon. Read that ledger and the user guide.
 2. Verify `<sidetrack_id>` exists and is currently `active`.
 3. Create or update `<resolved-packet>/sidetracks/<sidetrack-root>/SIDETRACK_OUTCOME.md` with:

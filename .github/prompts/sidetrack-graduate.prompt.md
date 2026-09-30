@@ -21,6 +21,11 @@ Interpret slash-command arguments as:
 
 ## Required Workflow
 
+LOCAL MOD - HARVEST TO CPB (2026-09-30): graduation below is for an existing explicit
+legacy packet only. New-format work must be proposed against the repository tracker/
+archive and admitted separately; work-to-Phase allocation is deferred. Repository or
+operational results refuse this workflow before branch, timing or tracker mutation.
+
 1. Resolve `<sidetrack_id>` by scanning packet-local sidetrack ledgers; require exactly one owning horizon. Read that packet's sidetrack ledger, tracker, and the user guide.
 2. Verify `<sidetrack_id>` exists and is currently `active` or `parked`. If not, stop.
 3. Verify graduation target is a valid main-path identifier (`CP-NNN` or `CP-NNNa`) and is not a decimal identifier.

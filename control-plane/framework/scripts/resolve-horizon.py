@@ -113,7 +113,8 @@ def resolve(root, phase_id, require_executable=False, include_archive=False, tar
         raise ValueError("--include-archive cannot be used with --require-executable")
     found = candidates(root, phase_id, include_archive)
     markers = (root / "control-plane/state/operational-context.json",
-               root / "control-plane/operational/SPECIFICATION.json")
+               root / "control-plane/operational/SPECIFICATION.json",
+               root / "control-plane/canon/CANON.json", root / "control-plane/tracker/TRACKER.json")
     if target_ref is not None or any(marker.exists() or marker.is_symlink() for marker in markers):
         sys.dont_write_bytecode = True
         location = pathlib.Path(__file__).with_name("planning-execution.py")

@@ -9,7 +9,9 @@ INVOCATION CONTRACT: this prompt must be invoked from inside the `Project: Close
 Use the slash-command argument as an optional `<review_unit_or_phase_id>` to publish for review.
 
 LOCAL MOD - HARVEST TO CPB (2026-09-29): after read-only help, resolve a supplied phase
-before accessing any packet. For `source: operational`, repository specification/progress
+before accessing any packet. For `source: repository`, inspect its tracker/archive only
+and stop: product review-unit publication for repository phases is not installed.
+For `source: operational`, repository specification/progress
 owns the work and null packet/tracker/ledger fields are intentional. Operational review-unit
 publication integration awaits the 0.8.2 consumer update; report that missing writer and
 stop before timing, artifact, tracker, commit or forge changes. The packet-ledger workflow

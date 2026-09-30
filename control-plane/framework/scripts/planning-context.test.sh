@@ -81,6 +81,74 @@ class ContextTests(unittest.TestCase):
         self.assertEqual(self.read(first["id"])["kind"], "horizon")
         self.assertFalse((self.repository / "control-plane/ad-hoc").exists())
 
+    def test_planning_horizon_validation_and_summary(self):
+        first = self.create()
+        validator = capture.identity_policy.load_helper('validate-horizon-packets')
+        summary = capture.identity_policy.load_helper('horizon-state')
+        packet = capture.resolve_document(self.repository, first['id']).parent.parent
+        self.assertEqual(validator.validate(self.repository), [])
+        observed = summary.horizon_state(packet, self.repository)
+        self.assertEqual(observed['horizon'], first['id'])
+        self.assertEqual(observed['source'], 'planning-context')
+        self.assertEqual(observed['problems'], [])
+        self.assertIsNone(observed['recorded']['admitted'])
+        self.assertIsNone(observed['derived']['phase_count'])
+
+    def test_planning_horizon_malformed_missing_and_competing_authority(self):
+        first = self.create()
+        validator = capture.identity_policy.load_helper('validate-horizon-packets')
+        summary = capture.identity_policy.load_helper('horizon-state')
+        filename = capture.resolve_document(self.repository, first['id'])
+        packet = filename.parent.parent
+        before = filename.read_bytes()
+        for content in (b'not a capture', None):
+            if content is None:
+                filename.unlink()
+            else:
+                filename.write_bytes(content)
+            self.assertTrue(validator.validate(self.repository))
+            observed = summary.horizon_state(packet, self.repository)
+            self.assertEqual(observed['horizon'], first['id'])
+            self.assertTrue(observed['problems'])
+        filename.write_bytes(before)
+        changed = capture.read_capture(filename)
+        changed['id'] = 'H001-other-abcd'
+        filename.write_text(capture.render(changed))
+        self.assertTrue(validator.validate(self.repository))
+        filename.unlink()
+        filename.symlink_to(self.source)
+        self.assertIn('symlink', ' '.join(validator.validate(self.repository)))
+        filename.unlink()
+        filename.write_bytes(before)
+        (packet / 'TRACKER.json').write_text('{}')
+        self.assertIn('legacy packet authority', ' '.join(validator.validate(self.repository)))
+
+    def test_legacy_hex_suffix_packet_keeps_legacy_summary(self):
+        validator = capture.identity_policy.load_helper('validate-horizon-packets')
+        summary = capture.identity_policy.load_helper('horizon-state')
+        packet = self.repository / 'control-plane/horizons/H001-legacy-abcd'
+        packet.mkdir(parents=True)
+        (packet / 'HORIZON_STATE.json').write_text(json.dumps({'admission': {'status': 'admitted'}, 'closure': {}}))
+        (packet / 'TRACKER.json').write_text(json.dumps({'nodes': [{'id': 'CP-001', 'status': 'done'}]}))
+        self.assertIsNone(validator.planning_context(packet, self.repository))
+        observed = summary.horizon_state(packet, self.repository)
+        self.assertEqual(observed['horizon'], 'H001')
+        self.assertEqual(observed['derived']['progress'], 'work-complete')
+        self.assertTrue(observed['recorded']['admitted'])
+
+    def test_planning_horizon_cli_requires_full_identity(self):
+        first = self.create()
+        (self.repository / '.cpb.yaml').write_text('cp_root: control-plane\n')
+        command = [sys.executable, str(root / 'control-plane/framework/scripts/horizon-state.py')]
+        full = subprocess.run([*command, first['id']], cwd=self.repository, capture_output=True, text=True)
+        self.assertEqual(full.returncode, 0, full.stderr)
+        self.assertEqual(json.loads(full.stdout)['horizon'], first['id'])
+        abbreviated = subprocess.run([*command, first['id'].split('-')[0]], cwd=self.repository, capture_output=True, text=True)
+        self.assertNotEqual(abbreviated.returncode, 0)
+        human = subprocess.run([*command, '--all', '--human'], cwd=self.repository, capture_output=True, text=True)
+        self.assertEqual(human.returncode, 0, human.stderr)
+        self.assertIn('not assessed', human.stdout)
+
     def test_missing_binding_leave_and_recovery(self):
         first = self.create()
         context.leave(self.repository, first["id"], True)

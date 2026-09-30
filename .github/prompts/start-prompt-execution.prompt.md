@@ -12,6 +12,9 @@ Help returns without running commands. Otherwise resolve the selected phase read
 `python3 control-plane/framework/scripts/resolve-horizon.py ID --root ROOT`, with an explicitly
 supplied `--target-ref FULL_REF` or existing configured selection. Require an explicit ID if no
 singular confirmed target exists; never read a fake operational horizon tracker.
+If `source: repository`, inspect the returned tracker/archive and retained contract fields,
+then report the disabled execution boundary and stop before mutation. Do not use legacy
+horizon paths or infer product-start permission from admission.
 If `source: operational`, load separate specification/execution/status fields and exact
 `phase_contract`, retained-bound/current contract, Canon, DAG and dependency context. Horizon,
 tracker and ledger fields are null, not missing artifacts to create or replace with H000.

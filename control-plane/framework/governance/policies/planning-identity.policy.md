@@ -77,6 +77,13 @@ source context. Minting grants no lifecycle, transfer, approval or admission aut
 Work-candidate-to-Phase allocation remains a separate deferred decision. Preserve current
 work IDs; do not invent another work namespace under this policy.
 
+LOCAL MOD - HARVEST TO CPB (2026-09-30): consumers use Canon And Work Context Resolution
+in [Tracker And State Policy](tracker-and-state.policy.md). New records are not classified
+or assigned identity by legacy CPR/CPN/CUS/USC prefixes. Use kind plus exact ID/revision;
+preserve already-issued legacy IDs. A tracker node's work ID survives admission/archival,
+not allocation from row position, tracker filename or Canon ordinal. No automatic
+work-to-Phase reminting is implemented by repository admission.
+
 ## Compatibility And Rebuild
 
 Preserve legacy UUID ADHOC, bare HNNN and already cited contained IDs by default. The Operator
@@ -91,6 +98,7 @@ do not limit alias validation to currently visible changes.
 Historical prose/evidence keeps historical IDs. Do not reconstruct user-deleted snapshots,
 introduce Base64 sources or store a second full Canon state.
 
-Policy approval does not certify downstream consumers. New change-set review/admission,
-application and horizon file laydown remain separately tracked integration work. Tests and
-schema checks grant none of those boundaries. Preserve existing invocation gates.
+Policy approval does not certify downstream consumers. New change-set review/admission
+and application use format-dispatched repository helpers; horizon file laydown and
+work-to-Phase allocation remain deferred. Tests and schema checks grant none of those
+authority boundaries. Preserve existing invocation gates.

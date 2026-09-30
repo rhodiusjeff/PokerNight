@@ -9,11 +9,14 @@
 """horizon-state.py — derived state for one horizon (or all).
 
 usage:
-  horizon-state.py <HNNN|packet-path>   emit JSON for one horizon
+    horizon-state.py <full-context-id|legacy-HNNN|packet-path>   emit JSON for one horizon
   horizon-state.py --all                emit a JSON array for every horizon
   horizon-state.py <HNNN> --human       render a short human summary
 
-Derived progress (computed, cannot drift):
+Planning contexts retain their full identity and report execution/admission as unassessed;
+their planning origin does not own a packet-local execution tracker.
+
+Legacy derived progress (computed, cannot drift):
   no-work-started  every node is not-started or historical
   in-flight        at least one node has begun and not all are terminal
   work-complete    every non-historical node is done, but the horizon is not sealed
@@ -26,6 +29,7 @@ Recorded facts (must be written down, never inferred):
              identical node sets, so the seal must be recorded to be knowable.
 """
 import json, pathlib, sys, re
+import importlib.util
 
 # Status semantics, per the tracker's own status_vocabulary:
 #   not-started · in-progress · closed (evidence frozen, PUBLICATION PENDING — not terminal)
@@ -56,7 +60,23 @@ def load(p: pathlib.Path):
         return {"__error__": f"{p.name}: {e}"}
 
 
+def planning_context(packet, root):
+    spec = importlib.util.spec_from_file_location('horizon_packet_validator', pathlib.Path(__file__).with_name('validate-horizon-packets.py'))
+    validator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(validator)
+    return validator.planning_context(packet, root)
+
+
 def horizon_state(packet: pathlib.Path, root: pathlib.Path) -> dict:
+    planning = planning_context(packet, root)
+    if planning is not None:
+        document = planning['document'] or {}
+        return {'horizon': planning['id'], 'packet': str(packet.relative_to(root)),
+                'source': 'planning-context', 'capture': planning['capture'],
+                'derived': {'progress': 'not-applicable', 'phase_count': None, 'worked': None, 'status_counts': {}},
+                'recorded': {'admitted': None, 'admission': None, 'sealed_at': None},
+                'declared': {'title': document.get('title'), 'context': document.get('context')},
+                'problems': planning['problems']}
     hid = packet.name.split("-", 1)[0]
     tracker = load(packet / "TRACKER.json")
     archive = load(packet / "TRACKER_ARCHIVE.json")
@@ -162,19 +182,25 @@ def main():
             print(__doc__.rstrip(), file=sys.stderr)
             return 2
         target = args[0]
-        match = [p for p in packets(root) if p.name == target or p.name.startswith(target + "-")]
+        match = [packet for packet in packets(root) if packet.name == target or
+             (packet.name.startswith(target + '-') and planning_context(packet, root) is None)]
         if not match:
             cand = pathlib.Path(target)
             if cand.is_dir():
                 match = [cand.resolve()]
-        if not match:
-            print(f"error: no horizon packet matching {target!r}", file=sys.stderr)
+        if len(match) != 1:
+            print(f"error: expected exactly one horizon matching {target!r}; use the full identity or exact packet path", file=sys.stderr)
             return 2
         out = horizon_state(match[0], root)
 
     if "--human" in flags:
         for h in out if isinstance(out, list) else [out]:
             d, r = h["derived"], h["recorded"]
+            if h.get('source') == 'planning-context':
+                print(f"{h['horizon']}  planning context; repository execution/admission not assessed")
+                for problem in h['problems']:
+                    print(f'       ! {problem}')
+                continue
             seal = r["sealed_at"] or "not sealed"
             print(f"{h['horizon']}  {d['progress']:<16} phases={d['phase_count']:<3} worked={d['worked']:<3} "
                   f"admitted={'yes' if r['admitted'] else 'NO':<3} seal={seal}")

@@ -19,12 +19,15 @@ Use the following constraints:
 - Produce no code, pseudocode, or executable snippets.
 - Treat control-plane as the source of truth for planning and design.
 - Treat control-plane/archive/codex as reference-only when present.
-- Resolve the target phase/horizon with `resolve-horizon.py`; when present, consult that packet's `phases/planning/DEFERRED_PLANNING_NOTES.md` for later-phase notes that should shape the handoff or remain deferred.
+- Resolve named work with `resolve-horizon.py` and inspect its source before using paths. For source: repository, read CANON.json and the returned tracker/archive and bound contract references; for an explicit legacy packet, read its declared profile and planning notes. For an unadmitted candidate, use the selected proposal, not an invented phase or packet.
+- Use Canon And Work Context Resolution and Planning Identity Policy. Preserve exact Canon/work IDs and revisions. New work-to-Phase allocation and repository product execution remain deferred; a handoff cannot grant executable status.
 - Emphasize clear requirements, risk controls, and validation expectations.
 - Keep the handoff non-prescriptive about concrete implementation structures unless the developer explicitly asks for specific data structures, patterns, APIs, or other code-shape constraints.
 
 Use these references when available:
-- [Context Handoff](../../control-plane/canon/context/CONTEXT_HANDOFF.md)
+- Supplied project handoff context, when present; no mandatory legacy context file
+- [Tracker And State Policy](../../control-plane/framework/governance/policies/tracker-and-state.policy.md)
+- [Planning Identity Policy](../../control-plane/framework/governance/policies/planning-identity.policy.md)
 - [Docs Governance Instruction](../instructions/control-plane-docs-governance.instructions.md)
 - [Project: Codegen Agent](../agents/project-codegen.agent.md)
 

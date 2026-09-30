@@ -27,8 +27,8 @@ In scope:
 
 Out of scope — owned elsewhere, cite don't restate:
 - Source code and executable snippets; unapproved production or hardware operation.
-- **Phase decomposition and grouping** — planning/design agents, working from the horizon's
-  dependency graph (`TRACKER.json` edges).
+- **Phase decomposition and grouping** — planning/design agents, working from the selected
+  repository tracker/archive plus proposed dependencies, or an explicitly legacy packet graph.
 - **Concurrency and parallel execution** — packet-local horizon state plus mechanical phase
   ownership resolution (`HORIZON_STATE.json`, `TRACKER.json`, `resolve-horizon.py`).
 - **Human review mechanics and boundaries** — `policies/approval-and-review.policy.md`,
@@ -37,21 +37,25 @@ Out of scope — owned elsewhere, cite don't restate:
 
 ## 2. Context and References
 
-Instance-neutral paths; `<HNNN-slug>` is the executing horizon's packet.
+LOCAL MOD - HARVEST TO CPB (2026-09-30): select Canon And Work Context Resolution in
+[Tracker And State Policy](policies/tracker-and-state.policy.md) and
+[Planning Identity Policy](policies/planning-identity.policy.md) before loading inputs.
 
-- `control-plane/canon/INCEPTION_REQUIREMENTS_CANONICAL.json`
-- `control-plane/canon/INCEPTION_USER_STORIES_CANONICAL.json`
-- `control-plane/canon/USER_STORY_REGISTRY_CANONICAL.json`
-- `control-plane/canon/context/PROJECT_ARCHITECTURE_OVERVIEW.md`
-- `control-plane/canon/context/CONTEXT_HANDOFF.md`
-- `control-plane/canon/context/ACCEPTANCE_TEST_MATRIX.json`
-- `control-plane/horizons/<HNNN-slug>/TRACKER.json`
+- New-format Canon: `control-plane/canon/CANON.json`, with exact required record revisions
+- New-format work: `control-plane/tracker/TRACKER.json` and `control-plane/tracker/TRACKER_ARCHIVE.json`, including bound contracts and archived prerequisites
+- The selected proposal and supplied architecture, acceptance and handoff context
+- Explicit legacy results: only their declared registry/profile and resolved packet tracker/archive; no default H000 or split-registry fallback
 - `control-plane/framework/governance/policies/tracker-and-state.policy.md`
 - `control-plane/framework/governance/policies/approval-and-review.policy.md`
 - `control-plane/framework/governance/personas/architecture-scrub-agent.spec.md`
 - `control-plane/framework/governance/closeout/pc-010-prompt-closeout-and-lessons-learned.spec.md`
 - `control-plane/framework/governance/review/contract-verify.spec.md`
-- Phase prompt template: the horizon packet's `phases/` template surface
+- Phase prompt template: the resolved legacy packet's template surface only; new-format work retains its typed proposal contract and existing work IDs pending Phase allocation
+
+The content principles below do not enable repository product execution. Packet-local
+execution mechanics apply only to explicit legacy results. New-format planning uses
+Canon/work ID plus revision, not mandatory historical family prefixes. Work-to-Phase
+allocation and new-format code-marker integration remain separate consumer boundaries.
 
 **LOCAL MOD, 2026-09-20 - HARVEST TO CPB:** Apply
 [Governed Vocabulary](policies/tracker-and-state.policy.md#governed-vocabulary) to handoff
@@ -180,7 +184,7 @@ Current enforcement is **VERIFY**: checkpoint is group proposal, persona is **Pr
 and Design**, which records the dependency-closure check against the tracker edges before asking
 the operator to approve the group. The approved target backstop is deterministic lint that rejects
 graph-invalid membership without proposing alternatives. No such checker is installed in this
-checkout; until it is added and named in the sanity lint catalog, this spec must not claim
+checkout; until it is added and named at its owning boundary, this spec must not claim
 GATE-register enforcement.
 
 Grouping changes review packaging, not phase evidence boundaries. Every phase in a grouped run

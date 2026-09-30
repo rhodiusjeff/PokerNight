@@ -12,7 +12,9 @@ Help returns before any command. Otherwise resolve the explicit phase read-only 
 `python3 control-plane/framework/scripts/resolve-horizon.py ID --root ROOT`, adding
 `--target-ref FULL_REF` only when explicitly supplied (otherwise configured selection applies).
 Do not infer a new operational phase from a nonexistent horizon tracker; omitted IDs require
-explicit selection. On `source: operational`, use separate `specification`, `execution`,
+explicit selection. For `source: repository`, use the returned tracker/archive and contract
+fields for inspection; report the disabled execution boundary and stop before mutation.
+On `source: operational`, use separate `specification`, `execution`,
 `status_path`, `phase_contract`, contract revision/digest, target commit and dependency fields.
 Null horizon/tracker/ledger paths stay null. Do not manufacture files or use H000 as fallback.
 

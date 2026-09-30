@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
-"""Validate horizon packet state, folder identity, and locally visible tag reconciliation.
+"""Validate planning captures or legacy packet state and local tag reconciliation.
 
 Usage:
   validate-horizon-packets.py [--root <repo-root>]
 
-Tag-without-packet is informational and does not fail. Packet-without-tag, lightweight tags,
+Planning contexts use their full IDs and capture schema, not packet trackers or tags.
+For legacy packets, tag-without-packet is informational and does not fail. Packet-without-tag, lightweight tags,
 duplicate IDs, malformed state, unresolved dependencies, and admitted packets without tracker
 authority fail.
 """
 import argparse
 import hashlib
+import importlib.util
 import json
 import pathlib
 import re
@@ -65,6 +67,41 @@ def local_tags(root):
     return {line.strip() for line in result.stdout.splitlines() if line.strip()} if result.returncode == 0 else set()
 
 
+def planning_context(packet, root):
+    """LOCAL MOD - HARVEST TO CPB: distinguish planning captures from legacy packets."""
+    state_path = packet / 'HORIZON_STATE.json'
+    full_capture = packet / 'planning' / (packet.name + '.md')
+    if (state_path.exists() or state_path.is_symlink()) and not (full_capture.exists() or full_capture.is_symlink()):
+        return None
+    location = pathlib.Path(__file__).with_name('planning-capture.py')
+    spec = importlib.util.spec_from_file_location('horizon_planning_capture', location)
+    capture = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(capture)
+    full_name = re.fullmatch(capture.identity_policy.HORIZON_PATTERN, packet.name) is not None
+    identity = packet.name if full_name else packet.name.split('-', 1)[0]
+    filename = packet / 'planning' / (identity + '.md')
+    state_path = packet / 'HORIZON_STATE.json'
+    if state_path.exists() or state_path.is_symlink():
+        if not (full_name and (filename.exists() or filename.is_symlink())):
+            return None
+    elif not full_name and not (filename.exists() or filename.is_symlink()):
+        return None
+    result = {'id': identity, 'capture': str(filename.relative_to(root)), 'document': None, 'problems': []}
+    try:
+        capture.safe_path(root, filename)
+        capture.identity_policy.parse(identity)
+        document = capture.read_capture(filename)
+        kind = document.get('context', {}).get('kind') if document['schema'] == 'cp-plan-change-set-v1' else document.get('kind')
+        capture.contract.require(document['id'] == identity and kind == 'horizon', 'planning capture identity/kind differs from packet')
+        competing = [name for name in ('HORIZON_STATE.json', 'TRACKER.json', 'TRACKER_ARCHIVE.json')
+                     if (packet / name).exists() or (packet / name).is_symlink()]
+        capture.contract.require(not competing, 'planning context contains legacy packet authority: ' + ', '.join(competing))
+        result['document'] = document
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        result['problems'].append(f'{filename}: {error}')
+    return result
+
+
 def validate(root, allowed_lightweight=None):
     allowed_lightweight = set(allowed_lightweight or [])
     problems = []
@@ -73,6 +110,10 @@ def validate(root, allowed_lightweight=None):
     tags = local_tags(root)
     seen = {}
     for packet in packets:
+        planning = planning_context(packet, root)
+        if planning is not None:
+            problems.extend(planning['problems'])
+            continue
         state_path = packet / "HORIZON_STATE.json"
         if not state_path.exists():
             problems.append(f"{packet}: missing HORIZON_STATE.json")

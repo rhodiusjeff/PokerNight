@@ -13,8 +13,15 @@ For Canon/tracker planning, admission, resolution, execution, review or completi
 load [Repository Canon And Tracker Storage Contract](../control-plane/framework/governance/policies/tracker-and-state.policy.md#repository-canon-and-tracker-storage-contract).
 The agreed layout has one Canon file and one repository tracker/archive pair. Readers
 must account for archived completed phases; writers must preserve history and existing
-completion gates. Runtime migration is pending: do not manufacture files, redirect
-legacy helpers or claim new-format admission support from this contract alone.
+completion gates. Use the format-dispatched admission helpers; do not manufacture live
+files or redirect legacy constants. Only an exact empty legacy baseline can migrate
+through admission; populated legacy migration and product start/completion remain blocked.
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): use Canon And Work Context Resolution in that
+policy before interpreting paths/IDs. [Planning Identity Policy](../control-plane/framework/governance/policies/planning-identity.policy.md)
+owns full context and CR/CHG minting. Preserve work IDs across tracker/archive; Phase
+allocation is deferred. Old split registries and CP-family requirements apply only to
+explicit legacy profiles, never as missing-file fallbacks or new-format ID conventions.
 
 <!-- mermaid-ai-skills:start -->
 ## Mermaid Diagrams

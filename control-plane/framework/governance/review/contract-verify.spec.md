@@ -20,14 +20,18 @@ Out of scope:
 - New feature scope beyond alignment and consistency fixes.
 
 ## 2. Context and References
-- The owning horizon tracker resolved from the named phase by `framework/scripts/resolve-horizon.py`
+- The resolver-selected tracker/archive and exact bound contract; inspect source before using packet paths
 - `control-plane/framework/governance/codegen-handoff.spec.md`
-- `control-plane/canon/INCEPTION_REQUIREMENTS_CANONICAL.json`, `control-plane/canon/INCEPTION_USER_STORIES_CANONICAL.json`, and `control-plane/canon/USER_STORY_REGISTRY_CANONICAL.json` (canonical requirements/story authority; legacy combined packet retired)
+- New-format inspection: `control-plane/canon/CANON.json`, repository tracker/archive and the selected proposal, with exact Canon/work revisions
 - `governance/closeout/pc-010-prompt-closeout-and-lessons-learned.spec.md`
-- `control-plane/canon/INCEPTION_USER_STORIES_CANONICAL.json`
-- `control-plane/canon/USER_STORY_REGISTRY_CANONICAL.json`
-- The resolved packet's implementation-baseline catalog when present
-- The resolved packet's `ledgers/REVIEW_UNIT_LEDGER.json`
+- Explicit legacy profiles: declared registry/acceptance artifacts, implementation-baseline catalog and resolved review ledger
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): apply Canon And Work Context Resolution in
+[Tracker And State Policy](../policies/tracker-and-state.policy.md). New-format governing
+changes are proposals for admission, not direct registry edits. Legacy Gate A/B checks
+below apply only to the selected registry profile. Do not infer missing USC rows from
+CR-based Canon, impose contiguous legacy sequences on minted IDs, or create registries.
+Repository product completion/contract-application is not enabled by this context rule.
 
 ## 3. Assumptions and Constraints
 Assumptions:
@@ -59,7 +63,7 @@ Implementation-reality drift minimum checks:
 - Update downstream prompt language when that authority disproves or supersedes earlier planning assumptions, even if the older language was internally consistent at the time it was written.
 - Do not treat this reconciliation as permission to add net-new feature scope. If the observed drift implies a new capability or a widened product commitment, stop and route that work through planning/admission.
 
-Gate A minimum checks:
+Gate A minimum checks (explicit legacy registry profile only):
 - Story-affecting updates must target canonical files only:
 	- `control-plane/canon/INCEPTION_USER_STORIES_CANONICAL.json`
 	- `control-plane/canon/USER_STORY_REGISTRY_CANONICAL.json`
@@ -67,7 +71,7 @@ Gate A minimum checks:
 	- The explicitly selected legacy implementation-state classification catalog, when classification changes; never infer an example horizon path.
 - Direct edits to `docs/product/user-stories.md` fail Gate A unless the closeout artifact and review-unit ledger both record an explicit waiver reason.
 
-Gate B minimum checks:
+Gate B minimum checks (explicit legacy registry profile only):
 - `USC-*` identifiers are unique.
 - `USC-ADMIN-*`, `USC-SOCIAL-*`, and `USC-SYSTEM-*` sequences are contiguous with no gaps.
 - Required registry fields are non-empty for every row (`Canonical ID`, `Lane`, `Workflow`, `Story`, `Acceptance Signal`, `Track/Prompt`, `Source Section`).
