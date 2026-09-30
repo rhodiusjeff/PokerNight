@@ -30,7 +30,9 @@ boundary. Installation and fixture tests are not release approval.
 4. For a new horizon explicitly invoke `/horizon --create`. Supply source files, title, slug,
    author and intended remote/target. Confirm the disclosed local slug/hex allocation and
    branch creation. `/horizon --help` describes activation, leave, suspension, abandonment,
-   absorption and `--create --from` escalation; transfers remain local-only/incomplete.
+   absorption and `--create --from` escalation. Both transfer modes are deferred under HR-02:
+   no creation, source lookup, allocation, binding, timing or journal writes; no legacy fallback.
+   Read-only historical transfer verification and admission protections remain available.
    Use the full ID returned under [Planning Identity Policy](framework/governance/policies/planning-identity.policy.md).
    Minting creates no new Git tags; legacy reservations remain historical facts.
 5. Use `/plan-work ID --include` for a descriptive deferred-item selection walkthrough.

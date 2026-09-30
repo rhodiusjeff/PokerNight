@@ -19,13 +19,101 @@ spec = importlib.util.spec_from_file_location("transfer", root / "control-plane/
 transfer = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(transfer)
 context, capture = transfer.context, transfer.capture
+deferred_guard = context.require_transfer_supported
 
 
-class TransferTests(unittest.TestCase):
+class DeferredTransferTests(unittest.TestCase):
+    def test_abbreviated_offer_flags_refused_without_reads_or_writes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = pathlib.Path(temporary)
+            for action in ("import-source", "publish", "verify"):
+                with self.subTest(action=action):
+                    result = subprocess.run([sys.executable, transfer.__file__, action, "--off", "missing.json"],
+                                            cwd=directory, capture_output=True, text=True)
+                    self.assertEqual(result.returncode, 2, result.stderr)
+                    self.assertEqual(result.stdout, "")
+                    self.assertEqual(list(directory.iterdir()), [])
+
+    def test_mutation_apis_defer_before_read_or_write(self):
+        with mock.patch.object(context, "local_path", side_effect=AssertionError("journal access")), \
+             mock.patch.object(capture, "resolve_document", side_effect=AssertionError("source access")), \
+             mock.patch.object(capture, "local_writer", side_effect=AssertionError("writer lock")), \
+             mock.patch.object(transfer, "git", side_effect=AssertionError("Git access")):
+            calls = [
+                lambda: transfer.offer_import(None, None, None, None, None, None, None, None, None, None, None, None),
+                lambda: transfer.import_source(None, None, True, True),
+                lambda: transfer.import_paths(None, None, True),
+                lambda: transfer.offer_publication(None, None, None, None, None, None, None, None, None, None),
+                lambda: transfer.publish(None, None, True, True),
+                lambda: transfer.prepare_repository(None, None, None),
+                lambda: transfer.candidate(None, None, None, None),
+                lambda: transfer.immutable(None, None, None),
+                lambda: transfer.receive_pack(None, None, None),
+            ]
+            for index, call in enumerate(calls):
+                with self.subTest(entry=index), self.assertRaisesRegex(context.DeferredTransfer, "Deferred"):
+                    call()
+
+    def test_cli_defers_before_missing_offer_or_journal_read(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = pathlib.Path(temporary)
+            for command in (["import-source", "--offer", "missing.json", "--confirmed", "--coordinated"],
+                            ["publish", "--offer", "missing.json", "--confirmed", "--coordinated"],
+                            ["_receive-pack", "missing.json", "source", str(directory / "missing.git")]):
+                with self.subTest(command=command):
+                    result = subprocess.run([sys.executable, transfer.__file__, *command],
+                                            cwd=directory, capture_output=True, text=True)
+                    self.assertEqual(result.returncode, 3, result.stderr)
+                    if command[0] != "_receive-pack":
+                        self.assertEqual(json.loads(result.stdout)["status"], "deferred")
+                    self.assertEqual(list(directory.iterdir()), [])
+
+    def test_offer_commands_and_help_are_deferred_without_resolution(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = pathlib.Path(temporary)
+            cases = {
+                "offer-import": ("operation-id", "source", "destination", "mode", "remote", "source-branch",
+                                 "destination-branch", "target-branch", "expected-source-tip",
+                                 "expected-destination-tip", "expected-target-tip"),
+                "offer-publication": ("operation-id", "transfer-offer", "remote", "expected-source-tip",
+                                      "expected-destination-tip", "target-branch", "expected-target-tip",
+                                      "committer-name", "committer-email"),
+            }
+            for action, fields in cases.items():
+                command = [sys.executable, transfer.__file__, "--root", str(directory / "missing"), action]
+                flags = [value for field in fields for value in ("--" + field, "missing")]
+                result = subprocess.run(command + flags, capture_output=True, text=True)
+                self.assertEqual(result.returncode, 3, result.stderr)
+                self.assertFalse(json.loads(result.stdout)["changed"])
+                result = subprocess.run(command + flags + ["--operation-id", "other"], capture_output=True, text=True)
+                self.assertEqual(result.returncode, 2)
+            for action in ("offer-import", "offer-publication", "import-source", "publish"):
+                result = subprocess.run([sys.executable, transfer.__file__, action, "--help"], capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0)
+                self.assertIn("deferred", result.stdout)
+            self.assertEqual(list(directory.iterdir()), [])
+
+
+class HistoricalTransferTests(unittest.TestCase):
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.folder = pathlib.Path(temporary.name).resolve()
+        self.historical_script = self.folder / "historical-transfer-fixture.py"
+        self.historical_script.write_text(
+            "import importlib.util, sys\n"
+            f"spec = importlib.util.spec_from_file_location('historical_transfer', {transfer.__file__!r})\n"
+            "module = importlib.util.module_from_spec(spec)\n"
+            "spec.loader.exec_module(module)\n"
+            "module.context.require_transfer_supported = lambda *args: None\n"
+            "module.__file__ = __file__\n"
+            "raise SystemExit(module.main())\n")
+        guard_patch = mock.patch.object(context, "require_transfer_supported", lambda *args: None)
+        guard_patch.start()
+        self.addCleanup(guard_patch.stop)
+        script_patch = mock.patch.object(transfer, "__file__", str(self.historical_script))
+        script_patch.start()
+        self.addCleanup(script_patch.stop)
         self.remote = self.folder / "remote.git"
         self.repo = self.folder / "repo"
         subprocess.run(["git", "init", "--bare", str(self.remote)], check=True, capture_output=True)
@@ -81,6 +169,32 @@ class TransferTests(unittest.TestCase):
         context.transfer(self.repo, offered, True, True)
         return transfer.offer_publication(self.repo, offered, "transfer-one", str(self.remote), self.source_tip,
             self.destination_tip, "main", self.target, "Transfer fixture", "transfer@example.invalid")
+
+    def test_shipped_retry_and_readers_preserve_historical_evidence(self):
+        offered = self.prepare()
+        transfer.publish(self.repo, offered, True, True)
+        offer_file = self.folder / "historical-offer.json"
+        offer_file.write_bytes(transfer.encoded(offered))
+        before = {str(filename.relative_to(self.folder)): filename.read_bytes()
+                  for filename in self.folder.rglob("*") if filename.is_file()}
+        with mock.patch.object(context, "require_transfer_supported", deferred_guard):
+            self.assertEqual(context.inspect_context(self.repo, self.source)["context"]["state"], "absorbed")
+            self.assertTrue(transfer.verify(offered)["portable_complete"])
+            destination = capture.read_capture(capture.resolve_document(self.repo, self.destination))
+            transfer.guard(self.repo, destination)
+            with self.assertRaisesRegex(ValueError, "retired"):
+                transfer.guard(self.repo, capture.read_capture(self.source_path))
+            with self.assertRaisesRegex(context.DeferredTransfer, "Deferred"):
+                transfer.publish(self.repo, offered, True, True)
+            with self.assertRaisesRegex(context.DeferredTransfer, "Deferred"):
+                context.transfer(self.repo, offered["offer"]["transfer"], True, True)
+        for action, expected_code in (("verify", 0), ("publish", 3)):
+            result = subprocess.run([sys.executable, str(root / "control-plane/framework/scripts/planning-transfer.py"),
+                                     "--root", str(self.repo), action, "--offer", str(offer_file)],
+                                    capture_output=True, text=True)
+            self.assertEqual(result.returncode, expected_code, result.stderr)
+        self.assertEqual(before, {str(filename.relative_to(self.folder)): filename.read_bytes()
+                                 for filename in self.folder.rglob("*") if filename.is_file()})
 
     def test_import_publication_and_exact_retry(self):
         self.assertFalse(self.source_path.exists())

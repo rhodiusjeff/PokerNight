@@ -6,6 +6,7 @@ import argparse
 import contextlib
 import copy
 import importlib.util
+import io
 import json
 import pathlib
 import subprocess
@@ -60,6 +61,100 @@ class ContextTests(unittest.TestCase):
         second = self.create("second", "second")
         self.commit()
         return first["id"], second["id"]
+
+    def test_deferred_create_from_no_preflight_or_writes(self):
+        before = {str(filename.relative_to(self.folder)): filename.read_bytes()
+                  for filename in self.folder.rglob("*") if filename.is_file()}
+        result = subprocess.run([sys.executable, str(script), "--root", str(self.repository),
+                                 "create", "--from", "ADHOC-missing-abcd"],
+                                capture_output=True, text=True)
+        self.assertEqual(result.returncode, 3, result.stderr)
+        self.assertEqual(json.loads(result.stdout)["status"], "deferred")
+        self.assertEqual(before, {str(filename.relative_to(self.folder)): filename.read_bytes()
+                                 for filename in self.folder.rglob("*") if filename.is_file()})
+
+    def test_deferred_transfer_apis_before_resolution(self):
+        with mock.patch.object(capture, "resolve_document", side_effect=AssertionError("source resolution")), \
+             mock.patch.object(capture, "local_writer", side_effect=AssertionError("writer lock")):
+            with self.assertRaisesRegex(context.contract.ContractError, "Deferred"):
+                context.transfer_offer(self.repository, "ADHOC-missing-abcd", "H001-missing-abcd", "escalate")
+            with self.assertRaisesRegex(context.contract.ContractError, "Deferred"):
+                context.transfer(self.repository, {}, True, True)
+
+    def test_deferred_cli_clean_dirty_and_existing_state_unchanged(self):
+        first = self.create()
+        self.commit()
+        for dirty in (False, True):
+            if dirty:
+                (self.repository / "baseline").write_bytes(b"staged\r\n")
+                context.git(self.repository, "add", "baseline")
+                (self.repository / "baseline").write_bytes(b"unstaged\r\n")
+                (self.repository / "untracked").write_bytes(b"\x00\xff")
+            commands = [
+                ["create", "--from", "ADHOC-missing-abcd"],
+                ["create", "--from=ADHOC-missing-abcd", "--operation-id", "no-allocation",
+                 "--slug", "unused", "--title", "Unused", "--author", "Fixture", "--remote", "missing",
+                 "--target", "missing", "--source", "missing.txt", "--confirmed"],
+                ["absorb", "--source", first["id"], "--into", "H001-missing-abcd"],
+                ["offer-transfer", "--source", "ADHOC-missing-abcd", "--destination", first["id"], "--mode", "escalate"],
+                ["offer-transfer", "--source", first["id"], "--destination", "H001-missing-abcd", "--mode", "absorb"],
+                ["transfer", "--offer", "missing.json", "--confirmed", "--coordinated"],
+            ]
+            before = {str(filename.relative_to(self.folder)): filename.read_bytes()
+                      for filename in self.folder.rglob("*") if filename.is_file()}
+            for command in commands:
+                with self.subTest(dirty=dirty, command=command):
+                    result = subprocess.run([sys.executable, str(script), "--root", str(self.repository), *command],
+                                            capture_output=True, text=True)
+                    self.assertEqual(result.returncode, 3, result.stderr)
+                    self.assertEqual(json.loads(result.stdout)["changed"], False)
+                    self.assertEqual(before, {str(filename.relative_to(self.folder)): filename.read_bytes()
+                                             for filename in self.folder.rglob("*") if filename.is_file()})
+
+    def test_deferred_cli_malformed_combinations_and_help_no_writes(self):
+        commands = [
+            ["create", "--from"], ["create", "--from", ""], ["create", "--from", "../escape"],
+            ["create", "--from", "ADHOC-missing-abcd", "--from", "ADHOC-other-abcd"],
+            ["create", "--from", "ADHOC-missing-abcd", "--absorb", "H001-missing-abcd"],
+            ["create", "--fro", "ADHOC-missing-abcd"],
+            ["absorb", "--source", "H001-missing-abcd"],
+            ["absorb", "--source", "ADHOC-missing-abcd", "--into", "H001-missing-abcd"],
+            ["absorb", "--source", "H001-missing-abcd", "--into", "../escape"],
+            ["absorb", "--source", "H001-missing-abcd", "--into", "H002-missing-abcd", "--create"],
+            ["transfer"], ["create"],
+        ]
+        before = {str(filename.relative_to(self.folder)): filename.read_bytes()
+                  for filename in self.folder.rglob("*") if filename.is_file()}
+        for command in commands:
+            with self.subTest(command=command):
+                result = subprocess.run([sys.executable, str(script), "--root", str(self.repository), *command],
+                                        capture_output=True, text=True)
+                self.assertEqual(result.returncode, 2, result.stderr)
+                self.assertEqual(result.stdout, "")
+        for command in (["--help"], ["create", "--help"], ["absorb", "--help"]):
+            result = subprocess.run([sys.executable, str(script), *command], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0)
+            self.assertIn("deferred", result.stdout)
+        self.assertEqual(before, {str(filename.relative_to(self.folder)): filename.read_bytes()
+                                 for filename in self.folder.rglob("*") if filename.is_file()})
+
+    def test_create_missing_source_uses_declared_flag(self):
+        arguments = [str(script), "--root", str(self.repository), "create", "--operation-id", "fixture",
+                     "--slug", "fixture", "--title", "Fixture", "--author", "Operator fixture",
+                     "--remote", "fixture", "--target", "main", "--confirmed"]
+        with mock.patch.object(sys, "argv", arguments), mock.patch.object(context, "create_context") as creator, \
+             contextlib.redirect_stderr(io.StringIO()) as errors:
+            with self.assertRaises(SystemExit) as refusal:
+                context.main()
+            self.assertEqual(refusal.exception.code, 2)
+            self.assertEqual(errors.getvalue().splitlines()[-1], "planning-context.py: error: create requires --source")
+            creator.assert_not_called()
+        with mock.patch.object(sys, "argv", arguments + ["--source", str(self.source)]), \
+             mock.patch.object(context, "create_context", return_value={}) as creator, \
+             contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(context.main(), 0)
+            creator.assert_called_once_with(self.repository, "fixture", "fixture", "Fixture", "Operator fixture",
+                                            [self.source], "fixture", "main", True)
 
     def test_allocator_dirty_creation_and_retry(self):
         (self.repository / "baseline").write_bytes(b"dirty\r\n")
@@ -423,7 +518,8 @@ class ContextTests(unittest.TestCase):
         with self.assertRaisesRegex(context.contract.ContractError, "not awaiting"):
             context.recover_reservation(self.repository, "fixture-create", "H000", context.digest_bytes(journal.read_bytes()), True)
 
-    def test_absorption_preserves_subject_and_retries(self):
+    @mock.patch.object(context, "require_transfer_supported", lambda *args: None)
+    def test_historical_absorption_preserves_subject_and_retries(self):
         source, destination = self.pair()
         original = capture.resolve_document(self.repository, source).read_bytes()
         offer = context.transfer_offer(self.repository, source, destination, "absorb")
@@ -438,7 +534,8 @@ class ContextTests(unittest.TestCase):
         context.transfer(self.repository, offer, True, True)
         self.assertEqual(capture.resolve_document(self.repository, destination).read_bytes(), after)
 
-    def test_transfer_interruption_and_retry(self):
+    @mock.patch.object(context, "require_transfer_supported", lambda *args: None)
+    def test_historical_transfer_interruption_and_retry(self):
         source, destination = self.pair()
         offer = context.transfer_offer(self.repository, source, destination, "absorb")
         original = capture.publish_capture
@@ -455,7 +552,8 @@ class ContextTests(unittest.TestCase):
         context.transfer(self.repository, offer, True, True)
         self.assertEqual(self.read(source)["context"]["state"], "absorbed")
 
-    def test_transfer_recovery_refuses_changed_pending_source(self):
+    @mock.patch.object(context, "require_transfer_supported", lambda *args: None)
+    def test_historical_transfer_recovery_refuses_changed_pending_source(self):
         source, destination = self.pair()
         offer = context.transfer_offer(self.repository, source, destination, "absorb")
         original = capture.publish_capture
@@ -473,7 +571,8 @@ class ContextTests(unittest.TestCase):
         with self.assertRaisesRegex(context.contract.ContractError, "source document changed"):
             context.transfer(self.repository, offer, True, True)
 
-    def test_transfer_changed_offer_and_confirmation_refused(self):
+    @mock.patch.object(context, "require_transfer_supported", lambda *args: None)
+    def test_historical_transfer_changed_offer_and_confirmation_refused(self):
         source, destination = self.pair()
         offer = context.transfer_offer(self.repository, source, destination, "absorb")
         with self.assertRaisesRegex(context.contract.ContractError, "coordination"):
@@ -482,7 +581,8 @@ class ContextTests(unittest.TestCase):
         with self.assertRaisesRegex(context.contract.ContractError, "changed"):
             context.transfer(self.repository, offer, True, True)
 
-    def test_authorized_transfer_and_abandon_refused(self):
+    @mock.patch.object(context, "require_transfer_supported", lambda *args: None)
+    def test_historical_authorized_transfer_and_abandon_refused(self):
         source, destination = self.pair()
         def authorize(value):
             value["workflow"] = {"admission": {"state": "authorized-for-merge"}}
@@ -493,7 +593,8 @@ class ContextTests(unittest.TestCase):
         with self.assertRaisesRegex(context.contract.ContractError, "withdraw"):
             context.transition(self.repository, source, "abandon", context.document_digest(self.repository, source), "stop", True)
 
-    def test_ad_hoc_escalation_retains_identity_and_history(self):
+    @mock.patch.object(context, "require_transfer_supported", lambda *args: None)
+    def test_historical_ad_hoc_escalation_retains_identity_and_history(self):
         identity = "ADHOC-" + "a" * 32
         capture.create_capture(argparse.Namespace(root=self.repository, id=identity, kind="ad-hoc", title="Ad hoc", author="Fixture",
                                                  sources=[self.source], origin_phase=None, origin_specification=None, confirmed=True))
@@ -512,14 +613,16 @@ class ContextTests(unittest.TestCase):
         self.assertTrue(list((session / "assets/history").glob("*.md")))
         self.assertFalse((session / "assets" / identity).exists())
 
-    def test_transfer_asset_escape_refused(self):
+    @mock.patch.object(context, "require_transfer_supported", lambda *args: None)
+    def test_historical_transfer_asset_escape_refused(self):
         source, destination = self.pair()
         home = capture.resolve_document(self.repository, source).parent
         (home / "escaped").symlink_to(self.folder)
         with self.assertRaisesRegex(context.contract.ContractError, "symlink"):
             context.transfer_offer(self.repository, source, destination, "absorb")
 
-    def test_withdrawal_flag_without_closure_refused(self):
+    @mock.patch.object(context, "require_transfer_supported", lambda *args: None)
+    def test_historical_withdrawal_flag_without_closure_refused(self):
         source, destination = self.pair()
         def withdrawn(value):
             value["workflow"] = {"admission": {"status": "withdrawn", "attempt_id": "old"}}
@@ -528,7 +631,8 @@ class ContextTests(unittest.TestCase):
         with self.assertRaisesRegex(context.contract.ContractError, "verified request closure"):
             context.transfer_offer(self.repository, source, destination, "absorb")
 
-    def test_self_and_terminal_cycle_refused(self):
+    @mock.patch.object(context, "require_transfer_supported", lambda *args: None)
+    def test_historical_self_and_terminal_cycle_refused(self):
         source, destination = self.pair()
         with self.assertRaisesRegex(context.contract.ContractError, "self"):
             context.transfer_offer(self.repository, source, source, "absorb")
@@ -537,7 +641,8 @@ class ContextTests(unittest.TestCase):
         with self.assertRaisesRegex(context.contract.ContractError, "terminal"):
             context.activate(self.repository, source, True, True, context.document_digest(self.repository, source))
 
-    def test_unpublished_survivor_cannot_transfer_again(self):
+    @mock.patch.object(context, "require_transfer_supported", lambda *args: None)
+    def test_historical_unpublished_survivor_cannot_transfer_again(self):
         source, destination = self.pair()
         context.transfer(self.repository, context.transfer_offer(self.repository, source, destination, "absorb"), True, True)
         third = self.create("third", "third")["id"]

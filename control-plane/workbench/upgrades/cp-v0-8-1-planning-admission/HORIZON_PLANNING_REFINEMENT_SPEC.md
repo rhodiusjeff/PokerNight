@@ -2,7 +2,8 @@
 
 Date: 2026-09-30
 
-Status: HR-01 storage/schema foundation locally implemented; remaining slices await individual authorization. Boundary readiness not assessed. The Operator
+Status: HR-01 storage/schema and HR-02 deferred transfer boundaries locally implemented;
+remaining slices await individual authorization. Boundary readiness not assessed. The Operator
 requested a migration contract and implementation-sized slices, with each slice separately
 authorized. This is not runtime implementation permission, admission or lifecycle invocation.
 See [slice contracts](UPGRADE_PLAN.md#operator-selected-refinement-slices) and
@@ -45,7 +46,8 @@ their historical descriptions when implementation changes.
 ### Latest Operator Clarifications
 
 The following 2026-09-30 decisions are reflected in the target sections below. HR-01
-implements the pair/schema foundation only; command changes await their owning slices:
+implements the pair/schema foundation; HR-02 implements transfer deferral. Other command
+changes await their owning slices:
 
 - `/horizon --create` automatically activates the new horizon by writing its ID to the local binding.
 - `/horizon --activate ID` selects an already-planning horizon, never resumes suspended work.
@@ -82,13 +84,16 @@ Recognize the valid command and return a distinct deferred, non-successful opera
 before creation preflight, source resolution, identity allocation, timing or journal writes.
 Do not create an empty destination, switch branches, alter the binding, transfer files,
 retire the source, or silently fall back to plain `--create`. Malformed arguments can still
-produce usage errors. Help must label this mode deferred; ordinary `/horizon --create`
-continues to create and activate a fresh horizon normally.
+produce usage errors. Help labels this mode deferred; ordinary `/horizon --create`
+retains its existing fresh-creation behavior until HR-03 changes creation/binding.
 
-When implemented, both the agent-facing command and shipped mutation entry points must
+HR-02 makes both the agent-facing command and shipped mutation entry points
 honor the deferral; the prompt cannot advertise deferred while forwarding into the old
 escalation writer. Read-only inspection of historical transfer evidence remains permitted.
-This document records the required behavior; the installed command is not changed yet.
+The helpers return `status: deferred`, `changed: false`, exit code 3. Legacy transfer/import/
+publication and exact-journal retries also defer; no runtime opt-out is exposed. Historical
+verification and admission-lock/retirement checks remain available. See the
+[HR-02 evidence](../../steward-consults/2026-09-30-hr-02-deferred-transfers.md).
 
 Future intent remains consumption of the populated ad hoc session into a newly identified
 horizon, with custody/history verified before removing the active source copy. That design

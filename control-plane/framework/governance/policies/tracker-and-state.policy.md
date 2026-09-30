@@ -255,13 +255,24 @@ for an uncaptured horizon, explicitly selected working inputs may live in `contr
 No arbitrary callbacks/scripts from request files. Helpers own the maintained capture/register,
 immutable preimages, local bindings/recovery and attempt outputs; do not hand-edit them.
 
-`/horizon` explicitly owns create/activate/leave/suspend/abandon/absorb and create --from escalation
+`/horizon` explicitly owns create/activate/leave/suspend/abandon
 through planning-context. New creation uses the confirmed local slug/hex allocation and full ID,
-without new Git tags or remote reservations. Source retirement across branches remains `local-only/incomplete`; portable completion
-is false. `/plan-work` owns separately selected capture, deferred selection, scrub, drafting and
+without new Git tags or remote reservations. `/plan-work` owns separately selected capture, deferred selection, scrub, drafting and
 complete proposal operations. `/admit-plan` guides independent review, actual approval/waiver and
 one real publication attempt with separately confirmed integration/reentry/withdrawal. None
 changes instance lifecycle or starts product work. Existing conflict-recovery grants remain intact.
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): HR-02 recognizes `--create --from SOURCE-ID`
+and `--absorb SOURCE-ID --into DESTINATION-ID` as deferred, non-successful operations for
+all formats. Reject malformed flags without writes; valid requests return deferred before
+source/destination resolution, allocation, creation preflight, timing, binding or journals.
+Do not create an empty destination or route to plain create, old transfer/import/publication
+APIs, recovery retries or manual source consumption. Confirmations cannot bypass deferral.
+The CLI returns `status: deferred`, `changed: false`, exit code 3; direct mutation APIs raise
+`DeferredTransfer` (a contract error). No production opt-out is exposed. Historical transfer
+readers and read-only verification remain supported. Preserve source retirement, active
+admission locks, stale-subject checks and incomplete-publication refusal, including historical
+`local-only/incomplete` receipts. Deferring writers does not remove their admission protections.
 
 Capture precedes proposal. Deferred inclusion requires explicit IDs/revisions and disclosed existing
 associations; declined/unselected records are unchanged. Scrub maintains source interpretation,

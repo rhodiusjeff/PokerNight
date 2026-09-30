@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Local planning contexts and recoverable transfers; no admission or hosted publication."""
+"""Local planning contexts; escalation/absorption deferred, historical evidence readable."""
 
 import argparse
 import base64
@@ -20,6 +20,31 @@ capture = importlib.util.module_from_spec(module_spec)
 module_spec.loader.exec_module(capture)
 contract = capture.contract
 OPERATION = re.compile(r"[a-zA-Z0-9][a-zA-Z0-9_-]{0,100}\Z")
+
+
+class ExactArgumentParser(argparse.ArgumentParser):
+    def __init__(self, *args, **kwargs):
+        kwargs["allow_abbrev"] = False
+        super().__init__(*args, **kwargs)
+
+
+class DeferredTransfer(contract.ContractError):
+    pass
+
+
+def require_transfer_supported(mode=None):
+    if mode == "escalate":
+        message = ("Deferred: creating a horizon from an existing planning session is not implemented. "
+                   "No horizon was created; the source and active selection are unchanged.")
+    else:
+        message = ("Deferred: horizon absorption and planning-session transfers are not implemented. "
+                   "No files, sources, destinations or active selection were changed.")
+    raise DeferredTransfer(message)
+
+
+def deferred_result(error):
+    print(json.dumps({"status": "deferred", "changed": False, "message": str(error)}, indent=2))
+    return 3
 
 
 def git(root, *arguments, check=True):
@@ -481,6 +506,7 @@ def verify_transfer_source(root, source_path, offer, expected_document):
 
 
 def transfer_offer(root, source_id, destination_id, mode):
+    require_transfer_supported(mode)
     contract.require(source_id != destination_id, "self transfer refused")
     contract.require(mode in ("absorb", "escalate"), "invalid transfer mode")
     contract.require(destination_id.startswith("H") and ((mode == "absorb") == source_id.startswith("H")), "transfer mode/context mismatch")
@@ -509,6 +535,7 @@ def transfer_offer(root, source_id, destination_id, mode):
 
 
 def transfer(root, offer, confirmed, coordinated):
+    require_transfer_supported()
     contract.require(confirmed and coordinated, "transfer requires exact confirmation and author coordination")
     operation_id = offer.get("operation_id", "")
     contract.require(bool(re.fullmatch(r"[0-9a-f]{64}", operation_id)) and
@@ -616,20 +643,26 @@ def transfer(root, offer, confirmed, coordinated):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument("--root", type=pathlib.Path, default=pathlib.Path.cwd())
-    commands = parser.add_subparsers(dest="command", required=True)
+    commands = parser.add_subparsers(dest="command", required=True,
+                                    parser_class=ExactArgumentParser)
     commands.add_parser("list", help="list maintained ADHOC/HNNN contexts in this checkout; no fetch")
     commands.add_parser("status", help="list open ad hoc and horizon planning sessions in this checkout; discovery excluded")
     commands.add_parser("discover", help="inspect maintained records on last-fetched remote branches without fetching or switching")
     commands.add_parser("new-operation", help="print a collision-safe creation operation identity")
     inspected = commands.add_parser("inspect")
     inspected.add_argument("--id", required=True)
-    creation = commands.add_parser("create", help="reserve an installed-allocator tag, create branch/document and bind locally")
+    creation = commands.add_parser("create", help="create a fresh context; --from is deferred and creates nothing")
+    creation.add_argument("--from", dest="source_context", help="deferred: no creation or transfer")
     for name in ("operation-id", "slug", "title", "author", "remote", "target"):
-        creation.add_argument("--" + name, required=True)
-    creation.add_argument("--source", dest="sources", action="append", type=pathlib.Path, required=True)
+        creation.add_argument("--" + name)
+    creation.add_argument("--source", dest="sources", action="append", type=pathlib.Path)
     creation.add_argument("--confirmed", action="store_true")
+    absorbed = commands.add_parser("absorb", help="deferred: no transfer, retirement or binding changes",
+                                   description="Absorption is deferred; no transfer, retirement or binding changes.")
+    absorbed.add_argument("--source", required=True)
+    absorbed.add_argument("--into", required=True)
     recovered = commands.add_parser("recover-reservation", help="bind an exact verified allocator tag after interrupted reservation; no new tag push")
     recovered.add_argument("--operation-id", required=True)
     recovered.add_argument("--id", required=True)
@@ -648,17 +681,35 @@ def main():
         if name != "leave":
             command.add_argument("--expected-digest", required=True)
             command.add_argument("--reason", required=True, help="pause next step or abandonment rationale")
-    offered = commands.add_parser("offer-transfer", help="read-only exact absorption/escalation offer; redirect JSON to a selected file")
+    offered = commands.add_parser("offer-transfer", help="deferred: no new absorption/escalation offers",
+                                  description="New transfer offers are deferred; historical evidence remains readable.")
     offered.add_argument("--source", required=True)
     offered.add_argument("--destination", required=True)
     offered.add_argument("--mode", choices=("absorb", "escalate"), required=True)
-    transferred = commands.add_parser("transfer", help="execute/retry the exact offer locally; never claim remote portability")
+    transferred = commands.add_parser("transfer", help="deferred: no transfer execution or retry",
+                                      description="Transfer execution and retry are deferred; no offer is read or applied.")
     transferred.add_argument("--offer", type=pathlib.Path, required=True)
     transferred.add_argument("--confirmed", action="store_true")
     transferred.add_argument("--coordinated", action="store_true")
     args = parser.parse_args()
+    options = [argument.partition("=")[0] for argument in sys.argv[1:] if argument.startswith("--")]
+    repeated = {option for option in options if options.count(option) > 1
+                and not (args.command == "create" and option == "--source")}
+    if repeated:
+        parser.error("repeated options: " + ", ".join(sorted(repeated)))
     args.root = args.root.resolve()
     try:
+        if args.command == "create" and args.source_context is not None:
+            if not capture.CONTEXT_ID.fullmatch(args.source_context):
+                parser.error("--from requires a full planning context ID")
+            require_transfer_supported("escalate")
+        if args.command == "absorb":
+            if not all(capture.CONTEXT_ID.fullmatch(identity) and identity.startswith("H")
+                       for identity in (args.source, args.into)):
+                parser.error("absorb requires source and destination horizon IDs")
+            require_transfer_supported("absorb")
+        if args.command in ("offer-transfer", "transfer"):
+            require_transfer_supported(args.mode if args.command == "offer-transfer" else None)
         if args.command == "list":
             result = list_contexts(args.root)
         elif args.command == "status":
@@ -670,6 +721,10 @@ def main():
         elif args.command == "new-operation":
             result = {"operation_id": "CTX-" + uuid.uuid4().hex}
         elif args.command == "create":
+            missing = [name for name in ("operation_id", "slug", "title", "author", "sources", "remote", "target")
+                       if getattr(args, name) is None]
+            if missing:
+                parser.error("create requires " + ", ".join("--source" if name == "sources" else "--" + name.replace("_", "-") for name in missing))
             result = create_context(args.root, args.operation_id, args.slug, args.title, args.author, args.sources, args.remote, args.target, args.confirmed)
         elif args.command == "activate":
             result = activate(args.root, args.id, args.confirmed, args.resume, args.expected_digest, args.switch_branch)
@@ -685,6 +740,8 @@ def main():
             result = transfer(args.root, contract.load_json(args.offer), args.confirmed, args.coordinated)
         print(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False))
         return 0
+    except DeferredTransfer as error:
+        return deferred_result(error)
     except (contract.ContractError, OSError, ValueError, KeyError) as error:
         print(str(error), file=sys.stderr)
         return 1

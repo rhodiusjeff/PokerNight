@@ -5,6 +5,17 @@ user-invocable: false
 ---
 # Shared Planning Workflow
 
+## Deferred Horizon Transfers
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): HR-02 recognizes `/horizon --create --from
+SOURCE-ID` and `/horizon --absorb SOURCE-ID --into DESTINATION-ID` but returns deferred,
+not successful completion. Follow the [horizon prompt](../../prompts/horizon.prompt.md)
+before context/source resolution, allocation, creation preflight, timing or request writes.
+Do not create a destination, change selection, consume the source or fall back to ordinary
+creation, manual copying or legacy transfer APIs. No extra confirmation makes these modes
+available. Historical transfer evidence readers and admission protections remain in force.
+Other natural-language planning routing changes remain HR-11.
+
 ## Read-Only Session Status
 
 LOCAL MOD - HARVEST TO CPB (2026-09-30): standalone `/plan-work --status` uses

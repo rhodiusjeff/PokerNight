@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Confirmed local-bare-Git transfer publication, never operational admission or hosted transport."""
+"""Deferred planning transfers; read-only historical local-bare-Git evidence verification."""
 
 import argparse
 import base64
@@ -164,6 +164,7 @@ def operation_home(root, operation):
 
 
 def immutable(root, filename, value):
+    context.require_transfer_supported()
     filename = capture.safe_path(root, filename)
     content = encoded(value)
     if filename.exists():
@@ -175,6 +176,7 @@ def immutable(root, filename, value):
 
 def offer_import(root, operation_id, source, destination, mode, remote, source_branch, destination_branch,
                  target_branch, expected_source_tip, expected_destination_tip, expected_target_tip):
+    context.require_transfer_supported(mode)
     request = {"schema": "cp-transfer-import-v1", "operation_id": operation_id, "source": source, "destination": destination,
                "mode": mode, "remote": str(local_remote(remote)), "source_branch": source_branch,
                "destination_branch": destination_branch, "target_branch": target_branch,
@@ -198,6 +200,8 @@ def offer_import(root, operation_id, source, destination, mode, remote, source_b
 
 
 def import_paths(root, request, write):
+    if write:
+        context.require_transfer_supported()
     entries = request["inventory"]
     for entry in entries:
         filename = capture.safe_path(root, root / entry["path"])
@@ -212,6 +216,7 @@ def import_paths(root, request, write):
 
 
 def import_source(root, offered, confirmed, coordinated):
+    context.require_transfer_supported()
     contract.require(confirmed is True and coordinated is True, "import requires actual --confirmed --coordinated")
     request = unpack(offered, "cp-transfer-import-v1")
     with capture.local_writer(root):
@@ -315,6 +320,7 @@ def check_local(root, request, before, after):
 
 def offer_publication(root, transfer, operation_id, remote, expected_source_tip, expected_destination_tip,
                       target_branch, expected_target_tip, committer_name, committer_email, source_branch=None):
+    context.require_transfer_supported()
     contract.require(bool(context.OPERATION.fullmatch(operation_id)), "invalid operation identity")
     contract.require(all(isinstance(value, str) and value.strip() and not any(char in value for char in "\n\r<>")
                          for value in (committer_name, committer_email)), "explicit Git committer identity required")
@@ -334,6 +340,7 @@ def offer_publication(root, transfer, operation_id, remote, expected_source_tip,
 
 
 def prepare_repository(root, directory, request):
+    context.require_transfer_supported()
     sandbox = capture.safe_path(root, directory / "repository")
     if not sandbox.exists():
         capture.ensure_directory(root, sandbox)
@@ -345,6 +352,7 @@ def prepare_repository(root, directory, request):
 
 
 def candidate(sandbox, request, role, files):
+    context.require_transfer_supported()
     parent = request["expected_" + role + "_tip"]
     git(sandbox, "read-tree", parent)
     for relative, content in sorted(files.items()):
@@ -395,6 +403,7 @@ def inject(selected, point):
 
 
 def receive_pack(journal_path, role, remote_name):
+    context.require_transfer_supported()
     record = contract.load_json(pathlib.Path(journal_path))
     request = unpack(record["offer"], "cp-transfer-publication-v1")
     remote = local_remote(remote_name)
@@ -443,6 +452,7 @@ def receive_pack(journal_path, role, remote_name):
 
 
 def publish(root, offered, confirmed, coordinated, fail_at=None):
+    context.require_transfer_supported()
     contract.require(confirmed is True and coordinated is True, "publication requires actual --confirmed --coordinated")
     contract.require(fail_at is None or fail_at in FAILURES, "unknown interruption point")
     request = unpack(offered, "cp-transfer-publication-v1")
@@ -564,24 +574,31 @@ def main():
     if len(sys.argv) == 5 and sys.argv[1] == "_receive-pack":
         try:
             return receive_pack(*sys.argv[2:])
+        except context.DeferredTransfer as error:
+            print(str(error), file=sys.stderr)
+            return 3
         except (ValueError, OSError, KeyError, TypeError) as error:
             print(str(error), file=sys.stderr)
             return 1
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument("--root", type=pathlib.Path, default=pathlib.Path.cwd())
-    commands = parser.add_subparsers(dest="command", required=True)
-    imported = commands.add_parser("offer-import", help="read-only exact source snapshot offer from an explicit local bare branch")
+    commands = parser.add_subparsers(dest="command", required=True,
+                                    parser_class=context.ExactArgumentParser)
+    imported = commands.add_parser("offer-import", help="deferred: no source import offers",
+                                   description="Source import offers are deferred; no source or remote is resolved.")
     for name in ("operation-id", "source", "destination", "mode", "remote", "source-branch", "destination-branch", "target-branch",
                  "expected-source-tip", "expected-destination-tip", "expected-target-tip"):
         imported.add_argument("--" + name, required=True)
-    publication = commands.add_parser("offer-publication", help="read-only publication offer after the exact local context transfer")
+    publication = commands.add_parser("offer-publication", help="deferred: no transfer publication offers",
+                                      description="Transfer publication offers are deferred; no offer file is read.")
     publication.add_argument("--transfer-offer", type=pathlib.Path, required=True)
     publication.add_argument("--source-branch", help="explicit source branch required for an unassociated ad hoc capture; never inferred")
     for name in ("operation-id", "remote", "expected-source-tip", "expected-destination-tip", "target-branch", "expected-target-tip",
                  "committer-name", "committer-email"):
         publication.add_argument("--" + name, required=True)
     for name in ("import-source", "publish", "verify"):
-        command = commands.add_parser(name)
+        description = "Read-only historical evidence verification." if name == "verify" else "Transfer writes and retries are deferred; no offer file is read."
+        command = commands.add_parser(name, help=description, description=description)
         command.add_argument("--offer", type=pathlib.Path, required=True)
         if name != "verify":
             command.add_argument("--confirmed", action="store_true")
@@ -589,9 +606,15 @@ def main():
         if name == "publish":
             command.add_argument("--fail-at", choices=FAILURES)
     args = vars(parser.parse_args())
+    options = [argument.partition("=")[0] for argument in sys.argv[1:] if argument.startswith("--")]
+    repeated = {option for option in options if options.count(option) > 1}
+    if repeated:
+        parser.error("repeated options: " + ", ".join(sorted(repeated)))
     root = args.pop("root").resolve()
     command = args.pop("command")
     try:
+        if command != "verify":
+            context.require_transfer_supported()
         if command == "offer-import":
             result = offer_import(root, **args)
         elif command == "offer-publication":
@@ -602,6 +625,8 @@ def main():
             result = verify(offered) if command == "verify" else (import_source if command == "import-source" else publish)(root, offered, **args)
         print(json.dumps(result, indent=2, ensure_ascii=False))
         return 0
+    except context.DeferredTransfer as error:
+        return context.deferred_result(error)
     except (ValueError, OSError, KeyError, TypeError) as error:
         print(str(error), file=sys.stderr)
         return 1

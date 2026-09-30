@@ -48,8 +48,8 @@ execution or forge-administration writes.
 | `/horizon --create` | Create a locally minted full-ID planning context without new tags; not admission |
 | `/horizon --activate ID` / `--leave ID` | Explicit worktree/branch-scoped binding or unbinding |
 | `/horizon --suspend ID` / `--abandon ID` | Distinct confirmed lifecycle outcomes; no inferred retirement |
-| `/horizon --absorb SOURCE --into HNNN` | Confirm exact local transfer; cross-branch publication incomplete |
-| `/horizon --create --from ID` | Create destination, then separately confirm escalation transfer |
+| `/horizon --absorb SOURCE --into HNNN` | Deferred; no transfer, retirement or selection changes |
+| `/horizon --create --from ID` | Deferred; no creation, source consumption or selection changes |
 | `/plan-work --capture ad-hoc` | Preserve original intent before deriving a proposal |
 | `/plan-work --capture discovery` | Preserve exact execution-origin phase/specification, not amend it |
 | `/plan-work --status` | Read-only open ad hoc/horizon session list in this checkout; discovery deferred |
@@ -64,6 +64,17 @@ All three new commands support read-only `--help`. Arguments and live APIs are m
 the [planning workflow](../../../.github/skills/planning-workflow/SKILL.md),
 [guided admission](../../../.github/skills/guided-admission/SKILL.md), and
 [/horizon prompt](../../../.github/prompts/horizon.prompt.md). Activate `.cp-venv` first.
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): HR-02 handles both deferred transfer modes
+before source/destination resolution, creation preflight, allocation, timing or journal writes.
+The helper forms are `planning-context.py --root ROOT create --from SOURCE-ID` and
+`planning-context.py --root ROOT absorb --source SOURCE-ID --into DESTINATION-ID`.
+They return JSON `status: deferred`, `changed: false` and exit code 3, not success.
+Malformed/combined flags may return usage errors. Missing sources do not trigger creation.
+Legacy transfer/import/publication APIs also defer, including retry of existing offers;
+confirmation does not enable them. Historical inventory/receipt readers, read-only
+`planning-transfer.py verify` and admission-lock/retirement checks remain supported.
+Ordinary explicit creation keeps its current behavior until HR-03.
 
 ### Drafts And Complete Proposals
 
@@ -138,7 +149,8 @@ remains outstanding. Old trial flags preserve existing records only, not the nor
 closure, separately confirmed `--retire` checks that the old change was not integrated
 and allows a newly confirmed replacement attempt. Old attempt history is retained and its
 ID cannot be reused. See the guided-admission skill for exact confirmation fields.
-Cross-branch source retirement remains `local-only/incomplete`, `portable_complete: false`.
+Historical cross-branch source retirement may remain `local-only/incomplete`,
+`portable_complete: false`; retain its admission block. New transfer/publication writes are deferred.
 Offline diagram retention verifies bytes only; the diagram-checkpoint skill owns actual provider,
 native/render consistency and currentness checks. No remote scene operations are invented.
 
