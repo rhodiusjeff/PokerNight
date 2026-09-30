@@ -43,6 +43,7 @@ with tempfile.TemporaryDirectory(prefix="cp-planning-install-") as temporary:
     runtime.write_text("#!/bin/sh\nexit 0\n")
     runtime.chmod(0o755)
     (source / ".github/prompts/example.prompt.md").write_text("fixture\n")
+    (source / ".claude/commands").mkdir(parents=True)
     (source / ".claude/commands/example.md").write_text(".github/prompts/example.prompt.md\n")
     (source / module.COORDINATOR).write_text("instance only\n")
     for name in (".env", ".vscode/settings.json", "control-plane/horizons/H000-test/HORIZON_STATE.json",
@@ -59,18 +60,17 @@ with tempfile.TemporaryDirectory(prefix="cp-planning-install-") as temporary:
     assert (target / "control-plane/framework/scripts/runtime.sh").stat().st_mode & 0o111
     assert not (target / module.COORDINATOR).exists()
     assert not (target / "control-plane/horizons").exists()
-    assert not (target / ".claude/state").exists()
-    assert not (target / ".claude/commands/secrets.md").exists()
-    assert not (target / ".claude/commands/custom.md").exists()
-    assert "private" not in (target / ".claude/settings.json").read_text()
+    assert not (target / ".claude").exists()
+    assert not (target / "CLAUDE.md").exists()
     passed("fresh schema-valid install; exact manifest, modes and exclusions")
     assert module.inventory(source) == module.inventory(source)
     passed("deterministic inventory with exact existing paths")
     (source / ".github/prompts/missing.prompt.md").write_text("---\ndescription: Missing fixture\n---\nfixture\n")
     generated = base / "generated"
     module.install(source, generated)
-    assert ".github/prompts/missing.prompt.md" in (generated / ".claude/commands/missing.md").read_text()
-    passed("missing canonical adapter generated without source mutation")
+    assert (generated / ".github/prompts/missing.prompt.md").exists()
+    assert not (generated / ".claude").exists()
+    passed("canonical prompts install without generating deferred harness bindings")
     refuses(lambda: module.install(source, target))
     empty = base / "empty"
     empty.mkdir()
@@ -123,9 +123,45 @@ with tempfile.TemporaryDirectory(prefix="cp-planning-install-") as temporary:
     assert module.verify(actual) == real
     assert not (actual / ".git").exists()
     assert not (actual / "control-plane/workbench").exists()
+    assert not (actual / ".claude").exists()
+    assert not (actual / "CLAUDE.md").exists()
+    assert not list((actual / '.github/prompts').glob('*-ops-*.prompt.md'))
+    assert not (actual / 'cp-ops-work').exists()
+    for command in ("control-plane-new-horizon", "shape-architecture-overview",
+                    "shape-work-plan-sketch", "consolidate-inception-material",
+                    "scrub-inception-material", "assess-horizon-proposal",
+                    "shape-horizon-execution", "prepare-horizon-admission",
+                    "record-horizon-admission-decision", "admit-horizon", "allocate-review-unit", "realize-horizon-portfolio"):
+        assert not (actual / f".github/prompts/{command}.prompt.md").exists(), command
     state = json.loads((actual / module.STATE).read_text())
     assert state["active_upgrade_packet"] is None and state["notes"] == []
     assert (actual / "control-plane/framework/scripts/timing-log.sh").exists()
+    for removed in ("control-plane/framework/scripts/control-plane-sanity.sh",
+                    "control-plane/framework/scripts/horizon-portfolio.py",
+                    "control-plane/framework/scripts/horizon-portfolio.test.sh",
+                    "control-plane/framework/scripts/horizon-mint.sh",
+                    "control-plane/framework/scripts/horizon-mint.ps1",
+                    "control-plane/framework/scripts/horizon-mint.test.sh",
+                    "control-plane/framework/scripts/horizon-packet.test.sh",
+                    "control-plane/framework/templates/successor-portfolio.schema.json",
+                    "control-plane/framework/scripts/control-plane-sanity.ps1",
+                    "control-plane/framework/scripts/validate-ci-customizations.py",
+                    "control-plane/framework/scripts/validate-horizon-lifecycle.py",
+                    "control-plane/framework/scripts/validate-registers-and-state.py",
+                    "control-plane/framework/scripts/repo-state.py",
+                    "control-plane/framework/scripts/build-ops-lift-attestation.py",
+                    "control-plane/framework/scripts/review-canon.py",
+                    "control-plane/framework/scripts/prepare-canon-promotion.py",
+                    "control-plane/framework/scripts/validate-semantic-authority.py",
+                    "control-plane/framework/scripts/review-canon.test.sh",
+                    "control-plane/framework/scripts/prepare-canon-promotion.test.sh",
+                    "control-plane/framework/scripts/validate-semantic-authority.test.sh",
+                    "control-plane/framework/templates/semantic-authority-v1",
+                    "control-plane/framework/templates/canon-review-and-escalation-v1",
+                    "control-plane/framework/templates/atomic-promotion-transaction-v1",
+                    "control-plane/framework/governance/sanity",
+                    "control-plane/state/sanity"):
+        assert not (actual / removed).exists(), removed
     passed(f"actual repository lift preserves source; {len(real['files'])} verified files")
     session_root = base / "installed-helper-session"
     session_root.mkdir()

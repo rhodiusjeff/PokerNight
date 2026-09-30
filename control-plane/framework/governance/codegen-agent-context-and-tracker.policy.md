@@ -1,12 +1,11 @@
 # Execution Context and Tracker Policy — Control Plane CODEGEN
 
-**Read this before any control-plane prompt, together with the project ground truth:**
-`control-plane/canon/standards/CODEGEN_GROUND_TRUTH.md` (test infrastructure, migration
-system, API ground truth, deployment patterns, codebase patterns, technical debt — split
-out 2026-07-21 by operator ruling because that content is project-owned canon, not
-framework policy; section numbers §1–§5 and §7 live there, preserved for citation
-stability). This file keeps the GOVERNANCE half: the user-story deviation protocol (§6)
-and tracker policy/authority (§8). It lifts to CPB clean.
+**Read this before a governed control-plane prompt, together with its selected project context.**
+New-format governing meaning comes from CANON.json and exact work/bound references.
+Load additional test, API, architecture or deployment context only when supplied by the
+selected contract/profile. The historical CODEGEN_GROUND_TRUTH document is an explicitly
+legacy context artifact, not a mandatory file to create in a new repository. This file
+owns governance, not project-specific technical ground truth.
 
 **Authority:** Supersedes the legacy `docs/codex/EXECUTION_CONTEXT.md` for all prompts
 after 2026-06-22. Split into governance + ground-truth halves 2026-07-21.
@@ -22,7 +21,16 @@ or silently add obligations. Carry definition-change impacts forward without rew
 
 ## 6. User Story Deviation Protocol (§8 Reference)
 
-When a prompt deviates from user stories, follow this protocol:
+LOCAL MOD - HARVEST TO CPB (2026-09-30): for new-format work, record deviations against
+exact requirement/story/definition ID-revision references from CANON.json and the bound
+work contract. Propose governing amendments in the selected context; admission owns
+Canon changes. Do not write split registries or rename records to USC/CPR/CPN prefixes.
+Use Canon And Work Context Resolution in [Tracker And State Policy](policies/tracker-and-state.policy.md).
+
+### Explicit Legacy Registry Protocol
+
+The registry files, family prefixes and row fields below apply only to a selected legacy
+profile. They are not mandatory new-format files or IDs. For legacy story deviations:
 
 ### During Execution
 1. Identify and list each relevant `USC-*` row from `control-plane/canon/USER_STORY_REGISTRY_CANONICAL.json` in a **User Story Deviations** subsection of the completion log.
@@ -74,7 +82,11 @@ All context, dependency and historical readers must account for completed archiv
 archive-only work is never an execution candidate. Completion owns the content-preserving
 active-window roll under unchanged approval/evidence gates. The tracker/archive pair is
 one authority; execution state must not become a competing status master in the new layout.
-Reader/writer migration and repository schemas remain pending, not enabled by this policy.
+Repository schemas, format-dispatched admission and read-only resolution are installed.
+For source: repository, use the returned tracker/archive and exact current/bound contract
+fields, never fabricate a horizon packet. Start/completion consumers remain disabled.
+Only the exact empty legacy baseline can migrate through admission; populated conversion
+requires an explicit typed mapping, not a policy-only redirection of runtime paths.
 
 Installed legacy operational behavior (not the agreed destination): tracking belongs to
 the repository, not to the horizon that proposed a change. One `control-plane/operational/SPECIFICATION.json`
@@ -91,8 +103,8 @@ pending; report the missing owner rather than mutating a legacy tracker.
 
 Explicit legacy results retain their packet-local `TRACKER.json` / `TRACKER_ARCHIVE.json`
 and existing review evidence. That is compatibility, not the ownership model for new work.
-Significant framework runtime/governance work remains under its selected upgrade packet or
-the separate `cp-ops-work/` campaign, never a product horizon by inference.
+Significant framework runtime/governance work belongs to its explicitly selected upgrade packet,
+never a product horizon by inference. The parallel OPS campaign workflow is retired.
 
 ### Tracker Update Responsibilities
 

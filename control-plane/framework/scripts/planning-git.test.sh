@@ -394,9 +394,10 @@ class MergeTests(unittest.TestCase):
         for token in ("Approve Rebase", "defer rebase", "Approve Continue", "Approve Abort", "needs-revalidation"):
             self.assertIn(token, content)
         for filename in (".github/agents/project-codegen.agent.md", ".github/agents/project-planning-design.agent.md",
-                         ".github/agents/inception-facilitator.agent.md", ".github/prompts/admit-horizon.prompt.md",
+                         ".github/agents/inception-facilitator.agent.md", ".github/skills/guided-admission/SKILL.md",
                          "control-plane/framework/governance/policies/tracker-and-state.policy.md"):
-            self.assertIn(skill, (root / filename).read_text())
+            expected = '../admission-conflict-recovery/SKILL.md' if filename.endswith('guided-admission/SKILL.md') else skill
+            self.assertIn(expected, (root / filename).read_text())
 
 
 fixture_root = os.environ.get("CP_PLANNING_AGENT_FIXTURES")

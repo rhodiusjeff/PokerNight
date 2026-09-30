@@ -15,7 +15,8 @@ packet fields. New operational phases belong to the repository specification and
 execution progress, not a horizon. Their null tracker/ledger/packet fields must not be
 replaced with synthetic paths. Repository-level closeout/completion/review-publication
 writers await the 0.8.2 consumer update; report that limit and stop before mutation.
-Packet-based instructions below are legacy-only. OPS keeps its separate existing owner.
+Packet-based instructions below are legacy-only. Control-plane maintenance follows the selected
+upgrade workflow; the parallel OPS campaign is retired.
 
 ## Mission
 - Resolve the named phase's actual source; execute packet closeout only for legacy results and apply downstream verification only under its governing boundary.
@@ -23,11 +24,9 @@ Packet-based instructions below are legacy-only. OPS keeps its separate existing
 - Link closeout evidence to the corresponding git review artifacts, including pull request number and URL when they exist.
 - Keep tracker status accurate without violating approval gates.
 - Help users understand how closeout, approval, downstream contract verification, and tracker transitions work in the control plane, especially if they are new to AI-assisted development.
-- Close OPS phases and campaigns through `cp-ops-work` without treating them as product horizons.
 
 ## Default Writable Scope
 - Explicitly legacy resolver-selected packet closeout/tracker/review surfaces for phase commands.
-- `cp-ops-work` phase closeout and campaign evidence/state for explicitly invoked OPS boundaries.
 - Closeout-owned timing and evidence paths named by the active command.
 
 ## Non-Negotiable Boundaries
@@ -36,15 +35,12 @@ Packet-based instructions below are legacy-only. OPS keeps its separate existing
 - Downstream contract verification and alignment belong to `/complete-phase`, where they run by structural default; do not run them during closeout unless the operator explicitly directs an early run, and record any early run in the closeout report.
 - Apply remediation fixes only when they are needed to resolve validated closeout findings, and keep them minimal.
 - Do not alter reference roots unless explicitly requested.
-- **Do not execute governance boundary operations from conversational inference (invocation gate).** OPS boundaries are `/closeout-ops-phase`, `/closeout-ops-work`, and `/exit-ops-work`; execute only from an operator command or explicit confirmation of the exact named command.
-- OPS phase closeout sets `closed` only after exact committed path/test/review/risk/harvest evidence freezes. Campaign closeout sets `exit-pending`; only exit confirmation after authoritative merged review and protected-target resume may report `sealed`/`operational`.
+- **Do not execute governance boundary operations from conversational inference (invocation gate).** Execute only from an operator command or explicit confirmation of the exact named command.
+- Do not close or resume retired OPS campaigns. Control-plane maintenance completion belongs to
+	`/control-plane-upgrade` and its exact packet/confirmation contract, not product-phase closeout.
 
 ## Required Context Load
 Before closeout actions, select the named authority path.
-
-For OPS commands, read campaign state, tracker/archive, phase authority/prompt/start receipt, target
-runtime/schemas, candidate closeout or review evidence, and protected-target state. Do not resolve a
-product horizon or touch horizon tracker/acceptance state.
 
 For phase commands, read:
 1. Run `control-plane/framework/scripts/resolve-horizon.py <phase-id>`; inspect source first and apply the Operational Source Boundary above before reading any packet fields.
@@ -67,7 +63,6 @@ For phase commands, read:
 9. For `self` review boundaries (unless `--evidence-only`): after the operator confirms the closeout summary, execute the publication half within the same governed run — ledger/tracker drift validation, publication evidence capture (PR URL, publication SHA, pushed branch), ledger `Reserved`→`Published`, tracker to `In Review`. On publication failure, terminate at `Closed`/`Reserved` and name `/publish-review-unit` as the resume path. Grouped units always stop at `Closed` and route to `/publish-review-unit`.
 10. Move the tracker row to `In Review` only after publication evidence exists.
 11. Only after final approval and merged-review evidence, update the tracker row to `Done` and summarize the exact change.
-12. For OPS work, use only target `closeout-phase`, `closeout-work`, and `exit`; never hand-edit lifecycle state or reuse product-phase closeout mechanics.
 
 ## Output Contract
 - Prompt or phase ID and scope closed.

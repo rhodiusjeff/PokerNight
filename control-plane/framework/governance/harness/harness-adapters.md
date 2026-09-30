@@ -1,5 +1,13 @@
 # Harness Adapters — Dual-Harness Operation (Copilot + Claude Code)
 
+**Retired binding design (2026-09-30, LOCAL MOD - HARVEST TO CPB).** Only the Copilot
+surfaces under `.github` are currently supported. The `.claude` tree, wrappers, generator,
+hooks and persona adapters have been removed. Other harness bindings are deferred.
+Everything below records the previous design, not active setup instructions or parity claims.
+Do not regenerate adapters or apply the old adapter-update rule; future bindings need separate
+Operator authorization. Shared invocation, approval and timing requirements remain in the
+canonical policies and are not removed by retiring this binding.
+
 **Scope:** instance-born — provenance marker for lift/assimilation classification (framework-canon = unmodified CPB template · instance-localized = canon amended/localized by this instance · instance-born = originated in this instance, upstreaming candidate).
 
 **Status:** Active convention (introduced 2026-07-07)

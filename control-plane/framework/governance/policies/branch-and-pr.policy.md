@@ -30,14 +30,9 @@ Assumptions:
 Constraints:
 - Governed implementation work does not execute directly on `integration` (the merge target) or `master` (production).
 - The default phase branch convention is `codegen/<phase_id>` unless the project explicitly documents an exception.
-<!-- LOCAL MOD (singleton OPS campaign v0, 2026-08-09) - HARVEST TO CPB. -->
-- OPS work executes serially on the campaign-bound `ops/<slug>` branch only after branch-local entry
-  and one exact `/start-ops-phase` receipt. The campaign defers its single review/merge to protected
-  `integration` until closeout. This path never admits product or infrastructure paths and does not
-  claim a repository-wide lock.
-- Branch-local entry binds the clean current branch HEAD as the OPS campaign baseline. Earlier
-  branch history is inherited context; OPS product/infrastructure exclusion is measured from that
-  entry baseline forward.
+<!-- LOCAL MOD (2026-09-30) - HARVEST TO CPB: retire the parallel OPS workflow. -->
+- Control-plane maintenance follows the explicitly selected `/control-plane-upgrade` packet and
+  its branch/publication contract. The former OPS campaign supplies no branch exception or authority.
 - New horizons shape on `horizon/HNNN-<slug>` from the recorded protected-target baseline.
 - Execution admission uses `admission/HNNN` from the protected target after the shaping bundle lands.
 - Phase branches target the shared protected repository integration branch directly. No unprotected
@@ -60,8 +55,6 @@ Acceptance criteria:
 - Grouped review remains traceable from tracker row to review-unit ledger row to published review artifact.
 - Review publication and merge are auditable without replaying chat history.
 - Exceptional branch conventions are explicitly documented rather than ad hoc.
-- Multiple closed OPS phases share one final campaign review while retaining phase-local authority,
-  start receipts, and closeout evidence.
 
 ## 5. Safety, Risk, or Reliability Analysis and Mitigations
 - Risk: implementation lands on the wrong branch and weakens auditability.
@@ -77,9 +70,8 @@ Acceptance criteria:
 5. Merge the reviewed result into the integrated branch.
 6. Record merge evidence during completion.
 
-OPS work follows the singleton campaign loop: merge/confirm the instance hold, start and close
-prompt-backed phases serially on the bound `ops/*` branch, close the campaign, merge its review,
-then merge and confirm a separate operational-resume change.
+Control-plane maintenance uses `/control-plane-upgrade`. Entry does not authorize implementation,
+commit, publication or completion; each keeps its selected packet's explicit approval boundary.
 
 Horizon entry precedes that loop:
 

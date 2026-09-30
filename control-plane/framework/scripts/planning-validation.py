@@ -22,7 +22,7 @@ SUITES = (
     "planning-install", "planning-validation", "planning-contract", "planning-capture",
     "planning-git", "planning-context", "planning-deferred", "planning-evidence",
     "planning-admission", "planning-publication", "upgrade-entry", "timing-routing", "timing-harvest",
-    "resolve-horizon", "horizon-branch", "planning-execution", "planning-work", "planning-transfer", "planning-forge",
+    "resolve-horizon", "horizon-administration", "planning-execution", "planning-work", "planning-transfer", "planning-forge",
 )
 NOT_COVERED = ["live hosted forge/enforcement", "real-agent interaction",
                "physical power loss", "release readiness", "product execution"]

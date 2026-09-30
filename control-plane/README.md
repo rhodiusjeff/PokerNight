@@ -10,7 +10,8 @@ For `cp-plan-change-set-v1`, follow the
 [Planning Change-Set Policy](framework/governance/policies/plan-change-set.policy.md).
 The new schema uses one explicit changes list and referenced sources without embedded
 Base64. Its validate/preview/save/complete commands are separate from the legacy full-result
-helpers below; live admission/application for change sets remains pending. The existing
+helpers below; new-format admission now uses the format-dispatched evidence/admission/
+publication controller and repository storage contract. The existing
 tic-tac-toe context has been rebuilt in this format and remains a draft.
 
 LOCAL MOD - HARVEST TO CPB: Operator-authorized V0.8.1 local workflow integration.
@@ -48,15 +49,16 @@ version by the Operator; existing forge restrictions are still respected.
 Read the [user guide](framework/docs/control-system-user-guide.md) and canonical
 [planning skill](../.github/skills/planning-workflow/SKILL.md) /
 [admission skill](../.github/skills/guided-admission/SKILL.md) for actual CLI/request contracts.
-Copilot prompts are canonical; generated Claude wrappers must be refreshed and checked by the
-adapter owner before claiming parity for newly added commands.
+Copilot prompts are canonical. Other harness bindings are deferred; no wrappers are generated.
 
-## Legacy H000 Path
+## Retired Legacy Planning
 
-Existing legacy packets retain `/control-plane-new-horizon` resume, consolidation and shaping,
-named-profile readiness, `/prepare-horizon-admission`, decision and `/admit-horizon` boundaries.
-They are not converted to new captures or a new specification automatically. New HNNN documents
-route by their capture format to the shared skills, not legacy complete-tracker gating.
+Legacy packet planning/admission and review-unit allocation are retired. Existing packets,
+approvals and logs remain historical records, not writable fallbacks or implicit migration inputs.
+Use `/horizon`, `/plan-work` and `/admit-plan` for current work with an explicitly selected context.
+Portfolio realization remains pending separate disposition; its retained declaration/shaping
+helpers do not restore the retired admission path. Named readiness and other remaining command
+dispositions are under review, not transferred or removed implicitly.
 Separate `/prepare-next-prompt ID` and `/start-prompt-execution ID` remain owning boundaries.
 For new operational results they only inspect prerequisites and report the live-execution block;
 the in-process start/bind writer is implemented but its live owner and public activation remain
@@ -69,8 +71,8 @@ LOCAL MOD - HARVEST TO CPB (2026-09-29): the agreed admitted layout is one
 `control-plane/canon/CANON.json` and the repository pair
 `control-plane/tracker/TRACKER.json` / `control-plane/tracker/TRACKER_ARCHIVE.json`.
 The [storage contract](framework/governance/policies/tracker-and-state.policy.md#repository-canon-and-tracker-storage-contract)
-defines completed-phase retention and reader/writer obligations. Runtime migration is
-pending; the existing operational specification/execution files below describe installed
+defines completed-phase retention and reader/writer obligations. Admission can migrate
+an exact empty legacy baseline; populated migration remains blocked. The existing operational specification/execution files below describe installed
 legacy behavior, not a second authority to retain alongside the new layout.
 
 Follow [Artifact Formats And Ad Hoc Storage](framework/governance/policies/tracker-and-state.policy.md#artifact-formats-and-ad-hoc-storage):
@@ -82,9 +84,9 @@ superseded revisions belong in history. Horizon laydown redesign remains deferre
 |---|---|
 | `framework/` | Reusable policies, templates, scripts, and framework documentation |
 | `canon/` | Project-owned requirements and standards, established through governed work |
-| `tracker/` | Agreed repository active tracker and completed-phase archive; runtime migration pending |
+| `tracker/` | Repository active tracker and completed-phase archive, created through admission |
 | `horizons/` | Project-owned planning packets; packet-local admitted trackers and phase artifacts only for legacy workflows |
-| `ad-hoc/` | One `ADHOC-<id>/` folder with `ADHOC-<id>-capture.md`, `ADHOC-<id>-proposal.json`, and historical/genuine assets |
+| `ad-hoc/` | One `<ID>/` folder with `<ID>-capture.md`, `<ID>-proposal.json` and assets; use the full issued ADHOC or DISC identity |
 | `deferred/` | One repository-level deferred register with explicit selected inclusions |
 | `operational/` | New versioned specification and retained admission bundles, not execution progress |
 | `state/` | Instance mode, installation receipt, and runtime evidence |
@@ -97,27 +99,31 @@ superseded revisions belong in history. Horizon laydown redesign remains deferre
 
 ## Harnesses And Runtime
 
-`.github/agents/`, `.github/prompts/`, and `.github/skills/` are canonical for both
-harnesses. `.claude/` supplies generated wrappers, persona adapters, and an observe-only
-hook. `CLAUDE.md` loads the generic root guidance. Local credentials and permissions
-are not included. Framework Python scripts use the activated `.cp-venv` environment.
+`.github/agents/`, `.github/prompts/`, and `.github/skills/` are the supported Copilot surfaces.
+The `.claude` tree has been removed; other harness bindings are deferred and not packaged.
+Local credentials and permissions are not included. Framework Python scripts use the
+activated `.cp-venv` environment.
 
 The framework guide at `framework/docs/control-system-user-guide.md` contains legacy
 sections explicitly marked retired. Use this starting guide and the current canonical
 prompts for entry. Historical project examples do not establish this project's policy.
 
-The full operational sanity command expects later-stage Canon, trackers, and optional
-capabilities. It is not a fresh-install acceptance test. The installed local distribution helper
+LOCAL MOD - HARVEST TO CPB (2026-09-30): the Operator removed the general sanity
+runtime, specification and automatic gate. Scoped tests, format validators and explicit
+review/admission/completion requirements remain; no general health gate replaces it.
+The installed local distribution helper
 is `framework/scripts/planning-install.py`; consult its `--help` for explicit temporary
 destinations. No absent external installer is required or represented as installed here.
 
 ## Deliberate Limits
 
 - No migration, upgrade installer, or existing-control-plane detection.
-- No product Canon, horizon, OPS campaign, CI profile, forge permissions, or approvals
+- No product Canon, horizon, CI profile, forge permissions, or approvals
   are seeded. Required later-stage inputs must be shaped before their boundaries run.
-- Canon review and promotion commands remain gated on project-owned profiles and evidence.
-  OPS commands require an explicitly established campaign; installation does not create one.
+- Experimental Package A/B/C review/promotion runtimes, tests and schemas are retired.
+   Current Canon review and application use the explicit guided-admission workflow.
+   The parallel OPS campaign workflow is retired. Control-plane maintenance uses explicitly
+   invoked `/control-plane-upgrade`; installation creates no campaign or execution authority.
 - Diagram providers, MCP servers, forge authentication, and AI harness subscriptions are
   external prerequisites for workflows that use them, not installation requirements.
 - Windows support and real hosted-forge admission are not certified by this package.

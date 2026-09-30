@@ -23,7 +23,9 @@ It permits executing shipped capture/context/deferred/work/evidence/admission/pu
 and authoring selected input/request/report/confirmation files under the resolved capture assets.
 Helpers alone own maintained documents, register, local binding/recovery and attempt writes.
 `/horizon`, `/plan-work`, `/admit-plan` name their separate boundaries; actual confirmation is
-required before their mutations. `/horizon --create` additionally discloses remote tag reservation.
+required before their mutations. `/horizon --create` discloses local full-ID minting,
+not a new remote tag reservation. Follow Planning Identity Policy for ADHOC/DISC/HNNN
+slug/hex identities and CR/CHG allocation. Preserve work IDs; Phase allocation is deferred.
 No helper edits, product code, operational Canon/specification, execution progress, trackers,
 or unrelated source-branch commits/pushes. Forge effects use only the exact helpers above. Lifecycle transfer is local-only and
 incomplete across branches. Do not manufacture independent reviewers or actor signatures.
@@ -42,8 +44,8 @@ complete laydown. Existing conflict-recovery grants below remain intact and sepa
 	scrubs, consolidation, work layout, and assessment may repeat before the whole packet is complete.
 	Show supported candidates and their unresolved questions; do not convert every request to see
 	the current picture into admission-readiness preparation.
-- Orchestrate execution laydown by delegating `/shape-horizon-execution` to Project: Planning and
-	Design after collecting operator decisions and resolving the target shaping packet.
+- Guide candidate work through `/plan-work ID --work`; complete proposals require the separate
+  explicit `--complete` mode. Legacy packet laydown and allocation are retired.
 - Help users, especially those new to AI-assisted development, understand how the inception workflow, specialist agents, and readiness gates fit into the wider control plane.
 
 ## Non-Negotiable Boundaries
@@ -91,7 +93,7 @@ reference their owners/revisions and distinguish installed V0.8 from proposed V1
 7. Use Bootstrap: Requirements and Intent Shaper when the project's purpose, goals, or requirements are still noisy.
 8. Use Bootstrap: Architecture and Risk Shaper when boundaries, integration assumptions, or risk posture need shaping.
 9. Distinguish proposal assessment from readiness review. The explicit
-`/assess-horizon-proposal` path asks the reviewer for candidate findings with
+`/plan-work ID --assess` path records candidate findings with
 `readiness: not-assessed`, persisted outside formal approvals. Use a named readiness profile only
 for that boundary; do not infer a boundary invocation from conversational assessment requests.
 An ambiguous request to assess consolidation should be clarified as exploratory versus formal,
@@ -105,14 +107,14 @@ preventing all layout. Preserve the policy's distinction between an advisory can
 and the single proposed tracker; complete laydown and admission still require their full checks.
 Use `--complete` only when complete proposed prompts/tracker are explicitly requested.
 9b. Load the corresponding skill for source scrub, Canon consolidation, work shaping, or proposal
-assessment. `/scrub-inception-material` maintains sources; `/consolidate-inception-material`
+assessment. `/plan-work ID --scrub` maintains sources; `/plan-work ID --canon`
 reconciles proposed Canon, including amendments to existing records and possible completed-work
 rework. Do not silently combine them. Proposal-building is iterative by default; the skills do
 not approve Canon, reopen completed Phases, or invoke further commands. Formal readiness remains
 `/review-horizon-readiness`; its `--exploratory` alias delegates only proposal assessment.
 10. RETIRED PATH NOTE (shape v1, 2026-07-19): the instantiate assess/dry-run/inflate/promote and migrate commands are retired to `control-plane/archive/retired-lifecycle-surfaces-0.4.x/`; this charter's live duties are inception shaping, new-horizon planning/admission, and upgrade entry. For those, load `control-plane/horizons/` packet state and any lifecycle-entry prompt guidance before writing.
 11. This portable installer is greenfield-only. Do not invoke the retired migration route. For a later governed control-plane upgrade, keep the facilitator as the user-facing surface and use `/control-plane-upgrade`; this distribution does not supply an upgrade installer.
-12. When the user needs a new horizon for a controlled repository, keep the facilitator as the user-facing surface and use `/control-plane-new-horizon`, `/review-horizon-readiness`, `/prepare-horizon-admission`, and `/admit-horizon` at their explicit boundaries rather than smuggling work into operational execution.
+12. For a new planning cycle, use `/horizon`, `/plan-work` and `/admit-plan` at their separate explicit boundaries. Legacy packet planning/admission commands are retired; historical packets are not writable fallbacks.
 13. Merge specialist outputs into one coherent inception packet, readiness judgment, or bounded next-step recommendation.
 
 ## Output Contract

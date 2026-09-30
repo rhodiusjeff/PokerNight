@@ -26,8 +26,9 @@ For `cp-plan-change-set-v1`, use the
 typed changes, same-base preconditions, full replacement records and derived-only previews.
 Route draft edits to planning-change-set.py save and explicit completion to complete;
 do not run the legacy draft/compose/propose APIs on a change-set document. The shared
-schema applies to all planning origins; horizon physical laydown and live change-set
-admission remain explicit pending integrations, not permission to create parallel authority.
+schema applies to all planning origins; horizon physical laydown remains deferred.
+Change-set admission uses the format-dispatched guided-admission workflow under its
+separate invocation/confirmation gates, never a parallel authority or a drafting side effect.
 
 Follow [identity policy](../../control-plane/framework/governance/policies/planning-identity.policy.md).
 The helper mints slug/hex contexts and ordinal CHG/Canon IDs; never invent suffixes or IDs.
@@ -46,16 +47,18 @@ An explicitly authorized legacy draft rekey uses `planning-change-set.py rekey`,
 - `--scrub`: source-quality assessment using inception-scrub's new-context branch and SCRUB
   evidence. `--apply` additionally requires an exact offered correction/finding and confirmation;
   append the correction, preserve originals and verify disposition. No consolidation side effect.
-- `--canon` or `--work`: load the corresponding skill and persist partial drafts using
-  `planning-work.py draft --section canon|work`; for ad hoc, replace one current structured
-  section while preserving the other and all retained meaning. Use transient/stdin request
-  input; preserve old paired revisions in history, not numbered active draft files.
-- `--complete`: derive a full explicit result from settled inputs and supplied base/execution,
-  show compose output, then confirmed propose. No fake phases or implicit started dispositions.
+- `--canon` or `--work`: load the corresponding skill. For `cp-plan-change-set-v1`, update
+  only the selected typed changes and use confirmed `planning-change-set.py save`.
+  For `cp-planning-capture-v1` only, use `planning-work.py draft --section canon|work`.
+  Preserve unaffected meaning and prior paired revisions; use transient/stdin request inputs.
+- `--complete`: for `cp-plan-change-set-v1`, show `planning-change-set.py preview` against
+  the pinned baseline, then use explicitly confirmed `planning-change-set.py complete`.
+  For `cp-planning-capture-v1` only, use legacy compose/propose with exact base/execution
+  inputs. No fake phases, status-only completion or implicit started dispositions.
 - `--assess`: proposal-assessment's new-context advisory REVIEW round, not independent readiness.
 
-For actual legacy H000 packets use the existing skill procedure and named command authority;
-do not migrate them or treat a malformed new document as legacy. New horizons are created only
+Legacy packet planning writes are retired. Preserve historical packets without mutation or
+implicit migration; a malformed current document is not a legacy fallback. New horizons are created only
 by explicit [/horizon](horizon.prompt.md). Exact review/decision and real origin-selected publication belong
 to separately invoked [/admit-plan](admit-plan.prompt.md).
 

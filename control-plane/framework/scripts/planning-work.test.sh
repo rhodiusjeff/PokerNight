@@ -381,6 +381,20 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(execution_path.read_bytes(), original_execution)
 
     def test_customization_yaml_links_and_caller_contracts(self):
+        retired = ('control-plane-new-horizon', 'shape-architecture-overview', 'shape-work-plan-sketch',
+                   'consolidate-inception-material', 'scrub-inception-material', 'assess-horizon-proposal',
+                   'shape-horizon-execution', 'prepare-horizon-admission', 'record-horizon-admission-decision',
+                   'admit-horizon', 'allocate-review-unit', 'realize-horizon-portfolio',
+                   'enter-ops-work', 'pause-ops-work', 'resume-ops-work', 'start-ops-phase',
+                   'closeout-ops-phase', 'closeout-ops-work', 'exit-ops-work')
+        self.assertFalse((repository / '.claude').exists())
+        for name in retired:
+            self.assertFalse((repository / '.github/prompts' / (name + '.prompt.md')).exists(), name)
+        for directory in ('agents', 'prompts', 'skills'):
+            for filename in (repository / '.github' / directory).rglob('*.md'):
+                text = filename.read_text()
+                for name in retired:
+                    self.assertNotIn('/' + name, text, (filename, name))
         for name in ('planning-workflow', 'guided-admission', 'canon-consolidation', 'work-plan-shaping',
                      'proposal-assessment', 'inception-scrub', 'diagram-checkpoint'):
             filename = repository / '.github/skills' / name / 'SKILL.md'
@@ -392,7 +406,7 @@ class WorkflowTests(unittest.TestCase):
             metadata = yaml.safe_load((repository / '.github/prompts' / (name + '.prompt.md')).read_text().split('---', 2)[1])
             self.assertTrue(metadata['description'])
             self.assertNotIn('agent', metadata)
-        for name in ('plan-work', 'admit-horizon'):
+        for name in ('plan-work', 'admit-plan'):
             text = (repository / '.github/prompts' / (name + '.prompt.md')).read_text()
             self.assertNotIn('LOCAL/MOCK', text)
         for name in ('inception-facilitator', 'project-planning-design', 'project-codegen'):

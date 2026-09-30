@@ -25,8 +25,8 @@ own maintained captures/register and local binding/recovery/attempt records. Exp
 requests/confirmations authorize only those selected operations, not new product implementation.
 Use `/horizon`, `/plan-work`, `/admit-plan` separately. Partial drafts need no complete tracker.
 Do not edit helper source, operational Canon/specification, execution progress or tracker state in
-this mode. Forge effects are limited to the exact helper operations above. Horizon creation discloses
-remote tag reservation; transfer remains local-only/incomplete. Preserve actual reviewer/actor
+this mode. Forge effects are limited to the exact helper operations above. New horizon creation uses
+the full helper-minted slug/hex ID without new tags; transfer remains local-only/incomplete. Preserve actual reviewer/actor
 authority; `--confirmed` is not proof. Read the new-mode tracker/state and approval policies.
 Existing conflict-recovery grants below remain intact. Operational resolver source `operational`
 requires separate specification/execution inputs; `--require-executable` always refuses live start.
@@ -44,10 +44,10 @@ requires separate specification/execution inputs; `--require-executable` always 
 - Do not treat warnings, rejected operations, or mismatched verification as success.
 - Do not mark tracker items `In Review` or `Done` without the closeout-phase evidence and approval gates defined in the control-plane docs.
 - **Do not create commits silently during implementation, review, or refinement loops.** The default Codegen posture is worktree-first so `/review-code` can inspect the current outstanding changes with its default `working-tree` scope. If a commit is needed before final governance steps, obtain explicit operator direction or use the later closeout/completion workflow that explicitly owns commit mutation.
-- **Do not execute horizon phase implementation on `integration` or `master`, or on a non-`codegen/<phase_id>` branch.** The phase-branch convention remains mandatory for product/horizon phases. The sole exception is active V0.8 OPS work on its recorded `ops/*` branch when the tracker names the phase `in-progress` and its phase prompt authorizes the work. OPS work stays outside product and infrastructure scope.
+- **Do not execute horizon phase implementation on `integration` or `master`, or on a non-`codegen/<phase_id>` branch.** The phase-branch convention remains mandatory for product/horizon phases. The retired OPS campaign is not an exception or an implementation authority.
 - **Do not return a success state with a core invariant unmet.** If a Codegen-bound prompt declares an invariant in its CHARTER section, that invariant must be established on disk before success is returned. Vacuous success — reporting completion while the invariant is still absent — is the framework's marquee failure mode and is structurally refused at this charter level.
 - **Do not mutate files from speculative or exploratory operator input (mutation gate).** Every implementation edit must trace to the active phase prompt or to an explicit operator directive. The trigger test is phase-prompt traceability, not sentence mood: an idea phrased as a musing ("I wonder…", "should we…", "what if…") that cannot be traced to a story, requirement, or instruction in the active phase prompt is not edit authorization. Respond in analysis mode — assess the idea, name trade-offs, make no file mutation — and offer the operator three routes: give an explicit directive, take the idea to Project: Planning and Design, or have Codegen draft a `DEFERRED_PLANNING_NOTES.md` row for the operator or Steward to commit. Codegen never writes to the deferred-planning surface itself; it drafts row text in its response only (single-writer discipline — the Steward owns that surface). This is the operational trigger test for the existing "do not invent behavior" boundary, and it composes with findings governance: design decisions not derivable from the phase prompt escalate to the operator rather than being silently implemented.
-- **Do not execute governance boundary operations from conversational inference (invocation gate).** Boundary operations include `/enter-ops-work`, `/start-ops-phase`, `/closeout-ops-phase`, `/closeout-ops-work`, `/exit-ops-work`, and the ordinary horizon/review/closeout commands. Execute only from an operator command or explicit confirmation of the exact named command.
+- **Do not execute governance boundary operations from conversational inference (invocation gate).** Execute horizon, review, closeout and lifecycle commands only from an operator command or explicit confirmation of the exact named command.
 
 ## Admission Conflict Recovery
 
@@ -61,21 +61,27 @@ never choose conflict sides silently or treat Git success as refreshed approval.
 ## Required Context Load
 Before first implementation edit, select exactly one authority path.
 
-For active V0.8 OPS work, read work state, tracker/archive, the sole active phase prompt, and
-`cp-ops-work/governance/V0_8_OPERATING_MODEL.md`. Do not invoke a runtime or mutate horizon
-tracker authority for OPS work.
+LOCAL MOD - HARVEST TO CPB (2026-09-30): load Canon And Work Context Resolution in
+[Tracker And State Policy](../../control-plane/framework/governance/policies/tracker-and-state.policy.md)
+and [Planning Identity Policy](../../control-plane/framework/governance/policies/planning-identity.policy.md).
+For new-format planning/admission or read-only repository inspection, load the selected
+proposal, exact `control-plane/canon/CANON.json`, and repository `control-plane/tracker/TRACKER.json`
+plus `control-plane/tracker/TRACKER_ARCHIVE.json`. Use exact Canon and work ID/revision
+references; preserve existing work IDs because work-to-Phase allocation is deferred.
+Do not create split legacy registries when new files are absent. The baseline helper owns
+the explicit empty-legacy route. Repository/operational product start remains disabled;
+do not substitute legacy phase branches, trace prefixes or packet paths to bypass it.
 
-For horizon phase work, read:
-1. control-plane/canon/INCEPTION_REQUIREMENTS_CANONICAL.json
-2. control-plane/canon/INCEPTION_USER_STORIES_CANONICAL.json
-3. control-plane/canon/USER_STORY_REGISTRY_CANONICAL.json
-4. control-plane/framework/governance/codegen-handoff.spec.md
-5. control-plane/canon/context/ACCEPTANCE_TEST_MATRIX.json
-6. control-plane/canon/context/CONTEXT_HANDOFF.md
-7. Run `control-plane/framework/scripts/resolve-horizon.py <active-phase-id> --require-executable` and read the returned packet's tracker, state, ledgers, phases, and timing paths
-8. control-plane/framework/governance/codegen-agent-context-and-tracker.policy.md
-9. The active phase prompt under the resolver-selected packet's `phases/prompts/`
-10. Any directly dependent prior prompts or reference artifacts
+Control-plane maintenance uses `/control-plane-upgrade` and its separately authorized implementation
+owner. Do not create or execute a parallel OPS campaign. Historical OPS records grant no new work.
+
+For explicitly legacy horizon phase work, read:
+1. The Canon registry and acceptance/context artifacts declared by the selected legacy profile
+2. control-plane/framework/governance/codegen-handoff.spec.md
+3. Run `control-plane/framework/scripts/resolve-horizon.py <active-phase-id> --require-executable` and read the returned packet's tracker/archive, state, ledgers, phases, and timing paths
+4. control-plane/framework/governance/codegen-agent-context-and-tracker.policy.md
+5. The active phase prompt under the resolver-selected packet's `phases/prompts/`
+6. Any directly dependent prior prompts or reference artifacts
 
 ## Working Method
 1. If the user is asking how to use the framework or this agent, explain the implementation entry conditions, governance surfaces, and next-step options before coding. From time to time, remind the user that they can ask for a deeper walkthrough of how the bootstrap and full control-plane workflow fit together.

@@ -1,25 +1,25 @@
 ---
 name: inception-scrub
-description: "Use when the Operator asks to discuss or process an INCEPTION_SCRUB finding, or when assessing or correcting semantic drift, OBE, superseded, incorrect, contradictory, duplicate, or unsupported inception material. Guides finding discussion through disposition and explicit Approve confirmation of the existing scrub command. Source maintenance only; does not consolidate or admit Canon."
+description: "Use when discussing source findings or correcting semantic drift, OBE, superseded, incorrect, contradictory, duplicate or unsupported material through plan-work --scrub. Requires exact apply confirmation; does not consolidate or admit Canon."
 user-invocable: false
 ---
 # Inception Scrub
 
 ## New File-Backed Context
 
-For a resolved `cp-planning-capture-v1` ADHOC or HNNN document, use the source-scrub procedure
-in [planning workflow](../planning-workflow/SKILL.md). This branch overrides the horizon-only
-resolver, report destination and required persona switch below for this format only. Codegen,
+For a resolved `cp-planning-capture-v1` or `cp-plan-change-set-v1` document, use the source-scrub procedure
+in [planning workflow](../planning-workflow/SKILL.md). Codegen,
 Planning or Facilitator uses its narrow grant; discussion is still not correction authority.
 Offer `/plan-work ID --scrub FINDING-ID --apply` with the exact before/after interpretation and
 wait for real confirmation. Record SCRUB rounds/dispositions via `planning-evidence.py`; preserve
 original capture bytes and append attributed corrections through `planning-capture.py append`.
 Keep unapplied fixes open and consolidation separate. Never edit workflow-owned evidence directly.
-All legacy H000 command bindings, approvals and frozen profiles below remain unchanged.
+Legacy packet mutation and frozen scrub profiles are retired. Historical findings and sources
+remain readable; they do not authorize writes or implicit migration into a current context.
 
 ## Contract
 
-Use under Planning or Lifecycle Facilitator with a named Horizon and bounded source scope.
+Use under an authorized shared-planning caller with a selected context and bounded source scope.
 Discussion does not require a scrub invocation; assessment/report writes and source corrections
 require their respective explicit authority. Loading the skill is not a command invocation.
 Read the "Iterative Pre-Admission Planning" policy in
@@ -37,7 +37,7 @@ For an ambiguous request, assess first; do not infer permission to change govern
 
 1. **Enter on discussion or processing intent.** A request such as "Let's discuss S14-F13" or
    "Process this finding from INCEPTION_SCRUB" starts this workflow, not an apply command.
-   Resolve the shaping Horizon and finding; ask only when the target is ambiguous. Read the
+   Resolve the selected planning context and finding; ask only when the target is ambiguous. Read the
    finding, its later dispositions, cited source clauses, and relevant Operator decisions.
    Check current files rather than assuming an old finding still applies. If the finding is
    missing, disclose the gap and establish its subject from attributable evidence with the
@@ -55,9 +55,9 @@ For an ambiguous request, assess first; do not infer permission to change govern
    why no source edit is needed. Persist discussion/deferral notes only within separately
    authorized working-note scope; a report-only update uses explicit assessment authority.
 4. **Offer one bounded apply approval.** Once a correction is settled, summarize its intended
-   before/after meaning, exact mutable source files and report update, exclusions, and checks.
+   before/after meaning, exact appended correction and report update, exclusions, and checks.
    Name the exact command with resolved identifiers, for example:
-   `/scrub-inception-material H000 S14-F13 --apply`.
+   `/plan-work ID --scrub FINDING-ID --apply`.
    Say: "Reply Approve to authorize me to run this exact command and apply the scoped
    corrections above." Wait. The Operator may instead issue the command directly or revise
    the proposal. Do not ask them to retype the command after a valid approval.
@@ -68,10 +68,9 @@ For an ambiguous request, assess first; do not infer permission to change govern
    as needed. Recheck the finding and source subject before mutation; material source,
    decision, or scope changes invalidate the offer and require fresh approval. Approval covers
    only this invocation, not later findings, broader corrections, or downstream commands.
-6. **Execute the existing command path.** On valid approval, load
-   `.github/prompts/scrub-inception-material.prompt.md`, adopt its bound Lifecycle Facilitator
-   charter, and execute the command with the confirmed arguments and the procedure below.
-   Planning may lead the discussion; this workflow does not change the prompt's persona binding.
+6. **Execute the current command path.** On valid approval, load
+   `.github/prompts/plan-work.prompt.md`, retain the authorized caller, and execute the
+   selected scrub mode with the confirmed arguments and the procedure below.
    Preserve the proposal, exact command, and verbatim Operator confirmation in the report;
    record `metadata.invocation_source: operator-confirmation` in the invocation timing event
    with the Horizon, finding, and apply mode. A directly issued command remains
@@ -87,22 +86,21 @@ For an ambiguous request, assess first; do not infer permission to change govern
 
 ## Invoked Scrub Procedure
 
-1. Resolve the shaping Horizon with `resolve-shaping-horizon.py`. Inventory included/excluded
+1. Resolve the selected document through the shared planning resolver. Inventory included/excluded
    paths, exact source revisions/digests, existing scrub findings, and latest attributable Operator
    decisions. Identify mutable working specifications versus preserved captures and exhibits.
 2. Compare concrete claims against the applicable decisions, governing Canon, and cited evidence.
    Classify OBE/superseded, contradicted, factually incorrect, duplicate, unsupported, or uncertain.
    Record the exact statement, location, evidence, impact, and proposed disposition. Newer prose
    is not automatically more authoritative. Missing evidence is not proof of falsehood.
-3. Reuse `specification/scrub/INCEPTION_SCRUB.md` for the scoped assessment and disposition log.
+3. Record the assessment and dispositions through the format-dispatched evidence helpers.
    Preserve earlier findings/decisions and source pins before revising their current posture.
    For each finding retain a local key, source, reason, authority, proposed/applied disposition,
    affected candidate references if known, and an unresolved question or reopen condition.
-4. In assessment-only mode, edit only that report. With explicit correction authority, apply
-   evidence-backed corrections to authorized mutable source files; preserve prior meaning and
-   provenance. Annotate superseded claims with their disposition/source rather than silently
-   destroying history. Contested intent returns to the Operator. No original capture, frozen
-   review, archive, or evidence is rewritten; index its status from the report instead.
+4. In assessment-only mode, record only the report and findings. With explicit correction
+   authority, append evidence-backed attributed corrections through the supported capture helper.
+   Preserve original sources and prior meaning. Contested intent returns to the Operator.
+   No original capture, frozen review, archive or evidence is rewritten.
 5. Do not erase useful obligations with obsolete implementation machinery. Separate the retained
    behavior from a superseded topology or mechanism. Distinguish newly changed intent from an
    earlier erroneous claim, and do not make unverified alternatives sound proven.
@@ -113,17 +111,3 @@ For an ambiguous request, assess first; do not infer permission to change govern
    verify authorized file scope and preserved history, then summarize applied versus proposed
    changes, unresolved decisions, and excluded material. Report `in-progress` and
    `readiness: not-assessed`; a successful scrub does not establish packet completeness.
-
-## Legacy Frozen Profile
-
-For an explicit `--archive-and-scrub` invocation, require `--review-id` and `--source-revision`
-and load the packet's `specification/v0.8-reference-inception-archive-and-scrub.md`. If absent,
-stop rather than invent the profile. Preserve its exact manifest, source inventory, trace/archive
-index and ambiguity-docket requirements, writing only to its named round. This new source-only
-contract overrides its old combined Canon-extraction output: do not create a proposed Canon
-change set or readiness report. Return the scrub's selected sources/dispositions to a separately
-invoked consolidation. Preserve previously generated combined-round outputs as history.
-
-A new source subject requires a new round ID. Resume an unfinished docket only on explicit
-invocation naming that round and supplied decisions; finalized reports and raw sources remain
-unchanged. The profile is not permission to promote Canon, create work, or claim readiness.

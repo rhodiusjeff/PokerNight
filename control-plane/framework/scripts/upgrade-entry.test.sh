@@ -56,11 +56,7 @@ for relative in ["control-plane/framework/governance/policies/migration-and-upgr
     assert "control-plane/workbench/upgrades/" in (root / relative).read_text(), relative
 print("PASS current policy and guide routing", flush=True)
 
-wrapper = (root / ".claude/commands/control-plane-upgrade.md").read_text()
-assert "READ-ONLY GENERATED-WRAPPER EXCEPTION" in wrapper
-assert "refresh the active-persona state file" not in wrapper
-assert ".github/prompts/control-plane-upgrade.prompt.md" in wrapper
-assert yaml.safe_load(wrapper.split("---", 2)[1])["description"] == metadata["description"]
-print("PASS generated adapter binding and read-only contract", flush=True)
+assert not (root / ".claude").exists()
+print("PASS other harness bindings remain deferred", flush=True)
 print("7 checks passed; schema and static command contracts only, not real-agent lifecycle execution.", flush=True)
 PY

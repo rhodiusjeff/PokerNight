@@ -16,11 +16,17 @@ Out of scope:
 - Carry-forward edits without approval.
 
 ## 2. Context and References
-- The owning horizon tracker resolved from the named phase by `framework/scripts/resolve-horizon.py`
+- The named work's resolver-selected tracker/archive and bound contracts; inspect source before using packet paths
 - `control-plane/framework/governance/codegen-agent-context-and-tracker.policy.md`
-- `control-plane/canon/INCEPTION_USER_STORIES_CANONICAL.json`
-- `control-plane/canon/USER_STORY_REGISTRY_CANONICAL.json`
+- New-format inspection: `control-plane/canon/CANON.json` and exact Canon/work ID-revision references
+- Explicit legacy execution: only Canon registries and acceptance artifacts declared by the selected profile
 - `CLAUDE.md`
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): follow Canon And Work Context Resolution in
+[Tracker And State Policy](../policies/tracker-and-state.policy.md). The operational
+closeout writer remains for explicitly selected legacy product authority; repository product
+closeout is disabled. Do not create old registries, remint IDs or infer a packet to run it.
+OPS closeout is retired; control-plane maintenance completion follows the selected upgrade contract.
 
 Historical reference only (optional):
 - `docs/product/user-stories.md`

@@ -7,7 +7,7 @@ a product, architecture, programming language, or deployment platform.
 
 - Read `control-plane/README.md` for the starting workflow and ownership boundaries.
 - `.github/agents/`, `.github/prompts/`, and `control-plane/framework/` own the
-  installed workflow. Claude adapters load those same surfaces and carry no policy.
+  installed workflow. Other harness bindings are deferred; do not recreate `.claude` adapters.
 - Before governed work, load the applicable prompt and adopt its bound persona.
 - Lifecycle, admission, start, review, closeout, and completion operations require
   explicit operator invocation or confirmation of the named command.
@@ -27,8 +27,7 @@ Activate `.cp-venv` before launching the harness or running framework commands s
 `python3` resolves the installed dependencies. Prefer repository-defined task commands
 when present; a greenfield repo need not have a Justfile or product test suite yet.
 
-Keep `.cp-venv`, local Claude persona state, observations, and local permission settings
-out of Git. The Claude hook is observe-only, not an enforcement boundary.
+Keep `.cp-venv`, credentials and local permission settings out of Git.
 
 ## Optional Integrations
 

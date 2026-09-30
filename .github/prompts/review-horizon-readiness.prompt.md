@@ -48,7 +48,7 @@ custody and actual approval requirements remain unchanged.
 
 `--exploratory` is a compatibility alias for proposal assessment, not a readiness profile.
 Load `.github/skills/proposal-assessment/SKILL.md`, delegate its read-only assessment to the
-reviewer, and persist only its permitted report. Recommend `/assess-horizon-proposal HNNN` as
+reviewer, and persist only its permitted report. Recommend `/plan-work ID --assess` as
 the clearer entry point for future passes; do not invoke that command in addition to this one.
 Use this command's timing with `proposal-assessment` in invocation and terminal metadata.
 Skip the formal workflow below and report `readiness: not-assessed`. The default named-boundary

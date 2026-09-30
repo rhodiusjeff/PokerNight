@@ -14,12 +14,10 @@ from datetime import datetime, timezone
 
 SCOPES = (
     ".github/agents", ".github/prompts", ".github/skills", ".github/instructions",
-    ".claude/agents", ".claude/commands", ".claude/scripts", ".claude/hooks",
     "control-plane/framework/scripts", "control-plane/framework/templates",
     "control-plane/framework/governance", "control-plane/framework/docs",
 )
-EXTRAS = (".github/copilot-instructions.md", ".claude/README.md",
-          ".claude/settings.json", "control-plane/framework/requirements.txt")
+EXTRAS = (".github/copilot-instructions.md", "control-plane/framework/requirements.txt")
 COORDINATOR = ".github/agents/project-control-plane-upgrade.agent.md"
 MANIFEST = "control-plane/state/INSTALLATION.json"
 STATE = "control-plane/state/CONTROL_PLANE_STATE.json"
@@ -29,14 +27,13 @@ EXCLUSIONS = [
     "Source workbench, archives, evidence, validation output and timing sessions",
     "Source active upgrade coordinator (project-control-plane-upgrade.agent.md)",
     "Source root instructions/README/anchor (replaced with portable generated content)",
-    "Source .claude settings (replaced with observe-only hook registration)",
-    "Local .claude state, permissions, observations, credentials and unknown adapters",
+    "Other harness bindings, including all .claude files and CLAUDE.md (deferred)",
     "Git metadata, virtual environments, caches, .vscode, secrets and product assets",
     "Everything outside the explicit SCOPES/EXTRAS allowlist",
 ]
 ADAPT = re.compile(
-    r"resolve-horizon|HORIZON_STATE|PROPOSED_TRACKER|prepare-horizon-admission|"
-    r"admit-horizon|DEFERRED_PLANNING_NOTES|control-plane/canon|TRACKER\.json|"
+    r"resolve-horizon|HORIZON_STATE|PROPOSED_TRACKER|"
+    r"DEFERRED_PLANNING_NOTES|control-plane/canon|TRACKER\.json|"
     r"planning-(?:context|capture|deferred|evidence|admission|contract|git)|"
     r"control-plane-upgrade|planning-install|planning-validation", re.I)
 SECRET = re.compile(
@@ -138,23 +135,8 @@ def snapshot(source):
 def package_reason(name, data):
     if name == COORDINATOR:
         return "excluded: instance-bound upgrade coordinator"
-    if name.startswith(".claude/") and COORDINATOR.encode() in data:
-        return "excluded: instance-bound upgrade adapter"
     if sensitive_name(name):
         return "excluded: sensitive/local filename"
-    if name == ".claude/settings.json":
-        return "generated: observe-only registration, no source settings"
-    if name.startswith(".claude/commands/"):
-        command = PurePosixPath(name).stem
-        if command not in {"cp", "persona"} and (
-                f".github/prompts/{command}.prompt.md".encode() not in data):
-            return "excluded: not a canonical command adapter"
-    if name.startswith(".claude/agents/") and b".github/agents/" not in data:
-        return "excluded: not a canonical persona adapter"
-    if name.startswith(".claude/scripts/") and name != ".claude/scripts/generate-command-adapters.py":
-        return "excluded: unknown adapter helper"
-    if name.startswith(".claude/hooks/") and name != ".claude/hooks/observe-governance-writes.sh":
-        return "excluded: unknown hook"
     return "copied"
 
 
@@ -194,7 +176,7 @@ def inventory_markdown(report):
              "## Scope", ""]
     lines += [f"- `{scope}`" for scope in report["scopes"] + report["extras"]]
     lines += ["", "Caches/bytecode are omitted; symlinks and non-regular files refuse.",
-              "Local Claude state outside these scopes is excluded, not mistaken for a canonical adapter.",
+              "Other harness bindings and local harness state are outside the installation scope.",
               "Sensitive filenames are enumerated but excluded from packaging. Content is never printed.",
               "Root discovery/guidance is regenerated; source root product README and decisions are not lifted.",
               "No distribution installer/verify.py is supplied by this installed baseline; planning-install.py",
@@ -223,8 +205,8 @@ def fresh_files():
     guidance = """# Portable Installed Control Plane
 
 Read control-plane/README.md first. Canonical agents, prompts and skills live under
-.github; control-plane/framework owns shared policy and runtime. Claude adapters
-carry no independent authority. Adopt the bound persona before governed work.
+.github; control-plane/framework owns shared policy and runtime. Other harness
+bindings are deferred. Adopt the bound persona before governed work.
 Lifecycle, admission, start, review and completion require explicit command invocation.
 Installation creates no horizon, project Canon, approved work, forge setup or admission.
 Preserve user changes. Do not commit, push or change product files without authorization.
@@ -242,7 +224,8 @@ packages in control-plane/framework/requirements.txt. Some suites additionally r
 PowerShell (pwsh); unavailable tools must be reported, not counted as passing coverage.
 Prepare .cp-venv and dependencies separately from this offline installer. It never calls
 the network, creates Git history, initializes a horizon, or authorizes execution.
-Copilot/Claude, diagram providers, credentials and hosted forge setup are external.
+Copilot, diagram providers, credentials and hosted forge setup are external.
+Other harness bindings are deferred and are not generated by this installer.
 
 Verify before local use:
     python3 control-plane/framework/scripts/planning-install.py verify --target <this-root>
@@ -251,13 +234,11 @@ shared timing/progress. Green fixtures are not live forge, real-agent or power-l
 After operator-directed setup, use canonical command help to select the planning workflow.
 No upstream installer/verify.py is present or required by this installed-tree utility.
 """
-    settings = {"hooks": {"PreToolUse": [{"matcher": "Write|Edit", "hooks": [
-        {"type": "command", "command": 'bash "$CLAUDE_PROJECT_DIR/.claude/hooks/observe-governance-writes.sh"'}]}]}}
-    return {"AGENTS.md": guidance.encode(), "CLAUDE.md": b"# Claude Entry\n\n@AGENTS.md\n\nRead control-plane/README.md and the canonical bound prompt before any operation.\n",
+    return {"AGENTS.md": guidance.encode(),
             "README.md": readme.encode(), "control-plane/README.md": readme.encode(),
             ".cpb.yaml": b"cp_root: control-plane\ncpb_version: 0.8.1-local-lift-unreleased\n",
-            ".gitignore": b".cp-venv/\n__pycache__/\n*.pyc\n.claude/state/\n.claude/.persona-state\n.claude/settings.local.json\n.claude/hook-observations.jsonl\ncontrol-plane/state/planning-local/\n.env\n.env.*\n",
-            ".claude/settings.json": encoded(settings), STATE: encoded(state)}
+            ".gitignore": b".cp-venv/\n__pycache__/\n*.pyc\ncontrol-plane/state/planning-local/\n.env\n.env.*\n",
+            STATE: encoded(state)}
 
 
 def write_new(filename, data, mode=0o644):
@@ -269,35 +250,6 @@ def write_new(filename, data, mode=0o644):
         stream.flush()
         os.fsync(stream.fileno())
     os.chmod(filename, mode)
-
-
-def missing_adapter(prompt, selected):
-    import yaml
-    name = f".github/prompts/{prompt}.prompt.md"
-    text = selected[name][0].decode()
-    match = re.match(r"^---\n(.*?)\n---\n", text, re.S)
-    metadata = yaml.safe_load(match.group(1)) if match else {}
-    metadata = metadata or {}
-    lines = ["---", "description: " + json.dumps(metadata.get("description", prompt)), "---",
-             f"Execute the canonical prompt `{name}` with arguments `$ARGUMENTS`.",
-             "This generated harness adapter carries no policy. Read AGENTS.md first."]
-    persona = metadata.get("agent")
-    if persona:
-        charters = []
-        for candidate, (data, mode, origin) in selected.items():
-            if candidate.startswith(".github/agents/") and candidate.endswith(".agent.md"):
-                frontmatter = re.match(r"^---\n(.*?)\n---\n", data.decode(), re.S)
-                if frontmatter and (yaml.safe_load(frontmatter.group(1)) or {}).get("name") == persona:
-                    charters.append(candidate)
-        if len(charters) != 1:
-            raise ValueError(f"missing/ambiguous persona for adapter: {prompt}")
-        lines.append(f"First read `{charters[0]}` and adopt the bound `{persona}` charter.")
-        if metadata.get("adapter-persona-state") == "memory-only":
-            lines.append("Adopt in session memory only; preserve .claude/.persona-state and .claude/state/active-persona.json exactly.")
-        else:
-            lines.append("After adoption, refresh .claude/state/active-persona.json with persona, charter_path and adopted_at per the canonical harness contract.")
-    lines.append("Then read the canonical prompt and honor every guard, refusal and invocation contract; stop on missing authority.")
-    return ("\n".join(lines) + "\n").encode()
 
 
 def install(source, target):
@@ -317,11 +269,6 @@ def install(source, target):
             selected[name] = (data, mode, "copied")
     for name, data in fresh_files().items():
         selected[name] = (data, 0o644, "generated")
-    prompts = {PurePosixPath(name).name.removesuffix(".prompt.md")
-               for name in selected if name.startswith(".github/prompts/") and name.endswith(".prompt.md")}
-    for prompt in sorted(prompts):
-        if f".claude/commands/{prompt}.md" not in selected:
-            selected[f".claude/commands/{prompt}.md"] = (missing_adapter(prompt, selected), 0o644, "generated")
     from jsonschema import Draft202012Validator
     schema = json.loads(selected["control-plane/framework/templates/instance-state.schema.json"][0])
     Draft202012Validator.check_schema(schema)

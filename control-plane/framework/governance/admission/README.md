@@ -1,6 +1,18 @@
 # Horizon Admission Templates
 
-This folder contains the governance artifact templates for **later-horizon admission workflows (H001+)**.
+**Retired workflow (2026-09-30, LOCAL MOD - HARVEST TO CPB).** The procedures below
+describe historical packet admission, not available commands or permission to create new
+legacy approval records. Packet preparation, decision recording and admission writers refuse.
+Templates remain historical reference only; portfolio creation is also retired.
+Current admission uses `/admit-plan` and its exact independent-review/decision/publication gates.
+Do not execute the historical command examples below or infer migration authority from them.
+
+This folder contains templates for **explicit legacy later-horizon admission workflows (H001+)**.
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): these packet-local templates are not the
+cp-plan-change-set-v1 repository admission path. New-format proposals use guided admission
+and the repository Canon/tracker/archive contract in [Tracker And State Policy](../policies/tracker-and-state.policy.md).
+Do not create legacy approval/registry/tracker files to admit new-format work.
 
 When a repository is ready to admit a new horizon (new work scope, new team, new subsystem focus), the `/control-plane-new-horizon` command copies these templates into the horizon packet's `approvals/` folder.
 
@@ -66,8 +78,8 @@ add it to Git. Do not edit the framework template to approve one horizon.
 
 ## See Also
 
-- [Horizon Admission Workflow](../../../control-system-user-guide.md#later-horizon-admission-workflow-h001) in the full user guide
-- [INSTANTIATION Templates](../instantiation/) for initial bootstrap governance
+- [Legacy Horizon Admission Workflow](../../docs/control-system-user-guide.md#legacy-later-horizon-admission-workflow-h001) in the full user guide
+- [Current Control-Plane Entry](../../../README.md); retired instantiation procedures are historical only
 - [timing-log.spec](../timing/timing-log.spec.md) for audit trail capture
 
 ---

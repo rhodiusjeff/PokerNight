@@ -21,9 +21,10 @@ compose/propose builder. Record actual confirmation in capture through transient
 input. Never create numbered request files or maintain the preview as a second proposal.
 
 The paired writer currently owns ad hoc/discovery. The schema/checker accepts horizon
-origins too, but horizon physical laydown is deferred. Legacy mutation/evidence/admission
-helpers refuse change-set documents. Formal change-set review/admission/application remains
-pending; do not claim that complete or validated means admissible through the old kernel.
+origins too, but horizon physical laydown is deferred. Legacy draft mutation helpers
+refuse change sets. Evidence/admission/publication commands now dispatch by format;
+use [guided admission](../guided-admission/SKILL.md) only on its explicit invocation.
+Complete or validated still does not mean reviewed, approved, admitted or executable.
 The legacy CLI forms below apply only to their existing cp-planning-capture-v1 documents.
 Operator-directed migration uses the change-set helper's `migrate` and is limited to
 unreviewed draft-only contexts with explicit semantic mapping and preserved source coverage.
@@ -49,17 +50,18 @@ contract; the legacy complete-result kernel has not yet been migrated to it. Do 
 that old writer acceptance proves conformance or discard typed fields to force completion.
 
 Use `planning-capture.py inspect --root ROOT --id ID` and `resolve_document(root, ID)` for
-ADHOC and new HNNN documents. Each ADHOC/discovery session owns
+ADHOC, DISC and full-ID horizon documents. Each ad hoc/discovery session owns
 `control-plane/ad-hoc/ID/ID-capture.md` and `ID-proposal.json`, with optional `assets/`.
 The resolver returns the proposal JSON; its digest binds the separate capture Markdown.
 Keep one self-contained current Canon/work candidate, not numbered active draft files.
 Use the policy's format-separation rule; no routine requests directory or metadata sidecar.
-New horizons have `kind: horizon`, `origin: null`, and
-`planning/HNNN.md` in their packet. Do not synthesize an ADHOC identity or require a tracker.
+New horizon captures have `kind: horizon`, `origin: null`, and live at
+`control-plane/horizons/<ID>/planning/<ID>.md`, where ID is the full minted
+`HNNN-<slug>-<hex4>`. Do not abbreviate it or require a packet-local tracker.
 For an omitted context, inspect `planning-context.py --root ROOT list` and `discover`, show
 the branch-scoped binding and alternatives, and confirm a singular selection. Ambiguity stops
 mutation. A missing, malformed, suspended, or terminal new document is not a legacy fallback.
-Only an actual legacy packet without this capture format uses the existing horizon skills.
+Legacy packet planning writes are retired, not a fallback for an absent capture.
 Historical H000 remains unchanged; no implicit migration or renumbering.
 
 Before each write state its purpose, exact context/path, selected IDs, and excluded scope.
@@ -92,7 +94,7 @@ Use these actual CLI forms (placeholders must be resolved, not executed literall
 ```text
 python3 control-plane/framework/scripts/planning-capture.py new-id --root ROOT --slug SLUG --operation-id OP --author AUTHOR --confirmed
 python3 control-plane/framework/scripts/planning-capture.py capture --root ROOT --id ADHOC-ID --title TITLE --author AUTHOR --source FILE --confirmed
-python3 control-plane/framework/scripts/planning-capture.py capture --root ROOT --id ADHOC-ID --title TITLE --author AUTHOR --source FILE --kind discovery --origin-phase PHASE --origin-specification FILE --confirmed
+python3 control-plane/framework/scripts/planning-capture.py capture --root ROOT --id DISC-ID --title TITLE --author AUTHOR --source FILE --kind discovery --origin-phase PHASE --origin-specification FILE --confirmed
 python3 control-plane/framework/scripts/planning-capture.py append --root ROOT --id ID --expected-digest SHA --source FILE --confirmed
 ```
 

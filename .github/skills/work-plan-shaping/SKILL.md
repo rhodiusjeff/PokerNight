@@ -1,6 +1,6 @@
 ---
 name: work-plan-shaping
-description: "Use when shaping or revising proposed work from candidate Canon, including vocabulary context, definition-change impacts, and follow-on or rework outcomes. Iterative candidates by default; complete Phase/tracker laydown only when explicitly requested."
+description: "Use when shaping or revising proposed work from candidate Canon, including vocabulary context, definition-change impacts, and follow-on or rework outcomes. Iterative candidates by default; complete proposals only when explicitly requested."
 user-invocable: false
 ---
 # Work Plan Shaping
@@ -17,24 +17,24 @@ when consuming proposed/admitted Canon from any planning origin. Reference exact
 IDs/revisions and preserve typed meaning. Definition and Decision have different roles;
 Canon relationships are not task/Phase dependencies. Work shaping may identify a need for
 another Canon kind but must not silently create governing intent or downgrade it into text
-to satisfy the older complete-result kernel. Proposal-envelope integration remains pending.
+to satisfy the older complete-result kernel. New-format admission is separately invoked
+through guided admission; shaping changes neither repository progress nor archive history.
 
 ## New File-Backed Context
 
 For a resolved `cp-planning-capture-v1` ADHOC or HNNN document, use
-[planning workflow](../planning-workflow/SKILL.md). This branch overrides the horizon-only
-delegation, advisory-layout and tracker-laydown procedure below for this format only.
+[planning workflow](../planning-workflow/SKILL.md).
 Codegen, Planning or Facilitator may guide decomposition under its explicit narrow grant.
 Use `planning-work.py draft --section work` for supported partial candidates; no fake phases,
 trace IDs, graph authority or complete-tracker gate. Retain scope, acceptance, dependencies,
 questions and rework implications in text. An explicit complete request uses compose/propose
 with the full result and exact base/execution inputs, never creates a legacy proposed tracker.
 Started/completed contracts require explicit preservation dispositions; family is not dependency.
-Actual legacy packets retain all procedures and authority below; do not migrate H000 implicitly.
+Legacy packet laydown and review-unit allocation are retired; do not migrate historical packets implicitly.
 
 ## Contract
 
-Planning owns decomposition; Lifecycle Facilitator owns the invoking command and lifecycle context.
+The authorized shared-planning caller owns the selected `/plan-work` operation and context.
 Read the "Iterative Pre-Admission Planning" policy in
 `control-plane/framework/governance/policies/tracker-and-state.policy.md`. Loading this skill does
 not grant authority to create Phases, mutate a tracker, admit, or start work.
@@ -45,18 +45,17 @@ without rewriting completed contracts or promoting proposed vocabulary to execut
 
 ## Candidate Procedure (Default)
 
-1. Resolve the inception Horizon and verify its shaping branch. Read selected candidate Canon,
+1. Resolve the selected planning document. Read selected candidate Canon,
    its exact base/source revisions, ambiguity docket, relevant existing Canon, prior work layout,
    and any existing proposed tracker. Include deferred notes and pertinent completed-work evidence.
 2. Decompose supported intent into candidate outcomes with scope/exclusions, acceptance direction,
    validation and executor questions, trace links, and known dependencies. Keep implementation
    freedom within the intended outcome. Prefer independently verifiable outcomes over arbitrary
    technical-layer splits. Unresolved decisions block affected candidates, not all layout.
-3. Reuse the single advisory `phases/planning/exploratory-work-layout.md` under policy rules.
-   Before a proposed tracker exists, use local candidate keys; afterwards retain only deltas
-   against its exact revision, not a parallel maintained graph. Link the candidate Canon revision
-   consumed. Preserve prior meanings and report add/revise/split/merge/withdraw/retain changes.
-   Do not create Phase prompts, reserved IDs, tracker JSON, approvals, or final ordering here.
+3. Update only the selected work changes in the context's current proposal through its supported
+   writer. Retain candidate identity and consumed Canon revisions, preserve prior meanings and
+   report add/revise/split/merge/withdraw/retain changes. Do not create legacy Phase prompts,
+   reserved IDs, tracker JSON, approvals or a second maintained graph.
 4. A proposed Canon amendment can require new work against an already delivered implementation.
    Record the proposed rework outcome, original Phase/contract and evidence references, triggering
    Canon delta, and why it is a new obligation or remediation. Do not reopen completed Phases,
@@ -67,29 +66,23 @@ without rewriting completed contracts or promoting proposed vocabulary to execut
    Return the layout delta, work/rework implications, questions, and checks/limits with
    `in-progress`, `readiness: not-assessed`.
 
-The current candidate representation is Markdown, not a generated view over JSON. Do not claim
-structured proposal storage exists. A provisional JSON schema and materialized view remain a
-separate implementation decision; the admitted-tracker schema cannot be filled with fake facts.
+Use the selected proposal format's structured representation and derived preview. A preview is
+not another maintained plan. Horizon physical laydown and work-to-Phase allocation remain deferred.
 
-## Complete Laydown (Explicit --complete Only)
+## Complete Proposal (Explicit --complete Only)
 
 1. Require exact candidate/Canon inputs, applicable authority, the phase sizing law, and decisions
    sufficient for decomposition, validation, execution model, review grouping, and ordering.
    Return blocked questions if these facts are absent; do not fabricate placeholders.
-2. Create/revise one complete prompt per proposed executable Phase under `phases/prompts/` and
-   the single `admission/PROPOSED_TRACKER.json` together. Follow the existing tracker schema,
-   traceability, phase sizing and review-unit rules; retain existing identities unless an explicit
-   split/supersession requires otherwise. Proposed tracker approval fields need an actual decision.
-3. Verify prompt/node correspondence, required contract content, traceability, dependency closure,
-   acyclicity, approved order, global Phase identity uniqueness, and review-unit topology. Apply
-   available non-mutating checks. Do not call preparation/admission to validate a shaping pass.
-4. Mark the consumed advisory layout superseded by this exact laydown, preserving its content.
-   Invalidate affected exact-subject review/approval bindings without rewriting historical reports.
-   Phase PR targets remain the packet baseline's protected target, not the shaping branch or an
-   unprotected Horizon integration branch, absent an explicitly admitted protected exception.
-5. Return actual output, remaining blockers and verification. Only claim `planning-complete` if
-   its full contract is met. Name the appropriate formal readiness profile from packet intent,
-   never assume successor-admission for H000. Do not invoke it automatically.
+2. Use `/plan-work ID --complete` with exact base/execution inputs and explicit preservation
+   dispositions for bound work. Follow its format-dispatched completion contract; no status-only
+   save or packet-local proposed tracker substitutes for it.
+3. Verify required contract content, traceability, dependency closure, acyclicity and retained
+   identities using available non-mutating checks. Do not invoke admission to validate shaping.
+4. Preserve prior proposal content and exact-subject evidence. Changed proposals require new
+   review/decision evidence; do not rewrite old reports or copy approval onto a new subject.
+5. Return actual output, remaining blockers and verification. Only claim `planning-complete`
+   if its contract is met. Independent review belongs to separately invoked `/admit-plan`.
 
 Both paths leave executable tracker, claims, Phase branches, admission bundle, lifecycle state,
 product code and completed history untouched. Complete laydown is still proposed, not admitted.

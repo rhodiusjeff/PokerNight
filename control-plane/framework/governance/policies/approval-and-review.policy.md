@@ -19,8 +19,8 @@ identity and history remain immutable; retry cannot overwrite a newer claim. Thi
 publication reentry, not rewriting an integrated admission. Application verification must
 fail for open and closed-unmerged requests; successful inspection is not applied work.
 
-LOCAL MOD - HARVEST TO CPB: applies only to new-format planning captures; legacy horizon/OPS
-review, ledger, closeout and completion authority below is unchanged. Both primary callers and
+LOCAL MOD - HARVEST TO CPB: applies only to new-format planning captures; explicitly selected legacy horizon
+review, ledger, closeout and completion authority below is unchanged. OPS operations are retired. Both primary callers and
 Facilitator use the same narrow guided-admission skill, never grant themselves actor authority.
 
 Source SCRUB findings and proposal REVIEW findings have distinct stable IDs, rounds and history.
@@ -97,9 +97,9 @@ Constraints:
 - A phase may be `self`, `group:<review_unit_id>`, or `none-by-policy:<policy_or_waiver_id>` at its declared review boundary; omission is not a valid implicit default.
 - `/closeout-prompt` freezes phase evidence, but publication and final completion remain distinct governance transitions even when publication is captured during the same closeout run.
 - Omitted phase or review-unit identifiers may be inferred only when the active governance context yields a single candidate. Ambiguity requires an explicit operator choice before mutation.
-<!-- LOCAL MOD (singleton OPS campaign v0, 2026-08-09) - HARVEST TO CPB. -->
-- OPS campaign review/exit evidence is rooted at `cp-ops-work/evidence/`; it never substitutes for
-  a product horizon review ledger.
+<!-- LOCAL MOD (2026-09-30) - HARVEST TO CPB: retire the parallel OPS workflow. -->
+- Upgrade evidence belongs to the selected `/control-plane-upgrade` packet; it does not substitute
+  for product review evidence. Historical OPS evidence grants no current execution authority.
 
 ## 4. Requirements and Acceptance Criteria
 Requirements:
@@ -122,9 +122,6 @@ Acceptance criteria:
 - Review-unit ledger rows are traceable from the tracker row and the closeout record.
 - Grouped review does not remain a chat-only convenience once publication or completion depends on it.
 - A phase cannot move to `Done` when review is required but only closeout evidence exists.
-- An OPS phase moves `in-progress -> closed` when exact local evidence freezes. The campaign moves
-  `active -> exit-pending` only when every phase is terminal, and exits only after merged-review
-  evidence, explicit approval, a separate resume change, and protected-target confirmation.
 
 ## 5. Safety, Risk, or Reliability Analysis and Mitigations
 - Risk: a phase appears complete without repository-visible review.
@@ -144,9 +141,9 @@ Acceptance criteria:
 5. Resolve findings on the published review artifact or split out new governed work.
 6. After merge and explicit final approval, move the row to `Done`, or verify the explicit `none-by-policy` basis before `Done` when repository-visible review is intentionally bypassed.
 
-For OPS campaign review, `/closeout-ops-work` freezes evidence without claiming publication or
-merge. `/exit-ops-work --stage prepare` requires authoritative merged-review evidence and explicit
-approval; `--stage confirm` separately proves operational resume on the protected target.
+The former OPS campaign review/exit workflow is retired. Control-plane maintenance follows
+`/control-plane-upgrade`; implementation, review and completion retain their explicit packet
+requirements. Retirement does not automatically close old campaigns or clear lifecycle holds.
 
 ## 7. Architecture or System Boundaries
 - Closeout artifacts are the evidence surface.

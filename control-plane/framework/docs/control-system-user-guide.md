@@ -1,6 +1,20 @@
 # Control System User Guide
 
+**Command retirement (2026-09-30, LOCAL MOD - HARVEST TO CPB):** Legacy packet
+planning/admission, the two retired approval-packet stubs and packet review-unit allocation
+have been removed. Later legacy tutorials and their command examples are historical only,
+not runnable alternatives. Use `/horizon`, `/plan-work` and `/admit-plan`; do not create new
+packet-local approval/tracker authority or infer data migration. Existing records are preserved.
+Claude bindings are removed and other harness bindings are deferred. Remaining shaping,
+readiness, upgrade and portfolio dispositions await separate review.
+
 ## V0.8.1 Local Planning Entry
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): active context loads follow Canon And Work
+Context Resolution in [Tracker And State Policy](../governance/policies/tracker-and-state.policy.md).
+Use the single repository Canon and tracker/archive pair, or an explicitly selected
+legacy profile. Full context and CR/CHG IDs are helper-minted; work IDs are retained,
+and work-to-Phase allocation remains deferred. Missing files do not select legacy defaults.
 
 **Identity policy:** [Planning Identity Policy](../governance/policies/planning-identity.policy.md)
 owns new ADHOC/DISC/HNNN slug-plus-four-hex IDs and helper-minted CHG/Canon ordinals.
@@ -13,8 +27,11 @@ cp-plan-change-set-v1 for all planning origins. It stores explicit typed changes
 an exact base, source references without Base64, and no maintained result snapshot.
 Use planning-change-set.py for validation/preview and paired ad hoc/discovery saves;
 explicit complete is separate from draft save. Existing legacy draft/evidence/admission
-APIs below do not accept this format. Horizon physical laydown and live change-set
-admission/application remain pending. Neither schema validity nor a complete save starts work.
+draft APIs below do not accept this format. Evidence, admission and publication commands
+now dispatch change sets to the repository Canon/tracker/archive implementation. Horizon
+physical laydown and product start/completion remain pending. Neither schema validity nor
+a complete save starts work. The guided-admission skill documents exact evidence inputs
+and optional separately confirmed post-merge source-branch synchronization.
 
 LOCAL MOD - HARVEST TO CPB: authorized local workflow integration, not hosted admission or
 release certification. This section supersedes conflicting horizon-only planning guidance below
@@ -49,22 +66,28 @@ the [planning workflow](../../../.github/skills/planning-workflow/SKILL.md),
 
 ### Drafts And Complete Proposals
 
-Ad hoc/discovery uses two active files under `control-plane/ad-hoc/ADHOC-<id>/`:
-`ADHOC-<id>-capture.md` for readable intent and request/decision records, and
-`ADHOC-<id>-proposal.json` for the structured candidate and required session metadata.
+Ad hoc/discovery uses two active files under `control-plane/ad-hoc/<ID>/`:
+`<ID>-capture.md` for readable intent and request/decision records, and
+`<ID>-proposal.json` for the structured candidate and required session metadata.
+ID is the full issued `ADHOC-<slug>-<hex4>` or `DISC-<slug>-<hex4>`; retain legacy IDs as issued.
 Related files share the identity stem but distinguish roles. Do not mix JSON and Markdown.
 Routine source notes, requests and receipts collapse into capture; request payloads can be
 transient or supplied on stdin. No routine requests directory or metadata sidecar is needed.
 Prior paired revisions live in `assets/history/`; genuine attachments and immutable admission
 evidence may remain assets. Original bytes survive migration in a verified legacy archive.
 The pair is digest-bound: missing/mismatched members refuse, with explicit snapshot recovery.
-A new horizon resolves its own `planning/HNNN.md` with unchanged horizon asset placement. No substitute
+A new horizon resolves `control-plane/horizons/<ID>/planning/<ID>.md`, using the full
+`HNNN-<slug>-<hex4>` identity with unchanged horizon asset placement. No substitute
 ADHOC identity or fake horizon tracker is created. A single repository deferred register preserves
 origin, guardrail, reopen conditions, revisions and associations. The walkthrough explains intent,
 origin, relevance, scope, testing implications, questions and recommendation; declined records
 remain untouched. Existing destination associations are disclosed before explicit inclusion.
 
-`planning-work.py draft --section canon|work` replaces the selected ad hoc section in
+For `cp-plan-change-set-v1`, use `planning-change-set.py save` for partial drafts,
+`preview` for the derived result and explicitly confirmed `complete` for a complete
+proposal. The legacy commands in the next paragraph apply only to `cp-planning-capture-v1`.
+
+For that legacy capture format, `planning-work.py draft --section canon|work` replaces the selected ad hoc section in
 `workflow.planning.current`, preserving the other section. Each section is self-contained;
 do not make current meaning depend on reading earlier drafts. The candidate can remain
 explicitly incomplete, without invented phase/trace IDs. HNNN retains its draft-history
@@ -121,7 +144,9 @@ Read [Repository Canon And Tracker Storage Contract](../governance/policies/trac
 for completed-phase retention, cross-partition dependency/history resolution and
 coordinated writer obligations. Completion retains the recent completed active window
 and archives older completed rows without changing their content or approval status.
-This contract is agreed; repository schemas and runtime migration are not implemented.
+Repository schemas, admission/application and read-only resolution are implemented.
+Only the exact empty legacy baseline can migrate; populated migration needs explicit mapping.
+Product start/completion remain disabled for repository results. Cleanup remains deferred.
 The following operational paths describe the installed legacy runtime only.
 
 Operational readers separate versioned specification from progress/retained execution contracts.
@@ -132,8 +157,8 @@ not installed as a usable public workflow. The transactional start/bind writer i
 and tested offline; its trusted live caller and public activation remain absent. No timing,
 branch, tracker or product writes follow structural prerequisite checks.
 Legacy H000 routing, tracker admission and mapped timing remain unchanged. New capture-format
-shaping routes to shared skills, not old complete-laydown gates. Claude wrapper regeneration/parity
-is a separate integration-owner step; no new command wrapper is claimed from prompt creation alone.
+shaping routes to shared skills, not old complete-laydown gates. Only Copilot bindings are
+currently supported; other harness bindings are deferred and no wrappers are generated.
 
 > **SHAPE V1 RETIREMENT NOTICE (2026-07-19):** the five-phase instantiation flow
 > (`/instantiate-assess|dry-run|inflate|promote`, `/review-approval-packet`) and the brownfield
@@ -330,9 +355,9 @@ are not. Use this operator sequence rather than hand-authoring a workflow from m
 9. Run `/ci-audit` after enough traffic exists to measure selection accuracy, duration, flakes,
    retries, skips, queue ejections, and cost before increasing autonomy or speculation.
 
-The project CI profile catalog is currently at rollout stage `design`; its enabled
-`always-integrity` profile already specifies `git diff --check` and control-plane sanity, but no
-workflow currently executes it on PRs.
+LOCAL MOD - HARVEST TO CPB (2026-09-30): the general sanity runtime and gate have
+been removed. CI configuration must use the explicitly approved scoped checks;
+historical `always-integrity` examples do not establish an installed profile or PR workflow.
 
 ## End-to-end usage for a new project (initial inception)
 
@@ -384,7 +409,11 @@ DAG admission rule:
 2. Promotion merges draft branch with audit trail and removes bootstrap-runtime-only surfaces from active `.github/`.
 3. Only now should you use operational prompt commands such as `/prepare-next-prompt` and `/start-prompt-execution`.
 
-## Expected operator use of Lifecycle Facilitator and shaping commands
+## Retired Legacy Operator Use Of Lifecycle Facilitator And Shaping Commands
+
+The packet/tag procedures in this section apply only to explicitly legacy workflows.
+New-format contexts use the V0.8.1 entry above and the full minted identity; do not
+create a tag, split Canon registries or a packet tracker by following these legacy examples.
 
 **Legacy packet walkthrough:** this section and the later per-horizon admission examples
 describe retained legacy formats only. New-format planning uses the V0.8.1 entry at the
@@ -471,10 +500,9 @@ Context-specific examples:
 - Small delivery horizon: one prompt, no dependency edges, one-item linearized order.
 - Multi-phase delivery horizon: independently verifiable prompts with typed dependency edges and
   explicit review boundaries.
-- Portfolio-planning horizon: one or more administrative planning phases may produce an approved
-  successor portfolio and seed inputs. Minting and declaring successor packets remains a
-   Facilitator-owned lifecycle boundary, not an incidental Codegen side effect. After portfolio
-   approval, `/realize-horizon-portfolio` mints and publishes seeded successor shaping branches.
+- Historical portfolio planning produced multiple seeded successor branches. That automation,
+   its tag minters and packet creation writers are retired. Existing portfolios and receipts are
+   records only. `/horizon --create` creates one current context, not an equivalent portfolio operation.
 
 ### Readiness profiles
 
@@ -542,7 +570,7 @@ publishes the admission PR; it does not merge that PR or start a phase. After me
 `resolve-horizon.py <phase> --require-executable` proves that the protected target contains the
 same admitted bundle digest. This is how phase start enforces that admission actually merged.
 
-## Later-horizon admission workflow (H001+)
+## Legacy Later-Horizon Admission Workflow (H001+)
 
 Use **execution admission**, not the retired term inflation:
 
@@ -565,7 +593,7 @@ Use **execution admission**, not the retired term inflation:
 There is no unprotected horizon integration branch. The horizon branch is a pre-admission shaping
 workspace, not a second repository truth.
 
-## The phase execution inner loop
+## Legacy Phase Execution Inner Loop
 
 **Legacy execution walkthrough:** apply packet tracker/ledger paths below only to legacy
 resolver results. For `source: operational`, use repository specification/progress and the
@@ -660,22 +688,26 @@ a switch to `single_horizon`, or a portfolio decision that depends on every curr
 changes from an early-closing horizon must be dispatched to affected in-flight horizons rather than
 forcing unrelated horizons to stop.
 
-<!-- LOCAL MOD (semantic-authority/promotion design, 2026-07-30; Package B installed 2026-07-31)
-   - HARVEST TO CPB. -->
+<!-- LOCAL MOD (2026-09-30) - HARVEST TO CPB: retired Package A/B/C implementation. -->
 ### Operational Canon Review
 
 Use `/admit-plan ID --review-only` and the guided-admission skill for independent review of
 the exact proposal before an actual approval/waiver and normal publication. Code review
 remains distinct from semantic proposal review; neither automatically approves the other.
-The former fixture-provider command is not an operational surface. Experimental semantic
-validation and promotion runtimes remain reference/test infrastructure, not a substitute
-for this workflow or evidence of live approval. The future-design sections below are
-non-operational reference; their per-horizon promotion model does not override V0.8.1's
-repository-owned specification or the deferred queue/train-enforcement decision.
+The former fixture-provider review, semantic-authority validator and promotion preparer
+are retired, together with their exclusive tests and schema catalogs/trees. Current
+validation uses Canon records, change sets and the repository Canon/tracker/archive;
+semantic judgment remains the responsibility of an actual independent reviewer.
 
-#### Planned atomic multi-horizon promotion
+The sections below preserve the abandoned experiment as historical design context only.
+Every installed/planned/required statement in those sections describes that past design,
+not current capability, prerequisites or an implementation commitment. Retained Package
+A/B/C specifications carry the same retirement notice. Their frontier, delegation and
+promotion-inbox machinery was not migrated feature-for-feature into current admission.
 
-The installed OPS-006 contract prepares one atomic promotion proposal that includes:
+#### Retired atomic multi-horizon promotion design
+
+The former OPS-006 design described an atomic promotion proposal containing:
 
 - the materialized repo-canon postimage and provenance;
 - one append-only prepared source impact and, when required, one prepared target impact under
@@ -695,7 +727,7 @@ from current `origin/integration`; the active phase may continue outside the fro
 set. It must consume the promotion result before closeout/publication when that result supports its
 normative claim.
 
-#### Planned promotion PR and merge-queue behavior
+#### Retired promotion PR and merge-queue design
 
 The planned forge path uses one always-triggered dispatcher and stable `integration-gate` on both
 `pull_request` and `merge_group` candidates. A pure promotion selects `always-integrity` plus a
@@ -725,9 +757,9 @@ adaptation; delivery-observation evidence proves the remote runtime saw the merg
 its next prepare/start/completion/seal boundary. Notifications reduce latency, while boundary
 polling provides correctness.
 
-#### Promotion implementation sequence
+#### Retired promotion implementation sequence
 
-Promotion is being built in six independently verifiable packages:
+The abandoned design divided promotion into six packages (statuses below are historical):
 
 1. **Semantic Authority Foundation (installed Package A):** strict schemas, typed references,
    deterministic validator, and reusable two-horizon fixtures.
@@ -755,36 +787,15 @@ cross-cutting product PRs, horizon shaping, admission, semantic disposition, pha
 horizon seal, framework/runtime changes, and CI self-changes. Unknown or mixed impact broadens or
 blocks; an unimplemented administrative profile never passes as a placeholder.
 
-<!-- LOCAL MOD (singleton OPS campaign v0, 2026-08-09) - HARVEST TO CPB. -->
-### Singleton OPS campaign lifecycle
+<!-- LOCAL MOD (2026-09-30) - HARVEST TO CPB: retire the parallel OPS workflow. -->
+### Retired OPS Campaign Lifecycle
 
-Significant control-plane runtime/governance work uses the repository-root `cp-ops-work/` packet,
-not a product horizon or the retired instance OPS ledger lifecycle. The instance leaves
-`operational` and enters exclusive `ops-work`; ordinary horizon boundaries refuse until reviewed
-exit is confirmed on the protected target.
-
-The installed command sequence is:
-
-```text
-/enter-ops-work
-/start-ops-phase OPS-NNN
-/closeout-ops-phase OPS-NNN --evidence <json>
-/closeout-ops-work --evidence <json>
-/exit-ops-work --stage prepare --review <number-or-url>
-/exit-ops-work --stage confirm
-```
-
-Every command runs the deterministic runtime check-only first. Entry activates only the exact
-`ops/<slug>` campaign branch, records the observed protected baseline, and defers integration until
-campaign review; it does not lock other clones. Start grants the
-sole prompt-backed phase after predecessor,
-branch, model, digest, and non-product path checks. Phase closeout freezes committed allowlisted
-test/review/risk/harvest evidence. Campaign closeout requires every phase terminal. Exit prepare
-requires merged review plus explicit approval and creates a separate operational-resume change;
-exit confirm proves the protected target contains operational state, sealed campaign bytes, and
-the exact exit receipt.
-
-The runtime, schemas, tests, and exact command contracts live under `cp-ops-work/governance/`.
+The separate OPS planning/execution structure and all seven command prompts are retired.
+Control-plane maintenance uses `/control-plane-upgrade` and its explicitly selected upgrade
+packet. Do not create an OPS campaign, tracker, phase loop or extra branch/review lifecycle.
+Entry, implementation authorization, review and completion remain distinct under the upgrade
+contract. Existing OPS evidence remains history; retirement does not close an old campaign,
+clear a lifecycle hold or authorize product work.
 
 ### Retired per-item OPS lifecycle (historical migration reference)
 
@@ -928,7 +939,10 @@ Recovery success returns to proposal/base/result and affected review/decision re
 not admission. Local merge tests do not need a hosted merge queue. Forge publication and protected
 enforcement are separate capabilities, not implied by a clean Git merge or a passing fixture.
 
-## Horizon tag protection and allocator remote
+## Legacy Horizon Tag Protection And Allocator Remote
+
+This section documents retained tag-based allocation only. New contexts use the local
+slug/hex minting policy without new tags; these procedures do not configure their allocator.
 
 Horizon IDs are reserved by annotated Git tags in the `horizon/HNNN` namespace. The client mint
 protocol is forge-neutral, but its immutability guarantee depends on server-side tag protection.
@@ -973,7 +987,7 @@ bash control-plane/framework/scripts/horizon-mint.test.sh
 normally enter through the facilitator-bound prompt. Packet-local state is the only horizon-state
 authority; repository summaries are derived on demand.
 
-## New-horizon workflow
+## Retired Legacy New-Horizon Workflow
 
 **Legacy format only.** New-format bounded planning uses `/horizon --create` and shared
 `/plan-work` / `/admit-plan`; its operational tracker/DAG belongs to the repository.
@@ -998,7 +1012,7 @@ Admission boundary rule:
 Reset rule:
 - reset only pre-admission
 
-## Later-horizon admission workflow (H001+)
+## Legacy Later-Horizon Admission Workflow (H001+)
 
 After `/control-plane-new-horizon` creates the target-pinned shaping branch and enters inception:
 
@@ -1042,7 +1056,7 @@ Key differences from initial instantiation (H000):
 - **No bootstrap teardown**: facilitator agents and prompts persist for future lifecycle work
 - **One tracker per horizon**: planning groups remain labels inside one unified phase graph
 
-## Sidetrack workflow (operational, post-promotion)
+## Legacy Sidetrack Workflow (Operational, Post-Promotion)
 
 Sidetracks are for **intentional exploratory work** outside current admitted main-path scope.
 
@@ -1061,7 +1075,7 @@ Core sidetrack artifacts live under the source phase's resolver-selected packet:
 - `sidetracks/<sidetrack-id>-<name>/SIDETRACK_MANIFEST.md`
 - `sidetracks/<sidetrack-id>-<name>/SIDETRACK_OUTCOME.md`
 
-## Command reference (bootstrap lifecycle entry)
+## Historical Command Reference (Not An Active Command Catalogue)
 
 Run these in **Control Plane: Lifecycle Facilitator** context (struck-through commands are retired):
 - `/consolidate-inception-material`

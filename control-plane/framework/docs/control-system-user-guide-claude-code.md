@@ -1,5 +1,10 @@
 # Control System User Guide — Claude Code Harness Companion
 
+**Retired (2026-09-30).** Claude bindings and `.claude` have been removed by Operator
+direction. Other harness bindings are deferred. The procedures and conformance claims below
+are historical, not current authority. Use [current entry](../../README.md); do not recreate
+the old wrappers, hooks or agents.
+
 **Status:** Portable V0.8 harness companion. Portable-package change for upstream review: the adapters are generated from the packaged canonical prompts; no source-project permissions or runtime state are installed.
 **Authority:** Companion to `control-plane/framework/docs/control-system-user-guide.md`, which remains the governance contract. This document covers only how Claude Code hosts that contract. Harness mechanics live in `control-plane/framework/governance/harness/harness-adapters.md`; where detail exists there, this guide references rather than repeats it.
 **Scope:** Both harnesses expose the current canonical prompts. New-horizon bindings, generated wrappers, and local runtime behavior are checked by the portable package rehearsal. Interactive model execution and hosted-forge admission are not certified by those tests. Instantiation and migration routes are retired; the portable installer is greenfield-only.
@@ -33,7 +38,7 @@ Copilot enforces persona binding through its UI; Claude Code reproduces it in th
 
 1. **Prose** — wrappers refuse to execute a bound prompt without loading its charter; invocation contracts inside prompt bodies are honored as written.
 2. **Tool grants** — subagent adapters technically cannot use tools their charter doesn't map to.
-3. **(Future) hooks** — deterministic pre-tool checks could enforce writable-scope paths per persona; this is the natural home for GATE-register claims and pairs with the planned C7 surface lint.
+3. **(Future) hooks** — deterministic pre-tool checks could enforce writable-scope paths per persona; no such enforcement is installed by the observe-only hook.
 
 Session-level hats rely on layer 1 only — same trust level as Copilot. If persona identity matters for what you're about to do, ask which charter is active.
 

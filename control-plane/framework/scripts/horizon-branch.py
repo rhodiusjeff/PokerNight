@@ -111,57 +111,24 @@ def verify_reservation(root: pathlib.Path, remote: str, horizon: str, baseline_s
 
 
 def create_shape(args: argparse.Namespace) -> dict[str, str]:
-    root = repo_root()
-    horizon = validate_horizon(args.horizon)
-    if not SLUG_RE.fullmatch(args.slug):
-        fail("slug must be lowercase kebab-case")
-    adopted_status = require_clean_or_adopt(root, args.adopt_worktree)
-    baseline_sha = fetch_target(root, args.remote, args.target)
-    verify_reservation(root, args.remote, horizon, baseline_sha)
-    branch = f"horizon/{horizon}-{args.slug}"
-    ensure_branch_absent(root, args.remote, branch)
-    run_git(root, "switch", "--create", branch, baseline_sha)
-    return {
-        "horizon": horizon,
-        "branch": branch,
-        "remote": args.remote,
-        "target_branch": args.target,
-        "baseline_sha": baseline_sha,
-        "worktree_adopted": bool(adopted_status),
-        "worktree_status": adopted_status,
-    }
+    fail("Legacy planning/admission writer retired; use /horizon, /plan-work or /admit-plan. No implicit migration.")
 
 
 def create_admission(args: argparse.Namespace) -> dict[str, str]:
-    root = repo_root()
-    horizon = validate_horizon(args.horizon)
-    adopted_status = require_clean_or_adopt(root, args.adopt_worktree, allow_admission_timing=True)
-    baseline_sha = fetch_target(root, args.remote, args.target)
-    branch = f"admission/{horizon}"
-    ensure_branch_absent(root, args.remote, branch)
-    run_git(root, "switch", "--create", branch, baseline_sha)
-    return {
-        "horizon": horizon,
-        "branch": branch,
-        "remote": args.remote,
-        "target_branch": args.target,
-        "baseline_sha": baseline_sha,
-        "worktree_adopted": bool(adopted_status),
-        "worktree_status": adopted_status,
-    }
+    fail("Legacy planning/admission writer retired; use /horizon, /plan-work or /admit-plan. No implicit migration.")
 
 
 def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(description=__doc__)
     commands = root.add_subparsers(dest="command", required=True)
-    shape = commands.add_parser("shape", help="create a horizon shaping branch")
+    shape = commands.add_parser("shape", help="retired: refuses without mutation")
     shape.add_argument("horizon")
     shape.add_argument("--slug", required=True)
     shape.add_argument("--target", required=True)
     shape.add_argument("--remote", default="origin")
     shape.add_argument("--adopt-worktree", action="store_true")
     shape.set_defaults(handler=create_shape)
-    admission = commands.add_parser("admission", help="create a horizon admission branch")
+    admission = commands.add_parser("admission", help="retired: refuses without mutation")
     admission.add_argument("horizon")
     admission.add_argument("--target", required=True)
     admission.add_argument("--remote", default="origin")

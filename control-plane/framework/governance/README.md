@@ -65,8 +65,9 @@ progress in state/execution.json. Queue/train enforcement is deferred for this v
 Operational start/bind and downstream closeout/completion integration are not yet complete;
 current commands must report that gap rather than route operational work into a legacy packet.
 
-The legacy `/control-plane-new-horizon` path is retained for compatible existing packets;
-new-format bounded planning uses `/horizon`. The installed
+Legacy packet planning/admission and grouped review-unit allocation are retired; historical
+packets remain records, not writable fallbacks. Current planning uses `/horizon`, `/plan-work`
+and `/admit-plan`. The installed
 `/control-plane-upgrade` prompt selects a working packet under `control-plane/workbench/upgrades/`
 and validates the instance-state contract before mutation. Entry, separately authorized Steward
 implementation, and confirmed completion remain distinct. Archives are not new-upgrade destinations.
@@ -103,7 +104,7 @@ concurrent operators from claiming the same horizon number.
 | What are a phase's scope and acceptance conditions? | Its resolved current or retained governing contract |
 | Where is execution progress? | Repository `state/execution.json`, separate from specification revision |
 | Where is review-unit evidence? | Explicitly legacy packet ledgers only; new operational completion ownership remains pending |
-| Where is significant control-plane maintenance governed? | repository-root `cp-ops-work/` state, tracker, phase packets, and evidence |
+| Where is significant control-plane maintenance governed? | `/control-plane-upgrade` and its explicitly selected packet under `control-plane/workbench/upgrades/` |
 | Where are project requirements and stories? | Admitted operational specification; established `control-plane/canon/` authorities retain their explicit scope |
 | Where are operator working notes? | `control-plane/workbench/` |
 | Where is immutable historical evidence? | `control-plane/archive/` |
@@ -121,7 +122,6 @@ directories.
 |---|---|---|
 | [`policies/`](policies/) | Approval/review, tracker/state, branch/PR and upgrade rules | Repository specification/progress, planning contexts and explicit legacy compatibility |
 | [`timing/`](timing/) | Timing-log specification | Instance and horizon `timing/` data plus timing runtimes |
-| [`sanity/`](sanity/) | Sanity runtime and lint specifications | `state/sanity/` reports and control-plane checks |
 | [`closeout/`](closeout/) | Prompt/phase closeout procedures and templates | Phase closeout reports inside horizon packets |
 | [`review/`](review/) | Contract-verification specification | Review and verification evidence |
 | [`traceability/`](traceability/) | Code-traceability rules | `CP-TRACE` markers and trace authority |
@@ -163,16 +163,13 @@ the prior attempt and never resets completed archives. An upgrade changes the CP
 may temporarily move instance state to `upgrading`; it is not a product phase and does not belong
 in a horizon tracker.
 
-### OPS Campaigns
+### Retired OPS Campaigns
 
-The installed entry is zero-argument `/enter-ops-work`; campaign identity and action are inferred.
-When `cp-ops-work/` is absent, the first invocation creates a campaign-shaped workspace and stops for
-Steward shaping without changing instance mode. An effective
-branch-local `ops-work` state applies only to its exact `ops/<slug>` campaign branch and defers
-integration until campaign closeout. It does not claim a repository-wide lock. The campaign runs prompt-backed phases
-serially through `/start-ops-phase` and `/closeout-ops-phase`, then closes and resumes through
-`/closeout-ops-work` and `/exit-ops-work`. Authority is rooted in `cp-ops-work/`, not the retired
-instance OPS ledger.
+LOCAL MOD - HARVEST TO CPB (2026-09-30): the parallel OPS planning/execution commands are
+retired. Use `/control-plane-upgrade` and its selected packet for control-plane maintenance;
+do not create an OPS workspace, tracker, phase loop or branch exception. Existing OPS records
+remain history. An old `ops-work` lifecycle state still blocks ordinary execution and requires
+explicit recovery, not automatic clearance during this retirement.
 
 ### Legacy Compatibility
 
@@ -195,7 +192,7 @@ Rules:
 - Imperative wording does not make a claim a GATE.
 - A GATE without a named checker must be downgraded or given a checker in the same change.
 - A VERIFY claim must say when and by whom it is checked.
-- Surface lint checks whether GATE claims name checkers; it does not infer policy intent.
+- Review GATE claims for a named, installed checker; wording alone establishes no enforcement.
 
 ## Review Finding Dispositions
 

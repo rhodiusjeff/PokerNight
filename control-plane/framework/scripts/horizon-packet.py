@@ -1,33 +1,9 @@
 #!/usr/bin/env python3
-"""Declare and admit horizon packets using packet-local state.
+"""Read historical packet contracts; legacy mutation commands refuse without writes.
 
-Usage:
-  horizon-packet.py declare HNNN --slug <slug> --title <title> --owner <owner>
-      --branch horizon/HNNN-<slug> --target-branch <branch> --baseline-sha <sha>
-      [--env <environment>] [--depends-on HNNN ...]
-      [--remote <name>] [--recorded-at <ISO-8601>]
-
-  horizon-packet.py shape HNNN [--recorded-at <ISO-8601>]
-
-  horizon-packet.py prepare HNNN --tracker <proposed-tracker.json>
-      [--recorded-at <ISO-8601>]
-
-  horizon-packet.py admit HNNN --approval-evidence <packet-local-path>
-      [--tracker <same-proposed-tracker.json>] [--recorded-at <ISO-8601>]
-
-    horizon-packet.py record-decision [HNNN] --decision approve|waive --actor <name>
-            --authority <role> --scope <text> [--reason <text>] [--conditions <text>]
-            [--recorded-at <ISO-8601>]
-
-    horizon-packet.py allocate-review-unit [HNNN] --phase <CP-ID> --phase <CP-ID> ...
-
-    horizon-packet.py digest --tracker <proposed-tracker.json>
-
-Declaration requires an existing annotated reservation on the recorded shaping baseline. Shaping
-creates packet work areas. Preparation binds inception/specification, phase prompts, and proposed
-tracker into one digest. Admission runs from an admission branch based on the protected target,
-creates TRACKER.json + TRACKER_ARCHIVE.json, and records the operator grant. Mutating operations
-stage and validate a complete packet before replacing any visible packet path.
+LOCAL MOD - HARVEST TO CPB (2026-09-30): packet and portfolio writers are retired.
+Use /horizon, /plan-work and /admit-plan for current contexts. The retained digest
+operation and imported validation helpers do not grant migration or mutation authority.
 """
 import argparse
 import datetime
@@ -492,161 +468,15 @@ def transactional_replace(staged, target):
 
 
 def declare(args):
-    root = repo_root(pathlib.Path.cwd())
-    plane = cp_root(root)
-    horizons = plane / "horizons"
-    templates = plane / "framework/templates"
-    admission_templates = plane / "framework/governance/admission"
-    horizon = validate_horizon(args.horizon)
-    slug = validate_slug(args.slug)
-    matches = packet_matches(horizons, horizon)
-    if matches:
-        fail(f"horizon {horizon} already has packet(s): {', '.join(path.name for path in matches)}")
-    if not re.fullmatch(r"[0-9a-f]{40}", args.baseline_sha):
-        fail("baseline-sha must be a full lowercase Git SHA")
-    expected_branch = f"horizon/{horizon}-{slug}"
-    if args.branch != expected_branch:
-        fail(f"declaration branch must be {expected_branch!r}")
-    active_branch = run_git(root, "branch", "--show-current").stdout.strip()
-    if active_branch != expected_branch:
-        fail(f"active branch is {active_branch!r}; expected shaping branch {expected_branch!r}")
-    head_sha = run_git(root, "rev-parse", "HEAD").stdout.strip()
-    if head_sha != args.baseline_sha:
-        fail("shaping branch HEAD does not match baseline-sha")
-    recorded_at = validate_recorded_at(args.recorded_at or iso_now())
-    verify_remote(root, args.remote)
-    verify_annotated_reservation(root, args.remote, horizon)
-    reservation_sha = run_git(root, "rev-parse", f"refs/tags/horizon/{horizon}^{{}}").stdout.strip()
-    if reservation_sha != args.baseline_sha:
-        fail("horizon reservation does not point to the declared baseline-sha")
-    dependencies = validate_dependencies(root, args.remote, horizon, args.depends_on)
-    target = horizons / f"{horizon}-{slug}"
-    if target.exists():
-        fail(f"target packet already exists: {target}")
-    staged = horizons / f".{target.name}.staging-{uuid.uuid4().hex}"
-    try:
-        (staged / "approvals").mkdir(parents=True)
-        (staged / "timing").mkdir()
-        state = {
-            "schema": "cpb-horizon-state-v2",
-            "horizon": horizon,
-            "slug": slug,
-            "title": args.title,
-            "owner": args.owner,
-            "branch": args.branch,
-            "baseline": {
-                "remote": args.remote,
-                "target_branch": args.target_branch,
-                "commit_sha": args.baseline_sha,
-            },
-            "env": args.environment,
-            "dependencies": dependencies,
-            "admission": {
-                "status": "declared",
-                "recorded_at": recorded_at,
-                "evidence": f"annotated reservation horizon/{horizon} on remote {args.remote}",
-                "bundle_digest": None,
-            },
-            "closure": {"sealed_at": None, "evidence": None, "commit_sha": None},
-        }
-        validate_state(state, target.name)
-        write_json(staged / "HORIZON_STATE.json", state)
-        (staged / "HORIZON_MANIFEST.md").write_text(render_manifest(horizon, slug, args.title))
-        (staged / "HORIZON_INCEPTION.md").write_text(
-            render_inception(horizon, args.title, templates / "horizon-inception.template.md")
-        )
-        (staged / "timing/README.md").write_text(render_timing(horizon))
-        shutil.copy2(
-            admission_templates / "admission-approval.template.md",
-            staged / "approvals/admission-approval.template.md",
-        )
-        shutil.copy2(
-            admission_templates / "admission-waiver.template.md",
-            staged / "approvals/admission-waiver.template.md",
-        )
-        if (staged / "TRACKER.json").exists() or (staged / "TRACKER_ARCHIVE.json").exists():
-            fail("declared packet must not contain tracker authority")
-        atomic_publish(staged, target)
-    finally:
-        if staged.exists():
-            shutil.rmtree(staged)
-    print(target.relative_to(root))
+    fail("Legacy packet/portfolio creation retired; use /horizon for a single current planning context. No implicit migration.")
 
 
 def shape(args):
-    root = repo_root(pathlib.Path.cwd())
-    plane = cp_root(root)
-    target = packet_for_horizon(plane / "horizons", validate_horizon(args.horizon))
-    state = load_json(target / "HORIZON_STATE.json")
-    validate_state(state, target.name)
-    if state["admission"]["status"] != "declared":
-        fail(f"horizon {args.horizon} cannot begin shaping from {state['admission']['status']!r}")
-    require_active_branch(root, state["branch"])
-    staged = target.parent / f".{target.name}.shape-{uuid.uuid4().hex}"
-    try:
-        shutil.copytree(target, staged)
-        for directory in ("specification", "coordination", "phases/prompts", "phases/trace", "admission"):
-            (staged / directory).mkdir(parents=True, exist_ok=True)
-        (staged / "specification/README.md").write_text(render_specification_readme(args.horizon))
-        (staged / "coordination/README.md").write_text(render_coordination_readme(args.horizon))
-        (staged / "phases/prompts/README.md").write_text(render_phase_prompts_readme(args.horizon))
-        state["admission"] = {
-            "status": "inception",
-            "recorded_at": validate_recorded_at(args.recorded_at or iso_now()),
-            "evidence": "HORIZON_INCEPTION.md",
-            "bundle_digest": None,
-        }
-        write_json(staged / "HORIZON_STATE.json", state)
-        transactional_replace(staged, target)
-    finally:
-        if staged.exists():
-            shutil.rmtree(staged)
-    print(target.relative_to(root))
+    fail("Legacy packet/portfolio creation retired; use /plan-work with a current planning context. No implicit migration.")
 
 
 def prepare(args):
-    root = repo_root(pathlib.Path.cwd())
-    plane = cp_root(root)
-    target = packet_for_horizon(plane / "horizons", validate_horizon(args.horizon))
-    state = load_json(target / "HORIZON_STATE.json")
-    validate_state(state, target.name)
-    if state["admission"]["status"] != "inception":
-        fail(f"horizon {args.horizon} cannot prepare admission from {state['admission']['status']!r}")
-    require_active_branch(root, state["branch"])
-    readiness_path = target / "approvals/HORIZON_READINESS_REVIEW.md"
-    if not readiness_path.is_file():
-        fail("HORIZON_READINESS_REVIEW.md is required before admission preparation")
-    validate_readiness_for_preparation(readiness_path, args.horizon)
-    tracker_source = pathlib.Path(args.tracker)
-    if not tracker_source.is_absolute():
-        tracker_source = (root / tracker_source).resolve()
-    tracker = load_json(tracker_source)
-    if tracker.get("schema") != "cpb-horizon-tracker-v3" or tracker.get("horizon") != args.horizon:
-        fail("proposed tracker schema/horizon does not match packet")
-    validate_global_phase_ownership(plane / "horizons", args.horizon, tracker)
-    archive = load_json(plane / "framework/templates/horizon-tracker-archive.template.json")
-    archive["horizon"] = args.horizon
-    validate_tracker_pair(plane, target, tracker, archive)
-    staged = target.parent / f".{target.name}.prepare-{uuid.uuid4().hex}"
-    prepared_at = validate_recorded_at(args.recorded_at or iso_now())
-    try:
-        shutil.copytree(target, staged)
-        (staged / "admission").mkdir(exist_ok=True)
-        write_json(staged / "admission/PROPOSED_TRACKER.json", tracker)
-        manifest = build_bundle_manifest(staged, state, tracker, prepared_at)
-        write_json(staged / "admission/ADMISSION_BUNDLE.json", manifest)
-        state["admission"] = {
-            "status": "inception",
-            "recorded_at": prepared_at,
-            "evidence": "admission/ADMISSION_BUNDLE.json",
-            "bundle_digest": manifest["bundle_digest"],
-        }
-        write_json(staged / "HORIZON_STATE.json", state)
-        transactional_replace(staged, target)
-    finally:
-        if staged.exists():
-            shutil.rmtree(staged)
-    print(json.dumps({"packet": str(target.relative_to(root)), "bundle_digest": manifest["bundle_digest"]}, indent=2))
+    fail("Legacy planning/admission writer retired; use /horizon, /plan-work or /admit-plan. No implicit migration.")
 
 
 def load_tracker_validator(plane):
@@ -699,233 +529,15 @@ def empty_review_ledger(plane, horizon, title, recorded_at, tracker):
 
 
 def admit(args):
-    root = repo_root(pathlib.Path.cwd())
-    plane = cp_root(root)
-    horizons = plane / "horizons"
-    horizon = validate_horizon(args.horizon)
-    recorded_at = validate_recorded_at(args.recorded_at or iso_now())
-    matches = packet_matches(horizons, horizon)
-    if len(matches) != 1:
-        fail(f"expected exactly one packet for {horizon}, found {len(matches)}")
-    target = matches[0]
-    state = load_json(target / "HORIZON_STATE.json")
-    validate_state(state, target.name)
-    if state["admission"]["status"] != "inception":
-        fail(f"horizon {horizon} cannot be admitted from status {state['admission']['status']!r}")
-    require_active_branch(root, f"admission/{horizon}")
-    manifest_path = target / "admission/ADMISSION_BUNDLE.json"
-    if state["admission"].get("evidence") != "admission/ADMISSION_BUNDLE.json" or not manifest_path.is_file():
-        fail("prepared admission bundle is required")
-    manifest = load_json(manifest_path)
-    tracker = verify_bundle_manifest(target, manifest)
-    validate_global_phase_ownership(horizons, horizon, tracker)
-    if state["admission"].get("bundle_digest") != manifest["bundle_digest"]:
-        fail("horizon state and admission bundle digest do not agree")
-    approval = pathlib.Path(args.approval_evidence)
-    if not approval.is_absolute():
-        approval = (root / approval).resolve()
-    approvals_root = (target / "approvals").resolve()
-    try:
-        approval.relative_to(approvals_root)
-    except ValueError:
-        fail("approval evidence must live inside the packet approvals directory")
-    finalized_names = {"HORIZON_ADMISSION_APPROVAL.md", "HORIZON_ADMISSION_WAIVER.md"}
-    finalized = sorted(path for path in approvals_root.iterdir() if path.name in finalized_names)
-    if len(finalized) != 1:
-        fail("exactly one finalized HORIZON_ADMISSION_APPROVAL.md or HORIZON_ADMISSION_WAIVER.md is required")
-    if approval.resolve() != finalized[0].resolve():
-        fail("approval-evidence must name the packet's single finalized approval or waiver")
-    if not approval.is_file():
-        fail("approval evidence must be a finalized packet-local file")
-    approval_relative_to_repo = approval.relative_to(root)
-    if run_git(root, "ls-files", "--error-unmatch", str(approval_relative_to_repo), check=False).returncode:
-        fail("approval evidence must be tracked by Git before admission")
-    remote = state["baseline"]["remote"]
-    target_branch = state["baseline"]["target_branch"]
-    run_git(root, "fetch", "--quiet", "--no-tags", remote, f"refs/heads/{target_branch}:refs/remotes/{remote}/{target_branch}")
-    target_ref = f"refs/remotes/{remote}/{target_branch}"
-    if run_git(root, "rev-parse", "HEAD").stdout.strip() != run_git(root, "rev-parse", target_ref).stdout.strip():
-        fail("admission branch must start at the current protected target tip")
-    bundle_relative = manifest_path.relative_to(root)
-    visible = run_git(root, "show", f"{target_ref}:{bundle_relative}", check=False)
-    if visible.returncode or hashlib.sha256(visible.stdout.encode()).hexdigest() != file_digest(manifest_path):
-        fail("prepared admission bundle is not visible unchanged on the protected target")
-    approval_visible = run_git(root, "show", f"{target_ref}:{approval_relative_to_repo}", check=False)
-    if approval_visible.returncode or hashlib.sha256(approval_visible.stdout.encode()).hexdigest() != file_digest(approval):
-        fail("finalized admission approval is not visible unchanged on the protected target")
-    if (target / "TRACKER.json").exists() or (target / "TRACKER_ARCHIVE.json").exists():
-        fail("packet already contains tracker authority")
-    if run_git(root, "status", "--porcelain", "--untracked-files=all").stdout.strip() and not only_active_admission_timing(root):
-        fail("working tree must be clean before admission")
-    approval_text = approval.read_text()
-    if len(approval_text.strip()) < 20:
-        fail("approval evidence is not substantive")
-    if manifest["bundle_digest"] not in approval_text:
-        fail(f"approval evidence must contain admission bundle SHA-256 {manifest['bundle_digest']}")
-    if args.tracker:
-        tracker_source = pathlib.Path(args.tracker)
-        if not tracker_source.is_absolute():
-            tracker_source = (root / tracker_source).resolve()
-        if tracker_digest(load_json(tracker_source)) != tracker_digest(tracker):
-            fail("explicit tracker does not match prepared admission bundle")
-    archive = load_json(plane / "framework/templates/horizon-tracker-archive.template.json")
-    archive["horizon"] = horizon
-    archive["title"] = f"{state['title']} Tracker Archive"
-    archive["change_log"] = [
-        {"date": recorded_at[:10], "entry": "Archive initialized at horizon admission."}
-    ]
-    staged = horizons / f".{target.name}.admit-{uuid.uuid4().hex}"
-    try:
-        shutil.copytree(target, staged)
-        staged_approval = staged / "approvals" / approval.name
-        relative_approval = approval.relative_to(target.resolve())
-        if not staged_approval.exists():
-            shutil.copy2(approval, staged_approval)
-        write_json(staged / "TRACKER.json", tracker)
-        write_json(staged / "TRACKER_ARCHIVE.json", archive)
-        (staged / "ledgers").mkdir(exist_ok=True)
-        write_json(
-            staged / "ledgers/REVIEW_UNIT_LEDGER.json",
-            empty_review_ledger(plane, horizon, state["title"], recorded_at, tracker),
-        )
-        sidetrack_template = plane / "framework/templates/sidetrack-tracker.template.md"
-        (staged / "ledgers/SIDETRACK_TRACKER.md").write_text(
-            sidetrack_template.read_text().replace("<HNNN>", horizon)
-        )
-        for directory in (
-            "phases/prompts", "phases/planning", "phases/closeout", "sidetracks"
-        ):
-            (staged / directory).mkdir(parents=True, exist_ok=True)
-        state["admission"] = {
-            "status": "admitted",
-            "recorded_at": recorded_at,
-            "evidence": str(relative_approval),
-            "bundle_digest": state["admission"].get("bundle_digest"),
-        }
-        validate_state(state, staged.name.split(".admit-", 1)[0].lstrip("."))
-        write_json(staged / "HORIZON_STATE.json", state)
-        validate_tracker_pair(plane, staged, tracker, archive)
-        for placeholder in (
-            staged / "approvals/admission-approval.template.md",
-            staged / "approvals/admission-waiver.template.md",
-        ):
-            if placeholder.exists():
-                placeholder.unlink()
-        transactional_replace(staged, target)
-    finally:
-        if staged.exists():
-            shutil.rmtree(staged)
-    print(target.relative_to(root))
+    fail("Legacy planning/admission writer retired; use /horizon, /plan-work or /admit-plan. No implicit migration.")
 
 
 def record_decision(args):
-    root = repo_root(pathlib.Path.cwd())
-    plane = cp_root(root)
-    target = resolve_inception_packet(root, plane, args.horizon)
-    state = load_json(target / "HORIZON_STATE.json")
-    validate_state(state, target.name)
-    require_active_branch(root, state["branch"])
-    manifest_path = target / "admission/ADMISSION_BUNDLE.json"
-    if state["admission"].get("evidence") != "admission/ADMISSION_BUNDLE.json" or not manifest_path.is_file():
-        fail("prepare the admission bundle before recording approval or waiver")
-    manifest = load_json(manifest_path)
-    verify_bundle_manifest(target, manifest)
-    if state["admission"].get("bundle_digest") != manifest.get("bundle_digest"):
-        fail("horizon state and admission bundle digest do not agree")
-    finalized = [
-        target / "approvals/HORIZON_ADMISSION_APPROVAL.md",
-        target / "approvals/HORIZON_ADMISSION_WAIVER.md",
-    ]
-    existing = [path for path in finalized if path.exists()]
-    if existing:
-        fail(f"finalized admission decision already exists: {existing[0].relative_to(root)}")
-    recorded_at = validate_recorded_at(args.recorded_at or iso_now())
-    if args.decision == "waive" and not args.reason:
-        fail("waiver requires --reason")
-    output = finalized[0] if args.decision == "approve" else finalized[1]
-    heading = "Horizon Admission Approval" if args.decision == "approve" else "Horizon Admission Waiver"
-    decision_word = "Approved" if args.decision == "approve" else "Waived"
-    reason = args.reason or "Not applicable; ordinary approval path used."
-    conditions = args.conditions or "None."
-    text = f"""# {heading}
-
-**Decision:** {decision_word}
-**Actor:** {args.actor}
-**Authority:** {args.authority}
-**Recorded at:** {recorded_at}
-**Horizon packet:** {target.name}
-**Horizon packet location:** `{target.relative_to(root)}`
-**Admission bundle SHA-256:** {manifest['bundle_digest']}
-**Scope of decision:** {args.scope}
-
-## Reviewed Evidence
-
-- `admission/ADMISSION_BUNDLE.json`
-- `approvals/HORIZON_READINESS_REVIEW.md`
-- Proposed tracker/DAG and complete phase prompts bound by the bundle digest
-
-## Conditions
-
-{conditions}
-
-## Waiver Rationale
-
-{reason}
-
-## Attestation
-
-This record captures the named actor's explicit decision for the exact admission bundle digest.
-Any bundled-file change invalidates this decision and requires a new readiness review and decision.
-"""
-    output.write_text(text)
-    print(output.relative_to(root))
+    fail("Legacy planning/admission writer retired; use /horizon, /plan-work or /admit-plan. No implicit migration.")
 
 
 def allocate_review_unit(args):
-    root = repo_root(pathlib.Path.cwd())
-    plane = cp_root(root)
-    target = resolve_inception_packet(root, plane, args.horizon)
-    state = load_json(target / "HORIZON_STATE.json")
-    validate_state(state, target.name)
-    require_active_branch(root, state["branch"])
-    tracker_path = target / "admission/PROPOSED_TRACKER.json"
-    if not tracker_path.is_file():
-        fail("execution laydown must create admission/PROPOSED_TRACKER.json before group allocation")
-    tracker = load_json(tracker_path)
-    phase_ids = list(dict.fromkeys(args.phase))
-    if len(phase_ids) < 2:
-        fail("a grouped review unit requires at least two distinct --phase values")
-    nodes = {node.get("id"): node for node in tracker.get("nodes", [])}
-    missing = [phase_id for phase_id in phase_ids if phase_id not in nodes]
-    if missing:
-        fail(f"phases not found in proposed tracker: {missing}")
-    for phase_id in phase_ids:
-        current = nodes[phase_id].get("review_unit", "")
-        if current and not current.startswith("self:") and current != "self":
-            fail(f"phase {phase_id} already uses review unit {current!r}")
-    pattern = re.compile(rf"^group:RU-{state['horizon']}-(\d{{3}})$")
-    used = []
-    for node in tracker.get("nodes", []):
-        match = pattern.fullmatch(str(node.get("review_unit", "")))
-        if match:
-            used.append(int(match.group(1)))
-    next_value = max(used, default=0) + 1
-    if next_value > 999:
-        fail(f"review-unit namespace RU-{state['horizon']}-001..999 is exhausted")
-    review_unit_id = f"RU-{state['horizon']}-{next_value:03d}"
-    for phase_id in phase_ids:
-        nodes[phase_id]["review_unit"] = f"group:{review_unit_id}"
-    tracker.setdefault("change_log", []).append(
-        {
-            "date": iso_now()[:10],
-            "change": f"Reserved grouped review unit {review_unit_id} for {', '.join(phase_ids)}",
-            "authority": args.authority,
-        }
-    )
-    temporary = tracker_path.with_suffix(".json.tmp")
-    write_json(temporary, tracker)
-    temporary.replace(tracker_path)
-    print(review_unit_id)
+    fail("Legacy planning/admission writer retired; use /horizon, /plan-work or /admit-plan. No implicit migration.")
 
 
 def digest(args):
@@ -938,7 +550,7 @@ def digest(args):
 def parser():
     root = argparse.ArgumentParser(description=__doc__)
     commands = root.add_subparsers(dest="command", required=True)
-    declaration = commands.add_parser("declare", help="create a declared packet from a mint")
+    declaration = commands.add_parser("declare", help="retired: refuses without mutation")
     declaration.add_argument("horizon")
     declaration.add_argument("--slug", required=True)
     declaration.add_argument("--title", required=True)
@@ -951,22 +563,22 @@ def parser():
     declaration.add_argument("--remote", default="origin")
     declaration.add_argument("--recorded-at")
     declaration.set_defaults(handler=declare)
-    shaping = commands.add_parser("shape", help="begin horizon shaping and create packet work areas")
+    shaping = commands.add_parser("shape", help="retired: refuses without mutation")
     shaping.add_argument("horizon")
     shaping.add_argument("--recorded-at")
     shaping.set_defaults(handler=shape)
-    preparation = commands.add_parser("prepare", help="prepare and digest a complete horizon admission bundle")
+    preparation = commands.add_parser("prepare", help="retired: refuses without mutation")
     preparation.add_argument("horizon")
     preparation.add_argument("--tracker", required=True)
     preparation.add_argument("--recorded-at")
     preparation.set_defaults(handler=prepare)
-    admission = commands.add_parser("admit", help="create tracker authority and record admission")
+    admission = commands.add_parser("admit", help="retired: refuses without mutation")
     admission.add_argument("horizon")
     admission.add_argument("--tracker")
     admission.add_argument("--approval-evidence", required=True)
     admission.add_argument("--recorded-at")
     admission.set_defaults(handler=admit)
-    decision = commands.add_parser("record-decision", help="record a bundle-bound admission approval or waiver")
+    decision = commands.add_parser("record-decision", help="retired: refuses without mutation")
     decision.add_argument("horizon", nargs="?")
     decision.add_argument("--decision", choices=("approve", "waive"), required=True)
     decision.add_argument("--actor", required=True)
@@ -976,7 +588,7 @@ def parser():
     decision.add_argument("--conditions")
     decision.add_argument("--recorded-at")
     decision.set_defaults(handler=record_decision)
-    review_unit = commands.add_parser("allocate-review-unit", help="reserve a packet-scoped grouped review unit")
+    review_unit = commands.add_parser("allocate-review-unit", help="retired: refuses without mutation")
     review_unit.add_argument("horizon", nargs="?")
     review_unit.add_argument("--phase", action="append", required=True)
     review_unit.add_argument("--authority", default="Project: Planning and Design")

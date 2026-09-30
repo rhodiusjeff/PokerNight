@@ -48,14 +48,106 @@ they do not own additional new-format operational trackers or Canon copies.
 
 ### Implementation Boundary
 
-These are agreed destinations and obligations, not a claim that the repository writer
-is installed. The current legacy operational runtime still reads/writes
-`control-plane/operational/SPECIFICATION.json` and `control-plane/state/execution.json`.
-New change-set admission/application, the repository tracker/archive schemas, retained
-contract/evidence placement and coordinated storage migration remain pending. Do not
-redirect runtime constants, create empty authority files or copy live data merely to
-make this contract appear implemented. Legacy horizon tracker/archive schemas and OPS
-campaign authority remain unchanged; no horizon schema is silently assigned to this pair.
+LOCAL MOD - HARVEST TO CPB: repository admission is implemented by planning-repository.py,
+planning-change-evidence.py and the format-dispatched existing evidence/admission/publication
+commands. [Repository state schema](repository-state.schema.json) owns the tracker pair;
+Canon retains canon-records.schema.json. Legacy horizon and OPS schemas are unchanged.
+
+The first admission may replace only the exact committed empty legacy specification and
+empty execution state. The candidate removes both legacy authority files and creates all
+three repository files in the same commit. Populated legacy state refuses pending an
+explicit typed migration; partial new layouts and competing legacy files refuse. No live
+migration occurs merely by loading a policy, validating a draft or preparing a bundle.
+
+Canon retains every admitted revision. The greatest revision for each ID determines
+applicability: admitted governs, retired does not. Add/modify materializes the proposed
+record as admitted without changing its content or ID/revision; the immutable reviewed
+proposal preserves its proposed representation. Obsolete creates the next revision with
+retired authority and unchanged meaning, leaving all prior bytes intact. Relationships
+are the current selected graph with exact endpoints; prior graph subjects remain in
+admission bundles. Old admitted revisions remain retrievable, not independently current.
+
+Tracker nodes contain typed work, status, applicability, prior work revisions, retained
+binding and evidence references. The archive has the same node form, restricted to done
+rows. Both partitions participate in identity/reference/dependency validation. Admission
+never rolls rows. Started/completed work cannot be amended in place; use a new phase.
+Complete changes against bound work require an execution_impact entry for every bound
+work ID/revision with disposition preserve-bound-contract and substantive rationale.
+Admission preserves those nodes, bindings and existing archive edges byte-equivalent.
+
+The tracker's revision counts admissions, not progress. Its admissions list binds the
+proposal, decision and exact baseline; Canon has no competing mutable revision index.
+`planning-change-set.py baseline --target-ref refs/heads/BRANCH` returns exact commit and
+file hashes (including explicit absent-file values during empty-legacy migration). The
+composed baseline is an in-memory view, not another operational authority file.
+
+New-format review evidence lives under the selected context's assets/admission/evidence/
+as immutable hash-identified event directories, with separate JSON and Markdown. Review
+input includes the exact typed proposal, baseline and result template; previous findings
+are supplied separately. Evidence does not mutate the reviewed capture/proposal pair.
+Active publication freezes proposal/evidence writers until verified application or exact
+closure/retirement. Confirmation strings record actual authority; they do not authenticate it.
+
+Prepared bundles remain in assets/admission/<bundle-id>/. Publication retains their
+contents under control-plane/evidence/admissions/<proposal-digest>/ together with the
+attempt header. Bundles carry base, proposal, reviews, decision, events, review input,
+capture pair, computed result and exact source/report files. New source references in
+admitted Canon point to retained bytes there; existing catalogue entries retain their
+paths. No Base64 or second editable result is added to the proposal.
+
+The normal origin-selected controller builds one isolated commit, including exact
+operational additions/replacements/deletions and evidence. Merge remains separately
+confirmed. Verification checks the first target integration of that candidate against
+its exact tree, then checks retained evidence/admission history at the observed current
+target. Later target advancement is disclosed, not confused with a failed original merge.
+Known target movement refuses before merge; checks do not constitute a distributed lock.
+Git queues/trains and complete concurrent-writer exclusion remain deferred.
+
+Post-admission source synchronization uses the separately confirmed sync-offer/sync
+commands. Dirty/staged/untracked source work refuses; no automatic stash or push occurs.
+Rebase requires explicit history-rewrite acknowledgement and a linear owned branch;
+merge is the alternative for shared history. Owned continue/abort binds the current
+resolution digest. Failure affects source synchronization, not the merged admission.
+These commands do not authorize arbitrary conflict resolutions or product edits.
+
+Repository phase resolution is read-only and includes archived prerequisites. Product
+start/completion consumers remain disabled for source: repository, just as the legacy
+operational start boundary remains disabled. C8 completion requirements above remain
+the contract for that later writer. Cleanup, generated views, Dolt and horizon physical
+laydown are deferred; candidate clones and journals are retained.
+
+## Canon And Work Context Resolution
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): shared reader and identity routing for active
+agents, prompts, reviews and handoffs. This does not rewrite historical contracts or
+authorize a new execution/Phase allocator.
+
+1. Select the proposal format or resolver source before interpreting paths or IDs.
+  For cp-plan-change-set-v1/source: repository, use the one Canon file and repository
+  tracker/archive pair above. Read exact current/bound revisions, definitions and
+  archived prerequisites, not just active rows.
+2. Missing repository files do not select legacy registries automatically. The baseline
+  helper can establish the exact empty legacy specification/execution pair for initial
+  admission; otherwise report missing or unsupported context. Source: operational
+  explicitly selects the older combined specification/execution contract. Explicit
+  legacy horizon results select their declared registry/profile and packet tracker pair.
+3. Legacy split requirement/story registries, acceptance matrices and context documents
+  are compatibility inputs only when the selected profile declares them. They are not
+  additional new-format Canon stores. Load optional architecture/test context only
+  when supplied; never instantiate old files to satisfy a generic context-load list.
+4. Follow [Planning Identity Policy](planning-identity.policy.md): full minted context IDs
+  are ADHOC/DISC/HNNN plus slug and four hex digits; new Canon IDs are helper-minted
+  CR-<context-id>-<ordinal>. Kind and revision are separate fields. A complete CHG
+  reference includes its proposal identity. Admission preserves IDs; filenames and
+  graph position do not allocate identities. Preserve historical IDs and explicit aliases.
+5. Tracker nodes preserve work ID/revision across admission and archival. A tracker
+  filename is not a minted work ID. Work-candidate-to-Phase allocation remains deferred;
+  do not remint existing work as CP-NNN, derive IDs from Canon ordinals or invent a work
+  namespace. CP/ST/RU identifiers keep only their selected legacy/OPS contracts.
+6. Commands that only understand packet-local trackers or legacy trace/register schemas
+  must state that boundary and refuse unsupported new-format mutation. Do not treat
+  a legacy validator's refusal as missing new-format product requirements. Record real
+  adapter gaps rather than manufacturing legacy files or identifiers.
 
 ## Shared Canon Model
 
@@ -72,9 +164,9 @@ horizon and discovery planning. The proposing agent selects needed records and r
 selection_rationale; no pack is required to instantiate every kind. Definition is a
 first-class kind. Source references use exact retrievable paths/digests, not embedded
 Base64. The read-only validator grants no lifecycle or admission authority.
-The old complete-result kernel and current proposal envelopes remain pending integration;
-their three-kind/source-payload limitations must not silently constrain or flatten the new
-Canon model. This policy does not migrate existing records or change horizon laydown.
+The old complete-result kernel remains a separate compatibility format. Its three-kind
+limitations do not constrain the new-format admission path. No implicit data migration
+or horizon laydown change follows from context loading.
 
 ## Artifact Formats And Ad Hoc Storage
 
@@ -90,8 +182,9 @@ clarification; harvest with the shared planning skill and plan-work prompt.
   Markdown documents in JSON text fields. Native customization YAML frontmatter is not JSON.
 - Related files share an identity stem and have distinct role suffixes, not just different
   extensions. Each owns its role; generated views are not competing editable authority.
-- An ad hoc/discovery session uses `control-plane/ad-hoc/ADHOC-<id>/` with exactly two
-  current working files: `ADHOC-<id>-capture.md` and `ADHOC-<id>-proposal.json`.
+- An ad hoc/discovery session uses `control-plane/ad-hoc/<ID>/` with exactly two
+  current working files: `<ID>-capture.md` and `<ID>-proposal.json`. ID is the complete
+  issued `ADHOC-<slug>-<hex4>` or `DISC-<slug>-<hex4>`; retained legacy IDs keep their names.
   The JSON carries required session/provenance metadata and the structured candidate;
   the Markdown carries readable intent, clarifications, rationale and request/decision records.
 - Keep one evolving self-contained candidate, with current Canon and work sections.
@@ -144,7 +237,8 @@ This narrow exception does not alter legacy trackers, instance state or executio
 
 LOCAL MOD - HARVEST TO CPB: Operator-authorized V0.8.1 integration. This section overrides
 conflicting legacy horizon-only planning/placement requirements below only for resolved
-`cp-planning-capture-v1` ADHOC/discovery/HNNN documents. Legacy H000 and OPS authority is unchanged.
+`cp-planning-capture-v1` ADHOC/discovery/HNNN documents. Historical records remain unchanged;
+the retired OPS workflow grants no new planning or execution authority.
 
 Codegen, Planning and Design, and Lifecycle Facilitator share narrow writer grants through
 `.github/skills/planning-workflow/SKILL.md` and `.github/skills/guided-admission/SKILL.md`.
@@ -158,8 +252,8 @@ No arbitrary callbacks/scripts from request files. Helpers own the maintained ca
 immutable preimages, local bindings/recovery and attempt outputs; do not hand-edit them.
 
 `/horizon` explicitly owns create/activate/leave/suspend/abandon/absorb and create --from escalation
-through planning-context. Creation includes a disclosed remote tag reservation, not planning-branch
-publication. Source retirement across branches remains `local-only/incomplete`; portable completion
+through planning-context. New creation uses the confirmed local slug/hex allocation and full ID,
+without new Git tags or remote reservations. Source retirement across branches remains `local-only/incomplete`; portable completion
 is false. `/plan-work` owns separately selected capture, deferred selection, scrub, drafting and
 complete proposal operations. `/admit-plan` guides independent review, actual approval/waiver and
 one real publication attempt with separately confirmed integration/reentry/withdrawal. None
@@ -203,14 +297,13 @@ Out of scope:
 - Product implementation details.
 
 ## 2. Context and References
-Core context pack:
+Core context pack (select format through Canon And Work Context Resolution above):
 - `control-plane/state/CONTROL_PLANE_STATE.json` when present
-- `control-plane/canon/INCEPTION_REQUIREMENTS_CANONICAL.json`, `control-plane/canon/INCEPTION_USER_STORIES_CANONICAL.json`, and `control-plane/canon/USER_STORY_REGISTRY_CANONICAL.json` (canonical requirements/story authority; legacy combined packet retired)
+- For new-format work: `control-plane/canon/CANON.json` and `control-plane/tracker/TRACKER.json` / `control-plane/tracker/TRACKER_ARCHIVE.json`, plus the selected proposal and exact bound contracts when applicable
+- For explicitly legacy work: only registry/context artifacts declared by its selected profile
 - `control-plane/framework/governance/codegen-handoff.spec.md`
-- `control-plane/canon/context/PROJECT_ARCHITECTURE_OVERVIEW.md`
-- `control-plane/canon/context/ACCEPTANCE_TEST_MATRIX.json`
-- `control-plane/canon/context/CONTEXT_HANDOFF.md`
-- The resolver-selected horizon packet's `TRACKER.json`
+- Supplied architecture, acceptance and handoff context; historical locations are not mandatory new-format files
+- The resolver-selected tracker/archive and contract references; packet paths only for explicit legacy results
 
 Phase references:
 - Active phase prompt under `codegen`
@@ -249,8 +342,9 @@ Constraints:
 - Documentation cleanup, formatting, or alignment work must treat tracker state fields as read-only unless tracker mutation is the explicit task.
 - Every active phase prompt declares an `Execution model` field. Operational prompts must compare the active phase prompt's declared execution model against the current harness model before any branch, tracker, or implementation mutation. If the model is mismatched or cannot be verified with confidence, the prompt must stop before mutating state. If the phase explicitly declares `Operator-selected`, the operator's chosen harness model is acceptable until a specific model is declared.
 - If `control-plane/state/CONTROL_PLANE_STATE.json` records any state other than `operational`, normal
-  horizon implementation does not begin. `ops-work` permits only the exact singleton campaign and
-  sole started OPS phase; suspended/upgrading retain their narrower recovery/upgrade meanings.
+  horizon implementation does not begin. Historical `ops-work` remains a refusal state, not
+  permission to run the retired OPS workflow. Explicit recovery must resolve it without silently
+  clearing history; suspended/upgrading retain their narrower recovery/upgrade meanings.
 
 ## 4. Requirements and Acceptance Criteria
 Required session behavior:
@@ -353,13 +447,13 @@ under this contract, but must not infer a slash-command invocation, formal revie
 Select the smallest useful slice and report what was and was not examined. A new iteration is
 not a mandatory whole-packet restart or a demand for another conversation.
 
-Scrub and consolidation are separate responsibilities. `/scrub-inception-material` assesses
+Scrub and consolidation are separate responsibilities. `/plan-work ID --scrub` assesses
 sources, applying corrections only with explicit scoped authority. It preserves original captures
 and frozen evidence; contested intent returns to the Operator. Consolidation consumes sources and
 scrub dispositions without silently correcting them. It can flag a new source defect but does
 not automatically invoke scrub. Neither procedure is a mandatory prerequisite to the other.
-The old combined `--archive-and-scrub` profile is source-only under the scrub command; prior
-combined-round artifacts remain historical. It no longer emits proposed Canon or readiness.
+The old combined `--archive-and-scrub` profile is retired; prior combined-round artifacts
+remain historical. Use the selected current context and its explicit scrub/apply boundary.
 
 ### Admission Conflict Recovery
 

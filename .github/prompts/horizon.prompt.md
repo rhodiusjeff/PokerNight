@@ -16,7 +16,7 @@ Choose exactly one action flag. IDs/paths/refs must be supplied or explicitly co
 
 Read-only discovery: `python3 control-plane/framework/scripts/planning-context.py --root ROOT list`,
 `discover`, and `inspect --id ID`. Discovery uses last-fetched refs, not proof of remote freshness.
-For existing legacy H000 lifecycle use the legacy named prompts; never reset/migrate it here.
+Legacy packet planning commands are retired; never reset or migrate a historical packet here.
 
 | Action | Actual helper operation after confirmation |
 | --- | --- |

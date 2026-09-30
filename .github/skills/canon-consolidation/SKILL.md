@@ -20,22 +20,23 @@ and its schema before selecting records. All eleven kinds, including Definition,
 available; none is mandatory merely to populate a template. Choose the kind and explain
 why the record is needed in selection_rationale; reuse existing meaning where appropriate.
 Validate forms, exact references and typed endpoints with validate-canon-records.py.
-Its success is not semantic approval. The current proposal/admission kernel integration
-is pending: preserve gaps explicitly rather than flattening the new model into old text.
+Its success is not semantic approval. New-format admission preserves this model through
+the separately invoked guided-admission workflow; preserve unresolved gaps rather than
+flattening meaning into the older kernel. Consolidation never invokes admission implicitly.
 
 ## New File-Backed Context
 
 For a resolved `cp-planning-capture-v1` ADHOC or HNNN document, use
 [planning workflow](../planning-workflow/SKILL.md), especially its Canon draft/complete procedure.
-This branch overrides the horizon-only owner, resolver, output and complete-laydown assumptions
-below, not legacy authority. Codegen, Planning or Facilitator uses its explicit narrow grant.
+Codegen, Planning or Facilitator uses its explicit narrow grant.
 Preserve the semantic reconciliation, inventory, provenance and rework checks below in draft text.
 Write only through `planning-work.py draft --section canon` or an explicitly complete proposal;
 never direct operational Canon. Source scrub remains separate. Rich definitions/clauses follow
 the shared typed model; distinguish its eleven planning kinds from the old three-kind
 kernel limitation. Label integration gaps, never invent additional uncatalogued kinds.
 No tracker, phase files, formal review or approval is required for partial candidates.
-If no new-format document exists in an actual legacy packet, follow the unchanged procedure below.
+Legacy packet consolidation writes are retired. Missing current context requires selection or
+explicit capture, not a legacy fallback or automatic migration.
 
 ## Contract
 
@@ -59,16 +60,14 @@ When visual artifacts are included in the selected input subject, consult
 [diagram-checkpoint](../diagram-checkpoint/SKILL.md) and its policy before relying on current
 remote content. Preserve historical checkpoint identity; do not infer permission to edit the scene.
 
-1. Resolve the named shaping Horizon using `resolve-shaping-horizon.py`. Before writing, inventory
+1. Resolve the selected document through the shared planning resolver. Before writing, inventory
    the selected source slice, existing proposal/docket, relevant admitted Canon, and any prior
    scrub dispositions. Record included/excluded paths and exact revisions/digests. A scrub is
    useful input, not a mandatory gate. Do not treat an unexamined source slice as covered.
-2. Reuse `specification/consolidation/working-proposal/PROPOSED_CANON_CHANGE_SET.md` and
-   its companion `OPERATOR_AMBIGUITY_DOCKET.md` when present. For older packets, reuse the existing
-   `specification/consolidation/exploratory/` location rather than creating a second proposal.
-   When the legacy path is an alias, use the real working-proposal directory and inventory it once.
-   Directory naming does not select a separate mode. Retain local candidate keys across passes;
-   do not mint admitted Canon IDs.
+2. Reuse the selected context's one current proposal and capture for unresolved questions.
+   Use only its format-dispatched writer; preserve identities and original sources across passes.
+   Use the identity helper for new candidate records, never invent admitted Canon IDs or create
+   a second proposal. Historical packet proposals are reference material, not writable fallbacks.
 3. For each affected candidate, choose and explain add, revise, merge, split, supersede, withdraw,
    retain, or unresolved. Record kind, scope, proposed meaning, acceptance direction where relevant,
    typed relationships, provenance, limitations, and status. An amendment names the existing Canon

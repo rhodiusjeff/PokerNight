@@ -103,17 +103,22 @@ Phase-session lifecycle events:
 - `session-transcript-reconciled` — appended by `timing-harvest.sh` (source `harvest`), never by the live runtime; carries `session_marker`, `copilot_session_id`, `method`, and `disposition` in metadata
 
 Slash-command and governance-operation invocation events:
+LOCAL MOD - HARVEST TO CPB (2026-09-30): event names for removed planning/admission,
+approval-packet stub and review-unit allocation commands are retained below only to interpret
+historical logs. Their presence is not an active command registration or invocation grant.
+No new sessions may be opened to execute those retired commands. Shared timing APIs remain active.
+
 - `/horizon-invoked` — V0.8.1 planning lifecycle, `LC-HORIZON`; not operational admission.
 - `/plan-work-invoked` — V0.8.1 bounded planning mutation, `IN-PLAN`.
 - `/admit-plan-invoked` — V0.8.1 local/mock admission workflow, `LC-HORIZON`; outcome metadata distinguishes mock transport.
 - `/phase-specification-invoked`
 - `/prepare-next-prompt-invoked`
 - `/start-prompt-execution-invoked`
-- `/enter-ops-work-invoked`
-- `/start-ops-phase-invoked`
-- `/closeout-ops-phase-invoked`
-- `/closeout-ops-work-invoked`
-- `/exit-ops-work-invoked`
+- `/enter-ops-work-invoked` (historical only; OPS commands retired)
+- `/start-ops-phase-invoked` (historical only; OPS commands retired)
+- `/closeout-ops-phase-invoked` (historical only; OPS commands retired)
+- `/closeout-ops-work-invoked` (historical only; OPS commands retired)
+- `/exit-ops-work-invoked` (historical only; OPS commands retired)
 - `/review-code-invoked`
 - `/publish-review-unit-invoked`
 - `/closeout-prompt-invoked`
@@ -128,14 +133,14 @@ Slash-command and governance-operation invocation events:
 - `/ci-configure-invoked`
 - `/ci-verify-forge-invoked`
 - `/ci-audit-invoked`
-- `/shape-horizon-execution-invoked`
+- `/shape-horizon-execution-invoked` (historical event only; command retired)
 - `/review-horizon-readiness-invoked`
 - `/assess-horizon-proposal-invoked`
 - `/prepare-horizon-admission-invoked`
 - `/admit-horizon-invoked`
 - `/record-horizon-admission-decision-invoked`
-- `/allocate-review-unit-invoked`
-- `/realize-horizon-portfolio-invoked`
+- `/allocate-review-unit-invoked` (historical event only; command retired)
+- `/realize-horizon-portfolio-invoked` (historical event only; command retired)
 
 Bootstrap-side lifecycle-entry invocation events:
 <!-- LOCAL MOD 2026-09-17 - HARVEST TO CPB: source scrub uses IN-SCRUB;
@@ -169,11 +174,11 @@ Corresponding completion events:
 - `/phase-specification-complete`
 - `/prepare-next-prompt-complete`
 - `/start-prompt-execution-complete`
-- `/enter-ops-work-complete`
-- `/start-ops-phase-complete`
-- `/closeout-ops-phase-complete`
-- `/closeout-ops-work-complete`
-- `/exit-ops-work-complete`
+- `/enter-ops-work-complete` (historical only; OPS commands retired)
+- `/start-ops-phase-complete` (historical only; OPS commands retired)
+- `/closeout-ops-work-complete` (historical only; OPS commands retired)
+- `/closeout-ops-phase-complete` (historical only; OPS commands retired)
+- `/exit-ops-work-complete` (historical only; OPS commands retired)
 - `/review-code-complete`
 - `/publish-review-unit-complete`
 - `/closeout-prompt-complete`
@@ -195,7 +200,7 @@ Corresponding completion events:
 - `/admit-horizon-complete`
 - `/record-horizon-admission-decision-complete`
 - `/allocate-review-unit-complete`
-- `/realize-horizon-portfolio-complete`
+- `/realize-horizon-portfolio-complete` (historical event only; command retired)
 - `/consolidate-inception-material-complete`
 - `/scrub-inception-material-complete`
 - `/refine-requirements-and-constraints-complete`
