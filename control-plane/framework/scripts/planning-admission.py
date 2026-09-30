@@ -24,6 +24,7 @@ EXECUTION_PATH = "control-plane/state/execution.json"
 
 
 def eligible(document):
+    contract.require(document.get("schema") != "cp-plan-change-set-v1", "change-set admission integration is pending; this format grants no legacy admission authority")
     contract.require(document.get("workflow", {}).get("planning", {}).get("status") != "draft",
                      "draft candidate is incomplete; explicitly complete the proposal before admission")
     context = document.get("context", {})

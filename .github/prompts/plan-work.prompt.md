@@ -11,12 +11,31 @@ this prompt intentionally has no single `agent` binding. Other callers must obta
 authority, not assume it. No product, operational Canon, tracker, or execution writes.
 
 Load [planning workflow](../skills/planning-workflow/SKILL.md) and follow its actual APIs.
+Canon selection in every mode uses the
+[Canon Schema Policy](../../control-plane/framework/governance/policies/canon-records.policy.md):
+eleven available kinds, only needed records, explicit selection rationale, exact sources
+and revision-pinned typed links. New Canon payload validation does not imply the legacy
+complete-proposal kernel supports it; preserve the integration boundary until migrated.
 Help is read-only and explains modes, request shapes, confirmation and legacy limits. Without
 a mode, discuss the selected intent and recommend a bounded next action before writes.
 Select one mode per operation; resolve ambiguity with the Operator. A capture command is not
 proposal permission; `--complete` is not review/approval/admission permission.
 
-- `--capture ad-hoc|discovery`: collect exact originals, title and author; use capture new-id
+For `cp-plan-change-set-v1`, use the
+[change-set policy](../../control-plane/framework/governance/policies/plan-change-set.policy.md):
+typed changes, same-base preconditions, full replacement records and derived-only previews.
+Route draft edits to planning-change-set.py save and explicit completion to complete;
+do not run the legacy draft/compose/propose APIs on a change-set document. The shared
+schema applies to all planning origins; horizon physical laydown and live change-set
+admission remain explicit pending integrations, not permission to create parallel authority.
+
+Follow [identity policy](../../control-plane/framework/governance/policies/planning-identity.policy.md).
+The helper mints slug/hex contexts and ordinal CHG/Canon IDs; never invent suffixes or IDs.
+Use `planning-identity.py records` against the exact proposal digest to reserve additional
+ordinals, apply its returned mappings to the save request and preserve allocation metadata.
+An explicitly authorized legacy draft rekey uses `planning-change-set.py rekey`, not manual renames.
+
+- `--capture ad-hoc|discovery`: collect exact originals, title, author, confirmed slug and operation token; use capture new-id
   then capture, with verified origin phase/specification for discovery. Use
   `control-plane/ad-hoc/ID/ID-capture.md` and `ID-proposal.json`. Keep JSON and Markdown
   separate; fold routine requests/confirmations into capture, not `assets/requests/`.
@@ -43,6 +62,13 @@ to separately invoked [/admit-plan](admit-plan.prompt.md).
 Verify the returned document digest, selected scope, preserved originals and actual helper result.
 Report partial versus complete proposed output, changed files, exact revisions, findings/questions,
 checks and gaps. Supporting confirmation and immutable capture history do not replace mapped timing.
+
+Apply the shared skill's reference classification: link current proposals, retained sources and
+required durable evidence, not obsolete generated drafts. Prefer stdin where supported; preserve
+actual commands but label temporary input paths as non-durable execution evidence. Reference
+obsolete drafts through retained archives, not deleted-file links. Classify live dependencies,
+archived evidence and transient inputs before repair; do not restore obsolete drafts solely to
+satisfy historical command paths. Existing recovery authority and source-pin checks still apply.
 
 ## Timing-log required actions
 

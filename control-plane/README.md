@@ -6,6 +6,13 @@ another project's requirements, state, architecture, or history.
 
 ## Start Here
 
+For `cp-plan-change-set-v1`, follow the
+[Planning Change-Set Policy](framework/governance/policies/plan-change-set.policy.md).
+The new schema uses one explicit changes list and referenced sources without embedded
+Base64. Its validate/preview/save/complete commands are separate from the legacy full-result
+helpers below; live admission/application for change sets remains pending. The existing
+tic-tac-toe context has been rebuilt in this format and remains a draft.
+
 LOCAL MOD - HARVEST TO CPB: Operator-authorized V0.8.1 local workflow integration.
 File-backed planning and real origin-selected gh/glab publication are available. Integration
 requires actual repository preflight; new operational start remains an incomplete compatibility
@@ -18,9 +25,11 @@ boundary. Installation and fixture tests are not release approval.
 3. Capture original intent first: `/plan-work --capture ad-hoc`, or `--capture discovery` with
    a verified originating phase/specification. No horizon or executable work is needed.
 4. For a new horizon explicitly invoke `/horizon --create`. Supply source files, title, slug,
-   author and intended remote/target. Confirm the disclosed annotated-tag reservation and
+   author and intended remote/target. Confirm the disclosed local slug/hex allocation and
    branch creation. `/horizon --help` describes activation, leave, suspension, abandonment,
    absorption and `--create --from` escalation; transfers remain local-only/incomplete.
+   Use the full ID returned under [Planning Identity Policy](framework/governance/policies/planning-identity.policy.md).
+   Minting creates no new Git tags; legacy reservations remain historical facts.
 5. Use `/plan-work ID --include` for a descriptive deferred-item selection walkthrough.
    Only explicitly selected IDs are included; declined items and original source bytes survive.
 6. Use `/plan-work ID --canon` or `--work` for partial drafts. Source-quality `--scrub` and
@@ -56,6 +65,14 @@ Legacy execution gates remain intact; no fixture authority or mock evidence gran
 
 ## Ownership
 
+LOCAL MOD - HARVEST TO CPB (2026-09-29): the agreed admitted layout is one
+`control-plane/canon/CANON.json` and the repository pair
+`control-plane/tracker/TRACKER.json` / `control-plane/tracker/TRACKER_ARCHIVE.json`.
+The [storage contract](framework/governance/policies/tracker-and-state.policy.md#repository-canon-and-tracker-storage-contract)
+defines completed-phase retention and reader/writer obligations. Runtime migration is
+pending; the existing operational specification/execution files below describe installed
+legacy behavior, not a second authority to retain alongside the new layout.
+
 Follow [Artifact Formats And Ad Hoc Storage](framework/governance/policies/tracker-and-state.policy.md#artifact-formats-and-ad-hoc-storage):
 separate Markdown and JSON, use related stems with distinct role suffixes, and keep one
 current ad hoc capture/proposal pair. Requests and confirmations belong in capture;
@@ -65,7 +82,8 @@ superseded revisions belong in history. Horizon laydown redesign remains deferre
 |---|---|
 | `framework/` | Reusable policies, templates, scripts, and framework documentation |
 | `canon/` | Project-owned requirements and standards, established through governed work |
-| `horizons/` | Project-owned planning packets, then admitted trackers and phase artifacts |
+| `tracker/` | Agreed repository active tracker and completed-phase archive; runtime migration pending |
+| `horizons/` | Project-owned planning packets; packet-local admitted trackers and phase artifacts only for legacy workflows |
 | `ad-hoc/` | One `ADHOC-<id>/` folder with `ADHOC-<id>-capture.md`, `ADHOC-<id>-proposal.json`, and historical/genuine assets |
 | `deferred/` | One repository-level deferred register with explicit selected inclusions |
 | `operational/` | New versioned specification and retained admission bundles, not execution progress |

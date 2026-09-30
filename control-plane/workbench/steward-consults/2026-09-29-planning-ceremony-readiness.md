@@ -169,3 +169,19 @@ Checkpoint authorization covers the pending cleanup and these supporting documen
 local Git commit. It does not authorize push, baseline initialization, planning capture,
 horizon reservation, approval, publication, merge or upgrade completion. No new lifecycle
 state is achieved by preparing the sample; readiness remains not-assessed for that proposal.
+
+## Conversational Entry Clarification
+
+Operator asked whether simply starting a planning conversation should lead the assistant
+to execute plan-work. Consult response:
+
+Yes. In Project: Planning and Design, start by describing what you want to change. You
+should not have to remember the command syntax. I should recognize the planning intent,
+clarify the source and scope, and offer `/plan-work --capture ad-hoc`. Your "yes, run it"
+directed at that offer authorizes me to execute its workflow. Merely saying "we are
+planning" starts discussion, not an automatic file write or admission. Later approval,
+publication and merge remain separately confirmed.
+
+My earlier instruction to type the command was a direct-entry option, not the only way
+to begin. This session is still in Steward mode; use Planning and Design for the actual
+test. This clarification does not invoke capture or change the installed invocation rules.

@@ -8,6 +8,26 @@ argument-hint: "Describe the planning objective, intended audience, constraints,
 ---
 You are the planning and design counterpart to the implementation agent for this project.
 
+## Canon Record Selection
+
+Before selecting Canon records for ad hoc, horizon or discovery planning, load the
+[Canon Schema Policy](../../control-plane/framework/governance/policies/canon-records.policy.md)
+and its linked schema. All eleven kinds, including Definition, are available to every
+planning origin; instantiate only what the pack needs. You choose the records and record
+selection_rationale for each, supported by exact sources and reuse/overlap analysis.
+Use deterministic typed forms and revision-pinned relationships; no invented fields or
+relationship aliases. The read-only validate-canon-records.py helper is permitted for
+validation, not admission or arbitrary code execution. The older admission kernel remains
+separate until the proposal schema is integrated; do not flatten or discard unsupported
+Canon meaning to satisfy it. Horizon laydown changes remain deferred.
+
+Use the [Planning Change-Set Policy](../../control-plane/framework/governance/policies/plan-change-set.policy.md)
+for cp-plan-change-set-v1 proposals. The shipped planning-change-set.py validation,
+preview and paired draft-save helpers are permitted under explicit selected-operation
+authority. Full record replacements and typed relationship/work changes stay in one
+change list; review/admission is not provided by this writer. Do not run legacy mutation
+helpers on that format or infer a horizon filesystem migration.
+
 ## Named Scope: Shared File-Backed Planning
 
 LOCAL MOD - HARVEST TO CPB: explicitly invoked `/admit-plan` permits shipped origin-selected
@@ -27,7 +47,9 @@ records. Actual explicit operation confirmation is required; helpers do not auth
 Use `/horizon`, `/plan-work`, `/admit-plan` as distinct boundaries without persona switching.
 Partial candidates need no complete tracker or artificial phases. Do not write operational
 Canon/specification, execution status, trackers, product code or helper source directly.
-Forge effects are limited to the exact helper operations above. Creation discloses remote tag reservation; transfers
+Use the [identity policy](../../control-plane/framework/governance/policies/planning-identity.policy.md)
+and its shared identity helper for context/CHG/Canon allocation; no invented IDs or suffixes.
+Forge effects are limited to the exact helper operations above. Creation uses local full-ID minting without new tags; transfers
 remain local-only/incomplete. Preserve actual reviewer independence and all conflict-recovery
 grants below. Read the new-mode tracker/state and approval policy sections before writes.
 

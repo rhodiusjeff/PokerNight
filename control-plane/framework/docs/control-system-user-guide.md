@@ -2,6 +2,20 @@
 
 ## V0.8.1 Local Planning Entry
 
+**Identity policy:** [Planning Identity Policy](../governance/policies/planning-identity.policy.md)
+owns new ADHOC/DISC/HNNN slug-plus-four-hex IDs and helper-minted CHG/Canon ordinals.
+New horizon identity is the whole value, not bare HNNN. No new tag reservation is needed.
+Legacy HNNN/tag procedures below are compatibility surfaces, not the new minting path.
+
+**Change-set format routing:** The
+[Planning Change-Set Policy](../governance/policies/plan-change-set.policy.md) defines
+cp-plan-change-set-v1 for all planning origins. It stores explicit typed changes against
+an exact base, source references without Base64, and no maintained result snapshot.
+Use planning-change-set.py for validation/preview and paired ad hoc/discovery saves;
+explicit complete is separate from draft save. Existing legacy draft/evidence/admission
+APIs below do not accept this format. Horizon physical laydown and live change-set
+admission/application remain pending. Neither schema validity nor a complete save starts work.
+
 LOCAL MOD - HARVEST TO CPB: authorized local workflow integration, not hosted admission or
 release certification. This section supersedes conflicting horizon-only planning guidance below
 for new `cp-planning-capture-v1` documents. Existing H000/legacy workflows retain their authority.
@@ -14,7 +28,7 @@ execution or forge-administration writes.
 
 | Command | Purpose and boundary |
 | --- | --- |
-| `/horizon --create` | Create a new planning context with disclosed remote tag reservation; not admission |
+| `/horizon --create` | Create a locally minted full-ID planning context without new tags; not admission |
 | `/horizon --activate ID` / `--leave ID` | Explicit worktree/branch-scoped binding or unbinding |
 | `/horizon --suspend ID` / `--abandon ID` | Distinct confirmed lifecycle outcomes; no inferred retirement |
 | `/horizon --absorb SOURCE --into HNNN` | Confirm exact local transfer; cross-branch publication incomplete |
@@ -99,6 +113,16 @@ Offline diagram retention verifies bytes only; the diagram-checkpoint skill owns
 native/render consistency and currentness checks. No remote scene operations are invented.
 
 ### Execution And Legacy Compatibility
+
+LOCAL MOD - HARVEST TO CPB (2026-09-29): the agreed new-format storage contract is
+one `control-plane/canon/CANON.json` and a repository
+`control-plane/tracker/TRACKER.json` / `control-plane/tracker/TRACKER_ARCHIVE.json` pair.
+Read [Repository Canon And Tracker Storage Contract](../governance/policies/tracker-and-state.policy.md#repository-canon-and-tracker-storage-contract)
+for completed-phase retention, cross-partition dependency/history resolution and
+coordinated writer obligations. Completion retains the recent completed active window
+and archives older completed rows without changing their content or approval status.
+This contract is agreed; repository schemas and runtime migration are not implemented.
+The following operational paths describe the installed legacy runtime only.
 
 Operational readers separate versioned specification from progress/retained execution contracts.
 Resolver `source: operational` returns null horizon/tracker/ledger fields and an explicit selected

@@ -101,7 +101,9 @@ def branch_document(remote, commit, identity):
     contract.require(len(matches) == 1, "missing or ambiguous source/destination document on recorded branch")
     relative = matches[0]
     raw = tree_files(remote, commit, relative)[relative]
-    return relative, raw, capture.decode_capture(raw, identity)
+    document = capture.decode_capture(raw, identity)
+    contract.require(document.get("schema") != "cp-plan-change-set-v1", "change-set transfer integration is pending; legacy transfer cannot reinterpret this format")
+    return relative, raw, document
 
 
 def source_inventory(remote, commit, identity):
@@ -137,7 +139,7 @@ def subject_checks(request, source, destination):
         context.admission_clear(document)
         state = document.get("context", {})
         contract.require(state.get("branch") == request[role + "_branch"] or
-                 (role == "source" and document["id"].startswith("ADHOC-") and not state.get("branch")),
+                 (role == "source" and capture.IDENTITY.fullmatch(document["id"]) and not state.get("branch")),
                  "explicit branch must match recorded " + role + " branch")
         contract.require(state.get("target", request["target_branch"]) == request["target_branch"], "recorded integration target differs")
         contract.require(not state.get("transfer") and not state.get("transfers"),
@@ -237,7 +239,7 @@ def transfer_documents(request, remote):
                      context.digest_bytes(original_destination) == offered["destination_digest"], "transfer preimages differ from branch tips")
     contract.require(offered["branch"] == offered["destination_branch"] == request["destination_branch"] and
                      (offered["source_branch"] == request["source_branch"] or
-                      (offered["source"].startswith("ADHOC-") and offered["source_branch"] is None)), "transfer branch provenance differs")
+                      (capture.IDENTITY.fullmatch(offered["source"]) and offered["source_branch"] is None)), "transfer branch provenance differs")
     prefix = str(pathlib.PurePosixPath(destination_path).parent / "assets" / offered["destination"] / "transfers" / operation)
     source_context = source_document.setdefault("context", {})
     source_context.update({"state": "absorbed" if offered["mode"] == "absorb" else "escalated", "transfer": {

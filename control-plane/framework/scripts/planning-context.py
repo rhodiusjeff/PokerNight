@@ -60,14 +60,14 @@ def document_digest(root, identity):
 def inspect_context(root, identity):
     filename = capture.resolve_document(root, identity)
     document = capture.read_capture(filename)
-    return {"id": identity, "path": str(filename), "document_digest": digest_bytes(filename.read_bytes()),
+    return {"id": document["id"], "path": str(filename), "document_digest": digest_bytes(filename.read_bytes()),
             "context": document.get("context", {"state": "planning"}),
             "freshness": "local-only; unpublished changes in other clones are unknown"}
 
 
 def list_contexts(root):
     root = pathlib.Path(root).resolve()
-    documents = list(capture.capture_root(root).glob("ADHOC-*/*-proposal.json"))
+    documents = list(capture.capture_root(root).glob("*/*-proposal.json"))
     contract.require(all(filename.parent.name == capture.document_identity(filename) for filename in documents), "capture identity/path mismatch")
     horizons = capture.safe_path(root, root / "control-plane/horizons")
     documents.extend(horizons.glob("H*/planning/H*.md"))
@@ -96,8 +96,10 @@ def discover(root):
             identity = capture.document_identity(pathlib.PurePosixPath(relative))
             if not capture.CONTEXT_ID.fullmatch(identity):
                 continue
-            if not (re.fullmatch(r"control-plane/horizons/H[0-8][0-9]{2}(?:-[a-z0-9-]+)?/planning/H[0-8][0-9]{2}\.md", relative)
-                    or relative == f"control-plane/ad-hoc/{identity}/{identity}-proposal.json"):
+            legacy_path = re.fullmatch(r"control-plane/horizons/H[0-8][0-9]{2}(?:-[a-z0-9-]+)?/planning/H[0-8][0-9]{2}\.md", relative)
+            horizon_path = relative == f"control-plane/horizons/{identity}/planning/{identity}.md"
+            adhoc_path = relative == f"control-plane/ad-hoc/{identity}/{identity}-proposal.json"
+            if not (legacy_path or horizon_path or adhoc_path):
                 continue
             contract.require(metadata.split()[0] in (b"100644", b"100755"), "published context must be a regular file")
             content = git(root, "cat-file", "blob", metadata.split()[2].decode()).stdout
@@ -105,7 +107,8 @@ def discover(root):
             if capture.IDENTITY.fullmatch(identity):
                 companion = str(capture.narrative_path(pathlib.PurePosixPath(relative)))
                 narrative = git(root, "show", commit + ":" + companion).stdout
-                contract.require(digest_bytes(narrative) == document["capture_sha256"], "published capture/proposal pair mismatch")
+                expected = document["capture"]["sha256"] if document.get("schema") == "cp-plan-change-set-v1" else document["capture_sha256"]
+                contract.require(digest_bytes(narrative) == expected, "published capture/proposal pair mismatch")
             context = document.get("context", {})
             result.append({"id": identity, "reference": reference, "commit": commit, "path": relative,
                            "document_digest": digest_bytes(content), "context": context,
@@ -328,9 +331,9 @@ def transition(root, identity, action, expected_digest, reason, confirmed):
 
 
 def create_context(root, operation_id, slug, title, author, sources, remote, target, confirmed):
-    contract.require(confirmed, "creation requires explicit confirmation including tag reservation")
+    contract.require(confirmed, "creation requires explicit confirmation including local identity allocation")
     contract.require(bool(OPERATION.fullmatch(operation_id)), "invalid creation operation identity")
-    contract.require(bool(re.fullmatch(r"[a-z0-9][a-z0-9-]*", slug)), "invalid horizon slug")
+    contract.require(bool(re.fullmatch(capture.identity_policy.SLUG, slug)) and len(slug) <= 48, "invalid horizon slug")
     contract.require(remote and not remote.startswith("-") and target and not target.startswith("-"), "explicit remote and target required")
     git(root, "check-ref-format", "--branch", target)
     contract.require(sources, "creation requires explicit captured source inputs")
@@ -346,20 +349,14 @@ def create_context(root, operation_id, slug, title, author, sources, remote, tar
             target_commit = git(root, "rev-parse", "--verify", f"refs/remotes/{remote}/{target}^{{commit}}").stdout.decode().strip()
             journal = {"request": request, "state": "prepared", "from_branch": branch(root), "base_commit": target_commit,
                        "branch_commit": git(root, "rev-parse", "HEAD").stdout.decode().strip(),
-                       "dirty_inventory": work_inventory(root), "created_at": now(),
-                       "tags_before": git(root, "ls-remote", "--tags", "--refs", remote, "refs/tags/horizon/H???").stdout.decode()}
+                       "dirty_inventory": work_inventory(root), "created_at": now()}
             write_json(root, filename, journal)
         if journal["state"] == "minting":
             raise contract.ContractError("interrupted tag reservation; inspect allocator tags and recover the recorded operation explicitly, never mint again blindly")
         if "id" not in journal:
-            journal["state"] = "minting"
-            write_json(root, filename, journal)
-            result = subprocess.run(["bash", str(pathlib.Path(__file__).with_name("horizon-mint.sh")), "mint",
-                                     "--remote", remote, "--target-ref", journal["base_commit"]], cwd=root, capture_output=True, text=True)
-            contract.require(result.returncode == 0, "tag reservation incomplete; inspect operation journal: " + result.stderr)
-            identity = result.stdout.strip()
-            contract.require(bool(re.fullmatch(r"H[0-8][0-9]{2}", identity)), "allocator returned invalid identity")
-            journal.update({"id": identity, "state": "reserved", "branch": f"planning/{identity}-{slug}"})
+            allocation = capture.identity_policy.mint(root, "horizon", slug, operation_id, author, confirmed=True, locked=True)
+            identity = allocation["id"]
+            journal.update({"id": identity, "state": "reserved", "branch": f"planning/{identity}", "allocation": allocation})
             write_json(root, filename, journal)
         identity = journal["id"]
         planning_branch = journal["branch"]
@@ -368,7 +365,8 @@ def create_context(root, operation_id, slug, title, author, sources, remote, tar
             contract.require(git(root, "rev-parse", "HEAD").stdout.decode().strip() == journal["branch_commit"], "creation HEAD changed")
             contract.require(work_inventory(root) == journal["dirty_inventory"], "creation dirty inventory changed; preserve and reconcile")
             git(root, "switch", "-c", planning_branch)
-        home = capture.safe_path(root, pathlib.Path(root).resolve() / "control-plane/horizons" / f"{identity}-{slug}" / "planning")
+        packet_name = f"{identity}-{slug}" if capture.identity_policy.parse(identity)["legacy"] else identity
+        home = capture.safe_path(root, pathlib.Path(root).resolve() / "control-plane/horizons" / packet_name / "planning")
         destination = capture.safe_path(root, home / f"{identity}.md")
         document = {"schema": "cp-planning-capture-v1", "id": identity, "kind": "horizon", "title": title,
                     "author": author, "created_at": journal["created_at"], "sources": retained, "origin": None,
@@ -387,7 +385,8 @@ def create_context(root, operation_id, slug, title, author, sources, remote, tar
         journal["state"] = "created"
         write_json(root, filename, journal)
         return {"id": identity, "branch": planning_branch, "state": "planning", "document_digest": document_digest(root, identity),
-                "dirty_inventory": journal["dirty_inventory"], "local_only": True, "tag_reserved": True}
+                "dirty_inventory": journal["dirty_inventory"], "local_only": True,
+                "tag_reserved": capture.identity_policy.parse(identity)["legacy"]}
 
 
 def recover_reservation(root, operation_id, identity, expected_digest, confirmed):

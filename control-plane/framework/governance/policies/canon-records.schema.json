@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:control-plane:canon-records:v1",
+  "title": "Canon Records And Relationships",
+  "$comment": "LOCAL MOD - HARVEST TO CPB: Operator-directed shared Canon model. Ad hoc, horizon and discovery share record forms, not packet layouts or admission authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "sources", "records", "relationships"],
+  "properties": {
+    "schema": {"const": "cp-canon-records-v1"},
+    "sources": {"type": "array", "items": {"$ref": "#/$defs/source"}},
+    "records": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+    "relationships": {"type": "array", "items": {"$ref": "#/$defs/relationship"}, "uniqueItems": true}
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._:-]*$"},
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "texts": {"type": "array", "items": {"$ref": "#/$defs/text"}, "uniqueItems": true},
+    "source_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "kind": {"enum": ["outcome", "functional_requirement", "constraint", "story", "acceptance_scenario", "risk", "assumption", "open_question", "decision", "scope_disposition", "definition"]},
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "path", "sha256"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*[\\\\:#])[A-Za-z0-9._ /-]+$"},
+        "sha256": {"$ref": "#/$defs/hash"},
+        "git_commit": {"type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"},
+        "locator": {"$ref": "#/$defs/text"}
+      }
+    },
+    "record_ref": {
+      "type": "object", "additionalProperties": false, "required": ["id", "revision"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "revision": {"type": "integer", "minimum": 1}}
+    },
+    "record": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "revision", "kind", "title", "scope", "authority_status", "sources", "selection_rationale", "content"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "revision": {"type": "integer", "minimum": 1},
+        "kind": {"$ref": "#/$defs/kind"},
+        "title": {"$ref": "#/$defs/text"},
+        "scope": {"const": "repository"},
+        "authority_status": {"enum": ["proposed", "admitted", "deferred", "rejected", "superseded", "retired"]},
+        "sources": {"$ref": "#/$defs/source_ids"},
+        "selection_rationale": {"$ref": "#/$defs/text"},
+        "content": {"type": "object"}
+      },
+      "allOf": [
+        {"if": {"properties": {"kind": {"const": "outcome"}}}, "then": {"properties": {"content": {"$ref": "#/$defs/outcome"}}}},
+        {"if": {"properties": {"kind": {"const": "functional_requirement"}}}, "then": {"properties": {"content": {"$ref": "#/$defs/functional_requirement"}}}},
+        {"if": {"properties": {"kind": {"const": "constraint"}}}, "then": {"properties": {"content": {"$ref": "#/$defs/constraint"}}}},
+        {"if": {"properties": {"kind": {"const": "story"}}}, "then": {"properties": {"content": {"$ref": "#/$defs/story"}}}},
+        {"if": {"properties": {"kind": {"const": "acceptance_scenario"}}}, "then": {"properties": {"content": {"$ref": "#/$defs/acceptance_scenario"}}}},
+        {"if": {"properties": {"kind": {"const": "risk"}}}, "then": {"properties": {"content": {"$ref": "#/$defs/risk"}}}},
+        {"if": {"properties": {"kind": {"const": "assumption"}}}, "then": {"properties": {"content": {"$ref": "#/$defs/assumption"}}}},
+        {"if": {"properties": {"kind": {"const": "open_question"}}}, "then": {"properties": {"content": {"$ref": "#/$defs/open_question"}}}},
+        {"if": {"properties": {"kind": {"const": "decision"}}}, "then": {"properties": {"content": {"$ref": "#/$defs/decision"}}}},
+        {"if": {"properties": {"kind": {"const": "scope_disposition"}}}, "then": {"properties": {"content": {"$ref": "#/$defs/scope_disposition"}}}},
+        {"if": {"properties": {"kind": {"const": "definition"}}}, "then": {"properties": {"content": {"$ref": "#/$defs/definition"}}}}
+      ]
+    },
+    "outcome": {
+      "type": "object", "additionalProperties": false, "required": ["intent", "success_posture"],
+      "properties": {"intent": {"$ref": "#/$defs/text"}, "success_posture": {"$ref": "#/$defs/text"}}
+    },
+    "functional_requirement": {
+      "type": "object", "additionalProperties": false, "required": ["obligation", "rationale", "acceptance_direction"],
+      "properties": {"obligation": {"$ref": "#/$defs/text"}, "rationale": {"$ref": "#/$defs/text"}, "acceptance_direction": {"$ref": "#/$defs/text"}}
+    },
+    "constraint": {
+      "type": "object", "additionalProperties": false, "required": ["constraint", "applies_to", "rationale"],
+      "properties": {"constraint": {"$ref": "#/$defs/text"}, "applies_to": {"$ref": "#/$defs/text"}, "rationale": {"$ref": "#/$defs/text"}}
+    },
+    "story": {
+      "type": "object", "additionalProperties": false, "required": ["actor", "desired_outcome", "benefit"],
+      "properties": {"actor": {"$ref": "#/$defs/text"}, "desired_outcome": {"$ref": "#/$defs/text"}, "benefit": {"$ref": "#/$defs/text"}}
+    },
+    "acceptance_scenario": {
+      "type": "object", "additionalProperties": false, "required": ["given_context", "when_action", "then_observable_result", "limitations"],
+      "properties": {"given_context": {"$ref": "#/$defs/text"}, "when_action": {"$ref": "#/$defs/text"}, "then_observable_result": {"$ref": "#/$defs/text"}, "limitations": {"$ref": "#/$defs/texts"}}
+    },
+    "risk": {
+      "type": "object", "additionalProperties": false, "required": ["statement", "impact", "likelihood_posture", "mitigation_direction"],
+      "properties": {"statement": {"$ref": "#/$defs/text"}, "impact": {"$ref": "#/$defs/text"}, "likelihood_posture": {"$ref": "#/$defs/text"}, "mitigation_direction": {"$ref": "#/$defs/text"}}
+    },
+    "assumption": {
+      "type": "object", "additionalProperties": false, "required": ["statement", "confidence", "validation_or_expiry_condition"],
+      "properties": {"statement": {"$ref": "#/$defs/text"}, "confidence": {"$ref": "#/$defs/text"}, "validation_or_expiry_condition": {"$ref": "#/$defs/text"}}
+    },
+    "open_question": {
+      "type": "object", "additionalProperties": false, "required": ["question", "owner_role", "decision_due_boundary"],
+      "properties": {"question": {"$ref": "#/$defs/text"}, "owner_role": {"$ref": "#/$defs/text"}, "decision_due_boundary": {"$ref": "#/$defs/text"}}
+    },
+    "decision": {
+      "type": "object", "additionalProperties": false, "required": ["decision", "rationale", "alternatives", "decision_authority"],
+      "properties": {"decision": {"$ref": "#/$defs/text"}, "rationale": {"$ref": "#/$defs/text"}, "alternatives": {"$ref": "#/$defs/texts"}, "decision_authority": {"$ref": "#/$defs/text"}}
+    },
+    "scope_disposition": {
+      "type": "object", "additionalProperties": false, "required": ["posture", "subject", "rationale", "destination_or_reopen_condition"],
+      "properties": {"posture": {"enum": ["included", "excluded", "deferred"]}, "subject": {"$ref": "#/$defs/text"}, "rationale": {"$ref": "#/$defs/text"}, "destination_or_reopen_condition": {"anyOf": [{"$ref": "#/$defs/text"}, {"type": "null"}]}},
+      "allOf": [{"if": {"properties": {"posture": {"const": "deferred"}}}, "then": {"properties": {"destination_or_reopen_condition": {"$ref": "#/$defs/text"}}}}]
+    },
+    "definition": {
+      "type": "object", "additionalProperties": false, "required": ["term", "meaning", "applies_to", "aliases"],
+      "properties": {"term": {"$ref": "#/$defs/text"}, "meaning": {"$ref": "#/$defs/text"}, "applies_to": {"$ref": "#/$defs/text"}, "aliases": {"$ref": "#/$defs/texts"}}
+    },
+    "relationship": {
+      "type": "object", "additionalProperties": false, "required": ["kind", "from", "to", "rationale", "sources"],
+      "properties": {
+        "kind": {"enum": ["drives", "constrains", "verified_by", "mitigated_by", "qualifies", "questions", "resolved_by", "decides", "scopes", "defines", "refines", "supersedes"]},
+        "from": {"$ref": "#/$defs/record_ref"}, "to": {"$ref": "#/$defs/record_ref"},
+        "rationale": {"$ref": "#/$defs/text"}, "sources": {"$ref": "#/$defs/source_ids"}
+      }
+    }
+  },
+  "x-relationships": {
+    "drives": {"from": ["outcome"], "to": ["functional_requirement", "constraint", "story"], "meaning": "The source outcome motivates the target obligation, restriction or actor outcome."},
+    "constrains": {"from": ["constraint"], "to": ["outcome", "functional_requirement", "story", "acceptance_scenario", "decision", "definition"], "meaning": "The source restriction limits the target's acceptable realization or interpretation."},
+    "verified_by": {"from": ["outcome", "functional_requirement", "constraint", "story"], "to": ["acceptance_scenario"], "meaning": "The target scenario supplies an observable verification basis for the source; this asserts no test result."},
+    "mitigated_by": {"from": ["risk"], "to": ["functional_requirement", "constraint", "decision"], "meaning": "The target obligation, restriction or choice addresses the source risk; effectiveness is not claimed."},
+    "qualifies": {"from": ["assumption"], "to": ["outcome", "functional_requirement", "constraint", "story", "risk", "decision"], "meaning": "The target relies on the source assumption within its stated validation or expiry condition."},
+    "questions": {"from": ["open_question"], "to": ["*"], "meaning": "The source asks for clarification or a decision about the target; it neither changes nor invalidates it automatically."},
+    "resolved_by": {"from": ["open_question", "assumption"], "to": ["decision"], "meaning": "The target decision resolves the source question or determines the source assumption's disposition."},
+    "decides": {"from": ["decision"], "to": ["outcome", "functional_requirement", "constraint", "story", "acceptance_scenario", "risk", "assumption", "scope_disposition", "definition"], "meaning": "The source states an attributable choice about the target; it is not an admission approval or mutation."},
+    "scopes": {"from": ["scope_disposition"], "to": ["outcome", "functional_requirement", "constraint", "story", "acceptance_scenario", "risk", "assumption", "open_question", "decision", "definition"], "meaning": "The source identifies the target as included, excluded or deferred in its stated context without silently changing authority."},
+    "defines": {"from": ["definition"], "to": ["*"], "meaning": "The source defines a term used in the target within the definition's applicability."},
+    "refines": {"from": ["*"], "to": ["*"], "same_kind": true, "acyclic": true, "meaning": "The source is a distinct, more specific record of the same kind; it does not replace the target."},
+    "supersedes": {"from": ["*"], "to": ["*"], "same_kind": true, "acyclic": true, "meaning": "The source is the proposed or admitted successor to the target revision; this edge alone does not activate it or retire the target."}
+  }
+}

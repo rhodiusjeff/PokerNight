@@ -66,8 +66,18 @@ When a prompt deviates from user stories, follow this protocol:
 
 ## 8. Tracker Policy and Authority
 
-LOCAL MOD - HARVEST TO CPB (2026-09-29): new-format tracking belongs to the repository,
-not to the horizon that proposed a change. One `control-plane/operational/SPECIFICATION.json`
+LOCAL MOD - HARVEST TO CPB (2026-09-29): the agreed new-format authority is one
+`control-plane/canon/CANON.json` and the repository pair
+`control-plane/tracker/TRACKER.json` / `control-plane/tracker/TRACKER_ARCHIVE.json`.
+Follow [Repository Canon And Tracker Storage Contract](policies/tracker-and-state.policy.md#repository-canon-and-tracker-storage-contract).
+All context, dependency and historical readers must account for completed archive rows;
+archive-only work is never an execution candidate. Completion owns the content-preserving
+active-window roll under unchanged approval/evidence gates. The tracker/archive pair is
+one authority; execution state must not become a competing status master in the new layout.
+Reader/writer migration and repository schemas remain pending, not enabled by this policy.
+
+Installed legacy operational behavior (not the agreed destination): tracking belongs to
+the repository, not to the horizon that proposed a change. One `control-plane/operational/SPECIFICATION.json`
 contains admitted Canon, governing phase specifications and the DAG. Execution progress and
 retained started contracts are separate in `control-plane/state/execution.json`. Admission
 advances the specification revision; execution progress does not. Horizon/ad-hoc/discovery

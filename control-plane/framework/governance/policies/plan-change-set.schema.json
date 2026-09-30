@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:control-plane:plan-change-set:v1",
+  "$comment": "LOCAL MOD - HARVEST TO CPB: Operator-directed shared change-set proposal. Referenced Canon forms are not duplicated here.",
+  "title": "Planning Change Set",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema", "id", "revision", "title", "author", "created_at", "context", "status", "capture", "base", "sources", "changes", "unresolved"],
+  "properties": {
+    "identity": {"$ref": "#/$defs/identity"},
+    "schema": {"const": "cp-plan-change-set-v1"},
+    "id": {"$ref": "canon-records.schema.json#/$defs/id"},
+    "revision": {"type": "integer", "minimum": 1},
+    "title": {"$ref": "canon-records.schema.json#/$defs/text"},
+    "author": {"$ref": "canon-records.schema.json#/$defs/text"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "context": {
+      "type": "object", "additionalProperties": false, "required": ["kind", "id"],
+      "properties": {
+        "kind": {"enum": ["ad-hoc", "horizon", "discovery"]},
+        "id": {"$ref": "canon-records.schema.json#/$defs/id"},
+        "origin": {"type": "object", "additionalProperties": false, "required": ["phase", "contract"],
+          "properties": {"phase": {"$ref": "canon-records.schema.json#/$defs/record_ref"}, "contract": {"$ref": "canon-records.schema.json#/$defs/source"}}}
+      },
+      "allOf": [{"if": {"properties": {"kind": {"const": "discovery"}}}, "then": {"required": ["origin"]}, "else": {"not": {"required": ["origin"]}}}]
+    },
+    "status": {"enum": ["draft", "complete"]},
+    "capture": {"$ref": "canon-records.schema.json#/$defs/source"},
+    "base": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/base"}]},
+    "sources": {"type": "array", "items": {"$ref": "canon-records.schema.json#/$defs/source"}},
+    "changes": {"type": "array", "items": {"$ref": "#/$defs/change"}},
+    "unresolved": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false, "required": ["id", "explanation", "affects"],
+      "properties": {"id": {"$ref": "canon-records.schema.json#/$defs/id"}, "explanation": {"$ref": "canon-records.schema.json#/$defs/text"}, "affects": {"$ref": "#/$defs/ids"}}
+    }}
+  },
+  "allOf": [{"if": {"properties": {"status": {"const": "complete"}}}, "then": {"properties": {
+    "base": {"$ref": "#/$defs/base"}, "changes": {"minItems": 1}, "unresolved": {"maxItems": 0}
+  }}}],
+  "$defs": {
+    "identity": {
+      "type": "object", "additionalProperties": false, "required": ["mint", "allocation", "aliases"],
+      "properties": {
+        "mint": {"type": "object", "additionalProperties": false, "required": ["operation_id", "request_digest"],
+          "properties": {"operation_id": {"$ref": "canon-records.schema.json#/$defs/id"}, "request_digest": {"$ref": "canon-records.schema.json#/$defs/hash"}}},
+        "allocation": {"type": "object", "additionalProperties": false, "required": ["next_change", "next_canon", "changes", "canon"],
+          "properties": {
+            "next_change": {"type": "integer", "minimum": 1}, "next_canon": {"type": "integer", "minimum": 1},
+            "changes": {"type": "object", "propertyNames": {"pattern": "^CHG-[0-9]{4,}$"}, "additionalProperties": {
+              "type": "object", "additionalProperties": false, "required": ["operation", "target_digest"],
+              "properties": {"operation": {"enum": ["add", "modify", "obsolete", "remove"]}, "target_digest": {"$ref": "canon-records.schema.json#/$defs/hash"}}}},
+            "canon": {"type": "object", "additionalProperties": {"$ref": "canon-records.schema.json#/$defs/kind"}}
+          }},
+        "aliases": {"type": "object", "additionalProperties": false, "required": ["contexts", "canon", "changes"],
+          "properties": {"contexts": {"$ref": "#/$defs/ids"},
+            "canon": {"type": "object", "additionalProperties": {"$ref": "canon-records.schema.json#/$defs/id"}},
+            "changes": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^CHG-[0-9]{4,}$"}}}}
+      }
+    },
+    "baseline": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "revision", "canon", "work_items", "dependencies", "bound_work"],
+      "properties": {
+        "schema": {"const": "cp-plan-baseline-v1"}, "revision": {"type": "integer", "minimum": 0},
+        "canon": {"$ref": "canon-records.schema.json"},
+        "work_items": {"type": "array", "items": {"$ref": "#/$defs/work_item"}},
+        "dependencies": {"type": "array", "items": {"$ref": "#/$defs/dependency"}},
+        "bound_work": {"type": "array", "uniqueItems": true, "items": {"$ref": "canon-records.schema.json#/$defs/record_ref"}}
+      }
+    },
+    "ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "canon-records.schema.json#/$defs/id"}},
+    "nonempty_texts": {"allOf": [{"$ref": "canon-records.schema.json#/$defs/texts"}], "minItems": 1},
+    "base": {
+      "type": "object", "additionalProperties": false,
+      "required": ["target_ref", "git_commit", "path", "revision", "sha256"],
+      "properties": {
+        "target_ref": {"type": "string", "pattern": "^refs/heads/[^\\s]+$"},
+        "git_commit": {"type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"},
+        "path": {"$ref": "canon-records.schema.json#/$defs/source/properties/path"},
+        "revision": {"type": "integer", "minimum": 0},
+        "sha256": {"$ref": "canon-records.schema.json#/$defs/hash"}
+      }
+    },
+    "absent": {"type": "object", "additionalProperties": false, "required": ["state"], "properties": {"state": {"const": "absent"}}},
+    "present_record": {"type": "object", "additionalProperties": false, "required": ["state", "revision", "digest"],
+      "properties": {"state": {"const": "present"}, "revision": {"type": "integer", "minimum": 1}, "digest": {"$ref": "canon-records.schema.json#/$defs/hash"}}},
+    "present_edge": {"type": "object", "additionalProperties": false, "required": ["state", "digest"],
+      "properties": {"state": {"const": "present"}, "digest": {"$ref": "canon-records.schema.json#/$defs/hash"}}},
+    "record_target": {"type": "object", "additionalProperties": false, "required": ["type", "id"],
+      "properties": {"type": {"enum": ["canon_record", "work_item"]}, "id": {"$ref": "canon-records.schema.json#/$defs/id"}}},
+    "relationship_target": {"type": "object", "additionalProperties": false, "required": ["type", "kind", "from", "to"],
+      "properties": {"type": {"const": "canon_relationship"}, "kind": {"$ref": "canon-records.schema.json#/$defs/relationship/properties/kind"},
+        "from": {"$ref": "canon-records.schema.json#/$defs/record_ref"}, "to": {"$ref": "canon-records.schema.json#/$defs/record_ref"}}},
+    "dependency_target": {"type": "object", "additionalProperties": false, "required": ["type", "from", "to"],
+      "properties": {"type": {"const": "work_dependency"}, "from": {"$ref": "canon-records.schema.json#/$defs/record_ref"}, "to": {"$ref": "canon-records.schema.json#/$defs/record_ref"}}},
+    "change": {
+      "type": "object", "additionalProperties": false,
+      "required": ["change_id", "operation", "target", "expected", "rationale", "sources"],
+      "properties": {
+        "change_id": {"$ref": "canon-records.schema.json#/$defs/id"},
+        "operation": {"enum": ["add", "modify", "obsolete", "remove"]},
+        "target": {"oneOf": [{"$ref": "#/$defs/record_target"}, {"$ref": "#/$defs/relationship_target"}, {"$ref": "#/$defs/dependency_target"}]},
+        "expected": {"type": "object"}, "value": {"type": "object"},
+        "rationale": {"$ref": "canon-records.schema.json#/$defs/text"}, "sources": {"$ref": "canon-records.schema.json#/$defs/source_ids"}
+      },
+      "allOf": [
+        {"if": {"properties": {"target": {"properties": {"type": {"enum": ["canon_record", "work_item"]}}}}},
+          "then": {"properties": {"operation": {"enum": ["add", "modify", "obsolete"]}}},
+          "else": {"properties": {"operation": {"enum": ["add", "remove"]}}}},
+        {"if": {"properties": {"operation": {"const": "add"}}}, "then": {"required": ["value"], "properties": {"expected": {"$ref": "#/$defs/absent"}}}},
+        {"if": {"properties": {"operation": {"const": "modify"}}}, "then": {"required": ["value"], "properties": {"expected": {"$ref": "#/$defs/present_record"}}}},
+        {"if": {"properties": {"operation": {"const": "obsolete"}}}, "then": {"not": {"required": ["value"]}, "properties": {"expected": {"$ref": "#/$defs/present_record"}}}},
+        {"if": {"properties": {"operation": {"const": "remove"}}}, "then": {"not": {"required": ["value"]}, "properties": {"expected": {"$ref": "#/$defs/present_edge"}}}},
+        {"if": {"properties": {"target": {"properties": {"type": {"const": "canon_record"}}}}}, "then": {"properties": {"value": {"allOf": [{"$ref": "canon-records.schema.json#/$defs/record"}], "properties": {"authority_status": {"const": "proposed"}}}}}},
+        {"if": {"properties": {"target": {"properties": {"type": {"const": "canon_relationship"}}}}}, "then": {"properties": {"value": {"$ref": "canon-records.schema.json#/$defs/relationship"}}}},
+        {"if": {"properties": {"target": {"properties": {"type": {"const": "work_item"}}}}}, "then": {"properties": {"value": {"$ref": "#/$defs/work_item"}}}},
+        {"if": {"properties": {"target": {"properties": {"type": {"const": "work_dependency"}}}}}, "then": {"properties": {"value": {"$ref": "#/$defs/dependency"}}}}
+      ]
+    },
+    "work_item": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "revision", "maturity", "title", "outcome", "included", "excluded", "canon_refs", "acceptance", "tasks", "risks", "sources"],
+      "properties": {
+        "id": {"$ref": "canon-records.schema.json#/$defs/id"}, "revision": {"type": "integer", "minimum": 1},
+        "maturity": {"enum": ["candidate", "specified"]},
+        "title": {"$ref": "canon-records.schema.json#/$defs/text"}, "outcome": {"$ref": "canon-records.schema.json#/$defs/text"},
+        "included": {"$ref": "#/$defs/nonempty_texts"}, "excluded": {"$ref": "canon-records.schema.json#/$defs/texts"},
+        "canon_refs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "canon-records.schema.json#/$defs/record_ref"}},
+        "acceptance": {"$ref": "#/$defs/nonempty_texts"}, "risks": {"$ref": "canon-records.schema.json#/$defs/texts"},
+        "sources": {"$ref": "canon-records.schema.json#/$defs/source_ids"},
+        "tasks": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "text", "after"],
+          "properties": {"id": {"$ref": "canon-records.schema.json#/$defs/id"}, "text": {"$ref": "canon-records.schema.json#/$defs/text"}, "after": {"$ref": "#/$defs/ids"}}}},
+        "supplemental_checks": {"$ref": "canon-records.schema.json#/$defs/texts"},
+        "later_contract_obligations": {"$ref": "canon-records.schema.json#/$defs/texts"},
+        "specification": {"type": "object", "additionalProperties": false,
+          "required": ["execution_model", "sizing_rationale", "validation_plan", "failure_discovery_route", "review_boundary", "closeout_basis"],
+          "properties": {
+            "execution_model": {"$ref": "canon-records.schema.json#/$defs/text"}, "sizing_rationale": {"$ref": "canon-records.schema.json#/$defs/text"},
+            "validation_plan": {"$ref": "#/$defs/nonempty_texts"}, "failure_discovery_route": {"$ref": "canon-records.schema.json#/$defs/text"},
+            "review_boundary": {"$ref": "canon-records.schema.json#/$defs/text"}, "closeout_basis": {"$ref": "canon-records.schema.json#/$defs/text"}
+          }}
+      },
+      "allOf": [{"if": {"properties": {"maturity": {"const": "specified"}}}, "then": {"required": ["specification"]}}]
+    },
+    "dependency": {"type": "object", "additionalProperties": false, "required": ["from", "to", "rationale", "sources"],
+      "properties": {"from": {"$ref": "canon-records.schema.json#/$defs/record_ref"}, "to": {"$ref": "canon-records.schema.json#/$defs/record_ref"},
+        "rationale": {"$ref": "canon-records.schema.json#/$defs/text"}, "sources": {"$ref": "canon-records.schema.json#/$defs/source_ids"}}}
+  }
+}

@@ -1,10 +1,89 @@
 # Tracker and State Policy
 
+## Repository Canon And Tracker Storage Contract
+
+LOCAL MOD - HARVEST TO CPB (2026-09-29): Operator-approved single-file Canon and
+repository tracker/archive contract. Harvest this contract with its reader/writer
+entry links. This section supersedes the intended new-format storage destinations
+below, not the still-installed legacy runtime or its file schemas.
+
+| Authoritative path | Role |
+| --- | --- |
+| `control-plane/canon/CANON.json` | One repository Canon payload containing records of all selected kinds, relationships and source references. |
+| `control-plane/tracker/TRACKER.json` | Active repository work, dependencies and current execution status, with governing contract and evidence references. |
+| `control-plane/tracker/TRACKER_ARCHIVE.json` | Retained completed phases rolled out of the active tracker, including their exact row content and contract/evidence references. |
+
+The tracker and its archive are two partitions of one repository work history, not
+independent trackers. Ad hoc, discovery and horizon contexts retain proposal provenance;
+they do not own additional new-format operational trackers or Canon copies.
+
+### Reader And Writer Obligations
+
+- Admission/application must consider both tracker partitions when checking existing
+  phase identities, dependencies and amendments. Archived work is not absent work and
+  its identity cannot be reused as a fresh addition. Preserve completed records and
+  bound contracts; admitting a proposal neither starts nor completes work.
+- Resolution, planning, preparation, execution, review and closeout readers must resolve
+  prerequisite and historical phase references across both files. Archive-only records
+  remain available as completion evidence, not executable candidates. Do not recreate
+  a missing active row from an archived row or silently select between duplicate IDs.
+- Keep the existing C8 active window: queued and in-flight rows plus the most recent
+  2-3 completed rows stay active; older completed rows move content-identical to the
+  adjacent archive through the explicitly invoked `/complete-phase` workflow. There is
+  no age-based expiry, automatic deletion, or archive roll during admission or start.
+- Completion retains the existing final-approval and merged-review or explicit
+  `none-by-policy` requirements. `Closed` or `In Review` alone is not completed and
+  cannot make a row eligible for this archive. Placement never grants completion.
+- A roll preserves phase identity, status, governing revisions, dependency references,
+  closeout and review evidence. The finished pair contains each phase in exactly one
+  partition, with no lost or rewritten history. References to rolled phases must still
+  resolve; neither an edge nor a completed prerequisite disappears because of placement.
+- Writers must coordinate active/archive updates and verify the resulting pair. Canon
+  and admitted-work changes likewise require coordinated application. A single Canon
+  file or a successful individual JSON write does not establish transaction safety.
+- The archive is maintained historical data: append completed rows without editing prior
+  entries in ordinary execution. Additional work follows the governed revision/rework
+  path, not an implicit unarchive, reset or rerun. Steward audits compare both partitions
+  with closeout and the applicable review evidence; no tracker auto-generation is added.
+
+### Implementation Boundary
+
+These are agreed destinations and obligations, not a claim that the repository writer
+is installed. The current legacy operational runtime still reads/writes
+`control-plane/operational/SPECIFICATION.json` and `control-plane/state/execution.json`.
+New change-set admission/application, the repository tracker/archive schemas, retained
+contract/evidence placement and coordinated storage migration remain pending. Do not
+redirect runtime constants, create empty authority files or copy live data merely to
+make this contract appear implemented. Legacy horizon tracker/archive schemas and OPS
+campaign authority remain unchanged; no horizon schema is silently assigned to this pair.
+
+## Shared Canon Model
+
+For cp-plan-change-set-v1, the [Planning Change-Set Policy](plan-change-set.policy.md)
+owns the shared proposal shape and validation/save routing. Proposals are explicit typed
+changes against an exact base, never a parallel full specification. The older capture/
+complete-result contracts below remain compatibility paths only for their own schemas;
+they must refuse a new-format document. No live change-set admission is implied.
+
+LOCAL MOD - HARVEST TO CPB (2026-09-29): the
+[Canon Schema Policy](canon-records.policy.md) and [schema](canon-records.schema.json)
+define deterministic forms and relationships for all eleven Canon kinds across ad hoc,
+horizon and discovery planning. The proposing agent selects needed records and records
+selection_rationale; no pack is required to instantiate every kind. Definition is a
+first-class kind. Source references use exact retrievable paths/digests, not embedded
+Base64. The read-only validator grants no lifecycle or admission authority.
+The old complete-result kernel and current proposal envelopes remain pending integration;
+their three-kind/source-payload limitations must not silently constrain or flatten the new
+Canon model. This policy does not migrate existing records or change horizon laydown.
+
 ## Artifact Formats And Ad Hoc Storage
 
 LOCAL MOD - HARVEST TO CPB (2026-09-29): Operator-directed format separation and
 minimal ad hoc working files. This section supersedes conflicting ad hoc placement
 or draft-retention wording elsewhere in the installed surface.
+
+LOCAL MOD - HARVEST TO CPB (2026-09-29): Operator-directed reference classification
+clarification; harvest with the shared planning skill and plan-work prompt.
 
 - Keep maintained Markdown narrative and structured JSON in separate files across the
   control-plane surface. Do not embed JSON envelopes/blocks in Markdown or store authored
@@ -25,6 +104,19 @@ or draft-retention wording elsewhere in the installed surface.
 - Helper request inputs may use stdin or transient files; the exact resulting subject,
   provenance and authorization remain durable. A transient input is not permission to
   omit evidence, infer confirmation, or discard genuine original attachments.
+- Live references identify the current proposal, retained sources or other required durable
+  evidence, not superseded generated draft requests. Prefer stdin where the helper supports
+  it. When an exact executed command contains a temporary input path, label that path as
+  non-durable execution evidence, not a live link, prerequisite or restoration obligation.
+  Never alter an executed command to pretend that it used stdin or a different path.
+- Reference obsolete draft evidence through its retained archive and, when needed, member
+  identity. Do not present deleted draft paths as current file links or dependencies.
+  Preserve exact historical commands and original bytes in immutable history; this rule
+  does not authorize rewriting archives or bypassing the paired capture writer.
+- Classify references as live dependencies, archived evidence or transient command inputs
+  before repairing them. Verify archive custody for historical references; do not extract
+  obsolete generated drafts solely because historical text names them. Restore missing live
+  dependencies only within authorized scope, preserving their expected bytes and source pins.
 - Preserve paired prior revisions under `assets/history/` when content changes. Exact
   retries and read-only operations do not create revisions. Real attachments and immutable
   admission/review exhibits may remain separate assets; they are not another current plan.
@@ -81,7 +173,8 @@ HNNN retains its current draft-history representation. Both may retain questions
 IDs. Complete proposal content is the one Canon/phases/DAG candidate, not a parallel tracker.
 Evidence owns workflow.findings/reviews/decision/admission and preserves independent histories.
 
-The versioned specification is `control-plane/operational/SPECIFICATION.json`; progress and retained
+In the installed legacy runtime, the versioned specification is
+`control-plane/operational/SPECIFICATION.json`; progress and retained
 started contracts are separate in `control-plane/state/execution.json`. Progress never increments
 specification revision. Resolver results with `source: operational` have null horizon/tracker/ledger
 fields; never construct substitute H000 paths. Actual dependencies, not family membership, gate

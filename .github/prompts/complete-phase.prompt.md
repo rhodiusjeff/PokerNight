@@ -15,6 +15,14 @@ update and stop before any tracker, acceptance, timing, commit or forge mutation
 horizon/tracker/ledger values must not be replaced with fabricated packet paths. The
 completion workflow below applies only to explicitly legacy resolver results.
 
+LOCAL MOD - HARVEST TO CPB (2026-09-29): the
+[repository storage contract](../../control-plane/framework/governance/policies/tracker-and-state.policy.md#repository-canon-and-tracker-storage-contract)
+requires a repository TRACKER.json/TRACKER_ARCHIVE.json pair. Once that writer is
+implemented, completion must preserve the C8 active window, roll completed rows without
+rewriting their content, retain dependency/evidence resolution across both partitions,
+and verify no phase is lost or duplicated. This is a required implementation contract,
+not permission to bypass the operational stop above or copy the legacy horizon schema.
+
 If the slash-command argument contains `--help` or `-h`, do not execute completion. Output concise help only with:
 - command purpose (operator-facing phase-completion that runs after `/closeout-prompt` produces the report)
 - required and optional arguments

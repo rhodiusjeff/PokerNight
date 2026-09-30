@@ -17,7 +17,6 @@ import re
 import shutil
 import sys
 import tempfile
-import uuid
 import zipfile
 from datetime import datetime, timezone
 from contextlib import contextmanager
@@ -28,8 +27,13 @@ if module_spec is None or module_spec.loader is None:
     raise RuntimeError("planning contract module is unavailable")
 contract = importlib.util.module_from_spec(module_spec)
 module_spec.loader.exec_module(contract)
-IDENTITY = re.compile(r"ADHOC-[0-9a-f]{32}\Z")
-CONTEXT_ID = re.compile(r"(?:ADHOC-[0-9a-f]{32}|H[0-8][0-9]{2})\Z")
+identity_spec = importlib.util.spec_from_file_location("planning_identity", pathlib.Path(__file__).with_name("planning-identity.py"))
+if identity_spec is None or identity_spec.loader is None:
+    raise RuntimeError("planning identity module is unavailable")
+identity_policy = importlib.util.module_from_spec(identity_spec)
+identity_spec.loader.exec_module(identity_policy)
+IDENTITY = re.compile(identity_policy.ADHOC_PATTERN + r"\Z")
+CONTEXT_ID = re.compile(identity_policy.CONTEXT_PATTERN + r"\Z")
 
 
 def safe_path(root, destination):
@@ -48,10 +52,26 @@ def safe_path(root, destination):
 def resolve_document(root, context_id):
     root = pathlib.Path(root).resolve()
     contract.require(bool(CONTEXT_ID.fullmatch(context_id)), "invalid context identity")
+    parsed = identity_policy.parse(context_id)
     if IDENTITY.fullmatch(context_id):
-        return safe_path(root, capture_path(root, context_id))
+        destination = safe_path(root, capture_path(root, context_id))
+        if destination.exists():
+            return destination
+        aliases = []
+        for candidate in capture_root(root).glob("*/*-proposal.json"):
+            safe_path(root, candidate)
+            value = contract.load_json(candidate)
+            if context_id in value.get("identity", {}).get("aliases", {}).get("contexts", []):
+                aliases.append(candidate)
+        contract.require(len(aliases) <= 1, "ambiguous planning identity alias")
+        return aliases[0] if aliases else destination
     home = safe_path(root, root / "control-plane/horizons")
-    packets = sorted(home.glob(context_id + "-*"))
+    if not parsed["legacy"]:
+        packet = safe_path(root, home / context_id)
+        contract.require(packet.is_dir(), "full horizon identity is not present")
+        return safe_path(root, packet / "planning" / (context_id + ".md"))
+    packets = [packet for packet in sorted(home.glob(context_id + "-*"))
+               if not re.fullmatch(identity_policy.HORIZON_PATTERN, packet.name)]
     if (home / context_id).exists():
         packets.append(home / context_id)
     contract.require(len(packets) == 1, "horizon packet missing or ambiguous; select an existing identity")
@@ -67,6 +87,7 @@ def capture_root(root):
 
 def capture_path(root, identity):
     contract.require(bool(IDENTITY.fullmatch(identity)), "invalid capture identity")
+    identity_policy.parse(identity)
     home = capture_root(root)
     contract.require(not (home / f"{identity}.md").exists(),
                      "legacy flat capture exists; relocate the session before use")
@@ -135,6 +156,8 @@ def publish_new_bytes(destination, content):
 
 
 def render(document):
+    if document.get("schema") == "cp-plan-change-set-v1":
+        return json.dumps(document, ensure_ascii=False, indent=2, allow_nan=False) + "\n"
     if IDENTITY.fullmatch(document["id"]):
         return json.dumps(document, ensure_ascii=False, indent=2, allow_nan=False) + "\n"
     return render_legacy(document)
@@ -206,6 +229,9 @@ def change_narrative(previous, document):
 
 
 def validate_capture(document):
+    if document.get("schema") == "cp-plan-change-set-v1":
+        change_set_module().shape(document)
+        return
     contract.digest(document)
     schema = contract.object_schema({
         "schema": {"const": "cp-planning-capture-v1"}, "id": {"type": "string", "pattern": CONTEXT_ID.pattern},
@@ -218,6 +244,7 @@ def validate_capture(document):
         "capture_sha256": contract.HASH})
     contract.validate_shape(document, schema, "capture")
     contract.require(bool(CONTEXT_ID.fullmatch(document["id"])), "invalid capture identity")
+    contract.require(identity_policy.matches_kind(document["id"], document["kind"]), "context kind/identity mismatch")
     contract.require((document["kind"] == "horizon") == document["id"].startswith("H"), "context kind/identity mismatch")
     if "context" in document:
         contract.require(document["context"].get("state", "planning") in
@@ -276,9 +303,19 @@ def read_capture(filename):
     if filename.suffix == ".json":
         narrative = narrative_path(filename)
         contract.require(not narrative.is_symlink(), "capture narrative must not be a symlink")
-        contract.require(narrative.is_file() and hashlib.sha256(narrative.read_bytes()).hexdigest() == document.get("capture_sha256"),
+        expected = document["capture"]["sha256"] if document.get("schema") == "cp-plan-change-set-v1" else document.get("capture_sha256")
+        contract.require(narrative.is_file() and hashlib.sha256(narrative.read_bytes()).hexdigest() == expected,
                          "capture/proposal pair mismatch; recover the paired files before use")
     return document
+
+
+def change_set_module():
+    module_spec = importlib.util.spec_from_file_location("planning_change_set", pathlib.Path(__file__).with_name("planning-change-set.py"))
+    if module_spec is None or module_spec.loader is None:
+        raise contract.ContractError("change-set helper unavailable")
+    module = importlib.util.module_from_spec(module_spec)
+    module_spec.loader.exec_module(module)
+    return module
 
 
 def create_capture(args):
@@ -381,6 +418,8 @@ def update_proposal(args):
 
 
 def require_mutable(document, workflow_only=False):
+    contract.require(document.get("schema") != "cp-plan-change-set-v1",
+                     "change-set proposal: use planning-change-set.py save; legacy mutation and admission paths do not own this format")
     context = document.get("context", {})
     allowed = ("planning", "authorized-for-merge") if workflow_only else ("planning",)
     contract.require(context.get("state", "planning") in allowed, "context is not mutable planning; explicit lifecycle handling required")
@@ -409,14 +448,32 @@ def replace_bytes(destination, original, content):
             staged.unlink(missing_ok=True)
 
 
-def publish_capture(root, destination, original, document, record=None):
+def publish_capture(root, destination, original, document, record=None, source_locations=None, preserve_snapshot=True):
+    contract.require(document.get("schema") != "cp-plan-change-set-v1", "change-set saves belong to planning-change-set.py")
     validate_capture(document)
     previous = read_capture(destination)
     contract.require(document["id"] == previous["id"], "capture identity is immutable")
     for name in ("kind", "author", "created_at", "origin"):
         contract.require(document[name] == previous[name], f"capture {name} is immutable")
-    contract.require(document["sources"][:len(previous["sources"])] == previous["sources"],
+    previous_sources = copy.deepcopy(previous["sources"])
+    if source_locations is not None:
+        contract.require(set(source_locations) == {source["id"] for source in previous_sources}, "source relocation must account for every retained source")
+        for source in previous_sources:
+            relative = pathlib.PurePosixPath(source_locations[source["id"]])
+            contract.require(not relative.is_absolute(), "restored source location must be repository-relative")
+            filename = safe_path(pathlib.Path(root).resolve(), pathlib.Path(root).resolve() / relative)
+            content = filename.read_bytes()
+            contract.require(content == base64.b64decode(source["bytes_base64"], validate=True) and
+                             hashlib.sha256(content).hexdigest() == source["sha256"], "restored source bytes differ from retained source")
+            source["origin"] = relative.as_posix()
+    contract.require(document["sources"][:len(previous_sources)] == previous_sources,
                      "original capture sources must remain an unchanged prefix")
+    if not preserve_snapshot:
+        contract.require(source_locations is not None and
+                         {key: value for key, value in document.items() if key != "sources"} ==
+                         {key: value for key, value in previous.items() if key != "sources"} and
+                         len(document["sources"]) == len(previous_sources),
+                         "snapshot omission is limited to explicit source-path-only relocation")
     if previous.get("proposal") != document.get("proposal"):
         contract.require("proposal" in document, "current proposal cannot be silently removed")
         contract.require(document["proposal"]["revision"] == previous.get("proposal", {}).get("revision", 0) + 1,
@@ -449,17 +506,19 @@ def publish_capture(root, destination, original, document, record=None):
     history = safe_path(root, assets_path(root, document["id"]) / "history")
     ensure_directory(root, history)
     snapshot = safe_path(root, history / (f"{original_digest}-proposal.json" if paired else f"{original_digest}.md"))
-    try:
-        publish_new_bytes(snapshot, original)
-    except FileExistsError:
-        contract.require(snapshot.read_bytes() == original, "history snapshot mismatch")
-        sync_directory(history)
+    if preserve_snapshot:
+        try:
+            publish_new_bytes(snapshot, original)
+        except FileExistsError:
+            contract.require(snapshot.read_bytes() == original, "history snapshot mismatch")
+            sync_directory(history)
     if paired:
         narrative_snapshot = safe_path(root, history / f"{original_digest}-capture.md")
-        try:
-            publish_new_bytes(narrative_snapshot, before_narrative)
-        except FileExistsError:
-            contract.require(narrative_snapshot.read_bytes() == before_narrative, "narrative history snapshot mismatch")
+        if preserve_snapshot:
+            try:
+                publish_new_bytes(narrative_snapshot, before_narrative)
+            except FileExistsError:
+                contract.require(narrative_snapshot.read_bytes() == before_narrative, "narrative history snapshot mismatch")
         replace_bytes(narrative_path(destination), before_narrative, after_narrative)
         try:
             replace_bytes(destination, original, published_bytes)
@@ -468,7 +527,8 @@ def publish_capture(root, destination, original, document, record=None):
             raise
     else:
         replace_bytes(destination, original, published_bytes)
-    result["previous_snapshot"] = str(snapshot)
+    if preserve_snapshot:
+        result["previous_snapshot"] = str(snapshot)
     return result
 
 
@@ -580,8 +640,9 @@ def recover_pair(root, context_id, expected_digest, expected_capture_digest, sna
         saved = safe_path(root, history / (snapshot_digest + "-proposal.json")).read_bytes()
         saved_narrative = safe_path(root, history / (snapshot_digest + "-capture.md")).read_bytes()
         document = decode_capture(saved, context_id)
+        expected_capture = document["capture"]["sha256"] if document.get("schema") == "cp-plan-change-set-v1" else document["capture_sha256"]
         contract.require(hashlib.sha256(saved).hexdigest() == snapshot_digest and
-                         hashlib.sha256(saved_narrative).hexdigest() == document["capture_sha256"], "recovery snapshot mismatch")
+                 hashlib.sha256(saved_narrative).hexdigest() == expected_capture, "recovery snapshot mismatch")
         contract.require(not document.get("workflow", {}).get("admission"), "admission recovery needs its owning workflow")
         recovery = history / ("recovery-" + expected_digest + "-" + expected_capture_digest)
         ensure_directory(root, recovery)
@@ -672,10 +733,79 @@ def migrate_pair(root, context_id, expected_digest, candidates, confirmed):
             "path": str(home / (context_id + "-proposal.json")), "document_digest": hashlib.sha256(render(document).encode()).hexdigest()}
 
 
+def restore_sources(root, context_id, expected_digest, archive_path, confirmed, relocate_existing=False):
+    contract.require(confirmed and IDENTITY.fullmatch(context_id), "source restoration requires explicit ad hoc confirmation")
+    root = pathlib.Path(root).resolve()
+    with local_writer(root):
+        destination = resolve_document(root, context_id)
+        original = destination.read_bytes()
+        contract.require(hashlib.sha256(original).hexdigest() == expected_digest, "proposal changed since source restoration was offered")
+        document = read_capture(destination)
+        require_mutable(document)
+        workflow = document.get("workflow", {})
+        contract.require("proposal" not in document and not any(workflow.get(key) for key in ("admission", "decision", "reviews", "findings")),
+                         "source restoration is limited to unreviewed draft sessions")
+        archive = safe_path(root, root / archive_path)
+        source_home = safe_path(root, assets_path(root, context_id) / "history")
+        restored = []
+        old_files = []
+        with zipfile.ZipFile(archive) as bundle:
+            for source in document["sources"]:
+                contract.require(bool(re.fullmatch(r"source-[1-9][0-9]*", source["id"])), "source restoration requires ordinary captured source identities")
+                content = base64.b64decode(source["bytes_base64"], validate=True)
+                contract.require(hashlib.sha256(content).hexdigest() == source["sha256"], "retained source digest mismatch")
+                matches = [entry for entry in bundle.infolist() if not entry.is_dir() and entry.file_size == len(content)
+                           and bundle.read(entry) == content]
+                contract.require(len(matches) == 1, "archive must contain exactly one byte-identical member for each source")
+                suffix = pathlib.PurePosixPath(matches[0].filename).suffix
+                contract.require(bool(re.fullmatch(r"\.[A-Za-z0-9]+", suffix)), "archived source has no supported file extension")
+                target = safe_path(root, source_home / pathlib.PurePosixPath(matches[0].filename).name)
+                if target.exists():
+                    contract.require(target.read_bytes() == content, "restored source destination contains different bytes")
+                if relocate_existing:
+                    current = safe_path(root, root / source["origin"])
+                    contract.require(current.is_relative_to(source_home) and current.read_bytes() == content,
+                                     "source relocation requires an existing byte-identical historical source")
+                    old_file = safe_path(root, source_home / "restored-sources" / (source["id"] + suffix))
+                    if old_file.exists():
+                        contract.require(old_file.read_bytes() == content, "previous restored source has changed")
+                        old_files.append(old_file)
+                restored.append((source, target, content))
+        contract.require(len({target for source, target, content in restored}) == len(restored), "original source filenames collide")
+        locations = {source["id"]: target.relative_to(root).as_posix() for source, target, content in restored}
+        ensure_directory(root, source_home)
+        for source, target, content in restored:
+            if not target.exists():
+                publish_new_bytes(target, content)
+            source["origin"] = locations[source["id"]]
+        if render(document).encode("utf-8") == original:
+            result = {"id": context_id, "updated": False, "document_digest": expected_digest, "admitted": False}
+        else:
+            if relocate_existing:
+                record = "\n## Source Filename Correction\n\nOperator requested original source filenames directly under history and reported deleting the earlier snapshots. Source bytes and candidate content are unchanged. This path-only correction creates no new snapshots and does not recreate the deleted files. Current locations:\n\n"
+            else:
+                record = "\n## Restored Source Locations\n\nOperator requested extraction of the necessary archived sources so proposal references resolve. Original source IDs, SHA-256 values and bytes are unchanged; only their current origin paths were relocated. The prior pair and complete legacy archive remain historical evidence.\n\n"
+            record += "\n".join(f"- {identity}: {relative}" for identity, relative in locations.items()) + "\n"
+            result = publish_capture(root, destination, original, document, record=record, source_locations=locations,
+                                     preserve_snapshot=not relocate_existing)
+        for old_file in old_files:
+            old_file.unlink()
+        old_home = source_home / "restored-sources"
+        if relocate_existing and old_home.is_dir() and not any(old_home.iterdir()):
+            old_home.rmdir()
+        return {**result, "source_locations": locations}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
-    commands.add_parser("new-id", help="print a UUID-backed identity without writing")
+    minted = commands.add_parser("new-id", help="persist a confirmed slug/hex allocation through the shared helper")
+    minted.add_argument("--root", type=pathlib.Path, default=pathlib.Path.cwd())
+    minted.add_argument("--kind", choices=["ad-hoc", "discovery"], default="ad-hoc")
+    for name in ("slug", "operation-id", "author"):
+        minted.add_argument("--" + name, required=True)
+    minted.add_argument("--origin", type=pathlib.Path)
+    minted.add_argument("--confirmed", action="store_true")
     capture = commands.add_parser("capture")
     capture.add_argument("--root", type=pathlib.Path, default=pathlib.Path.cwd())
     capture.add_argument("--id", required=True)
@@ -705,7 +835,7 @@ def main():
     checkpoint.add_argument("--expected-digest", required=True)
     checkpoint.add_argument("--manifest", type=pathlib.Path, required=True)
     checkpoint.add_argument("--confirmed", action="store_true")
-    for name in ("migrate-pair", "recover-pair", "record"):
+    for name in ("migrate-pair", "recover-pair", "record", "restore-sources"):
         operation = commands.add_parser(name)
         operation.add_argument("--root", type=pathlib.Path, default=pathlib.Path.cwd())
         operation.add_argument("--id", required=True)
@@ -713,6 +843,9 @@ def main():
         operation.add_argument("--confirmed", action="store_true")
         if name == "migrate-pair":
             operation.add_argument("--candidate", type=pathlib.Path, required=True)
+        elif name == "restore-sources":
+            operation.add_argument("--archive", type=pathlib.Path, required=True)
+            operation.add_argument("--relocate-existing", action="store_true", help="correct existing history source paths without new snapshots")
         elif name == "recover-pair":
             operation.add_argument("--expected-capture-digest", required=True)
             operation.add_argument("--snapshot", required=True)
@@ -726,7 +859,8 @@ def main():
     args = parser.parse_args()
     try:
         if args.command == "new-id":
-            result = {"id": "ADHOC-" + uuid.uuid4().hex}
+            origin = contract.load_json(args.origin) if args.origin else None
+            result = identity_policy.mint(args.root, args.kind, args.slug, args.operation_id, args.author, origin, args.confirmed)
         elif args.command == "capture":
             result = create_capture(args)
         elif args.command == "propose":
@@ -738,6 +872,8 @@ def main():
         elif args.command == "migrate-pair":
             candidates = json.load(sys.stdin) if str(args.candidate) == "-" else contract.load_json(args.candidate)
             result = migrate_pair(args.root, args.id, args.expected_digest, candidates, args.confirmed)
+        elif args.command == "restore-sources":
+            result = restore_sources(args.root, args.id, args.expected_digest, args.archive, args.confirmed, args.relocate_existing)
         elif args.command == "recover-pair":
             result = recover_pair(args.root, args.id, args.expected_digest, args.expected_capture_digest, args.snapshot, args.confirmed)
         elif args.command == "record":
@@ -748,12 +884,14 @@ def main():
             result = read_capture(resolve_document(args.root, args.id))
         else:
             result = []
-            for filename in sorted(capture_root(args.root).glob("ADHOC-*/*-proposal.json")):
+            for filename in sorted(capture_root(args.root).glob("*/*-proposal.json")):
                 identity = document_identity(filename)
                 contract.require(filename.parent.name == identity, "capture identity/path mismatch")
                 document = read_capture(capture_path(args.root, identity))
                 contract.require(document["id"] == identity, "capture identity/path mismatch")
-                result.append({name: document[name] for name in ("id", "kind", "title", "author", "created_at")})
+                row = {name: document[name] for name in ("id", "title", "author", "created_at")}
+                row["kind"] = document["context"]["kind"] if document.get("schema") == "cp-plan-change-set-v1" else document["kind"]
+                result.append(row)
         print(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False))
         return 0
     except (contract.ContractError, OSError, ValueError) as error:

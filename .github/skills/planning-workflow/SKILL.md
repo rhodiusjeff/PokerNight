@@ -5,6 +5,29 @@ user-invocable: false
 ---
 # Shared Planning Workflow
 
+## Change-Set Proposals
+
+Load the [Planning Change-Set Policy](../../../control-plane/framework/governance/policies/plan-change-set.policy.md)
+and [schema](../../../control-plane/framework/governance/policies/plan-change-set.schema.json)
+for `cp-plan-change-set-v1`. This is the shared logical proposal form for ad hoc, horizon
+and discovery. It carries explicit changes, not a copied result or a workflow/current tree.
+Canon values reuse the eleven-kind Canon schema; source references contain no Base64.
+
+For a resolved change-set document, use `planning-change-set.py validate` and `preview`
+read-only, and exact-confirmed `save` for draft revision. `--canon` and `--work` update the
+appropriate typed changes in the same proposal while preserving all unaffected changes.
+`--complete` routes to its explicit `complete` command, not a status-only save or the old
+compose/propose builder. Record actual confirmation in capture through transient `--record`
+input. Never create numbered request files or maintain the preview as a second proposal.
+
+The paired writer currently owns ad hoc/discovery. The schema/checker accepts horizon
+origins too, but horizon physical laydown is deferred. Legacy mutation/evidence/admission
+helpers refuse change-set documents. Formal change-set review/admission/application remains
+pending; do not claim that complete or validated means admissible through the old kernel.
+The legacy CLI forms below apply only to their existing cp-planning-capture-v1 documents.
+Operator-directed migration uses the change-set helper's `migrate` and is limited to
+unreviewed draft-only contexts with explicit semantic mapping and preserved source coverage.
+
 ## Authority And Routing
 
 LOCAL MOD - HARVEST TO CPB: authorized V0.8.1 workflow integration.
@@ -14,6 +37,16 @@ Codegen, Planning and Design, and Lifecycle Facilitator remain the caller; no pe
 or child agent is required. Loading a skill is not invocation or blanket writer authority.
 Read the exact selected capture, sources, applicable base and execution inputs, and prior findings.
 Activate `.cp-venv`; all helpers below live in `control-plane/framework/scripts/`.
+
+Before selecting Canon records in any planning origin, load the
+[Canon Schema Policy](../../../control-plane/framework/governance/policies/canon-records.policy.md)
+and [record schema](../../../control-plane/framework/governance/policies/canon-records.schema.json).
+All eleven kinds are supported for ad hoc, horizon and discovery; the agent selects only
+needed records and records why in selection_rationale. Validate the Canon payload with
+`validate-canon-records.py INPUT --root ROOT` and an exact `--reference` set when needed.
+This read-only check adds no admission authority. The shared payload is the new modelling
+contract; the legacy complete-result kernel has not yet been migrated to it. Do not claim
+that old writer acceptance proves conformance or discard typed fields to force completion.
 
 Use `planning-capture.py inspect --root ROOT --id ID` and `resolve_document(root, ID)` for
 ADHOC and new HNNN documents. Each ADHOC/discovery session owns
@@ -41,19 +74,35 @@ helpers cannot authenticate people. Re-read the current document digest before p
 offer; on drift stop and explain the difference, never silently refresh a confirmed operation.
 Preserve workflow.findings/reviews/decision/admission through their owning APIs.
 
+For receipt generation and reference checks, apply the storage policy's reference classification.
+Use the current proposal, retained sources and required durable evidence as live references;
+do not introduce superseded generated drafts as dependencies. Prefer stdin where supported.
+If the actual command used a temporary input path, preserve the exact command but label that
+path as non-durable execution evidence, not a live link or restoration obligation. Cite retained
+archives and member identities for obsolete draft evidence instead of linking deleted files.
+Before repairing a reference, distinguish live dependencies, archived evidence and transient
+command inputs. Verify historical archive custody; never restore obsolete generated drafts solely
+because historical text names them. Missing live dependencies still require authorized recovery
+and source-pin verification. This guidance does not authorize archive edits or direct pair rewrites.
+
 ## Capture Before Proposal
 
 Use these actual CLI forms (placeholders must be resolved, not executed literally):
 
 ```text
-python3 control-plane/framework/scripts/planning-capture.py new-id
+python3 control-plane/framework/scripts/planning-capture.py new-id --root ROOT --slug SLUG --operation-id OP --author AUTHOR --confirmed
 python3 control-plane/framework/scripts/planning-capture.py capture --root ROOT --id ADHOC-ID --title TITLE --author AUTHOR --source FILE --confirmed
 python3 control-plane/framework/scripts/planning-capture.py capture --root ROOT --id ADHOC-ID --title TITLE --author AUTHOR --source FILE --kind discovery --origin-phase PHASE --origin-specification FILE --confirmed
 python3 control-plane/framework/scripts/planning-capture.py append --root ROOT --id ID --expected-digest SHA --source FILE --confirmed
 ```
 
 Collect original intent before deriving candidates. Repeat `--source` for explicitly selected
-files. Discovery pins the actual originating phase/specification; it neither amends that bound
+files. Follow [identity policy](../../../control-plane/framework/governance/policies/planning-identity.policy.md).
+Use the helper's returned full ID, not an invented suffix. For discovery minting add `--kind discovery
+--origin ORIGIN.json`, containing exact phase/revision and verified contract source. Never reuse an
+ad hoc ID for a new discovery context. Proposal CHG/Canon ordinals come from `planning-identity.py records`
+against the exact current digest; retain its allocation metadata and apply returned mappings before save.
+Discovery pins the actual originating phase/specification; it neither amends that bound
 contract nor reopens completed work. With no verified origin, ask or capture ordinary ad hoc
 intent honestly. New horizon creation and binding belong to the explicitly invoked
 [/horizon](../../prompts/horizon.prompt.md), not a side effect of planning.
@@ -106,9 +155,11 @@ Use [work shaping](../work-plan-shaping/SKILL.md) for decomposition and rework a
 Default to partial candidates, not full phase laydown. Explain sources, definitions, clauses,
 aliases, scope, rationale, acceptance direction, dependencies and unresolved questions in draft
 text; no placeholder phases, trace IDs, decisions or fake DAG. Keep candidate identifiers stable.
-Rich definitions and clauses remain in text and exact source provenance. Kernel Canon kinds are
-only `requirement`, `story`, `definition`. Label unrepresented structured relationships/clauses
-as schema expansion in the draft, not a supported new kind; do not silently discard meaning.
+Rich definitions and clauses follow the typed Canon model and exact source provenance.
+The older admission kernel still accepts only `requirement`, `story`, `definition`; that
+is a compatibility limitation, not the new policy's set of supported planning kinds.
+Keep the pending proposal/kernel mapping explicit; do not silently discard meaning or
+invent extra kinds beyond the shared catalogue.
 
 ```text
 python3 control-plane/framework/scripts/planning-work.py --root ROOT --context ID draft --section canon --request DRAFT.json --expected-digest SHA --confirmed
@@ -172,6 +223,20 @@ For a mismatched pair, inspect the retained snapshots and exact current hashes, 
 --expected-capture-digest CURRENT_MD_SHA --snapshot PRIOR_JSON_SHA --confirmed`.
 It retains observed preimages and restores the selected pair; it cannot recover admission
 authority. Do not reconstruct content from guesses or bypass a mismatch by direct editing.
+
+If an unreviewed draft's source origins point to unavailable pre-migration files, use
+`planning-capture.py restore-sources --root ROOT --id ID --expected-digest CURRENT_JSON_SHA
+--archive ARCHIVE --confirmed` after explicit Operator direction. It extracts only exact
+retained source bytes directly to `assets/history/` using their original archived filenames, verifies every source digest,
+and makes each source origin repository-relative. Source IDs, hashes, embedded bytes and
+candidate content remain unchanged; the prior pair and original archive remain evidence.
+It refuses complete or reviewed/admission-owned sessions. Do not use ordinary drafting to
+rewrite immutable source records or interpret historical command paths as current locations.
+When the Operator explicitly requests correction of existing extracted-source placement,
+`--relocate-existing` verifies those historical files, corrects only their paths and removes
+the obsolete restored-sources folder if empty. This path-only mode creates no snapshots,
+preserving an explicit Operator snapshot-deletion decision; normal mutations still retain
+paired history. It must not be used to omit history for content or authority changes.
 
 For diagrams load [diagram checkpoint](../diagram-checkpoint/SKILL.md) and its policy.
 `planning-capture.py retain-checkpoint --root ROOT --id ID --expected-digest SHA --manifest FILE

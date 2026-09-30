@@ -5,6 +5,24 @@ user-invocable: false
 ---
 # Canon Consolidation
 
+For cp-plan-change-set-v1, follow the
+[Planning Change-Set Policy](../../../control-plane/framework/governance/policies/plan-change-set.policy.md).
+Consolidation produces explicit Canon record/relationship changes against the exact base,
+not another full Canon copy. Use the shared Canon shapes and record selection rationale.
+Preserve unaffected changes, source evidence and unresolved semantics. Save through the
+change-set writer; the legacy draft procedure below does not own this format.
+
+## Canon Forms And Selection
+
+For ad hoc, horizon and discovery planning, load the
+[Canon Schema Policy](../../../control-plane/framework/governance/policies/canon-records.policy.md)
+and its schema before selecting records. All eleven kinds, including Definition, are
+available; none is mandatory merely to populate a template. Choose the kind and explain
+why the record is needed in selection_rationale; reuse existing meaning where appropriate.
+Validate forms, exact references and typed endpoints with validate-canon-records.py.
+Its success is not semantic approval. The current proposal/admission kernel integration
+is pending: preserve gaps explicitly rather than flattening the new model into old text.
+
 ## New File-Backed Context
 
 For a resolved `cp-planning-capture-v1` ADHOC or HNNN document, use
@@ -13,8 +31,9 @@ This branch overrides the horizon-only owner, resolver, output and complete-layd
 below, not legacy authority. Codegen, Planning or Facilitator uses its explicit narrow grant.
 Preserve the semantic reconciliation, inventory, provenance and rework checks below in draft text.
 Write only through `planning-work.py draft --section canon` or an explicitly complete proposal;
-never direct operational Canon. Source scrub remains separate. Rich definitions/clauses stay in
-text/provenance; label unrepresented schema expansion, never invent additional kernel kinds.
+never direct operational Canon. Source scrub remains separate. Rich definitions/clauses follow
+the shared typed model; distinguish its eleven planning kinds from the old three-kind
+kernel limitation. Label integration gaps, never invent additional uncatalogued kinds.
 No tracker, phase files, formal review or approval is required for partial candidates.
 If no new-format document exists in an actual legacy packet, follow the unchanged procedure below.
 

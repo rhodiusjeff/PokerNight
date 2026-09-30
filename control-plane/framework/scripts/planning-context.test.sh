@@ -65,19 +65,19 @@ class ContextTests(unittest.TestCase):
         (self.repository / "baseline").write_bytes(b"dirty\r\n")
         (self.repository / "untracked").write_bytes(b"\x00\xff")
         first = self.create()
-        self.assertEqual(first["id"], "H000")
+        self.assertRegex(first["id"], r"^H000-test-[0-9a-f]{4}$")
         self.assertEqual((self.repository / "baseline").read_bytes(), b"dirty\r\n")
         self.assertEqual((self.repository / "untracked").read_bytes(), b"\x00\xff")
         self.assertEqual(self.create()["id"], first["id"])
         tags = context.git(self.repository, "ls-remote", "--tags", "--refs", "fixture").stdout
-        self.assertEqual(len(tags.splitlines()), 1)
-        self.assertEqual(context.git(self.repository, "cat-file", "-t", "horizon/H000").stdout.strip(), b"tag")
+        self.assertEqual(len(tags.splitlines()), 0)
+        self.assertFalse(first["tag_reserved"])
         self.assertEqual(context.branch(self.repository), first["branch"])
 
     def test_horizon_resolver_and_proposal_identity(self):
         first = self.create()
         filename = capture.resolve_document(self.repository, first["id"])
-        self.assertIn("horizons/H000-test/planning/H000.md", str(filename))
+        self.assertIn(f"horizons/{first['id']}/planning/{first['id']}.md", str(filename))
         self.assertEqual(self.read(first["id"])["kind"], "horizon")
         self.assertFalse((self.repository / "control-plane/ad-hoc").exists())
 
@@ -153,14 +153,14 @@ class ContextTests(unittest.TestCase):
         first, second = self.pair()
         result = context.activate(self.repository, first, True, switch_branch=True)
         self.assertEqual(result["id"], first)
-        self.assertEqual(context.branch(self.repository), "planning/H000-test")
+        self.assertEqual(context.branch(self.repository), "planning/" + first)
 
     def test_dirty_explicit_branch_switch_preserves_work(self):
         first, second = self.pair()
         (self.repository / "baseline").write_text("unfinished")
         with self.assertRaisesRegex(context.contract.ContractError, "dirty"):
             context.activate(self.repository, first, True, switch_branch=True)
-        self.assertEqual(context.branch(self.repository), "planning/H001-second")
+        self.assertEqual(context.branch(self.repository), "planning/" + second)
         self.assertEqual((self.repository / "baseline").read_text(), "unfinished")
         worktree = self.folder / "worktree"
         context.git(self.repository, "worktree", "add", "-b", "other", str(worktree), "main")
@@ -188,8 +188,8 @@ class ContextTests(unittest.TestCase):
         with mock.patch.object(capture, "publish_new_bytes", fail_document):
             with self.assertRaisesRegex(OSError, "interrupted"):
                 self.create()
-        self.assertEqual(self.create()["id"], "H000")
-        self.assertEqual(len(context.git(self.repository, "ls-remote", "--tags", "--refs", "fixture").stdout.splitlines()), 1)
+        self.assertRegex(self.create()["id"], r"^H000-test-[0-9a-f]{4}$")
+        self.assertEqual(len(context.git(self.repository, "ls-remote", "--tags", "--refs", "fixture").stdout.splitlines()), 0)
 
     def published_versions(self):
         first = self.create()
@@ -277,12 +277,10 @@ class ContextTests(unittest.TestCase):
         with mock.patch.object(context, "write_json", fail_reserved):
             with self.assertRaisesRegex(OSError, "reservation"):
                 self.create()
-        with self.assertRaisesRegex(context.contract.ContractError, "interrupted tag reservation"):
-            self.create()
-        self.assertEqual(len(context.git(self.repository, "ls-remote", "--tags", "--refs", "fixture").stdout.splitlines()), 1)
-        journal = context.local_path(self.repository, "create/fixture-create.json")
-        context.recover_reservation(self.repository, "fixture-create", "H000", context.digest_bytes(journal.read_bytes()), True)
-        self.assertEqual(self.create()["id"], "H000")
+        state = context.contract.load_json(context.local_path(self.repository, "identities.json"))
+        allocated = state["contexts"]["fixture-create"]["id"]
+        self.assertEqual(self.create()["id"], allocated)
+        self.assertEqual(len(context.git(self.repository, "ls-remote", "--tags", "--refs", "fixture").stdout.splitlines()), 0)
 
     def test_reservation_recovery_refuses_wrong_subject(self):
         self.create()
@@ -414,8 +412,10 @@ class ContextTests(unittest.TestCase):
     def test_ambiguous_horizon_and_binding_path_escape(self):
         first = self.create()
         (self.repository / "control-plane/horizons/H000-duplicate").mkdir()
+        self.assertEqual(capture.resolve_document(self.repository, first["id"]).stem, first["id"])
+        (self.repository / "control-plane/horizons/H000-other").mkdir()
         with self.assertRaisesRegex(context.contract.ContractError, "ambiguous"):
-            capture.resolve_document(self.repository, first["id"])
+            capture.resolve_document(self.repository, "H000")
         binding = context.local_path(self.repository, "binding.json")
         binding.unlink()
         binding.symlink_to(self.source)

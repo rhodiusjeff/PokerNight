@@ -406,6 +406,7 @@ def read_document(root, context_id):
     contract.require(hasattr(capture, "resolve_document"), "shared capture resolve_document API is required")
     filename = confined(root, capture.resolve_document(root, context_id))
     document = capture.read_capture(filename)
+    contract.require(document.get("schema") != "cp-plan-change-set-v1", "change-set review/evidence integration is pending; legacy evidence writer cannot reinterpret this format")
     validate_workflow(document)
     return filename, document
 

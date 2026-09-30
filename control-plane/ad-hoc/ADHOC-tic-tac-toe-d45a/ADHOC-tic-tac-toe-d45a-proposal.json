@@ -1,0 +1,4051 @@
+{
+  "schema": "cp-plan-change-set-v1",
+  "id": "ADHOC-tic-tac-toe-d45a",
+  "revision": 3,
+  "title": "Tic-Tac-Toe: React, 0-2 Human Players",
+  "author": "Operator (conversation); source retained by GitHub Copilot",
+  "created_at": "2026-09-29T17:15:44.820639+00:00",
+  "context": {
+    "id": "ADHOC-tic-tac-toe-d45a",
+    "kind": "ad-hoc"
+  },
+  "status": "draft",
+  "capture": {
+    "id": "capture",
+    "path": "control-plane/ad-hoc/ADHOC-tic-tac-toe-d45a/ADHOC-tic-tac-toe-d45a-capture.md",
+    "sha256": "9a182f437e97c238777e0dace67824d975f491cae5ea3dcc5287801debe68170"
+  },
+  "base": {
+    "target_ref": "refs/heads/main",
+    "git_commit": "b26b33700e99f00c7edd1e46a0840c175f86aa90",
+    "path": "control-plane/operational/SPECIFICATION.json",
+    "revision": 0,
+    "sha256": "faae0d5014d2a32deb40b89b11bee98780f943d45992d90090c6e25cf0962813"
+  },
+  "sources": [
+    {
+      "id": "source-1",
+      "path": "control-plane/ad-hoc/ADHOC-tic-tac-toe-d45a/assets/history/001-conversation-source.md",
+      "sha256": "d6139844ec225d1e36ddd07d9552bc8aa1a64fc14a38fc6b935560f49bea69ed"
+    },
+    {
+      "id": "source-2",
+      "path": "control-plane/ad-hoc/ADHOC-tic-tac-toe-d45a/assets/history/002-play-again-source.md",
+      "sha256": "7af814bf2cd85e7440edec3184c9e505435e77ebf8d7fad2359c3b2ed884e961"
+    },
+    {
+      "id": "source-3",
+      "path": "control-plane/ad-hoc/ADHOC-tic-tac-toe-d45a/assets/history/003-runtime-browser-source.md",
+      "sha256": "3546cbb855ed4253554279579fe77387fb3eaccfe03310fe79b5f2db2e44e616"
+    },
+    {
+      "id": "source-4",
+      "path": "control-plane/ad-hoc/ADHOC-tic-tac-toe-d45a/assets/history/005-confirmed-defaults-source.md",
+      "sha256": "677069c28c0a4c38ba1772b07b82c664fd8c82a29f1465615b8488424e9f90b8"
+    },
+    {
+      "id": "source-5",
+      "path": "control-plane/ad-hoc/ADHOC-tic-tac-toe-d45a/assets/history/008-design-targets-source.md",
+      "sha256": "46d3113d1fd032c0a194c49229f11a956bf1b2de43b49f01e38df51d40417726"
+    }
+  ],
+  "changes": [
+    {
+      "change_id": "CHG-0001",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0001"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0001",
+        "revision": 1,
+        "kind": "definition",
+        "title": "Human-player count",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "This term has a specific game meaning that affects interpretation and is reused by the requirements.",
+        "content": {
+          "term": "Human-player count",
+          "meaning": "The number of human-controlled marks in a game: zero, one or two. Zero players means zero human players; X and O still exist and are controlled by AI.",
+          "applies_to": "This local tic-tac-toe feature",
+          "aliases": [
+            "0 players means 0 human players"
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0002",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0002"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0002",
+        "revision": 1,
+        "kind": "definition",
+        "title": "Unbeatable AI",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "This term has a specific game meaning that affects interpretation and is reused by the requirements.",
+        "content": {
+          "term": "Unbeatable AI",
+          "meaning": "A computer-controlled player. Unbeatable means no loss from a fresh legal game against any legal opponent sequence as either X or O. A draw is valid, not a guarantee of victory. Two unbeatable AIs draw under standard rules. This does not select an algorithm or external AI service.",
+          "applies_to": "This local tic-tac-toe feature",
+          "aliases": [
+            "computer-controlled opponent",
+            "computer-controlled player"
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0003",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0003"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0003",
+        "revision": 1,
+        "kind": "definition",
+        "title": "Game",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "This term has a specific game meaning that affects interpretation and is reused by the requirements.",
+        "content": {
+          "term": "Game",
+          "meaning": "One standard 3x3 round from an empty board until X wins, O wins or a draw. It is distinct from a browser session and implies no match or multi-game score.",
+          "applies_to": "This local tic-tac-toe feature",
+          "aliases": [
+            "round"
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0004",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0004"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0004",
+        "revision": 1,
+        "kind": "definition",
+        "title": "Play again",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-2"
+        ],
+        "selection_rationale": "This term has a specific game meaning that affects interpretation and is reused by the requirements.",
+        "content": {
+          "term": "Play again",
+          "meaning": "Play again is a person's explicit action beginning another game after termination. In zero-human mode the person triggers replay without controlling either mark. Replay is not automatic.",
+          "applies_to": "This local tic-tac-toe feature",
+          "aliases": [
+            "Play again"
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-2"
+      ]
+    },
+    {
+      "change_id": "CHG-0005",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0005"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0005",
+        "revision": 1,
+        "kind": "functional_requirement",
+        "title": "Rules",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "This is independently observable game behavior required by the cited sources and retained planning interpretation.",
+        "content": {
+          "obligation": "Use nine cells in a 3x3 board. X starts; X and O alternate, placing one mark in an empty cell. Three identical marks in a row, column or diagonal win. A full board without a winner draws. A winning final move takes precedence over draw; terminal games accept no moves.",
+          "rationale": "Required behavior for the selected standard game and interaction modes.",
+          "acceptance_direction": "All eight winning lines for both marks; Full-board draw and winning ninth move; Occupied-cell rejection, X-first alternation and terminal immutability"
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0006",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0006"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0006",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify rules",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "A legal board is in a winning, draw, occupied-cell or terminal test position.",
+          "when_action": "The next permitted or prohibited move is attempted.",
+          "then_observable_result": "All eight winning lines for both marks; Full-board draw and winning ninth move; Occupied-cell rejection, X-first alternation and terminal immutability",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0007",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0005",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0006",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0005",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0006",
+          "revision": 1
+        },
+        "sources": [
+          "source-1"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0008",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "defines",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0003",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0005",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "defines",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0003",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0005",
+          "revision": 1
+        },
+        "sources": [
+          "source-1"
+        ],
+        "rationale": "The requirement uses the explicitly defined game term."
+      },
+      "rationale": "The requirement uses the explicitly defined game term.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0009",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0007"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0007",
+        "revision": 1,
+        "kind": "functional_requirement",
+        "title": "Modes",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1",
+          "source-4"
+        ],
+        "selection_rationale": "This is independently observable game behavior required by the cited sources and retained planning interpretation.",
+        "content": {
+          "obligation": "Support zero humans with AI controlling both marks, one human versus AI, and two humans sharing one device. Human input cannot place moves on an AI-controlled turn.",
+          "rationale": "Required behavior for the selected standard game and interaction modes.",
+          "acceptance_direction": "Complete a game in each mode; Zero-human games progress without board input after Start; Two-human games schedule no autonomous moves; The phone runs its own local game, not a synchronized second board"
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "CHG-0010",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0008"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0008",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify modes",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1",
+          "source-4"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "Each of the zero-, one- and two-human modes is selected in turn.",
+          "when_action": "A complete game is started and played or observed.",
+          "then_observable_result": "Complete a game in each mode; Zero-human games progress without board input after Start; Two-human games schedule no autonomous moves; The phone runs its own local game, not a synchronized second board",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "CHG-0011",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0007",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0008",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0007",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0008",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-4"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-1",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "CHG-0012",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "defines",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0001",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0007",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "defines",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0001",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0007",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-4"
+        ],
+        "rationale": "The requirement uses the explicitly defined game term."
+      },
+      "rationale": "The requirement uses the explicitly defined game term.",
+      "sources": [
+        "source-1",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "CHG-0013",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0009"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0009",
+        "revision": 1,
+        "kind": "functional_requirement",
+        "title": "Mark choice",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "This is independently observable game behavior required by the cited sources and retained planning interpretation.",
+        "content": {
+          "obligation": "Before a one-human game, choose human X or O; AI controls the other mark.",
+          "rationale": "Required behavior for the selected standard game and interaction modes.",
+          "acceptance_direction": "Human X makes the opening move after Start; Human O receives an opening AI-X move after Start and the AI delay"
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0014",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0010"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0010",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify mark choice",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "One-human mode is selected before a game.",
+          "when_action": "The human chooses X or O and presses Start.",
+          "then_observable_result": "Human X makes the opening move after Start; Human O receives an opening AI-X move after Start and the AI delay",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0015",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0009",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0010",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0009",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0010",
+          "revision": 1
+        },
+        "sources": [
+          "source-1"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0016",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0011"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0011",
+        "revision": 1,
+        "kind": "functional_requirement",
+        "title": "Unbeatable",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "This is independently observable game behavior required by the cited sources and retained planning interpretation.",
+        "content": {
+          "obligation": "Every AI-controlled mark must be unbeatable as defined by d-ai. Algorithm and library selection remain implementation choices.",
+          "rationale": "Required behavior for the selected standard game and interaction modes.",
+          "acceptance_direction": "Exhaust every legal opponent sequence from a fresh game for AI-X and AI-O, with zero AI losses; Every chosen move is legal; Cover every permitted nondeterministic tie-breaking choice; AI versus AI terminates in a draw; winning against perfect play is not promised"
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0017",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0012"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0012",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify unbeatable",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "An AI controls X or O from a fresh legal game.",
+          "when_action": "All legal opponent sequences and permitted AI choices are explored, and AI versus AI is run.",
+          "then_observable_result": "Exhaust every legal opponent sequence from a fresh game for AI-X and AI-O, with zero AI losses; Every chosen move is legal; Cover every permitted nondeterministic tie-breaking choice; AI versus AI terminates in a draw; winning against perfect play is not promised",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0018",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0011",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0012",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0011",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0012",
+          "revision": 1
+        },
+        "sources": [
+          "source-1"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0019",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "defines",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0002",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0011",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "defines",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0002",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0011",
+          "revision": 1
+        },
+        "sources": [
+          "source-1"
+        ],
+        "rationale": "The requirement uses the explicitly defined game term."
+      },
+      "rationale": "The requirement uses the explicitly defined game term.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0020",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0013"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0013",
+        "revision": 1,
+        "kind": "functional_requirement",
+        "title": "Result",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1",
+          "source-2"
+        ],
+        "selection_rationale": "This is independently observable game behavior required by the cited sources and retained planning interpretation.",
+        "content": {
+          "obligation": "Show the current turn and unambiguous X win, O win or draw. Preserve the finished board and result while waiting for a new-game action.",
+          "rationale": "Required behavior for the selected standard game and interaction modes.",
+          "acceptance_direction": "Labels agree with the board; Waiting after AI versus AI finishes neither clears the result nor schedules a new game"
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1",
+        "source-2"
+      ]
+    },
+    {
+      "change_id": "CHG-0021",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0014"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0014",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify result",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1",
+          "source-2"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "A game is active or has just terminated.",
+          "when_action": "The turn display is inspected and the completed game is left waiting without a new-game action.",
+          "then_observable_result": "Labels agree with the board; Waiting after AI versus AI finishes neither clears the result nor schedules a new game",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1",
+        "source-2"
+      ]
+    },
+    {
+      "change_id": "CHG-0022",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0013",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0014",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0013",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0014",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-1",
+        "source-2"
+      ]
+    },
+    {
+      "change_id": "CHG-0023",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "defines",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0004",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0013",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "defines",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0004",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0013",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2"
+        ],
+        "rationale": "The requirement uses the explicitly defined game term."
+      },
+      "rationale": "The requirement uses the explicitly defined game term.",
+      "sources": [
+        "source-1",
+        "source-2"
+      ]
+    },
+    {
+      "change_id": "CHG-0024",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0015"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0015",
+        "revision": 1,
+        "kind": "functional_requirement",
+        "title": "Manual replay",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-2",
+          "source-4"
+        ],
+        "selection_rationale": "This is independently observable game behavior required by the cited sources and retained planning interpretation.",
+        "content": {
+          "obligation": "Provide Play again after termination in every mode. One activation clears the board/result and starts exactly one game with X first, retaining the displayed mode and mark selections without another Start confirmation.",
+          "rationale": "Required behavior for the selected standard game and interaction modes.",
+          "acceptance_direction": "No automatic replay after any waiting period; Replay works in all three modes and for each terminal result; No duplicate new games or delayed moves from the prior game"
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-2",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "CHG-0025",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0016"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0016",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify manual replay",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-2",
+          "source-4"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "A terminal board and result are visible in any player mode.",
+          "when_action": "The user waits, then activates Play again once.",
+          "then_observable_result": "No automatic replay after any waiting period; Replay works in all three modes and for each terminal result; No duplicate new games or delayed moves from the prior game",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-2",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "CHG-0026",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0015",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0016",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0015",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0016",
+          "revision": 1
+        },
+        "sources": [
+          "source-2",
+          "source-4"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-2",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "CHG-0027",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "defines",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0004",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0015",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "defines",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0004",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0015",
+          "revision": 1
+        },
+        "sources": [
+          "source-2",
+          "source-4"
+        ],
+        "rationale": "The requirement uses the explicitly defined game term."
+      },
+      "rationale": "The requirement uses the explicitly defined game term.",
+      "sources": [
+        "source-2",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "CHG-0028",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0017"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0017",
+        "revision": 1,
+        "kind": "constraint",
+        "title": "React",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "This restricts acceptable implementation or operation rather than describing a standalone user interaction.",
+        "content": {
+          "constraint": "Implement the actual interactive game interface in React. No bundler or language variant is prescribed.",
+          "applies_to": "The delivered local tic-tac-toe application",
+          "rationale": "Retain the agreed implementation or operating boundary from the cited planning sources."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0029",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0018"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0018",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify react",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "The delivered browser application is running.",
+          "when_action": "The game interface and application implementation are inspected.",
+          "then_observable_result": "The delivered browser application uses React for its game interface",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0030",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0017",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0018",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0017",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0018",
+          "revision": 1
+        },
+        "sources": [
+          "source-1"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "CHG-0031",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0019"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0019",
+        "revision": 1,
+        "kind": "constraint",
+        "title": "Runtime",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-3",
+          "source-4"
+        ],
+        "selection_rationale": "This restricts acceptable implementation or operation rather than describing a standalone user interaction.",
+        "content": {
+          "constraint": "Use local Node.js and Express to serve the React application on fixed port 3630. Versions, commands and build/serving details follow the repository implementation context.",
+          "applies_to": "The delivered local tic-tac-toe application",
+          "rationale": "Retain the agreed implementation or operating boundary from the cited planning sources."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-3",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "CHG-0032",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0020"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0020",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify runtime",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-3",
+          "source-4"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "The local host can run the application, including a separate occupied-port test.",
+          "when_action": "Express startup, asset loading, complete gameplay and the phone LAN URL are exercised.",
+          "then_observable_result": "Load assets and complete a game through port 3630; If port 3630 is occupied, report an actionable startup error instead of silently choosing another port; Use deliberate local Wi-Fi access for the physical phone; do not treat phone localhost as the host",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-3",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "CHG-0033",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0019",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0020",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0019",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0020",
+          "revision": 1
+        },
+        "sources": [
+          "source-3",
+          "source-4"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-3",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "CHG-0034",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0021"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0021",
+        "revision": 1,
+        "kind": "constraint",
+        "title": "Browsers",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "selection_rationale": "This restricts acceptable implementation or operation rather than describing a standalone user interaction.",
+        "content": {
+          "constraint": "Support Chrome on desktop and Chrome on a physical iPhone accessing the local server over Wi-Fi. Responsive layout, pointer/touch controls and complete game/replay behavior are required. Other browser families are optional supplemental testing, not additional release gates.",
+          "applies_to": "The delivered local tic-tac-toe application",
+          "rationale": "Retain the agreed implementation or operating boundary from the cited planning sources."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0035",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0022"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0022",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify browsers",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "Actual desktop Chrome and Chrome on a physical iPhone are available over local Wi-Fi.",
+          "when_action": "Full games and replay are exercised using pointer and touch with the actual environment recorded.",
+          "then_observable_result": "Board, mode/mark controls, Start, turn/result and Play again remain accessible without overlap or clipping; Game rules do not change with viewport size; Test actual desktop Chrome and actual iPhone Chrome; emulation or another mobile browser cannot substitute; Record desktop OS, iPhone model/iOS version, Chrome versions, real viewport and local access URL",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0036",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0021",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0022",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0021",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0022",
+          "revision": 1
+        },
+        "sources": [
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0037",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0023"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0023",
+        "revision": 1,
+        "kind": "constraint",
+        "title": "Local session",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-4",
+          "source-5"
+        ],
+        "selection_rationale": "This restricts acceptable implementation or operation rather than describing a standalone user interaction.",
+        "content": {
+          "constraint": "Keep play shared-device and local to a browser session, without accounts, saved games or persistent scores. No synchronized cross-device multiplayer or scoreboard is inferred.",
+          "applies_to": "The delivered local tic-tac-toe application",
+          "rationale": "Retain the agreed implementation or operating boundary from the cited planning sources."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0038",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0024"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0024",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify local session",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-4",
+          "source-5"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "Independent browser sessions are open.",
+          "when_action": "The game is used and each session board, account flow and persistence behavior are inspected.",
+          "then_observable_result": "No account flow, saved-game feature or persistent-score behavior; Separate browser sessions do not share a board",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0039",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0023",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0024",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0023",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0024",
+          "revision": 1
+        },
+        "sources": [
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0040",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "defines",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0003",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0023",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "defines",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0003",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0023",
+          "revision": 1
+        },
+        "sources": [
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The requirement uses the explicitly defined game term."
+      },
+      "rationale": "The requirement uses the explicitly defined game term.",
+      "sources": [
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0041",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0025"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0025",
+        "revision": 1,
+        "kind": "functional_requirement",
+        "title": "Ai pacing",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-4"
+        ],
+        "selection_rationale": "This is independently observable game behavior required by the cited sources and retained planning interpretation.",
+        "content": {
+          "obligation": "Schedule each AI move with a 500 ms delay before applying it, including opening moves and every AI/AI turn. Browser scheduling can run later under background throttling or load; this is not a hard real-time deadline.",
+          "rationale": "Required behavior for the selected standard game and interaction modes.",
+          "acceptance_direction": "Controlled-clock tests show no move before the delay and one legal move when its turn runs; Foreground observation shows distinct moves; Moves occur only in the current active game's AI turn, never after termination or from stale games; Stacked callbacks cannot apply multiple moves"
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "CHG-0042",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0026"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0026",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify ai pacing",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-4"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "An active game has an AI-controlled turn, including opening and successive AI turns.",
+          "when_action": "Controlled clocks advance around 500 ms and old, stacked and terminal callbacks are exercised.",
+          "then_observable_result": "Controlled-clock tests show no move before the delay and one legal move when its turn runs; Foreground observation shows distinct moves; Moves occur only in the current active game's AI turn, never after termination or from stale games; Stacked callbacks cannot apply multiple moves",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "CHG-0043",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0025",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0026",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0025",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0026",
+          "revision": 1
+        },
+        "sources": [
+          "source-4"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "CHG-0044",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0027"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0027",
+        "revision": 1,
+        "kind": "constraint",
+        "title": "State authority",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-5"
+        ],
+        "selection_rationale": "This restricts acceptable implementation or operation rather than describing a standalone user interaction.",
+        "content": {
+          "constraint": "The browser owns transient board, controller, AI, turn and terminal-result transitions; Express serves the app. No server gameplay API or shared cross-device state is required. This does not promise offline asset loading.",
+          "applies_to": "The delivered local tic-tac-toe application",
+          "rationale": "Retain the agreed implementation or operating boundary from the cited planning sources."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0045",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0028"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0028",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify state authority",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-5"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "Independent browser sessions load the app from Express.",
+          "when_action": "Gameplay and replay proceed while ownership of board, controller, turn and result transitions is inspected.",
+          "then_observable_result": "Gameplay does not depend on server move-validation or opponent endpoints; Independent browser sessions keep independent boards; No saved-game or persistent-score behavior, while replay retains current settings",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0046",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0027",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0028",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0027",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0028",
+          "revision": 1
+        },
+        "sources": [
+          "source-5"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0047",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0029"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0029",
+        "revision": 1,
+        "kind": "functional_requirement",
+        "title": "Start setup",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-5"
+        ],
+        "selection_rationale": "This is independently observable game behavior required by the cited sources and retained planning interpretation.",
+        "content": {
+          "obligation": "Allow mode selection and one-human X/O choice before Start. No human or AI move happens before Start. Start begins with X; lock mode/mark changes during active play and enable them again after termination. Editing terminal settings alone does not start a game. Preserve the finished board/result until an explicit new-game action.",
+          "rationale": "Required behavior for the selected standard game and interaction modes.",
+          "acceptance_direction": "Exercise Start in all modes; Human O and AI/AI opening moves occur only after Start and the 500 ms delay; Active setup controls cannot change controller ownership; Terminal setup becomes usable but schedules no move on its own; Play again starts directly using displayed selections, without a second Start"
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0048",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0030"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0030",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify start setup",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-5"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "The application is before Start or a game is active or terminated.",
+          "when_action": "Mode/mark selection, Start, active setting changes and terminal replay are exercised in every mode.",
+          "then_observable_result": "Exercise Start in all modes; Human O and AI/AI opening moves occur only after Start and the 500 ms delay; Active setup controls cannot change controller ownership; Terminal setup becomes usable but schedules no move on its own; Play again starts directly using displayed selections, without a second Start",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0049",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0029",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0030",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0029",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0030",
+          "revision": 1
+        },
+        "sources": [
+          "source-5"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0050",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0031"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+        "revision": 1,
+        "kind": "story",
+        "title": "Solo",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "selection_rationale": "Retain this distinct actor experience; actor and benefit make explicit the user perspective already present in the source-backed story.",
+        "content": {
+          "actor": "Human player",
+          "desired_outcome": "Choose X/O, press Start, play an unbeatable AI and replay with the same selections.",
+          "benefit": "Play using the preferred mark against a challenging opponent."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0051",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0006",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0006",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-rules; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-rules; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0052",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0008",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0008",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-modes; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-modes; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0053",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0010",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0010",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-mark-choice; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-mark-choice; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0054",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0012",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0012",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-unbeatable; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-unbeatable; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0055",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0014",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0014",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-result; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-result; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0056",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0016",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0016",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-manual-replay; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-manual-replay; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0057",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0026",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0026",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-ai-pacing; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-ai-pacing; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0058",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0030",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0030",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-start-setup; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-start-setup; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0059",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0028",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0028",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-state-authority; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-state-authority; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0060",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0032"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0032",
+        "revision": 1,
+        "kind": "story",
+        "title": "Watch",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "selection_rationale": "Retain this distinct actor experience; actor and benefit make explicit the user perspective already present in the source-backed story.",
+        "content": {
+          "actor": "Observer",
+          "desired_outcome": "Press Start to observe two unbeatable AIs with 500 ms pacing, retain the draw and choose when to Play again.",
+          "benefit": "Observe a complete paced game and control replay."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0061",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0032",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0008",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0032",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0008",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-modes; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-modes; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0062",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0032",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0012",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0032",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0012",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-unbeatable; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-unbeatable; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0063",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0032",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0014",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0032",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0014",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-result; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-result; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0064",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0032",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0016",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0032",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0016",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-manual-replay; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-manual-replay; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0065",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0032",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0026",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0032",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0026",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-ai-pacing; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-ai-pacing; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0066",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0032",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0030",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0032",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0030",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-start-setup; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-start-setup; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0067",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0033"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0033",
+        "revision": 1,
+        "kind": "story",
+        "title": "Two humans",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "selection_rationale": "Retain this distinct actor experience; actor and benefit make explicit the user perspective already present in the source-backed story.",
+        "content": {
+          "actor": "Two people sharing one device",
+          "desired_outcome": "Two people share a device, start, alternate legal moves, see the result and choose replay.",
+          "benefit": "Play together locally and inspect the result."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0068",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0033",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0006",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0033",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0006",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-rules; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-rules; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0069",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0033",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0008",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0033",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0008",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-modes; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-modes; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0070",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0033",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0014",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0033",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0014",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-result; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-result; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0071",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0033",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0016",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0033",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0016",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-manual-replay; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-manual-replay; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0072",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0033",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0024",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0033",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0024",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-local-session; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-local-session; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0073",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0033",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0030",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0033",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0030",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-start-setup; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-start-setup; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0074",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0034"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "CR-ADHOC-tic-tac-toe-d45a-0034",
+        "revision": 1,
+        "kind": "story",
+        "title": "Local browser",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1",
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "selection_rationale": "Retain this distinct actor experience; actor and benefit make explicit the user perspective already present in the source-backed story.",
+        "content": {
+          "actor": "Local browser user",
+          "desired_outcome": "Use desktop Chrome or physical-iPhone Chrome over local Wi-Fi to play the browser-held React game served by Express on port 3630.",
+          "benefit": "Access the same game experience on the selected desktop and phone browsers."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1",
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0075",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0034",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0018",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0034",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0018",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-react; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-react; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0076",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0034",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0020",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0034",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0020",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-runtime; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-runtime; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0077",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0034",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0022",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0034",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0022",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-browsers; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-browsers; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0078",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0034",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0024",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0034",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0024",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-local-session; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-local-session; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0079",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0034",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0028",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0034",
+          "revision": 1
+        },
+        "to": {
+          "id": "CR-ADHOC-tic-tac-toe-d45a-0028",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-state-authority; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-state-authority; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "CHG-0080",
+      "operation": "add",
+      "target": {
+        "type": "work_item",
+        "id": "w-playable-game"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "title": "Playable local React tic-tac-toe with verified unbeatable AI",
+        "outcome": "One cohesive delivery of the browser-held game, local Express serving on 3630, exhaustive correctness/AI tests and actual Chrome desktop/iPhone acceptance. Internal tasks are not separately reserved phases.",
+        "included": [
+          "Standard rules and all human-player modes",
+          "Human X/O choice",
+          "Unbeatable AI for both marks",
+          "500 ms AI pacing",
+          "Explicit Start and active setup lock",
+          "Stable turn/result display",
+          "Manual replay in every mode with current settings",
+          "Browser-owned transient state",
+          "React served by local Node.js/Express on 3630",
+          "Responsive pointer/touch controls",
+          "Physical-iPhone Chrome access over Wi-Fi",
+          "Automated and physical-browser acceptance evidence",
+          "Local run/test instructions"
+        ],
+        "excluded": [
+          "Accounts",
+          "Saved games",
+          "Persistent scores",
+          "Online multiplayer",
+          "Public hosting",
+          "Extra difficulty levels",
+          "Framework helper changes as product work",
+          "Unrelated PokerNight scope"
+        ],
+        "acceptance": [
+          "Rules cover all eight win lines for X/O, full draw, final-cell win precedence, X-first alternation, occupied cells and terminal immutability.",
+          "Explore every legal opponent sequence against AI-X and AI-O, all permitted nondeterministic choices, legal returned moves and zero AI losses. Use an independent outcome oracle or assertions separate from the engine being tested. AI/AI must draw.",
+          "All modes remain inactive before Start. One-human mode accepts input only for the human turn; two-human mode schedules no AI moves; zero-human play needs no board input after Start.",
+          "Controlled clocks verify no move before 500 ms and exactly one legal move for the scheduled turn, including openings and successive AI/AI turns. Cover rapid input, stacked timers, termination and stale prior-game callbacks.",
+          "Lock mode/mark during play; unlock at completion. Changing terminal setup alone does not start moves. Play again starts directly with displayed selections, X first and no duplicate game.",
+          "Each reachable terminal result persists until a new-game action. Replay clears board/result, retains mode/mark and isolates old callbacks.",
+          "Verify browser-owned state and independent sessions without move APIs, authentication claims, saved games or persistent scores. No offline-loading guarantee is inferred.",
+          "Load real React assets and play through port 3630; occupied port fails clearly. Verify actual phone/LAN URL without assuming phone localhost or changing firewall/public exposure without authority.",
+          "Complete/replay games in actual desktop Chrome and actual Chrome on the physical iPhone. Exercise touch/pointer input, setup, Start, AI observation, result retention, full board/control fit, hit targets and stable non-overlapping layout.",
+          "Record device, OS, browser versions, viewport, URL, tested commit, observed outcomes, dependency versions, commands, automated results, AI exploration method/counts and untested cases. Screenshots support but do not replace interaction evidence."
+        ],
+        "tasks": [
+          {
+            "id": "context",
+            "text": "Inspect repository conventions, packages/tests and compatible dependencies. Evaluate a suitable maintained game/AI library for license, browser compatibility, footprint, rules and unbeatable behavior. If none is suitable, request an explicit tradeoff decision rather than silently writing a custom engine.",
+            "after": []
+          },
+          {
+            "id": "rules-ai",
+            "text": "Integrate rules/AI and independently verify legal transitions and no losses for either AI mark. Internal API choices remain implementation decisions.",
+            "after": [
+              "context"
+            ]
+          },
+          {
+            "id": "game-flow",
+            "text": "Implement React setup, Start, controller ownership, turn/result display, 500 ms AI turns, manual replay and cancellation or rejection of stale callbacks. Add behavior/component tests.",
+            "after": [
+              "rules-ai"
+            ]
+          },
+          {
+            "id": "serving",
+            "text": "Serve built React assets through Express on 3630. Document run commands and deliberate LAN access; verify occupied-port refusal.",
+            "after": [
+              "context"
+            ]
+          },
+          {
+            "id": "acceptance",
+            "text": "Verify the integrated application automatically and on actual desktop Chrome and physical-iPhone Chrome. Record exact implementation and environment evidence.",
+            "after": [
+              "game-flow",
+              "serving"
+            ]
+          }
+        ],
+        "risks": [
+          "A purported unbeatable library needs exhaustive independent verification",
+          "Stale or duplicate scheduled moves can corrupt replay and terminal state",
+          "Desktop emulation cannot prove iPhone Chrome behavior",
+          "LAN serving must remain deliberate local use without unauthorized network changes"
+        ],
+        "later_contract_obligations": [
+          "Resolve actual implementation placement/toolchain before naming paths",
+          "Provide the required validated architecture/pre-flight diagram when creating a complete phase prompt for these boundaries",
+          "Fresh exact baseline and independent review/decision are still required before admission"
+        ],
+        "id": "w-playable-game",
+        "revision": 1,
+        "maturity": "candidate",
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "canon_refs": [
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0001",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0002",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0003",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0004",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0005",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0006",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0007",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0008",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0009",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0010",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0011",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0012",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0013",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0014",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0015",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0016",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0017",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0018",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0019",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0020",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0021",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0022",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0023",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0024",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0025",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0026",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0027",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0028",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0029",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0030",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0031",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0032",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0033",
+            "revision": 1
+          },
+          {
+            "id": "CR-ADHOC-tic-tac-toe-d45a-0034",
+            "revision": 1
+          }
+        ],
+        "supplemental_checks": [
+          "Suggested automated viewports: 1280x800 desktop, 390x844 mobile, 320px-width stress",
+          "engineering recommendations, adjustable with rationale; not claimed device dimensions",
+          "Firefox, Safari, Android, Chromium emulation and WebKit checks are optional and cannot replace required actual Chrome desktop/iPhone evidence"
+        ]
+      },
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-3",
+        "source-4",
+        "source-5"
+      ],
+      "rationale": "One cohesive local game outcome covers the selected Canon; it remains advisory until its implementation contract is specified."
+    }
+  ],
+  "unresolved": [
+    {
+      "id": "relationship-r-modes-r-rules",
+      "explanation": "The prior draft recorded an untyped uses link from r-modes to r-rules. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0009",
+        "CHG-0005"
+      ]
+    },
+    {
+      "id": "relationship-r-mark-choice-r-rules",
+      "explanation": "The prior draft recorded an untyped uses link from r-mark-choice to r-rules. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0013",
+        "CHG-0005"
+      ]
+    },
+    {
+      "id": "relationship-r-mark-choice-r-modes",
+      "explanation": "The prior draft recorded an untyped uses link from r-mark-choice to r-modes. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0013",
+        "CHG-0009"
+      ]
+    },
+    {
+      "id": "relationship-r-result-r-rules",
+      "explanation": "The prior draft recorded an untyped uses link from r-result to r-rules. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0020",
+        "CHG-0005"
+      ]
+    },
+    {
+      "id": "relationship-r-manual-replay-r-rules",
+      "explanation": "The prior draft recorded an untyped uses link from r-manual-replay to r-rules. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0024",
+        "CHG-0005"
+      ]
+    },
+    {
+      "id": "relationship-r-browsers-r-runtime",
+      "explanation": "The prior draft recorded an untyped uses link from r-browsers to r-runtime. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0034",
+        "CHG-0031"
+      ]
+    },
+    {
+      "id": "relationship-r-browsers-r-modes",
+      "explanation": "The prior draft recorded an untyped uses link from r-browsers to r-modes. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0034",
+        "CHG-0009"
+      ]
+    },
+    {
+      "id": "relationship-r-browsers-r-start-setup",
+      "explanation": "The prior draft recorded an untyped uses link from r-browsers to r-start-setup. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0034",
+        "CHG-0047"
+      ]
+    },
+    {
+      "id": "relationship-r-ai-pacing-r-rules",
+      "explanation": "The prior draft recorded an untyped uses link from r-ai-pacing to r-rules. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0041",
+        "CHG-0005"
+      ]
+    },
+    {
+      "id": "relationship-r-ai-pacing-r-modes",
+      "explanation": "The prior draft recorded an untyped uses link from r-ai-pacing to r-modes. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0041",
+        "CHG-0009"
+      ]
+    },
+    {
+      "id": "relationship-r-ai-pacing-r-manual-replay",
+      "explanation": "The prior draft recorded an untyped uses link from r-ai-pacing to r-manual-replay. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0041",
+        "CHG-0024"
+      ]
+    },
+    {
+      "id": "relationship-r-state-authority-r-react",
+      "explanation": "The prior draft recorded an untyped uses link from r-state-authority to r-react. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0044",
+        "CHG-0028"
+      ]
+    },
+    {
+      "id": "relationship-r-state-authority-r-runtime",
+      "explanation": "The prior draft recorded an untyped uses link from r-state-authority to r-runtime. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0044",
+        "CHG-0031"
+      ]
+    },
+    {
+      "id": "relationship-r-state-authority-r-local-session",
+      "explanation": "The prior draft recorded an untyped uses link from r-state-authority to r-local-session. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0044",
+        "CHG-0037"
+      ]
+    },
+    {
+      "id": "relationship-r-start-setup-r-rules",
+      "explanation": "The prior draft recorded an untyped uses link from r-start-setup to r-rules. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0047",
+        "CHG-0005"
+      ]
+    },
+    {
+      "id": "relationship-r-start-setup-r-modes",
+      "explanation": "The prior draft recorded an untyped uses link from r-start-setup to r-modes. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0047",
+        "CHG-0009"
+      ]
+    },
+    {
+      "id": "relationship-r-start-setup-r-mark-choice",
+      "explanation": "The prior draft recorded an untyped uses link from r-start-setup to r-mark-choice. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0047",
+        "CHG-0013"
+      ]
+    },
+    {
+      "id": "relationship-r-start-setup-r-manual-replay",
+      "explanation": "The prior draft recorded an untyped uses link from r-start-setup to r-manual-replay. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0047",
+        "CHG-0024"
+      ]
+    },
+    {
+      "id": "relationship-r-start-setup-r-ai-pacing",
+      "explanation": "The prior draft recorded an untyped uses link from r-start-setup to r-ai-pacing. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "CHG-0047",
+        "CHG-0041"
+      ]
+    },
+    {
+      "id": "work-contract",
+      "explanation": "Inspect repository product conventions and select dependencies; finalize execution selection, validation, review and closeout contract without inventing an implementation phase.",
+      "affects": [
+        "CHG-0080"
+      ]
+    },
+    {
+      "id": "storage-integration",
+      "explanation": "Repository Canon/tracker storage and live change-set admission integration remain to be implemented and verified.",
+      "affects": []
+    }
+  ],
+  "identity": {
+    "mint": {
+      "operation_id": "tic-tac-toe-identity-policy-20260929",
+      "request_digest": "16810c107d311b07e7b65513a66bf57a4f602e92f29cf47468406a9ebfa6bda5"
+    },
+    "allocation": {
+      "next_change": 81,
+      "next_canon": 35,
+      "changes": {
+        "CHG-0001": {
+          "operation": "add",
+          "target_digest": "6dcd317fb44cf1aedb4452105ba561595cdfaa03158a1bc14a8dc476e4d1bfff"
+        },
+        "CHG-0002": {
+          "operation": "add",
+          "target_digest": "8cb0832569c005f3e51d7c63be00b8ebb126a3f0640e9c35753788fc7437ad8b"
+        },
+        "CHG-0003": {
+          "operation": "add",
+          "target_digest": "9200ae0753b8946f269287d8c602cfa39193df5f38796aacb0ee73801a3a06df"
+        },
+        "CHG-0004": {
+          "operation": "add",
+          "target_digest": "84bcb8da73c3afc2629d7935eedb98dc16a007d446f5b1916ec7ebffa4e6693d"
+        },
+        "CHG-0005": {
+          "operation": "add",
+          "target_digest": "87a3fe50bd3b062c9b525df17cc413e649c43ee7b3cad46581755e251a8c67a1"
+        },
+        "CHG-0006": {
+          "operation": "add",
+          "target_digest": "44942ba8b10e4a457c39739572c73954343c653444b43191313ed7cd01412d46"
+        },
+        "CHG-0007": {
+          "operation": "add",
+          "target_digest": "1568147a11b9da840004eed12d5a47e144358c7a8dc4e225eaf21c149db5dd3b"
+        },
+        "CHG-0008": {
+          "operation": "add",
+          "target_digest": "500a327d830c48a5ff771595d4516eec37367613331b1e64392fe4207dc4d708"
+        },
+        "CHG-0009": {
+          "operation": "add",
+          "target_digest": "0f0aa488a5064c52038c129eec7f241af6b69d26bf8e54bea10315f44b0a6618"
+        },
+        "CHG-0010": {
+          "operation": "add",
+          "target_digest": "82315ca62bbdeeb10b4c1fd86a519f0c36805b4b77e7b27680e62dea5928dbf4"
+        },
+        "CHG-0011": {
+          "operation": "add",
+          "target_digest": "7ed7f2e909e80ab092b6b8bd5487e34afa14713ac0d86f5b213d82ae2ed560d4"
+        },
+        "CHG-0012": {
+          "operation": "add",
+          "target_digest": "eb6c7017788fe4472f6d07dc212a2d3b210f906456045de72b0912335afc0f75"
+        },
+        "CHG-0013": {
+          "operation": "add",
+          "target_digest": "92779b1cf5170ccbcbab092432832d46b26066d9a45b67df34be2fe2a051c780"
+        },
+        "CHG-0014": {
+          "operation": "add",
+          "target_digest": "41beab4d0cd93022f112b59eec55850c39b5fe2a0dc5002a956f15d2d79d5bad"
+        },
+        "CHG-0015": {
+          "operation": "add",
+          "target_digest": "d642c42f0d501b63639d05557b73315caac1ca5684895fe465747feab75b64a4"
+        },
+        "CHG-0016": {
+          "operation": "add",
+          "target_digest": "b55b65e6d152b6bc022c897170946cbf9fe862994d932a4bd629bd1fd6c7d90c"
+        },
+        "CHG-0017": {
+          "operation": "add",
+          "target_digest": "3d26a39fce598b3a14b4f67813016953908c3ef8594e07779e358eef907c77e4"
+        },
+        "CHG-0018": {
+          "operation": "add",
+          "target_digest": "cb1484e650bef4ac76dc86dc8775144e4143504e747cb2773baffb0ddb5da256"
+        },
+        "CHG-0019": {
+          "operation": "add",
+          "target_digest": "9b97fdb267dc5782a5f74bac07356ac7e0fbb940dcecc56160639b548959a608"
+        },
+        "CHG-0020": {
+          "operation": "add",
+          "target_digest": "849b89ce70e86f4e9f0392711e94007cf9cb8a455fdbef83ec212eaf50bb14cc"
+        },
+        "CHG-0021": {
+          "operation": "add",
+          "target_digest": "2fe0dee7ee0301aa42c014c0d818ebfa584a09a0abda2a586bf35004773cacb0"
+        },
+        "CHG-0022": {
+          "operation": "add",
+          "target_digest": "60ff07940f53fb8173c03adfe118610f83ed58655dde038d892f6e8b87f51494"
+        },
+        "CHG-0023": {
+          "operation": "add",
+          "target_digest": "9092485da0336356b0dea49ca31febe689ef72a3da8e3cced8eadd5ca403ab80"
+        },
+        "CHG-0024": {
+          "operation": "add",
+          "target_digest": "7dd125317892132c069f4bdd232151292d1c7c911629ca2b50e072f668d89f1f"
+        },
+        "CHG-0025": {
+          "operation": "add",
+          "target_digest": "fa8620f03cc4fccec97fb547723c856b957f4b2553bb4a76029f23db6cd6f325"
+        },
+        "CHG-0026": {
+          "operation": "add",
+          "target_digest": "7402c0e222e2e9c6f21679e4e0598c73e65e555dc91471fbd034f7fcd98c2ea9"
+        },
+        "CHG-0027": {
+          "operation": "add",
+          "target_digest": "2ba79efb22de891aa2564926c389dc0740a449a03a0162e0957a5e8bfca45647"
+        },
+        "CHG-0028": {
+          "operation": "add",
+          "target_digest": "b0f0ee571162bbb40cb6143cc7472709b78623c87b49bd0690825c865b0c1f7b"
+        },
+        "CHG-0029": {
+          "operation": "add",
+          "target_digest": "cf5db5e83d415cfb9f3d417a2e20cdf3c6512108c8a93c755db89ea15bab2032"
+        },
+        "CHG-0030": {
+          "operation": "add",
+          "target_digest": "a371f30a8cff66ff25914ce1e396daa28f58aacc2faa1a6819dcdbc06a43bbc9"
+        },
+        "CHG-0031": {
+          "operation": "add",
+          "target_digest": "47a9267787edf769ec785b7fbe65bb62ad14e18c58c88947a758b11e8f7817d6"
+        },
+        "CHG-0032": {
+          "operation": "add",
+          "target_digest": "fca14ea7725ffb78bd7d9de39f15a689a726f019e0c6f611c5173b7babd58a97"
+        },
+        "CHG-0033": {
+          "operation": "add",
+          "target_digest": "29870cdc3eaf73bda373d6415d1ad76bfb363825ade3f9e5a56674c7bb2218dd"
+        },
+        "CHG-0034": {
+          "operation": "add",
+          "target_digest": "2d5a5f115e96e1e9b322bc1ab0b7c46010de556ead050b1f41a7adafcd358b1f"
+        },
+        "CHG-0035": {
+          "operation": "add",
+          "target_digest": "74f373b6332437726adc92ac715b3f46f5eba9471718d801581e391f39cebad9"
+        },
+        "CHG-0036": {
+          "operation": "add",
+          "target_digest": "a5c8c43b11a7857dc89b5386387718e2a26b8d159f42938cde5700fda8830799"
+        },
+        "CHG-0037": {
+          "operation": "add",
+          "target_digest": "255f2b1f7148da9f686804bf1ece8cb077f8c290be98e66a9920815be2cc4dc9"
+        },
+        "CHG-0038": {
+          "operation": "add",
+          "target_digest": "077bd25691ff80053362e35ce58aaa7666dc351cf584a0864c702987303d67a7"
+        },
+        "CHG-0039": {
+          "operation": "add",
+          "target_digest": "d788870dc20e188e4d4fc19ba0d257c0f5980e071f01f4777da28962704f09de"
+        },
+        "CHG-0040": {
+          "operation": "add",
+          "target_digest": "0af8a0f5bdee0ee21b8bea9912b3ce1550589b708fcb40cb9614b4cbb0c939e2"
+        },
+        "CHG-0041": {
+          "operation": "add",
+          "target_digest": "2e62d35935c653839c96d710134dec7f3c13d7ee9862a5c29d95c9c767c92b7b"
+        },
+        "CHG-0042": {
+          "operation": "add",
+          "target_digest": "165489120c5ff531daf84f2d8e1aaecaf8032cb68afc2fc35c16bcbfd38a5acd"
+        },
+        "CHG-0043": {
+          "operation": "add",
+          "target_digest": "2c7ce3526e5bffc57edfe65363343454ca4f2debec2626fc0c64bf5ffd2207e5"
+        },
+        "CHG-0044": {
+          "operation": "add",
+          "target_digest": "a375233ade780b2dedcd8cf673307eaeb2d05e64b0b5b914df4eb2e24b2cafd9"
+        },
+        "CHG-0045": {
+          "operation": "add",
+          "target_digest": "228a043c65012285104a7ffbad6fd70e471ef5d2f202ab366f6cfa3bbdcd8dd9"
+        },
+        "CHG-0046": {
+          "operation": "add",
+          "target_digest": "0c623fe5b9aa6703a72c3e2c9086e26d6bf97db2fbc7a7230da5cb25a5b0fa6a"
+        },
+        "CHG-0047": {
+          "operation": "add",
+          "target_digest": "3c8c144856ec29b7e15d26a6ae4d93a86caa2c1e95f88b5d840be44285e41d63"
+        },
+        "CHG-0048": {
+          "operation": "add",
+          "target_digest": "bf5e162014abc32ad56d6de8e6097826b92a87272de9110f0bf2933661f914c0"
+        },
+        "CHG-0049": {
+          "operation": "add",
+          "target_digest": "1ec088455da45ffa3316f7b0afa053e80adecc2c2fc6e923807a9b3b9ac95391"
+        },
+        "CHG-0050": {
+          "operation": "add",
+          "target_digest": "602fc61e7ea74e106f5fa6defc13a5ddf474e9be479b643ba865a0f4a560a03e"
+        },
+        "CHG-0051": {
+          "operation": "add",
+          "target_digest": "8eaeebbb8d540a79be25fb3e9cd359dea340971680eab6f9d7533b10a6f39e0c"
+        },
+        "CHG-0052": {
+          "operation": "add",
+          "target_digest": "c3fc821e5937f5949c0ebf4204273072873371bea176093353742eb2016263b6"
+        },
+        "CHG-0053": {
+          "operation": "add",
+          "target_digest": "bcb9dc7b98bf80893bed05c23dd67e6be43042f938980c6c56c5f8a0e95b9515"
+        },
+        "CHG-0054": {
+          "operation": "add",
+          "target_digest": "6574ce2123649b1e273f9872f378718b3ed79cc11ad7f01cadbb85db6c1a59f1"
+        },
+        "CHG-0055": {
+          "operation": "add",
+          "target_digest": "20ebfc39d5beadc27d29fc1cdc8a82451dda0761af1ee4412828efa869d657ea"
+        },
+        "CHG-0056": {
+          "operation": "add",
+          "target_digest": "34ca448001fba3588bdd5b026ac56d35a8a3817885f71e469298a1861098d311"
+        },
+        "CHG-0057": {
+          "operation": "add",
+          "target_digest": "6d0e26b6c6051663b8677361ced2ab559f4ab1925087a08abe8dee47696c48a2"
+        },
+        "CHG-0058": {
+          "operation": "add",
+          "target_digest": "c2055590405b49d56fe0e96304726951be27ff4f8844ea619c19e88b99e3e936"
+        },
+        "CHG-0059": {
+          "operation": "add",
+          "target_digest": "7b50079104dbff384b6559bb302862c056c0bb5a1bd0931b5273936645c2317a"
+        },
+        "CHG-0060": {
+          "operation": "add",
+          "target_digest": "3f3b2f55793f2ec4ccb627ea6234cfb0053d0b76ad6a3707c1703f544d445b29"
+        },
+        "CHG-0061": {
+          "operation": "add",
+          "target_digest": "94db4e6dde97d4b3a0ef352c5870976409fdc5936adfeac10597dec7a182854d"
+        },
+        "CHG-0062": {
+          "operation": "add",
+          "target_digest": "6988ec289d65717cdac5e15b0e40c51d41363e7cd12126da18c2b63deeee3962"
+        },
+        "CHG-0063": {
+          "operation": "add",
+          "target_digest": "57796a0c55c5925c2e015ce2af5441504d22c354d400104f9dc5b50f966dc948"
+        },
+        "CHG-0064": {
+          "operation": "add",
+          "target_digest": "d22ff93319c47084520b9f1438b07329e28b20a8e9608d44819a632ebe2481c7"
+        },
+        "CHG-0065": {
+          "operation": "add",
+          "target_digest": "6fa0c06b57da58ee7cf29e0e5438044990770c10367e883d7e26e73122887101"
+        },
+        "CHG-0066": {
+          "operation": "add",
+          "target_digest": "467f272f8e4159cb3c3c35d83f0e562c62cac4fc0b92a406fb419bf9dd025b4d"
+        },
+        "CHG-0067": {
+          "operation": "add",
+          "target_digest": "df3bd8c1c6dbed47dbf12b8ee64271fecb2c926908c0d7e5c88652ddaf045dd2"
+        },
+        "CHG-0068": {
+          "operation": "add",
+          "target_digest": "f4ac7d3abb5f0458ceba6b3fe19683053fcef267fc10930bce2dc5cbccbf0423"
+        },
+        "CHG-0069": {
+          "operation": "add",
+          "target_digest": "bbaad49add6f7990b64aa782c22493785af4d9c56f8e43d9ed48af29a08cafbe"
+        },
+        "CHG-0070": {
+          "operation": "add",
+          "target_digest": "94b14f955a06f41f40a2383c25b12a7a6ecf6b434f63a702b5822e705f1bc60f"
+        },
+        "CHG-0071": {
+          "operation": "add",
+          "target_digest": "1ddf6474ba15e20c3b8ab42a99bf513dbf3153f1e7004de4a641b56b94ed9bd3"
+        },
+        "CHG-0072": {
+          "operation": "add",
+          "target_digest": "0612755f1d0230a717c4b2ba39864b82f58ded1767a4ff8c1de81d7a28d6358e"
+        },
+        "CHG-0073": {
+          "operation": "add",
+          "target_digest": "a98a3b10ceeec33ff297d7426bda14ba7c307952201d5a6090c32df0df131246"
+        },
+        "CHG-0074": {
+          "operation": "add",
+          "target_digest": "c45c3da5478f914de5e272cdb689aac7216a6e5c20cea4cfc10942d5faf3364c"
+        },
+        "CHG-0075": {
+          "operation": "add",
+          "target_digest": "5f092f0734cd6fbeeed16046f1e8db4cb690d78a5f8069b5d096ec91fb3c2cc9"
+        },
+        "CHG-0076": {
+          "operation": "add",
+          "target_digest": "80c4cfc2ac2ee1cd500a383771c7350937e82ac6a5cfc95c4429c59ac05cf8e8"
+        },
+        "CHG-0077": {
+          "operation": "add",
+          "target_digest": "24c8e8f2e151f29449f1c4a981fcf946c22312feb0e923f84e90c57bac10ff07"
+        },
+        "CHG-0078": {
+          "operation": "add",
+          "target_digest": "6acf81c2ef72e29952e247f0f4a9bc24e93c98070d1088412a870944b96d4a27"
+        },
+        "CHG-0079": {
+          "operation": "add",
+          "target_digest": "2c41a41923ed5e9622d8f7b856ae7bcec5637e52a9052a58f5bc6d1b07553b47"
+        },
+        "CHG-0080": {
+          "operation": "add",
+          "target_digest": "cb1f1beae77767b2f48fd99c13f06a3ea4d2d71f2f7e71c2d5ecfc020b0c5621"
+        }
+      },
+      "canon": {
+        "CR-ADHOC-tic-tac-toe-d45a-0001": "definition",
+        "CR-ADHOC-tic-tac-toe-d45a-0002": "definition",
+        "CR-ADHOC-tic-tac-toe-d45a-0003": "definition",
+        "CR-ADHOC-tic-tac-toe-d45a-0004": "definition",
+        "CR-ADHOC-tic-tac-toe-d45a-0005": "functional_requirement",
+        "CR-ADHOC-tic-tac-toe-d45a-0006": "acceptance_scenario",
+        "CR-ADHOC-tic-tac-toe-d45a-0007": "functional_requirement",
+        "CR-ADHOC-tic-tac-toe-d45a-0008": "acceptance_scenario",
+        "CR-ADHOC-tic-tac-toe-d45a-0009": "functional_requirement",
+        "CR-ADHOC-tic-tac-toe-d45a-0010": "acceptance_scenario",
+        "CR-ADHOC-tic-tac-toe-d45a-0011": "functional_requirement",
+        "CR-ADHOC-tic-tac-toe-d45a-0012": "acceptance_scenario",
+        "CR-ADHOC-tic-tac-toe-d45a-0013": "functional_requirement",
+        "CR-ADHOC-tic-tac-toe-d45a-0014": "acceptance_scenario",
+        "CR-ADHOC-tic-tac-toe-d45a-0015": "functional_requirement",
+        "CR-ADHOC-tic-tac-toe-d45a-0016": "acceptance_scenario",
+        "CR-ADHOC-tic-tac-toe-d45a-0017": "constraint",
+        "CR-ADHOC-tic-tac-toe-d45a-0018": "acceptance_scenario",
+        "CR-ADHOC-tic-tac-toe-d45a-0019": "constraint",
+        "CR-ADHOC-tic-tac-toe-d45a-0020": "acceptance_scenario",
+        "CR-ADHOC-tic-tac-toe-d45a-0021": "constraint",
+        "CR-ADHOC-tic-tac-toe-d45a-0022": "acceptance_scenario",
+        "CR-ADHOC-tic-tac-toe-d45a-0023": "constraint",
+        "CR-ADHOC-tic-tac-toe-d45a-0024": "acceptance_scenario",
+        "CR-ADHOC-tic-tac-toe-d45a-0025": "functional_requirement",
+        "CR-ADHOC-tic-tac-toe-d45a-0026": "acceptance_scenario",
+        "CR-ADHOC-tic-tac-toe-d45a-0027": "constraint",
+        "CR-ADHOC-tic-tac-toe-d45a-0028": "acceptance_scenario",
+        "CR-ADHOC-tic-tac-toe-d45a-0029": "functional_requirement",
+        "CR-ADHOC-tic-tac-toe-d45a-0030": "acceptance_scenario",
+        "CR-ADHOC-tic-tac-toe-d45a-0031": "story",
+        "CR-ADHOC-tic-tac-toe-d45a-0032": "story",
+        "CR-ADHOC-tic-tac-toe-d45a-0033": "story",
+        "CR-ADHOC-tic-tac-toe-d45a-0034": "story"
+      }
+    },
+    "aliases": {
+      "contexts": [
+        "ADHOC-7fd789738d5348cbbbd4f4cb378fbecf"
+      ],
+      "canon": {
+        "d-human-count": "CR-ADHOC-tic-tac-toe-d45a-0001",
+        "d-ai": "CR-ADHOC-tic-tac-toe-d45a-0002",
+        "d-game": "CR-ADHOC-tic-tac-toe-d45a-0003",
+        "d-replay": "CR-ADHOC-tic-tac-toe-d45a-0004",
+        "r-rules": "CR-ADHOC-tic-tac-toe-d45a-0005",
+        "at-rules": "CR-ADHOC-tic-tac-toe-d45a-0006",
+        "r-modes": "CR-ADHOC-tic-tac-toe-d45a-0007",
+        "at-modes": "CR-ADHOC-tic-tac-toe-d45a-0008",
+        "r-mark-choice": "CR-ADHOC-tic-tac-toe-d45a-0009",
+        "at-mark-choice": "CR-ADHOC-tic-tac-toe-d45a-0010",
+        "r-unbeatable": "CR-ADHOC-tic-tac-toe-d45a-0011",
+        "at-unbeatable": "CR-ADHOC-tic-tac-toe-d45a-0012",
+        "r-result": "CR-ADHOC-tic-tac-toe-d45a-0013",
+        "at-result": "CR-ADHOC-tic-tac-toe-d45a-0014",
+        "r-manual-replay": "CR-ADHOC-tic-tac-toe-d45a-0015",
+        "at-manual-replay": "CR-ADHOC-tic-tac-toe-d45a-0016",
+        "r-react": "CR-ADHOC-tic-tac-toe-d45a-0017",
+        "at-react": "CR-ADHOC-tic-tac-toe-d45a-0018",
+        "r-runtime": "CR-ADHOC-tic-tac-toe-d45a-0019",
+        "at-runtime": "CR-ADHOC-tic-tac-toe-d45a-0020",
+        "r-browsers": "CR-ADHOC-tic-tac-toe-d45a-0021",
+        "at-browsers": "CR-ADHOC-tic-tac-toe-d45a-0022",
+        "r-local-session": "CR-ADHOC-tic-tac-toe-d45a-0023",
+        "at-local-session": "CR-ADHOC-tic-tac-toe-d45a-0024",
+        "r-ai-pacing": "CR-ADHOC-tic-tac-toe-d45a-0025",
+        "at-ai-pacing": "CR-ADHOC-tic-tac-toe-d45a-0026",
+        "r-state-authority": "CR-ADHOC-tic-tac-toe-d45a-0027",
+        "at-state-authority": "CR-ADHOC-tic-tac-toe-d45a-0028",
+        "r-start-setup": "CR-ADHOC-tic-tac-toe-d45a-0029",
+        "at-start-setup": "CR-ADHOC-tic-tac-toe-d45a-0030",
+        "s-solo": "CR-ADHOC-tic-tac-toe-d45a-0031",
+        "s-watch": "CR-ADHOC-tic-tac-toe-d45a-0032",
+        "s-two-humans": "CR-ADHOC-tic-tac-toe-d45a-0033",
+        "s-local-browser": "CR-ADHOC-tic-tac-toe-d45a-0034"
+      },
+      "changes": {
+        "add-d-human-count": "CHG-0001",
+        "add-d-ai": "CHG-0002",
+        "add-d-game": "CHG-0003",
+        "add-d-replay": "CHG-0004",
+        "add-r-rules": "CHG-0005",
+        "add-at-rules": "CHG-0006",
+        "link-r-rules-at-rules": "CHG-0007",
+        "link-d-game-r-rules": "CHG-0008",
+        "add-r-modes": "CHG-0009",
+        "add-at-modes": "CHG-0010",
+        "link-r-modes-at-modes": "CHG-0011",
+        "link-d-human-count-r-modes": "CHG-0012",
+        "add-r-mark-choice": "CHG-0013",
+        "add-at-mark-choice": "CHG-0014",
+        "link-r-mark-choice-at-mark-choice": "CHG-0015",
+        "add-r-unbeatable": "CHG-0016",
+        "add-at-unbeatable": "CHG-0017",
+        "link-r-unbeatable-at-unbeatable": "CHG-0018",
+        "link-d-ai-r-unbeatable": "CHG-0019",
+        "add-r-result": "CHG-0020",
+        "add-at-result": "CHG-0021",
+        "link-r-result-at-result": "CHG-0022",
+        "link-d-replay-r-result": "CHG-0023",
+        "add-r-manual-replay": "CHG-0024",
+        "add-at-manual-replay": "CHG-0025",
+        "link-r-manual-replay-at-manual-replay": "CHG-0026",
+        "link-d-replay-r-manual-replay": "CHG-0027",
+        "add-r-react": "CHG-0028",
+        "add-at-react": "CHG-0029",
+        "link-r-react-at-react": "CHG-0030",
+        "add-r-runtime": "CHG-0031",
+        "add-at-runtime": "CHG-0032",
+        "link-r-runtime-at-runtime": "CHG-0033",
+        "add-r-browsers": "CHG-0034",
+        "add-at-browsers": "CHG-0035",
+        "link-r-browsers-at-browsers": "CHG-0036",
+        "add-r-local-session": "CHG-0037",
+        "add-at-local-session": "CHG-0038",
+        "link-r-local-session-at-local-session": "CHG-0039",
+        "link-d-game-r-local-session": "CHG-0040",
+        "add-r-ai-pacing": "CHG-0041",
+        "add-at-ai-pacing": "CHG-0042",
+        "link-r-ai-pacing-at-ai-pacing": "CHG-0043",
+        "add-r-state-authority": "CHG-0044",
+        "add-at-state-authority": "CHG-0045",
+        "link-r-state-authority-at-state-authority": "CHG-0046",
+        "add-r-start-setup": "CHG-0047",
+        "add-at-start-setup": "CHG-0048",
+        "link-r-start-setup-at-start-setup": "CHG-0049",
+        "add-s-solo": "CHG-0050",
+        "link-s-solo-at-rules": "CHG-0051",
+        "link-s-solo-at-modes": "CHG-0052",
+        "link-s-solo-at-mark-choice": "CHG-0053",
+        "link-s-solo-at-unbeatable": "CHG-0054",
+        "link-s-solo-at-result": "CHG-0055",
+        "link-s-solo-at-manual-replay": "CHG-0056",
+        "link-s-solo-at-ai-pacing": "CHG-0057",
+        "link-s-solo-at-start-setup": "CHG-0058",
+        "link-s-solo-at-state-authority": "CHG-0059",
+        "add-s-watch": "CHG-0060",
+        "link-s-watch-at-modes": "CHG-0061",
+        "link-s-watch-at-unbeatable": "CHG-0062",
+        "link-s-watch-at-result": "CHG-0063",
+        "link-s-watch-at-manual-replay": "CHG-0064",
+        "link-s-watch-at-ai-pacing": "CHG-0065",
+        "link-s-watch-at-start-setup": "CHG-0066",
+        "add-s-two-humans": "CHG-0067",
+        "link-s-two-humans-at-rules": "CHG-0068",
+        "link-s-two-humans-at-modes": "CHG-0069",
+        "link-s-two-humans-at-result": "CHG-0070",
+        "link-s-two-humans-at-manual-replay": "CHG-0071",
+        "link-s-two-humans-at-local-session": "CHG-0072",
+        "link-s-two-humans-at-start-setup": "CHG-0073",
+        "add-s-local-browser": "CHG-0074",
+        "link-s-local-browser-at-react": "CHG-0075",
+        "link-s-local-browser-at-runtime": "CHG-0076",
+        "link-s-local-browser-at-browsers": "CHG-0077",
+        "link-s-local-browser-at-local-session": "CHG-0078",
+        "link-s-local-browser-at-state-authority": "CHG-0079",
+        "add-w-playable-game": "CHG-0080"
+      }
+    }
+  }
+}

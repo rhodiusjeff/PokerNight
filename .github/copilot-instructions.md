@@ -6,6 +6,16 @@ suffixes. Ad hoc planning has one evolving capture Markdown and proposal JSON; r
 confirmations and ordinary source notes belong in the capture, not a growing request-file
 collection. Preserve prior subjects as history. Horizon laydown changes remain deferred.
 
+## Repository Canon And Tracker
+
+LOCAL MOD - HARVEST TO CPB (2026-09-29): Operator-approved storage contract.
+For Canon/tracker planning, admission, resolution, execution, review or completion,
+load [Repository Canon And Tracker Storage Contract](../control-plane/framework/governance/policies/tracker-and-state.policy.md#repository-canon-and-tracker-storage-contract).
+The agreed layout has one Canon file and one repository tracker/archive pair. Readers
+must account for archived completed phases; writers must preserve history and existing
+completion gates. Runtime migration is pending: do not manufacture files, redirect
+legacy helpers or claim new-format admission support from this contract alone.
+
 <!-- mermaid-ai-skills:start -->
 ## Mermaid Diagrams
 

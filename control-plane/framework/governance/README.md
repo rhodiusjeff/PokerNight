@@ -10,6 +10,18 @@ plane. It explains how governed work is admitted, executed, reviewed, and record
 
 ## Operator Start Here
 
+For cp-plan-change-set-v1 proposals, use the
+[Planning Change-Set Policy](policies/plan-change-set.policy.md) and
+[schema](policies/plan-change-set.schema.json). They define explicit Canon/work changes,
+exact-base composition and draft saves; formal live admission/application is still pending.
+
+For selecting and shaping Canon in ad hoc, horizon or discovery planning, read the
+[Canon Schema Policy](policies/canon-records.policy.md) and
+[record schema](policies/canon-records.schema.json). They define eleven kinds and typed,
+revision-pinned relationships; the planner determines what the pack needs and why.
+The standalone validator checks the new payload; proposal/admission kernel integration
+remains pending and passing validation is not an admission or execution claim.
+
 LOCAL MOD - HARVEST TO CPB (2026-09-29): repository-owned operational tracking and
 normal origin-selected admission supersede unqualified per-horizon execution guidance.
 

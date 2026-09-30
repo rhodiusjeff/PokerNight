@@ -196,6 +196,71 @@ class CaptureTests(unittest.TestCase):
         self.assertNotIn("proposal", current)
         self.assertIn("Operator: run it", capture_module.narrative_path(destination).read_text())
 
+    def test_restore_sources_extracts_exact_bytes_and_preserves_candidate(self):
+        self.capture("--confirmed")
+        destination = capture_module.resolve_document(self.repository, self.identity)
+        before = capture_module.read_capture(destination)
+        raw = destination.read_bytes()
+        archive = destination.parent / "assets/history.zip"
+        with zipfile.ZipFile(archive, "w") as bundle:
+            bundle.writestr("assets/requests/001-source.md", self.source.read_bytes())
+            bundle.writestr("unneeded-receipt.md", b"Historical receipt")
+        result = capture_module.restore_sources(self.repository, self.identity, hashlib.sha256(raw).hexdigest(), archive, True)
+        after = capture_module.read_capture(destination)
+        source = after["sources"][0]
+        restored = self.repository / source["origin"]
+        self.assertFalse(pathlib.Path(source["origin"]).is_absolute())
+        self.assertEqual(restored.read_bytes(), self.source.read_bytes())
+        self.assertEqual({key: value for key, value in source.items() if key != "origin"},
+                         {key: value for key, value in before["sources"][0].items() if key != "origin"})
+        self.assertEqual({key: value for key, value in before.items() if key not in ("sources", "capture_sha256")},
+                         {key: value for key, value in after.items() if key not in ("sources", "capture_sha256")})
+        self.assertEqual(pathlib.Path(result["previous_snapshot"]).read_bytes(), raw)
+        self.assertEqual(restored.name, "001-source.md")
+        self.assertEqual(restored.parent.resolve(), destination.parent / "assets/history")
+        self.assertFalse((restored.parent / "restored-sources").exists())
+        retry = capture_module.restore_sources(self.repository, self.identity, result["document_digest"], archive, True)
+        self.assertFalse(retry["updated"])
+
+    def test_relocate_existing_sources_preserves_snapshot_deletions(self):
+        self.capture("--confirmed")
+        destination = capture_module.resolve_document(self.repository, self.identity)
+        history = destination.parent / "assets/history"
+        old_home = history / "restored-sources"
+        old_home.mkdir(parents=True)
+        old_file = old_home / "source-1.md"
+        old_file.write_bytes(self.source.read_bytes())
+        document = capture_module.read_capture(destination)
+        document["sources"][0]["origin"] = old_file.relative_to(self.repository.resolve()).as_posix()
+        destination.write_text(capture_module.render(document))
+        original = destination.read_bytes()
+        archive = history / "legacy.zip"
+        with zipfile.ZipFile(archive, "w") as bundle:
+            bundle.writestr("assets/requests/001-original-source.md", self.source.read_bytes())
+        result = capture_module.restore_sources(self.repository, self.identity, hashlib.sha256(original).hexdigest(), archive, True, True)
+        self.assertNotIn("previous_snapshot", result)
+        self.assertFalse(old_home.exists())
+        self.assertEqual({item.name for item in history.iterdir()}, {"legacy.zip", "001-original-source.md"})
+        self.assertEqual((history / "001-original-source.md").read_bytes(), self.source.read_bytes())
+        current = capture_module.read_capture(destination)
+        self.assertEqual(current["sources"][0]["origin"], (history / "001-original-source.md").relative_to(self.repository.resolve()).as_posix())
+        retry = capture_module.restore_sources(self.repository, self.identity, result["document_digest"], archive, True, True)
+        self.assertFalse(retry["updated"])
+
+    def test_restore_sources_refuses_wrong_archive_and_stale_proposal(self):
+        self.capture("--confirmed")
+        destination = capture_module.resolve_document(self.repository, self.identity)
+        original = destination.read_bytes()
+        archive = destination.parent / "assets/history.zip"
+        with zipfile.ZipFile(archive, "w") as bundle:
+            bundle.writestr("source.md", b"Different source")
+        with self.assertRaisesRegex(ValueError, "byte-identical"):
+            capture_module.restore_sources(self.repository, self.identity, hashlib.sha256(original).hexdigest(), archive, True)
+        with self.assertRaisesRegex(ValueError, "changed"):
+            capture_module.restore_sources(self.repository, self.identity, "0" * 64, archive, True)
+        self.assertEqual(destination.read_bytes(), original)
+        self.assertFalse((destination.parent / "assets/history/restored-sources").exists())
+
     def test_flat_capture_refuses_duplicate_authority(self):
         created = self.capture("--confirmed")
         self.assertEqual(created.returncode, 0, created.stderr)
@@ -423,11 +488,13 @@ class CaptureTests(unittest.TestCase):
         self.assertLess(events.index(("sync", history.resolve())), events.index(("replace", document.resolve())))
 
     def test_identity_minting_and_invalid_id(self):
-        result = self.run_command("new-id")
-        self.assertRegex(json.loads(result.stdout)["id"], r"^ADHOC-[0-9a-f]{32}$")
+        result = self.run_command("new-id", "--root", str(self.repository), "--slug", "fixture-plan", "--operation-id", "fixture-mint", "--author", "Fixture", "--confirmed")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertRegex(json.loads(result.stdout)["id"], r"^ADHOC-fixture-plan-[0-9a-f]{4}$")
+        inventory = {filename.relative_to(self.repository): filename.read_bytes() for filename in self.repository.rglob("*") if filename.is_file()}
         self.identity = "../../escape"
         self.assertNotEqual(self.capture("--confirmed").returncode, 0)
-        self.assertEqual(list(self.repository.iterdir()), [])
+        self.assertEqual({filename.relative_to(self.repository): filename.read_bytes() for filename in self.repository.rglob("*") if filename.is_file()}, inventory)
 
     def test_shared_mutation_strict_digest_and_preserved_sources(self):
         document, proposal = self.proposal_inputs()

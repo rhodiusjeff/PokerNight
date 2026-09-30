@@ -1,0 +1,3560 @@
+{
+  "schema": "cp-plan-change-set-v1",
+  "id": "ADHOC-7fd789738d5348cbbbd4f4cb378fbecf",
+  "revision": 1,
+  "title": "Tic-Tac-Toe: React, 0-2 Human Players",
+  "author": "Operator (conversation); source retained by GitHub Copilot",
+  "created_at": "2026-09-29T17:15:44.820639+00:00",
+  "context": {
+    "id": "ADHOC-7fd789738d5348cbbbd4f4cb378fbecf",
+    "kind": "ad-hoc"
+  },
+  "status": "draft",
+  "capture": {
+    "id": "capture",
+    "path": "control-plane/ad-hoc/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf-capture.md",
+    "sha256": "507f3868649128ad3aefbbe347a7e15a55af681cce520144251954819a5559a3"
+  },
+  "base": {
+    "target_ref": "refs/heads/main",
+    "git_commit": "b26b33700e99f00c7edd1e46a0840c175f86aa90",
+    "path": "control-plane/operational/SPECIFICATION.json",
+    "revision": 0,
+    "sha256": "faae0d5014d2a32deb40b89b11bee98780f943d45992d90090c6e25cf0962813"
+  },
+  "sources": [
+    {
+      "id": "source-1",
+      "path": "control-plane/ad-hoc/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/assets/history/001-conversation-source.md",
+      "sha256": "d6139844ec225d1e36ddd07d9552bc8aa1a64fc14a38fc6b935560f49bea69ed"
+    },
+    {
+      "id": "source-2",
+      "path": "control-plane/ad-hoc/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/assets/history/002-play-again-source.md",
+      "sha256": "7af814bf2cd85e7440edec3184c9e505435e77ebf8d7fad2359c3b2ed884e961"
+    },
+    {
+      "id": "source-3",
+      "path": "control-plane/ad-hoc/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/assets/history/003-runtime-browser-source.md",
+      "sha256": "3546cbb855ed4253554279579fe77387fb3eaccfe03310fe79b5f2db2e44e616"
+    },
+    {
+      "id": "source-4",
+      "path": "control-plane/ad-hoc/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/assets/history/005-confirmed-defaults-source.md",
+      "sha256": "677069c28c0a4c38ba1772b07b82c664fd8c82a29f1465615b8488424e9f90b8"
+    },
+    {
+      "id": "source-5",
+      "path": "control-plane/ad-hoc/ADHOC-7fd789738d5348cbbbd4f4cb378fbecf/assets/history/008-design-targets-source.md",
+      "sha256": "46d3113d1fd032c0a194c49229f11a956bf1b2de43b49f01e38df51d40417726"
+    }
+  ],
+  "changes": [
+    {
+      "change_id": "add-d-human-count",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "d-human-count"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "d-human-count",
+        "revision": 1,
+        "kind": "definition",
+        "title": "Human-player count",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "This term has a specific game meaning that affects interpretation and is reused by the requirements.",
+        "content": {
+          "term": "Human-player count",
+          "meaning": "The number of human-controlled marks in a game: zero, one or two. Zero players means zero human players; X and O still exist and are controlled by AI.",
+          "applies_to": "This local tic-tac-toe feature",
+          "aliases": [
+            "0 players means 0 human players"
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "add-d-ai",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "d-ai"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "d-ai",
+        "revision": 1,
+        "kind": "definition",
+        "title": "Unbeatable AI",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "This term has a specific game meaning that affects interpretation and is reused by the requirements.",
+        "content": {
+          "term": "Unbeatable AI",
+          "meaning": "A computer-controlled player. Unbeatable means no loss from a fresh legal game against any legal opponent sequence as either X or O. A draw is valid, not a guarantee of victory. Two unbeatable AIs draw under standard rules. This does not select an algorithm or external AI service.",
+          "applies_to": "This local tic-tac-toe feature",
+          "aliases": [
+            "computer-controlled opponent",
+            "computer-controlled player"
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "add-d-game",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "d-game"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "d-game",
+        "revision": 1,
+        "kind": "definition",
+        "title": "Game",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "This term has a specific game meaning that affects interpretation and is reused by the requirements.",
+        "content": {
+          "term": "Game",
+          "meaning": "One standard 3x3 round from an empty board until X wins, O wins or a draw. It is distinct from a browser session and implies no match or multi-game score.",
+          "applies_to": "This local tic-tac-toe feature",
+          "aliases": [
+            "round"
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "add-d-replay",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "d-replay"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "d-replay",
+        "revision": 1,
+        "kind": "definition",
+        "title": "Play again",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-2"
+        ],
+        "selection_rationale": "This term has a specific game meaning that affects interpretation and is reused by the requirements.",
+        "content": {
+          "term": "Play again",
+          "meaning": "Play again is a person's explicit action beginning another game after termination. In zero-human mode the person triggers replay without controlling either mark. Replay is not automatic.",
+          "applies_to": "This local tic-tac-toe feature",
+          "aliases": [
+            "Play again"
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-2"
+      ]
+    },
+    {
+      "change_id": "add-r-rules",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "r-rules"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "r-rules",
+        "revision": 1,
+        "kind": "functional_requirement",
+        "title": "Rules",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "This is independently observable game behavior required by the cited sources and retained planning interpretation.",
+        "content": {
+          "obligation": "Use nine cells in a 3x3 board. X starts; X and O alternate, placing one mark in an empty cell. Three identical marks in a row, column or diagonal win. A full board without a winner draws. A winning final move takes precedence over draw; terminal games accept no moves.",
+          "rationale": "Required behavior for the selected standard game and interaction modes.",
+          "acceptance_direction": "All eight winning lines for both marks; Full-board draw and winning ninth move; Occupied-cell rejection, X-first alternation and terminal immutability"
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "add-at-rules",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "at-rules"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "at-rules",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify rules",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "A legal board is in a winning, draw, occupied-cell or terminal test position.",
+          "when_action": "The next permitted or prohibited move is attempted.",
+          "then_observable_result": "All eight winning lines for both marks; Full-board draw and winning ninth move; Occupied-cell rejection, X-first alternation and terminal immutability",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "link-r-rules-at-rules",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "r-rules",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-rules",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "r-rules",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-rules",
+          "revision": 1
+        },
+        "sources": [
+          "source-1"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "link-d-game-r-rules",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "defines",
+        "from": {
+          "id": "d-game",
+          "revision": 1
+        },
+        "to": {
+          "id": "r-rules",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "defines",
+        "from": {
+          "id": "d-game",
+          "revision": 1
+        },
+        "to": {
+          "id": "r-rules",
+          "revision": 1
+        },
+        "sources": [
+          "source-1"
+        ],
+        "rationale": "The requirement uses the explicitly defined game term."
+      },
+      "rationale": "The requirement uses the explicitly defined game term.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "add-r-modes",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "r-modes"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "r-modes",
+        "revision": 1,
+        "kind": "functional_requirement",
+        "title": "Modes",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1",
+          "source-4"
+        ],
+        "selection_rationale": "This is independently observable game behavior required by the cited sources and retained planning interpretation.",
+        "content": {
+          "obligation": "Support zero humans with AI controlling both marks, one human versus AI, and two humans sharing one device. Human input cannot place moves on an AI-controlled turn.",
+          "rationale": "Required behavior for the selected standard game and interaction modes.",
+          "acceptance_direction": "Complete a game in each mode; Zero-human games progress without board input after Start; Two-human games schedule no autonomous moves; The phone runs its own local game, not a synchronized second board"
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "add-at-modes",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "at-modes"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "at-modes",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify modes",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1",
+          "source-4"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "Each of the zero-, one- and two-human modes is selected in turn.",
+          "when_action": "A complete game is started and played or observed.",
+          "then_observable_result": "Complete a game in each mode; Zero-human games progress without board input after Start; Two-human games schedule no autonomous moves; The phone runs its own local game, not a synchronized second board",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "link-r-modes-at-modes",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "r-modes",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-modes",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "r-modes",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-modes",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-4"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-1",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "link-d-human-count-r-modes",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "defines",
+        "from": {
+          "id": "d-human-count",
+          "revision": 1
+        },
+        "to": {
+          "id": "r-modes",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "defines",
+        "from": {
+          "id": "d-human-count",
+          "revision": 1
+        },
+        "to": {
+          "id": "r-modes",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-4"
+        ],
+        "rationale": "The requirement uses the explicitly defined game term."
+      },
+      "rationale": "The requirement uses the explicitly defined game term.",
+      "sources": [
+        "source-1",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "add-r-mark-choice",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "r-mark-choice"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "r-mark-choice",
+        "revision": 1,
+        "kind": "functional_requirement",
+        "title": "Mark choice",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "This is independently observable game behavior required by the cited sources and retained planning interpretation.",
+        "content": {
+          "obligation": "Before a one-human game, choose human X or O; AI controls the other mark.",
+          "rationale": "Required behavior for the selected standard game and interaction modes.",
+          "acceptance_direction": "Human X makes the opening move after Start; Human O receives an opening AI-X move after Start and the AI delay"
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "add-at-mark-choice",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "at-mark-choice"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "at-mark-choice",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify mark choice",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "One-human mode is selected before a game.",
+          "when_action": "The human chooses X or O and presses Start.",
+          "then_observable_result": "Human X makes the opening move after Start; Human O receives an opening AI-X move after Start and the AI delay",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "link-r-mark-choice-at-mark-choice",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "r-mark-choice",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-mark-choice",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "r-mark-choice",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-mark-choice",
+          "revision": 1
+        },
+        "sources": [
+          "source-1"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "add-r-unbeatable",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "r-unbeatable"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "r-unbeatable",
+        "revision": 1,
+        "kind": "functional_requirement",
+        "title": "Unbeatable",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "This is independently observable game behavior required by the cited sources and retained planning interpretation.",
+        "content": {
+          "obligation": "Every AI-controlled mark must be unbeatable as defined by d-ai. Algorithm and library selection remain implementation choices.",
+          "rationale": "Required behavior for the selected standard game and interaction modes.",
+          "acceptance_direction": "Exhaust every legal opponent sequence from a fresh game for AI-X and AI-O, with zero AI losses; Every chosen move is legal; Cover every permitted nondeterministic tie-breaking choice; AI versus AI terminates in a draw; winning against perfect play is not promised"
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "add-at-unbeatable",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "at-unbeatable"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "at-unbeatable",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify unbeatable",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "An AI controls X or O from a fresh legal game.",
+          "when_action": "All legal opponent sequences and permitted AI choices are explored, and AI versus AI is run.",
+          "then_observable_result": "Exhaust every legal opponent sequence from a fresh game for AI-X and AI-O, with zero AI losses; Every chosen move is legal; Cover every permitted nondeterministic tie-breaking choice; AI versus AI terminates in a draw; winning against perfect play is not promised",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "link-r-unbeatable-at-unbeatable",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "r-unbeatable",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-unbeatable",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "r-unbeatable",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-unbeatable",
+          "revision": 1
+        },
+        "sources": [
+          "source-1"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "link-d-ai-r-unbeatable",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "defines",
+        "from": {
+          "id": "d-ai",
+          "revision": 1
+        },
+        "to": {
+          "id": "r-unbeatable",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "defines",
+        "from": {
+          "id": "d-ai",
+          "revision": 1
+        },
+        "to": {
+          "id": "r-unbeatable",
+          "revision": 1
+        },
+        "sources": [
+          "source-1"
+        ],
+        "rationale": "The requirement uses the explicitly defined game term."
+      },
+      "rationale": "The requirement uses the explicitly defined game term.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "add-r-result",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "r-result"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "r-result",
+        "revision": 1,
+        "kind": "functional_requirement",
+        "title": "Result",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1",
+          "source-2"
+        ],
+        "selection_rationale": "This is independently observable game behavior required by the cited sources and retained planning interpretation.",
+        "content": {
+          "obligation": "Show the current turn and unambiguous X win, O win or draw. Preserve the finished board and result while waiting for a new-game action.",
+          "rationale": "Required behavior for the selected standard game and interaction modes.",
+          "acceptance_direction": "Labels agree with the board; Waiting after AI versus AI finishes neither clears the result nor schedules a new game"
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1",
+        "source-2"
+      ]
+    },
+    {
+      "change_id": "add-at-result",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "at-result"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "at-result",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify result",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1",
+          "source-2"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "A game is active or has just terminated.",
+          "when_action": "The turn display is inspected and the completed game is left waiting without a new-game action.",
+          "then_observable_result": "Labels agree with the board; Waiting after AI versus AI finishes neither clears the result nor schedules a new game",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1",
+        "source-2"
+      ]
+    },
+    {
+      "change_id": "link-r-result-at-result",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "r-result",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-result",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "r-result",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-result",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-1",
+        "source-2"
+      ]
+    },
+    {
+      "change_id": "link-d-replay-r-result",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "defines",
+        "from": {
+          "id": "d-replay",
+          "revision": 1
+        },
+        "to": {
+          "id": "r-result",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "defines",
+        "from": {
+          "id": "d-replay",
+          "revision": 1
+        },
+        "to": {
+          "id": "r-result",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2"
+        ],
+        "rationale": "The requirement uses the explicitly defined game term."
+      },
+      "rationale": "The requirement uses the explicitly defined game term.",
+      "sources": [
+        "source-1",
+        "source-2"
+      ]
+    },
+    {
+      "change_id": "add-r-manual-replay",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "r-manual-replay"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "r-manual-replay",
+        "revision": 1,
+        "kind": "functional_requirement",
+        "title": "Manual replay",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-2",
+          "source-4"
+        ],
+        "selection_rationale": "This is independently observable game behavior required by the cited sources and retained planning interpretation.",
+        "content": {
+          "obligation": "Provide Play again after termination in every mode. One activation clears the board/result and starts exactly one game with X first, retaining the displayed mode and mark selections without another Start confirmation.",
+          "rationale": "Required behavior for the selected standard game and interaction modes.",
+          "acceptance_direction": "No automatic replay after any waiting period; Replay works in all three modes and for each terminal result; No duplicate new games or delayed moves from the prior game"
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-2",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "add-at-manual-replay",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "at-manual-replay"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "at-manual-replay",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify manual replay",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-2",
+          "source-4"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "A terminal board and result are visible in any player mode.",
+          "when_action": "The user waits, then activates Play again once.",
+          "then_observable_result": "No automatic replay after any waiting period; Replay works in all three modes and for each terminal result; No duplicate new games or delayed moves from the prior game",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-2",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "link-r-manual-replay-at-manual-replay",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "r-manual-replay",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-manual-replay",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "r-manual-replay",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-manual-replay",
+          "revision": 1
+        },
+        "sources": [
+          "source-2",
+          "source-4"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-2",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "link-d-replay-r-manual-replay",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "defines",
+        "from": {
+          "id": "d-replay",
+          "revision": 1
+        },
+        "to": {
+          "id": "r-manual-replay",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "defines",
+        "from": {
+          "id": "d-replay",
+          "revision": 1
+        },
+        "to": {
+          "id": "r-manual-replay",
+          "revision": 1
+        },
+        "sources": [
+          "source-2",
+          "source-4"
+        ],
+        "rationale": "The requirement uses the explicitly defined game term."
+      },
+      "rationale": "The requirement uses the explicitly defined game term.",
+      "sources": [
+        "source-2",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "add-r-react",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "r-react"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "r-react",
+        "revision": 1,
+        "kind": "constraint",
+        "title": "React",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "This restricts acceptable implementation or operation rather than describing a standalone user interaction.",
+        "content": {
+          "constraint": "Implement the actual interactive game interface in React. No bundler or language variant is prescribed.",
+          "applies_to": "The delivered local tic-tac-toe application",
+          "rationale": "Retain the agreed implementation or operating boundary from the cited planning sources."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "add-at-react",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "at-react"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "at-react",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify react",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "The delivered browser application is running.",
+          "when_action": "The game interface and application implementation are inspected.",
+          "then_observable_result": "The delivered browser application uses React for its game interface",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "link-r-react-at-react",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "r-react",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-react",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "r-react",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-react",
+          "revision": 1
+        },
+        "sources": [
+          "source-1"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-1"
+      ]
+    },
+    {
+      "change_id": "add-r-runtime",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "r-runtime"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "r-runtime",
+        "revision": 1,
+        "kind": "constraint",
+        "title": "Runtime",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-3",
+          "source-4"
+        ],
+        "selection_rationale": "This restricts acceptable implementation or operation rather than describing a standalone user interaction.",
+        "content": {
+          "constraint": "Use local Node.js and Express to serve the React application on fixed port 3630. Versions, commands and build/serving details follow the repository implementation context.",
+          "applies_to": "The delivered local tic-tac-toe application",
+          "rationale": "Retain the agreed implementation or operating boundary from the cited planning sources."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-3",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "add-at-runtime",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "at-runtime"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "at-runtime",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify runtime",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-3",
+          "source-4"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "The local host can run the application, including a separate occupied-port test.",
+          "when_action": "Express startup, asset loading, complete gameplay and the phone LAN URL are exercised.",
+          "then_observable_result": "Load assets and complete a game through port 3630; If port 3630 is occupied, report an actionable startup error instead of silently choosing another port; Use deliberate local Wi-Fi access for the physical phone; do not treat phone localhost as the host",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-3",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "link-r-runtime-at-runtime",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "r-runtime",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-runtime",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "r-runtime",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-runtime",
+          "revision": 1
+        },
+        "sources": [
+          "source-3",
+          "source-4"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-3",
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "add-r-browsers",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "r-browsers"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "r-browsers",
+        "revision": 1,
+        "kind": "constraint",
+        "title": "Browsers",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "selection_rationale": "This restricts acceptable implementation or operation rather than describing a standalone user interaction.",
+        "content": {
+          "constraint": "Support Chrome on desktop and Chrome on a physical iPhone accessing the local server over Wi-Fi. Responsive layout, pointer/touch controls and complete game/replay behavior are required. Other browser families are optional supplemental testing, not additional release gates.",
+          "applies_to": "The delivered local tic-tac-toe application",
+          "rationale": "Retain the agreed implementation or operating boundary from the cited planning sources."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "add-at-browsers",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "at-browsers"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "at-browsers",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify browsers",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "Actual desktop Chrome and Chrome on a physical iPhone are available over local Wi-Fi.",
+          "when_action": "Full games and replay are exercised using pointer and touch with the actual environment recorded.",
+          "then_observable_result": "Board, mode/mark controls, Start, turn/result and Play again remain accessible without overlap or clipping; Game rules do not change with viewport size; Test actual desktop Chrome and actual iPhone Chrome; emulation or another mobile browser cannot substitute; Record desktop OS, iPhone model/iOS version, Chrome versions, real viewport and local access URL",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-r-browsers-at-browsers",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "r-browsers",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-browsers",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "r-browsers",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-browsers",
+          "revision": 1
+        },
+        "sources": [
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "add-r-local-session",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "r-local-session"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "r-local-session",
+        "revision": 1,
+        "kind": "constraint",
+        "title": "Local session",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-4",
+          "source-5"
+        ],
+        "selection_rationale": "This restricts acceptable implementation or operation rather than describing a standalone user interaction.",
+        "content": {
+          "constraint": "Keep play shared-device and local to a browser session, without accounts, saved games or persistent scores. No synchronized cross-device multiplayer or scoreboard is inferred.",
+          "applies_to": "The delivered local tic-tac-toe application",
+          "rationale": "Retain the agreed implementation or operating boundary from the cited planning sources."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "add-at-local-session",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "at-local-session"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "at-local-session",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify local session",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-4",
+          "source-5"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "Independent browser sessions are open.",
+          "when_action": "The game is used and each session board, account flow and persistence behavior are inspected.",
+          "then_observable_result": "No account flow, saved-game feature or persistent-score behavior; Separate browser sessions do not share a board",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-r-local-session-at-local-session",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "r-local-session",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-local-session",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "r-local-session",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-local-session",
+          "revision": 1
+        },
+        "sources": [
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-d-game-r-local-session",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "defines",
+        "from": {
+          "id": "d-game",
+          "revision": 1
+        },
+        "to": {
+          "id": "r-local-session",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "defines",
+        "from": {
+          "id": "d-game",
+          "revision": 1
+        },
+        "to": {
+          "id": "r-local-session",
+          "revision": 1
+        },
+        "sources": [
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The requirement uses the explicitly defined game term."
+      },
+      "rationale": "The requirement uses the explicitly defined game term.",
+      "sources": [
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "add-r-ai-pacing",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "r-ai-pacing"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "r-ai-pacing",
+        "revision": 1,
+        "kind": "functional_requirement",
+        "title": "Ai pacing",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-4"
+        ],
+        "selection_rationale": "This is independently observable game behavior required by the cited sources and retained planning interpretation.",
+        "content": {
+          "obligation": "Schedule each AI move with a 500 ms delay before applying it, including opening moves and every AI/AI turn. Browser scheduling can run later under background throttling or load; this is not a hard real-time deadline.",
+          "rationale": "Required behavior for the selected standard game and interaction modes.",
+          "acceptance_direction": "Controlled-clock tests show no move before the delay and one legal move when its turn runs; Foreground observation shows distinct moves; Moves occur only in the current active game's AI turn, never after termination or from stale games; Stacked callbacks cannot apply multiple moves"
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "add-at-ai-pacing",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "at-ai-pacing"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "at-ai-pacing",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify ai pacing",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-4"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "An active game has an AI-controlled turn, including opening and successive AI turns.",
+          "when_action": "Controlled clocks advance around 500 ms and old, stacked and terminal callbacks are exercised.",
+          "then_observable_result": "Controlled-clock tests show no move before the delay and one legal move when its turn runs; Foreground observation shows distinct moves; Moves occur only in the current active game's AI turn, never after termination or from stale games; Stacked callbacks cannot apply multiple moves",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "link-r-ai-pacing-at-ai-pacing",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "r-ai-pacing",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-ai-pacing",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "r-ai-pacing",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-ai-pacing",
+          "revision": 1
+        },
+        "sources": [
+          "source-4"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-4"
+      ]
+    },
+    {
+      "change_id": "add-r-state-authority",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "r-state-authority"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "r-state-authority",
+        "revision": 1,
+        "kind": "constraint",
+        "title": "State authority",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-5"
+        ],
+        "selection_rationale": "This restricts acceptable implementation or operation rather than describing a standalone user interaction.",
+        "content": {
+          "constraint": "The browser owns transient board, controller, AI, turn and terminal-result transitions; Express serves the app. No server gameplay API or shared cross-device state is required. This does not promise offline asset loading.",
+          "applies_to": "The delivered local tic-tac-toe application",
+          "rationale": "Retain the agreed implementation or operating boundary from the cited planning sources."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "add-at-state-authority",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "at-state-authority"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "at-state-authority",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify state authority",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-5"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "Independent browser sessions load the app from Express.",
+          "when_action": "Gameplay and replay proceed while ownership of board, controller, turn and result transitions is inspected.",
+          "then_observable_result": "Gameplay does not depend on server move-validation or opponent endpoints; Independent browser sessions keep independent boards; No saved-game or persistent-score behavior, while replay retains current settings",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-r-state-authority-at-state-authority",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "r-state-authority",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-state-authority",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "r-state-authority",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-state-authority",
+          "revision": 1
+        },
+        "sources": [
+          "source-5"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "add-r-start-setup",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "r-start-setup"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "r-start-setup",
+        "revision": 1,
+        "kind": "functional_requirement",
+        "title": "Start setup",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-5"
+        ],
+        "selection_rationale": "This is independently observable game behavior required by the cited sources and retained planning interpretation.",
+        "content": {
+          "obligation": "Allow mode selection and one-human X/O choice before Start. No human or AI move happens before Start. Start begins with X; lock mode/mark changes during active play and enable them again after termination. Editing terminal settings alone does not start a game. Preserve the finished board/result until an explicit new-game action.",
+          "rationale": "Required behavior for the selected standard game and interaction modes.",
+          "acceptance_direction": "Exercise Start in all modes; Human O and AI/AI opening moves occur only after Start and the 500 ms delay; Active setup controls cannot change controller ownership; Terminal setup becomes usable but schedules no move on its own; Play again starts directly using displayed selections, without a second Start"
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "add-at-start-setup",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "at-start-setup"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "at-start-setup",
+        "revision": 1,
+        "kind": "acceptance_scenario",
+        "title": "Verify start setup",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-5"
+        ],
+        "selection_rationale": "The retained acceptance criteria need an explicit stable verification target without hiding them in narrative or losing them during schema conversion.",
+        "content": {
+          "given_context": "The application is before Start or a game is active or terminated.",
+          "when_action": "Mode/mark selection, Start, active setting changes and terminal replay are exercised in every mode.",
+          "then_observable_result": "Exercise Start in all modes; Human O and AI/AI opening moves occur only after Start and the 500 ms delay; Active setup controls cannot change controller ownership; Terminal setup becomes usable but schedules no move on its own; Play again starts directly using displayed selections, without a second Start",
+          "limitations": [
+            "Planning criteria only; no implementation test result is claimed."
+          ]
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-r-start-setup-at-start-setup",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "r-start-setup",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-start-setup",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "r-start-setup",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-start-setup",
+          "revision": 1
+        },
+        "sources": [
+          "source-5"
+        ],
+        "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint."
+      },
+      "rationale": "This scenario preserves the acceptance basis for the originating obligation or constraint.",
+      "sources": [
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "add-s-solo",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "s-solo"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "s-solo",
+        "revision": 1,
+        "kind": "story",
+        "title": "Solo",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "selection_rationale": "Retain this distinct actor experience; actor and benefit make explicit the user perspective already present in the source-backed story.",
+        "content": {
+          "actor": "Human player",
+          "desired_outcome": "Choose X/O, press Start, play an unbeatable AI and replay with the same selections.",
+          "benefit": "Play using the preferred mark against a challenging opponent."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-solo-at-rules",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-rules",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-rules",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-rules; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-rules; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-solo-at-modes",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-modes",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-modes",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-modes; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-modes; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-solo-at-mark-choice",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-mark-choice",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-mark-choice",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-mark-choice; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-mark-choice; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-solo-at-unbeatable",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-unbeatable",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-unbeatable",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-unbeatable; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-unbeatable; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-solo-at-result",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-result",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-result",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-result; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-result; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-solo-at-manual-replay",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-manual-replay",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-manual-replay",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-manual-replay; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-manual-replay; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-solo-at-ai-pacing",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-ai-pacing",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-ai-pacing",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-ai-pacing; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-ai-pacing; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-solo-at-start-setup",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-start-setup",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-start-setup",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-start-setup; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-start-setup; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-solo-at-state-authority",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-state-authority",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-solo",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-state-authority",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-state-authority; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-state-authority; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "add-s-watch",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "s-watch"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "s-watch",
+        "revision": 1,
+        "kind": "story",
+        "title": "Watch",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "selection_rationale": "Retain this distinct actor experience; actor and benefit make explicit the user perspective already present in the source-backed story.",
+        "content": {
+          "actor": "Observer",
+          "desired_outcome": "Press Start to observe two unbeatable AIs with 500 ms pacing, retain the draw and choose when to Play again.",
+          "benefit": "Observe a complete paced game and control replay."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-watch-at-modes",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-watch",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-modes",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-watch",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-modes",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-modes; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-modes; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-watch-at-unbeatable",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-watch",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-unbeatable",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-watch",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-unbeatable",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-unbeatable; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-unbeatable; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-watch-at-result",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-watch",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-result",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-watch",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-result",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-result; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-result; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-watch-at-manual-replay",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-watch",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-manual-replay",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-watch",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-manual-replay",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-manual-replay; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-manual-replay; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-watch-at-ai-pacing",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-watch",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-ai-pacing",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-watch",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-ai-pacing",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-ai-pacing; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-ai-pacing; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-watch-at-start-setup",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-watch",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-start-setup",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-watch",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-start-setup",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-start-setup; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-start-setup; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "add-s-two-humans",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "s-two-humans"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "s-two-humans",
+        "revision": 1,
+        "kind": "story",
+        "title": "Two humans",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "selection_rationale": "Retain this distinct actor experience; actor and benefit make explicit the user perspective already present in the source-backed story.",
+        "content": {
+          "actor": "Two people sharing one device",
+          "desired_outcome": "Two people share a device, start, alternate legal moves, see the result and choose replay.",
+          "benefit": "Play together locally and inspect the result."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-two-humans-at-rules",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-two-humans",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-rules",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-two-humans",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-rules",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-rules; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-rules; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-two-humans-at-modes",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-two-humans",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-modes",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-two-humans",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-modes",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-modes; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-modes; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-two-humans-at-result",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-two-humans",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-result",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-two-humans",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-result",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-result; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-result; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-two-humans-at-manual-replay",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-two-humans",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-manual-replay",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-two-humans",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-manual-replay",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-manual-replay; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-manual-replay; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-two-humans-at-local-session",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-two-humans",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-local-session",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-two-humans",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-local-session",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-local-session; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-local-session; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-two-humans-at-start-setup",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-two-humans",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-start-setup",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-two-humans",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-start-setup",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-start-setup; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-start-setup; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "add-s-local-browser",
+      "operation": "add",
+      "target": {
+        "type": "canon_record",
+        "id": "s-local-browser"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "id": "s-local-browser",
+        "revision": 1,
+        "kind": "story",
+        "title": "Local browser",
+        "scope": "repository",
+        "authority_status": "proposed",
+        "sources": [
+          "source-1",
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "selection_rationale": "Retain this distinct actor experience; actor and benefit make explicit the user perspective already present in the source-backed story.",
+        "content": {
+          "actor": "Local browser user",
+          "desired_outcome": "Use desktop Chrome or physical-iPhone Chrome over local Wi-Fi to play the browser-held React game served by Express on port 3630.",
+          "benefit": "Access the same game experience on the selected desktop and phone browsers."
+        }
+      },
+      "rationale": "Introduce this source-backed meaning into the empty repository Canon.",
+      "sources": [
+        "source-1",
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-local-browser-at-react",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-local-browser",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-react",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-local-browser",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-react",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-react; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-react; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-local-browser-at-runtime",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-local-browser",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-runtime",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-local-browser",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-runtime",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-runtime; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-runtime; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-local-browser-at-browsers",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-local-browser",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-browsers",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-local-browser",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-browsers",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-browsers; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-browsers; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-local-browser-at-local-session",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-local-browser",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-local-session",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-local-browser",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-local-session",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-local-session; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-local-session; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "link-s-local-browser-at-state-authority",
+      "operation": "add",
+      "target": {
+        "type": "canon_relationship",
+        "kind": "verified_by",
+        "from": {
+          "id": "s-local-browser",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-state-authority",
+          "revision": 1
+        }
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "kind": "verified_by",
+        "from": {
+          "id": "s-local-browser",
+          "revision": 1
+        },
+        "to": {
+          "id": "at-state-authority",
+          "revision": 1
+        },
+        "sources": [
+          "source-1",
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "rationale": "The original story traced r-state-authority; its acceptance scenario contributes to verifying this actor experience."
+      },
+      "rationale": "The original story traced r-state-authority; its acceptance scenario contributes to verifying this actor experience.",
+      "sources": [
+        "source-1",
+        "source-3",
+        "source-4",
+        "source-5"
+      ]
+    },
+    {
+      "change_id": "add-w-playable-game",
+      "operation": "add",
+      "target": {
+        "type": "work_item",
+        "id": "w-playable-game"
+      },
+      "expected": {
+        "state": "absent"
+      },
+      "value": {
+        "title": "Playable local React tic-tac-toe with verified unbeatable AI",
+        "outcome": "One cohesive delivery of the browser-held game, local Express serving on 3630, exhaustive correctness/AI tests and actual Chrome desktop/iPhone acceptance. Internal tasks are not separately reserved phases.",
+        "included": [
+          "Standard rules and all human-player modes",
+          "Human X/O choice",
+          "Unbeatable AI for both marks",
+          "500 ms AI pacing",
+          "Explicit Start and active setup lock",
+          "Stable turn/result display",
+          "Manual replay in every mode with current settings",
+          "Browser-owned transient state",
+          "React served by local Node.js/Express on 3630",
+          "Responsive pointer/touch controls",
+          "Physical-iPhone Chrome access over Wi-Fi",
+          "Automated and physical-browser acceptance evidence",
+          "Local run/test instructions"
+        ],
+        "excluded": [
+          "Accounts",
+          "Saved games",
+          "Persistent scores",
+          "Online multiplayer",
+          "Public hosting",
+          "Extra difficulty levels",
+          "Framework helper changes as product work",
+          "Unrelated PokerNight scope"
+        ],
+        "acceptance": [
+          "Rules cover all eight win lines for X/O, full draw, final-cell win precedence, X-first alternation, occupied cells and terminal immutability.",
+          "Explore every legal opponent sequence against AI-X and AI-O, all permitted nondeterministic choices, legal returned moves and zero AI losses. Use an independent outcome oracle or assertions separate from the engine being tested. AI/AI must draw.",
+          "All modes remain inactive before Start. One-human mode accepts input only for the human turn; two-human mode schedules no AI moves; zero-human play needs no board input after Start.",
+          "Controlled clocks verify no move before 500 ms and exactly one legal move for the scheduled turn, including openings and successive AI/AI turns. Cover rapid input, stacked timers, termination and stale prior-game callbacks.",
+          "Lock mode/mark during play; unlock at completion. Changing terminal setup alone does not start moves. Play again starts directly with displayed selections, X first and no duplicate game.",
+          "Each reachable terminal result persists until a new-game action. Replay clears board/result, retains mode/mark and isolates old callbacks.",
+          "Verify browser-owned state and independent sessions without move APIs, authentication claims, saved games or persistent scores. No offline-loading guarantee is inferred.",
+          "Load real React assets and play through port 3630; occupied port fails clearly. Verify actual phone/LAN URL without assuming phone localhost or changing firewall/public exposure without authority.",
+          "Complete/replay games in actual desktop Chrome and actual Chrome on the physical iPhone. Exercise touch/pointer input, setup, Start, AI observation, result retention, full board/control fit, hit targets and stable non-overlapping layout.",
+          "Record device, OS, browser versions, viewport, URL, tested commit, observed outcomes, dependency versions, commands, automated results, AI exploration method/counts and untested cases. Screenshots support but do not replace interaction evidence."
+        ],
+        "tasks": [
+          {
+            "id": "context",
+            "text": "Inspect repository conventions, packages/tests and compatible dependencies. Evaluate a suitable maintained game/AI library for license, browser compatibility, footprint, rules and unbeatable behavior. If none is suitable, request an explicit tradeoff decision rather than silently writing a custom engine.",
+            "after": []
+          },
+          {
+            "id": "rules-ai",
+            "text": "Integrate rules/AI and independently verify legal transitions and no losses for either AI mark. Internal API choices remain implementation decisions.",
+            "after": [
+              "context"
+            ]
+          },
+          {
+            "id": "game-flow",
+            "text": "Implement React setup, Start, controller ownership, turn/result display, 500 ms AI turns, manual replay and cancellation or rejection of stale callbacks. Add behavior/component tests.",
+            "after": [
+              "rules-ai"
+            ]
+          },
+          {
+            "id": "serving",
+            "text": "Serve built React assets through Express on 3630. Document run commands and deliberate LAN access; verify occupied-port refusal.",
+            "after": [
+              "context"
+            ]
+          },
+          {
+            "id": "acceptance",
+            "text": "Verify the integrated application automatically and on actual desktop Chrome and physical-iPhone Chrome. Record exact implementation and environment evidence.",
+            "after": [
+              "game-flow",
+              "serving"
+            ]
+          }
+        ],
+        "risks": [
+          "A purported unbeatable library needs exhaustive independent verification",
+          "Stale or duplicate scheduled moves can corrupt replay and terminal state",
+          "Desktop emulation cannot prove iPhone Chrome behavior",
+          "LAN serving must remain deliberate local use without unauthorized network changes"
+        ],
+        "later_contract_obligations": [
+          "Resolve actual implementation placement/toolchain before naming paths",
+          "Provide the required validated architecture/pre-flight diagram when creating a complete phase prompt for these boundaries",
+          "Fresh exact baseline and independent review/decision are still required before admission"
+        ],
+        "id": "w-playable-game",
+        "revision": 1,
+        "maturity": "candidate",
+        "sources": [
+          "source-1",
+          "source-2",
+          "source-3",
+          "source-4",
+          "source-5"
+        ],
+        "canon_refs": [
+          {
+            "id": "d-human-count",
+            "revision": 1
+          },
+          {
+            "id": "d-ai",
+            "revision": 1
+          },
+          {
+            "id": "d-game",
+            "revision": 1
+          },
+          {
+            "id": "d-replay",
+            "revision": 1
+          },
+          {
+            "id": "r-rules",
+            "revision": 1
+          },
+          {
+            "id": "at-rules",
+            "revision": 1
+          },
+          {
+            "id": "r-modes",
+            "revision": 1
+          },
+          {
+            "id": "at-modes",
+            "revision": 1
+          },
+          {
+            "id": "r-mark-choice",
+            "revision": 1
+          },
+          {
+            "id": "at-mark-choice",
+            "revision": 1
+          },
+          {
+            "id": "r-unbeatable",
+            "revision": 1
+          },
+          {
+            "id": "at-unbeatable",
+            "revision": 1
+          },
+          {
+            "id": "r-result",
+            "revision": 1
+          },
+          {
+            "id": "at-result",
+            "revision": 1
+          },
+          {
+            "id": "r-manual-replay",
+            "revision": 1
+          },
+          {
+            "id": "at-manual-replay",
+            "revision": 1
+          },
+          {
+            "id": "r-react",
+            "revision": 1
+          },
+          {
+            "id": "at-react",
+            "revision": 1
+          },
+          {
+            "id": "r-runtime",
+            "revision": 1
+          },
+          {
+            "id": "at-runtime",
+            "revision": 1
+          },
+          {
+            "id": "r-browsers",
+            "revision": 1
+          },
+          {
+            "id": "at-browsers",
+            "revision": 1
+          },
+          {
+            "id": "r-local-session",
+            "revision": 1
+          },
+          {
+            "id": "at-local-session",
+            "revision": 1
+          },
+          {
+            "id": "r-ai-pacing",
+            "revision": 1
+          },
+          {
+            "id": "at-ai-pacing",
+            "revision": 1
+          },
+          {
+            "id": "r-state-authority",
+            "revision": 1
+          },
+          {
+            "id": "at-state-authority",
+            "revision": 1
+          },
+          {
+            "id": "r-start-setup",
+            "revision": 1
+          },
+          {
+            "id": "at-start-setup",
+            "revision": 1
+          },
+          {
+            "id": "s-solo",
+            "revision": 1
+          },
+          {
+            "id": "s-watch",
+            "revision": 1
+          },
+          {
+            "id": "s-two-humans",
+            "revision": 1
+          },
+          {
+            "id": "s-local-browser",
+            "revision": 1
+          }
+        ],
+        "supplemental_checks": [
+          "Suggested automated viewports: 1280x800 desktop, 390x844 mobile, 320px-width stress",
+          "engineering recommendations, adjustable with rationale; not claimed device dimensions",
+          "Firefox, Safari, Android, Chromium emulation and WebKit checks are optional and cannot replace required actual Chrome desktop/iPhone evidence"
+        ]
+      },
+      "sources": [
+        "source-1",
+        "source-2",
+        "source-3",
+        "source-4",
+        "source-5"
+      ],
+      "rationale": "One cohesive local game outcome covers the selected Canon; it remains advisory until its implementation contract is specified."
+    }
+  ],
+  "unresolved": [
+    {
+      "id": "relationship-r-modes-r-rules",
+      "explanation": "The prior draft recorded an untyped uses link from r-modes to r-rules. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-modes",
+        "add-r-rules"
+      ]
+    },
+    {
+      "id": "relationship-r-mark-choice-r-rules",
+      "explanation": "The prior draft recorded an untyped uses link from r-mark-choice to r-rules. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-mark-choice",
+        "add-r-rules"
+      ]
+    },
+    {
+      "id": "relationship-r-mark-choice-r-modes",
+      "explanation": "The prior draft recorded an untyped uses link from r-mark-choice to r-modes. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-mark-choice",
+        "add-r-modes"
+      ]
+    },
+    {
+      "id": "relationship-r-result-r-rules",
+      "explanation": "The prior draft recorded an untyped uses link from r-result to r-rules. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-result",
+        "add-r-rules"
+      ]
+    },
+    {
+      "id": "relationship-r-manual-replay-r-rules",
+      "explanation": "The prior draft recorded an untyped uses link from r-manual-replay to r-rules. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-manual-replay",
+        "add-r-rules"
+      ]
+    },
+    {
+      "id": "relationship-r-browsers-r-runtime",
+      "explanation": "The prior draft recorded an untyped uses link from r-browsers to r-runtime. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-browsers",
+        "add-r-runtime"
+      ]
+    },
+    {
+      "id": "relationship-r-browsers-r-modes",
+      "explanation": "The prior draft recorded an untyped uses link from r-browsers to r-modes. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-browsers",
+        "add-r-modes"
+      ]
+    },
+    {
+      "id": "relationship-r-browsers-r-start-setup",
+      "explanation": "The prior draft recorded an untyped uses link from r-browsers to r-start-setup. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-browsers",
+        "add-r-start-setup"
+      ]
+    },
+    {
+      "id": "relationship-r-ai-pacing-r-rules",
+      "explanation": "The prior draft recorded an untyped uses link from r-ai-pacing to r-rules. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-ai-pacing",
+        "add-r-rules"
+      ]
+    },
+    {
+      "id": "relationship-r-ai-pacing-r-modes",
+      "explanation": "The prior draft recorded an untyped uses link from r-ai-pacing to r-modes. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-ai-pacing",
+        "add-r-modes"
+      ]
+    },
+    {
+      "id": "relationship-r-ai-pacing-r-manual-replay",
+      "explanation": "The prior draft recorded an untyped uses link from r-ai-pacing to r-manual-replay. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-ai-pacing",
+        "add-r-manual-replay"
+      ]
+    },
+    {
+      "id": "relationship-r-state-authority-r-react",
+      "explanation": "The prior draft recorded an untyped uses link from r-state-authority to r-react. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-state-authority",
+        "add-r-react"
+      ]
+    },
+    {
+      "id": "relationship-r-state-authority-r-runtime",
+      "explanation": "The prior draft recorded an untyped uses link from r-state-authority to r-runtime. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-state-authority",
+        "add-r-runtime"
+      ]
+    },
+    {
+      "id": "relationship-r-state-authority-r-local-session",
+      "explanation": "The prior draft recorded an untyped uses link from r-state-authority to r-local-session. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-state-authority",
+        "add-r-local-session"
+      ]
+    },
+    {
+      "id": "relationship-r-start-setup-r-rules",
+      "explanation": "The prior draft recorded an untyped uses link from r-start-setup to r-rules. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-start-setup",
+        "add-r-rules"
+      ]
+    },
+    {
+      "id": "relationship-r-start-setup-r-modes",
+      "explanation": "The prior draft recorded an untyped uses link from r-start-setup to r-modes. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-start-setup",
+        "add-r-modes"
+      ]
+    },
+    {
+      "id": "relationship-r-start-setup-r-mark-choice",
+      "explanation": "The prior draft recorded an untyped uses link from r-start-setup to r-mark-choice. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-start-setup",
+        "add-r-mark-choice"
+      ]
+    },
+    {
+      "id": "relationship-r-start-setup-r-manual-replay",
+      "explanation": "The prior draft recorded an untyped uses link from r-start-setup to r-manual-replay. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-start-setup",
+        "add-r-manual-replay"
+      ]
+    },
+    {
+      "id": "relationship-r-start-setup-r-ai-pacing",
+      "explanation": "The prior draft recorded an untyped uses link from r-start-setup to r-ai-pacing. Its source intent is retained; select a justified catalogue relationship or explicitly dispose of it before completion. It is not an inferred phase dependency.",
+      "affects": [
+        "add-r-start-setup",
+        "add-r-ai-pacing"
+      ]
+    },
+    {
+      "id": "work-contract",
+      "explanation": "Inspect repository product conventions and select dependencies; finalize execution selection, validation, review and closeout contract without inventing an implementation phase.",
+      "affects": [
+        "add-w-playable-game"
+      ]
+    },
+    {
+      "id": "storage-integration",
+      "explanation": "Repository Canon/tracker storage and live change-set admission integration remain to be implemented and verified.",
+      "affects": []
+    }
+  ]
+}

@@ -5,6 +5,20 @@ user-invocable: false
 ---
 # Work Plan Shaping
 
+For cp-plan-change-set-v1, use the
+[Planning Change-Set Policy](../../../control-plane/framework/governance/policies/plan-change-set.policy.md)
+and its typed work-item/dependency variants in the same proposal changes list. Candidate
+work stays candidate; only explicit complete planning supplies specified contracts and
+resolves required gaps. Internal task links are not inter-work dependencies. The legacy
+draft writer below is not an owner for this format; use the shared change-set save path.
+
+Load the [Canon Schema Policy](../../../control-plane/framework/governance/policies/canon-records.policy.md)
+when consuming proposed/admitted Canon from any planning origin. Reference exact record
+IDs/revisions and preserve typed meaning. Definition and Decision have different roles;
+Canon relationships are not task/Phase dependencies. Work shaping may identify a need for
+another Canon kind but must not silently create governing intent or downgrade it into text
+to satisfy the older complete-result kernel. Proposal-envelope integration remains pending.
+
 ## New File-Backed Context
 
 For a resolved `cp-planning-capture-v1` ADHOC or HNNN document, use

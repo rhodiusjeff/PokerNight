@@ -5,6 +5,20 @@ user-invocable: false
 ---
 # Guided Admission
 
+If the selected document is cp-plan-change-set-v1, stop before legacy bundle preparation
+or publication: live change-set review/admission/application integration is not installed.
+The [change-set policy](../../../control-plane/framework/governance/policies/plan-change-set.policy.md)
+owns validation and draft saves, not admission. Do not flatten eleven-kind Canon into the
+old three-kind complete-result schema to bypass this boundary. Report the missing owner.
+
+LOCAL MOD - HARVEST TO CPB (2026-09-29): load the
+[repository storage contract](../../../control-plane/framework/governance/policies/tracker-and-state.policy.md#repository-canon-and-tracker-storage-contract)
+when assessing new-format application. Its Canon and tracker/archive destinations are
+agreed, not installed runtime targets. Future application must check phase identities
+and dependency references across active and archived work and preserve completed rows
+and bound contracts. Admission does not archive phases. Do not substitute the agreed
+paths into legacy commands or invent CLI options; the change-set refusal above remains.
+
 The normal publication helper defaults to `forge-cli`: real gh/glab operations selected
 from origin with explicit repository, target and subject binding. Use the existing CLI
 authentication; never print tokens or manufacture owner callbacks/evidence. Local mocks

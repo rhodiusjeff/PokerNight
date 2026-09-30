@@ -9,7 +9,9 @@ INVOCATION CONTRACT: lifecycle operations require this explicit invocation or co
 the exact offered command. Codegen, Planning and Design, and Lifecycle Facilitator can guide it
 under their narrow shared-planning grant without switching persona. Other callers lack that grant.
 Load [planning workflow](../skills/planning-workflow/SKILL.md); retain command and real confirmation.
-Help is read-only; describe all flags, creation's remote tag reservation, binding and transfer limits.
+Help is read-only; describe all flags, local slug/hex allocation, binding and transfer limits.
+Use the complete horizon ID from [identity policy](../../control-plane/framework/governance/policies/planning-identity.policy.md).
+HNNN placeholders below denote the full minted ID; bare prefixes never select new-style horizons.
 Choose exactly one action flag. IDs/paths/refs must be supplied or explicitly confirmed, not guessed.
 
 Read-only discovery: `python3 control-plane/framework/scripts/planning-context.py --root ROOT list`,
@@ -28,12 +30,12 @@ For existing legacy H000 lifecycle use the legacy named prompts; never reset/mig
 Prefix each helper with `python3 control-plane/framework/scripts/`; root precedes its subcommand.
 Get OP with `planning-context.py --root ROOT new-operation`. Creation collects exact source files,
 slug/title/author and explicit remote/target, presents dirty-work inventory and recorded branch base,
-and discloses the allocator's remote annotated tag reservation before confirmation. It preserves
+and discloses the allocator's local full-ID minting before confirmation. No new tag is reserved. It preserves
 dirty work, creates a planning branch from current HEAD and does not commit/push that branch.
 It does not isolate admission content; later publication must exclude parent implementation.
 No new fake phase/tracker or instance lifecycle change is made. Reuse OP after interruption.
-Reservation uncertainty stops: use `recover-reservation --operation-id OP --id HNNN
---expected-digest JOURNAL_SHA --confirmed` only after exact inspected/confirmed recovery.
+Local allocation retries reuse OP and the same full ID. `recover-reservation` remains only
+for an interrupted legacy tag-based journal, after exact inspected/confirmed recovery.
 
 Activation selects the exact binding; missing/ambiguous/contradictory context requires a choice.
 Do not switch branches implicitly. Only explicitly requested `--switch-branch` permits the
@@ -87,7 +89,7 @@ python3 control-plane/framework/scripts/planning-transfer.py --root ROOT verify 
 
 Supply `--source-branch` explicitly for an unassociated ADHOC source. Show both exact branch updates,
 preserved inventory, committer and unchanged integration target; obtain the specific publication
-and coordination confirmation before execution. A tag/creation or local transfer approval does not
+and coordination confirmation before execution. A creation or local transfer approval does not
 authorize this additional publication. `publish` resumes the same offer after interruption and never
 force-pushes. Only verified two-branch evidence permits `portable_complete: true`; unavailable/moved
 refs or partial publication remain incomplete and block admission through the transfer guard.

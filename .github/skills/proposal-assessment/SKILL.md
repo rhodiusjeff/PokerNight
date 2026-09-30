@@ -5,6 +5,21 @@ user-invocable: false
 ---
 # Proposal Assessment
 
+For cp-plan-change-set-v1, read the
+[Planning Change-Set Policy](../../../control-plane/framework/governance/policies/plan-change-set.policy.md),
+validate/preview against its exact base and assess the complete composed meaning, not only
+isolated additions. A preview is not another authority. Formal evidence persistence for
+this format remains pending; never invoke the legacy evidence writer or fabricate its
+review state. Keep advisory findings attributed in the existing capture under explicit scope.
+
+For record-model assessment, load the
+[Canon Schema Policy](../../../control-plane/framework/governance/policies/canon-records.policy.md).
+Check whether each selected kind and selection_rationale fits the source meaning, avoids
+duplication, and preserves uncertainty honestly. Validate forms and exact relationship
+endpoints separately from semantic judgment. All eleven kinds are available in ad hoc,
+horizon and discovery; do not require every kind or confuse a valid shape with coverage.
+Flag legacy proposal/admission kernel mapping gaps instead of silently flattening records.
+
 ## New File-Backed Context
 
 For a resolved `cp-planning-capture-v1` ADHOC or HNNN document, use
