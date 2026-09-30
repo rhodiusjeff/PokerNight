@@ -1,5 +1,14 @@
 # Canon Review and Escalation v1
 
+## Retired Implementation
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): Operator retired Package B together with
+Packages A/C. Its runtime, exclusive tests and schema catalog/tree have been removed.
+All invocation, installed and authority claims below are historical design reference,
+not supported commands or prerequisites. Do not recreate the described profiles.
+Current independent review and exact decisions use the
+[guided-admission workflow](../../../../.github/skills/guided-admission/SKILL.md).
+
 **Scope:** Package B deterministic candidate review and mocked escalation core.
 
 <!-- LOCAL ADDITION canon-review-and-escalation-v1 2026-07-31 - HARVEST TO CPB. -->

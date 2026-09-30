@@ -1,5 +1,14 @@
 # Atomic Promotion Transaction v1
 
+## Retired Implementation
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): Operator retired Package C together with
+Packages A/B. Its runtime, exclusive tests and schema catalog/tree have been removed.
+All checkpoint, installed and authority claims below are historical design reference,
+not supported commands or prerequisites. No continuation of this experiment is implied.
+Current composition, publication and separately confirmed application use the
+[guided-admission workflow](../../../../.github/skills/guided-admission/SKILL.md).
+
 **Status:** Checkpoint 1 authority and schemas installed by OPS-006; composition and publication are not installed
 **Owner:** Control-plane semantic authority framework
 **Harvest:** Required for CPB

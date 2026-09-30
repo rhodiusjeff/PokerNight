@@ -1,6 +1,26 @@
 <!-- LOCAL ADDITION (semantic-authority-v1, 2026-07-30) - HARVEST TO CPB. -->
 # Semantic Authority Foundation v1
 
+## Retired Implementation
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): Operator retired Package A together with
+Packages B/C. Its runtime, exclusive tests and schema catalog/tree have been removed.
+This document retains prior design and local amendments as historical reference only.
+All installed/required/compatibility claims below describe the retired experiment;
+they grant no current authority and must not cause missing files to be recreated.
+Current validation uses Canon records, change sets and repository state; current review
+and application use the [guided-admission workflow](../../../../.github/skills/guided-admission/SKILL.md).
+
+## Compatibility Scope
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): cpb-semantic-authority-v1 is a retained schema
+family with its own catalog/registry layout, not the cp-canon-records-v1 repository Canon
+format or the proposed CPv1 Dolt design. Select it only for an explicit compatible profile.
+For current Canon and work, use [Canon Schema Policy](../policies/canon-records.policy.md),
+[Planning Identity Policy](../policies/planning-identity.policy.md) and Canon And Work
+Context Resolution in [Tracker And State Policy](../policies/tracker-and-state.policy.md).
+Do not manufacture these legacy catalog files or translate new CR IDs to satisfy this validator.
+
 ## Contract
 
 `cpb-semantic-authority-v1` is the reusable, read-only contract for validating canon and
@@ -24,8 +44,9 @@ entries are tool errors. The shared definitions schema is not a path target.
 - Every catalog `primary_key` expression is evaluated generically within its canon or containing-
   horizon scope. This includes edge, disposition, receipt, phase, and generated-view identities.
 
-Industry Night adoption preserves `CPR-*`, `CPN-*`, `CUS-*`, `USC-*`, and `AT-*` as primary V1
-identities. This contract does not migrate those live records.
+Historical Industry Night adoption preserved `CPR-*`, `CPN-*`, `CUS-*`, `USC-*`, and `AT-*`
+within this schema family. That history is not this repository's new-ID policy; no live
+records or historical citations are migrated by this contract.
 
 ## Typed References
 

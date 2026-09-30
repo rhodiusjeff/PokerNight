@@ -1,4 +1,4 @@
-# LOCAL ADDITION (semantic-authority-v1, 2026-07-30) - HARVEST TO CPB.
-# Draft 2020-12 evaluation for validate-semantic-authority.py.
+# LOCAL MOD (2026-09-30) - HARVEST TO CPB: retain shared current-runtime dependencies.
+# Draft 2020-12 validation and YAML parsing for planning, admission and installation.
 jsonschema>=4.23,<5
 PyYAML>=6,<7
