@@ -74,6 +74,73 @@ class ContextTests(unittest.TestCase):
         self.assertFalse(first["tag_reserved"])
         self.assertEqual(context.branch(self.repository), first["branch"])
 
+    def test_planning_status_filters_sessions_and_preserves_proposal_status(self):
+        documents = [
+            {"id": "ADHOC-first-abcd", "title": "Draft", "schema": "cp-plan-change-set-v1",
+             "context": {"kind": "ad-hoc"}, "status": "draft"},
+            {"id": "H001-next-abcd", "title": "Paused", "kind": "horizon",
+             "context": {"state": "suspended", "branch": "planning/next"},
+             "workflow": {"planning": {"status": "complete"}, "admission": {"status": "prepared"}}},
+            {"id": "DISC-later-abcd", "title": "Discovery", "context": {"kind": "discovery"}},
+            {"id": "ADHOC-awaiting-abcd", "title": "Awaiting merge", "kind": "ad-hoc",
+             "context": {"state": "authorized-for-merge"}},
+            {"id": "ADHOC-discovery-abcd", "title": "Legacy discovery", "kind": "discovery"},
+        ]
+        for state in ("abandoned", "absorbed", "escalated"):
+            documents.append({"id": "H002-" + state + "-abcd", "title": state,
+                              "kind": "horizon", "context": {"state": state}})
+        inventory = {"contexts": [{"path": str(self.repository / (document["id"] + ".json"))}
+                                  for document in documents],
+                     "binding": {"context_id": "H001-next-abcd"}, "freshness": "local checkout only"}
+        with mock.patch.object(context, "list_contexts", return_value=inventory), \
+             mock.patch.object(capture, "read_capture", side_effect=documents), \
+             mock.patch.object(context, "write_json") as writer:
+            result = context.planning_status(self.repository)
+        self.assertEqual(result["count"], 3)
+        self.assertEqual([row["kind"] for row in result["sessions"]], ["ad-hoc", "horizon", "ad-hoc"])
+        self.assertEqual(result["sessions"][1]["proposal_status"], "complete")
+        self.assertEqual(result["sessions"][1]["admission_status"], "prepared")
+        self.assertEqual(result["sessions"][1]["state"], "suspended")
+        self.assertEqual(result["excluded_kinds"], ["discovery"])
+        writer.assert_not_called()
+
+    def test_planning_status_cli_is_read_only(self):
+        first = self.create()
+        before = {str(filename.relative_to(self.repository)): filename.read_bytes()
+                  for filename in self.repository.rglob("*") if filename.is_file()}
+        result = subprocess.run([sys.executable, str(script), "--root", str(self.repository), "status"],
+                                check=True, capture_output=True, text=True)
+        observed = json.loads(result.stdout)
+        self.assertEqual(observed["count"], 1)
+        self.assertEqual(observed["sessions"][0]["id"], first["id"])
+        self.assertEqual(observed["sessions"][0]["kind"], "horizon")
+        self.assertEqual(observed["sessions"][0]["title"], "Fixture")
+        self.assertEqual(before, {str(filename.relative_to(self.repository)): filename.read_bytes()
+                                 for filename in self.repository.rglob("*") if filename.is_file()})
+        capture.resolve_document(self.repository, first["id"]).write_text("malformed")
+        refused = subprocess.run([sys.executable, str(script), "--root", str(self.repository), "status"],
+                                 capture_output=True, text=True)
+        self.assertNotEqual(refused.returncode, 0)
+        self.assertEqual(refused.stdout, "")
+
+    def test_planning_status_empty(self):
+        observed = context.planning_status(self.repository)
+        self.assertEqual(observed["sessions"], [])
+        self.assertEqual(observed["count"], 0)
+
+    def test_planning_status_reads_paired_ad_hoc(self):
+        identity = "ADHOC-status-abcd"
+        capture.create_capture(argparse.Namespace(root=self.repository, id=identity, kind="ad-hoc",
+            title="Status fixture", author="Fixture", sources=[self.source], confirmed=True,
+            origin_phase=None, origin_specification=None))
+        observed = context.planning_status(self.repository)
+        self.assertEqual(observed["count"], 1)
+        self.assertEqual(observed["sessions"][0]["id"], identity)
+        self.assertEqual(observed["sessions"][0]["state"], "planning")
+        self.assertEqual(observed["sessions"][0]["proposal_status"], "draft")
+        self.assertEqual(observed["sessions"][0]["path"],
+                         f"control-plane/ad-hoc/{identity}/{identity}-proposal.json")
+
     def test_horizon_resolver_and_proposal_identity(self):
         first = self.create()
         filename = capture.resolve_document(self.repository, first["id"])

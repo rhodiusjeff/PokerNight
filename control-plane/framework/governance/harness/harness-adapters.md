@@ -8,6 +8,9 @@ Do not regenerate adapters or apply the old adapter-update rule; future bindings
 Operator authorization. Shared invocation, approval and timing requirements remain in the
 canonical policies and are not removed by retiring this binding.
 
+LOCAL MOD - HARVEST TO CPB (2026-09-30): the CI capability is also retired. References
+below to its persona, commands or adapters are historical, not available Copilot routes.
+
 **Scope:** instance-born — provenance marker for lift/assimilation classification (framework-canon = unmodified CPB template · instance-localized = canon amended/localized by this instance · instance-born = originated in this instance, upstreaming candidate).
 
 **Status:** Active convention (introduced 2026-07-07)

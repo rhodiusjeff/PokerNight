@@ -1,9 +1,39 @@
 ---
 name: "Plan Work"
-description: "Capture and iteratively plan HNNN, ad hoc, discovery or deferred work through shared file-backed helpers; complete proposals only on explicit request."
-argument-hint: "[ID] --capture ad-hoc|discovery | --append | --defer | --include | --scrub [FINDING-ID --apply] | --canon | --work | --complete | --assess | --help"
+description: "List open ad hoc and horizon planning sessions, or capture and iteratively plan work through shared file-backed helpers; complete proposals only on explicit request."
+argument-hint: "--status | [ID] --capture ad-hoc|discovery | --append | --defer | --include | --scrub [FINDING-ID --apply] | --canon | --work | --complete | --assess | --help"
 ---
 # Plan Work
+
+## Read-Only Status
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): `/plan-work --status` lists open ad hoc and
+horizon planning sessions. This standalone mode is available to any invoking persona and
+must be handled before the planning-writer context loads below. Do not require a selected ID,
+Canon baseline, tracker or lifecycle transition. Reject an ID or another mode combined with
+`--status`; `--help` explains the mode without running it.
+
+With `.cp-venv` active, run `python3 control-plane/framework/scripts/planning-context.py --root ROOT status`
+against the current repository. Present every returned session in a compact table with type,
+full ID linked to its returned path, title, lifecycle, proposal status and recorded admission
+status. Include its branch when recorded; do not infer one from the current branch.
+
+Open means lifecycle `planning`, `suspended` or `authorized-for-merge`; absent lifecycle state
+means `planning`. A `complete` proposal remains visible. Exclude abandoned, absorbed and
+escalated sessions and all discovery sessions, including older discovery captures with ADHOC IDs.
+Do not infer merged, closed or admitted state from proposal completion. Admission information
+is the recorded capture status, not live forge verification.
+
+State the result count and freshness: current-checkout records only, including uncommitted
+sessions; other branches/clones are not inventoried and no fetch is performed. Do not present
+this as a repository-wide remote inventory. If empty, say no open ad hoc or horizon planning
+sessions were found in this checkout. On helper failure, report the error instead of claiming
+an empty or complete inventory. Discovery status is deferred.
+
+No file, binding, source, timing log, branch or remote write is permitted. Do not activate a
+session or automatically continue planning after listing it. Stop after reporting status.
+
+## Planning Modes
 
 INVOCATION CONTRACT: preserve the invoking Project: Codegen, Project: Planning and Design,
 or Control Plane: Lifecycle Facilitator persona. Their narrow shared-planning grants apply;
@@ -76,7 +106,7 @@ satisfy historical command paths. Existing recovery authority and source-pin che
 ## Timing-log required actions
 
 Use `control-plane/framework/governance/timing/timing-log.spec.md` without changing its storage.
-Help, read-only inspection/compose and preflight refusals create no timing session. For a confirmed
+Help, `--status`, read-only inspection/compose and preflight refusals create no timing session. For a confirmed
 mutating planning operation, record its selected mode/context and actual caller:
 
 - `control-plane/framework/scripts/timing-log.sh open --phase-id IN-PLAN --harness <harness> --model-id <resolved-model-or-unresolved> --persona <active-persona>`

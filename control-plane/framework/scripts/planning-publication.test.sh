@@ -980,12 +980,14 @@ class HostedControllerTests(unittest.TestCase):
 		self.assertEqual(self.snapshot(), before)
 
 	def test_cli_github_and_local_entry_points_fail_closed(self):
-		for arguments in (("--transport", "github", "new-id"), ("new-id", "--transport", "github"),
-			("resume", "--attempt", self.identity, "--confirmed")):
+		for arguments, expected_error in (
+			(("--transport", "github", "new-id"), self.forge.LIVE_BLOCKER),
+			(("new-id", "--transport", "github"), self.forge.LIVE_BLOCKER),
+			(("resume", "--attempt", self.identity, "--confirmed"), "CLI publication attempt required")):
 			with self.subTest(arguments=arguments), mock.patch.object(sys, "argv", [str(script_directory / "planning-publication.py"),
 				"--root", str(self.root), *arguments]), contextlib.redirect_stderr(io.StringIO()) as output:
 				self.assertEqual(publication.main(), 1)
-				self.assertIn(self.forge.LIVE_BLOCKER, output.getvalue())
+				self.assertIn(expected_error, output.getvalue())
 		for operation in (publication.close_request, publication.withdraw):
 			with self.assertRaisesRegex(ValueError, self.forge.LIVE_BLOCKER):
 				operation(self.root, self.identity, self.authority, True)
@@ -1105,23 +1107,26 @@ class HostedControllerTests(unittest.TestCase):
 			for repository in (root, transport.binding.sandbox):
 				with self.subTest(repository=str(repository)):
 					replacement = "refs/replace/" + self.target
-					self.git(repository, "update-ref", replacement, self.target)
-					self.git(repository, "pack-refs", "--all", "--prune")
+					replacement_commit = self.git(repository, "commit-tree", self.target + "^{tree}",
+						"-m", "Replacement fixture").stdout.decode().strip()
+					self.assertNotEqual(replacement_commit, self.target)
 					requests = len(self.requests)
 					try:
+						self.git(repository, "update-ref", replacement, replacement_commit)
+						self.git(repository, "pack-refs", "--all", "--prune")
 						with self.assertRaisesRegex(ValueError, "replacement refs or grafts"):
 							transport.api("GET", transport.prefix)
 						self.assertEqual(len(self.requests), requests)
 					finally:
 						self.git(repository, "update-ref", "-d", replacement)
 					grafts = repository / ".git/info/grafts"
-					grafts.write_text(self.target + "\n")
 					try:
+						grafts.write_text(self.target + "\n")
 						with self.assertRaisesRegex(ValueError, "replacement refs or grafts"):
 							transport.api("GET", transport.prefix)
 						self.assertEqual(len(self.requests), requests)
 					finally:
-						grafts.unlink()
+						grafts.unlink(missing_ok=True)
 			transport.api("GET", transport.prefix)
 
 	def test_closure_race_preserves_capture_authorization(self):

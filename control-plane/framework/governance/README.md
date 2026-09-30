@@ -43,7 +43,7 @@ Common operator routes:
 | Introduce a new body of work | `/plan-work` for capture/drafts, explicit `/horizon --create` for bounded planning, then `/admit-plan` | Creating a per-horizon operational tracker |
 | Upgrade the control-plane framework | `/control-plane-upgrade --help`, then explicit selected-packet entry under Lifecycle Facilitator | Product implementation or a new horizon |
 | Repair or evolve governance | Select **Project: Control Plane Steward** | Editing product source |
-| Assess or configure repository CI/forge integration | Select **Project: CI & Integration Architect**, then begin with `/ci-assess --help` | Product implementation or forge-admin mutation |
+| CI setup and audit capability | Retired pending future redesign; no installed CI command or agent | No inferred configuration, forge-admin mutation or bypass of existing checks |
 | Record a future idea | Explicit deferred capture through shared planning | Scheduling executable work or changing Canon |
 | Preserve a candidate for later planning | Selected capture or `control-plane/workbench/` with provenance | Assigning execution ownership to a horizon |
 
@@ -128,7 +128,7 @@ directories.
 | [`harness/`](harness/) | Harness-adapter contract | `.github/` and `.claude/` parity |
 | [`personas/`](personas/) | Supplemental persona specifications | Agent charters and review responsibilities |
 | [`admission/`](admission/) | Approval and waiver templates | A future horizon's `approvals/` directory |
-| [`ci-and-integration.policy.md`](ci-and-integration.policy.md) | CI profiles, runners, caches, forge readiness, and protected-target authority | Project CI standards, workflows, and forge attestations |
+| [`ci-and-integration.policy.md`](ci-and-integration.policy.md) | Retired CI design retained for future reconsideration | Historical reference only; no active CI gate or configuration authority |
 
 Files directly in this directory are cross-domain specifications or policies whose names state
 their role. Paths define ownership; suffixes such as `.policy.md`, `.spec.md`, and `.template.md`

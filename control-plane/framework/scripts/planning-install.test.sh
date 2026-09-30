@@ -136,7 +136,38 @@ with tempfile.TemporaryDirectory(prefix="cp-planning-install-") as temporary:
     state = json.loads((actual / module.STATE).read_text())
     assert state["active_upgrade_packet"] is None and state["notes"] == []
     assert (actual / "control-plane/framework/scripts/timing-log.sh").exists()
+    assert (actual / "control-plane/framework/scripts/timing-log.ps1").exists()
+    assert (actual / "control-plane/framework/scripts/planning-publication.py").exists()
+    assert (actual / "control-plane/framework/scripts/planning-forge.py").exists()
     for removed in ("control-plane/framework/scripts/control-plane-sanity.sh",
+                    ".github/agents/project-ci-integration-architect.agent.md",
+                    ".github/prompts/ci-assess.prompt.md",
+                    ".github/prompts/ci-design.prompt.md",
+                    ".github/prompts/ci-configure.prompt.md",
+                    ".github/prompts/ci-verify-forge.prompt.md",
+                    ".github/prompts/ci-audit.prompt.md",
+                    "control-plane/framework/scripts/ci-repo-inventory.py",
+                    "control-plane/framework/scripts/ci-repo-inventory.test.sh",
+                    "control-plane/framework/scripts/validate-ci-profile.py",
+                    "control-plane/framework/scripts/validate-ci-profile.test.sh",
+                    "control-plane/framework/scripts/verify-forge-readiness.py",
+                    "control-plane/framework/scripts/verify-forge-readiness.test.sh",
+                    "control-plane/framework/templates/ci-assessment.template.md",
+                    "control-plane/framework/templates/ci-design-approval.template.md",
+                    "control-plane/framework/templates/ci-design.template.md",
+                    "control-plane/framework/templates/ci-profile-catalog.schema.json",
+                    "control-plane/framework/templates/ci-profile-catalog.template.json",
+                    "control-plane/framework/templates/ci-repository-inventory.schema.json",
+                    "control-plane/framework/templates/forge-facts.schema.json",
+                    "control-plane/framework/templates/forge-facts.template.json",
+                    "control-plane/framework/templates/forge-readiness-attestation.schema.json",
+                    "control-plane/framework/templates/forge-readiness-attestation.template.json",
+                    ".github/prompts/render-view.prompt.md",
+                    "control-plane/framework/scripts/render-view.py",
+                    "control-plane/framework/scripts/render-view-command.test.sh",
+                    "control-plane/framework/scripts/render-horizon-topology.test.sh",
+                    "control-plane/framework/scripts/timing-harvest.sh",
+                    "control-plane/framework/scripts/timing-harvest.test.sh",
                     "control-plane/framework/scripts/horizon-portfolio.py",
                     "control-plane/framework/scripts/horizon-portfolio.test.sh",
                     "control-plane/framework/scripts/horizon-mint.sh",

@@ -1,6 +1,6 @@
 <!-- schema_version: cpb-instance-state-v2 -->
 <!-- Laid down at install as state/CONTROL_PLANE_STATE.json (state: operational). JSON per
-     the machine-readability rule (2026-07-20); human view via render-view.py state <file>. -->
+     the machine-readability rule (2026-07-20); inspect the JSON directly. -->
 # Control Plane Instance State (CONTROL_PLANE_STATE.json contract)
 
 Shape per `instance-state.schema.json`: `state` enum operational|suspended|upgrading (the

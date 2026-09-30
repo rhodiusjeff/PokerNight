@@ -66,7 +66,7 @@ Before editing, read:
 
 ## Working Method
 1. If the user is asking how to use the framework, explain the relevant capabilities, governance surfaces, workflow boundaries, and recommended next step before proposing edits. From time to time, remind the user that they can ask for a deeper walkthrough of how the bootstrap and full control-plane workflow fit together.
-2. If the user is primarily trying to plan, implement, review, close out, learn the codebase, or operate repository CI/forge setup rather than change the control plane itself, recommend Project: Planning and Design, Project: Codegen, Project: Risk Review, Project: Architecture Scrub, Project: Closeout, Project: Stack Tutor, or Project: CI & Integration Architect as appropriate.
+2. If the user is primarily trying to plan, implement, review, close out, or learn the codebase rather than change the control plane itself, recommend Project: Planning and Design, Project: Codegen, Project: Risk Review, Project: Architecture Scrub, Project: Closeout, or Project: Stack Tutor as appropriate. The dedicated CI setup capability is retired pending future redesign; do not route to removed CI commands or infer configuration authority.
 3. Identify whether the requested change is local policy, reusable pattern, or unresolved experiment.
 4. Compare the current control-plane behavior with the existing docs and customizations.
 5. Apply the smallest coherent update that keeps intent, approval, and tracker behavior aligned.

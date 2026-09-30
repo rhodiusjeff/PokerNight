@@ -211,9 +211,8 @@ resolve_copilot_session_id() {
   # (workspaceStorage/<hash>/GitHub.copilot-chat/transcripts/<sessionId>.jsonl)
   # is the newest-mtime transcript across every VS Code window hosting this
   # repo — single-folder or multi-root. "Active" is inferred from transcript
-  # mtime, not asked of VS Code. Wrong only when two Copilot sessions run
-  # concurrently against the same repo — the session-marker harvest
-  # reconciles that case. Never fails the caller.
+  # mtime, not asked of VS Code. Concurrent sessions can make this provisional
+  # backlink incorrect; no automatic reconciliation is installed. Never fails the caller.
   local user_dir workspace_json transcripts_dir transcript_file
   local newest="" newest_mtime=0 mtime now age
 
@@ -332,8 +331,8 @@ Common options:
 Session marker:
   Every open (new or resume) generates a unique session marker, records it in the
   event metadata as session_marker, and echoes CPB-SESSION-MARKER: <token> to stderr.
-  The harness transcript captures the echo, so timing-harvest.sh can later join
-  timing sessions to transcripts deterministically and reconcile resolver output.
+  The marker remains available for inspection in captured terminal output.
+  Automatic transcript reconciliation is not installed.
 
 Examples:
   timing-log.sh open --phase-id CP-001
@@ -459,8 +458,7 @@ case "$COMMAND" in
     METADATA="$(merge_metadata_field "$METADATA" "model_id" "$MODEL_ID")"
     METADATA="$(merge_metadata_field "$METADATA" "harness" "$HARNESS")"
     METADATA="$(merge_metadata_field "$METADATA" "session_marker" "$SESSION_MARKER")"
-    # Echoed so the harness transcript captures it (tool.execution_complete),
-    # giving the marker harvest a deterministic transcript<->session join.
+    # Echoed so the harness transcript can retain the session marker.
     # Sent to stderr to keep stdout as the log-file-path contract.
     echo "CPB-SESSION-MARKER: $SESSION_MARKER" >&2
     ensure_timing_surface

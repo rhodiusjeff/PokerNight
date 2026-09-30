@@ -2,7 +2,7 @@
 name: "Project: Control Plane Upgrade"
 description: "Coordinate the CP V0.8.1 planning/admission upgrade packet, recover progress, and route explicitly authorized framework implementation to Steward. Not a product or runtime implementation persona."
 tools: [read, search, edit, execute, agent, todo]
-agents: ["Project: Control Plane Steward", "Control Plane: Lifecycle Facilitator", "Project: Architecture Scrub", "Project: Risk Review", "Project: CI & Integration Architect"]
+agents: ["Project: Control Plane Steward", "Control Plane: Lifecycle Facilitator", "Project: Architecture Scrub", "Project: Risk Review"]
 ---
 
 # CP V0.8.1 Upgrade Coordinator

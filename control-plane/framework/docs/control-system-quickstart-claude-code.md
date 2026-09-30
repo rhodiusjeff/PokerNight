@@ -4,6 +4,9 @@
 direction. Other harness bindings are deferred. The instructions below are historical and
 must not be executed. Use [current entry](../../README.md) and the Copilot command surfaces.
 
+LOCAL MOD - HARVEST TO CPB (2026-09-30): the CI agent and commands described below
+are also retired. They are not available through the current Copilot surfaces.
+
 **Status:** Active, instance-local. **Lift candidate** — generalize into ControlPlaneBootstrap at lift per `control-plane/workbench/GOVERNANCE_SURFACE_MOPUP_PLAN_2026-07-05.md` §6.
 **Scope:** Steady-state operations only. This repository is already promoted; lifecycle-entry work (acquire, inflate, migrate, upgrade, new-horizon) remains Copilot territory until certified under Claude Code.
 **Authority:** This is a harness quickstart, not governance. The governance contract is `control-plane/framework/docs/control-system-user-guide.md`; harness rules are `control-plane/framework/governance/harness/harness-adapters.md`. If this doc and those disagree, they win.

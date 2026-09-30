@@ -52,6 +52,7 @@ execution or forge-administration writes.
 | `/horizon --create --from ID` | Create destination, then separately confirm escalation transfer |
 | `/plan-work --capture ad-hoc` | Preserve original intent before deriving a proposal |
 | `/plan-work --capture discovery` | Preserve exact execution-origin phase/specification, not amend it |
+| `/plan-work --status` | Read-only open ad hoc/horizon session list in this checkout; discovery deferred |
 | `/plan-work ID --include` | Discuss relevant deferred items and include only explicit selected IDs |
 | `/plan-work ID --scrub` | Source-quality findings; `--apply` requires exact correction confirmation |
 | `/plan-work ID --canon` / `--work` | Iterative partial candidates, questions and provenance |
@@ -308,56 +309,17 @@ If you are unsure between a normal phase and a new horizon:
 | Bootstrap: Horizon Readiness Reviewer | Profile-aware, findings-first baseline/horizon readiness judgment | Advisory readiness report and named-boundary verdict | No - invoked through facilitator when needed |
 | Bootstrap: Control Plane Steward | Evolution of the CPB framework itself | Bootstrap/template updates, governance evolution | Bootstrap-maintenance only |
 
-## Project-side CI role
+## CI Capability Retired
 
-Use **Project: CI & Integration Architect** for repository CI and protected-branch integration. The
-persona keeps one domain context while explicit commands preserve authority boundaries:
+LOCAL MOD - HARVEST TO CPB (2026-09-30): the Operator retired the dedicated CI agent,
+five commands, inventory/profile/attestation helpers and exclusive tests/templates. CI setup
+and audit design will be reconsidered in a future version; no replacement is installed.
+The former CI policy is retained only as historical design, not a default integration gate.
 
-| Command | Use | Writes |
-|---|---|---|
-| `/ci-assess` | Inventory repository tests, tools, services, and current CI posture | Assessment artifact only |
-| `/ci-design` | Design runners, caches, test profiles, budgets, tiers, and forge requirements | Design artifacts only |
-| `/ci-configure` | Generate approved repository-owned workflows, profiles, helpers, and docs | Approval-listed repository paths |
-| `/ci-verify-forge` | Query GitHub/GitLab read-only and attest protected-target readiness | Attestation evidence only |
-| `/ci-audit` | Analyze CI cost, flakes, skips, ejections, and profile accuracy | Audit evidence only |
-
-Every command supports `--help`/`-h` without mutation. Start with `/ci-assess --help`. The persona
-does not change branch protection, rulesets, required checks, merge queue/train settings, secrets,
-permissions, environments, or runner groups in v1; it generates an operator checklist and verifies
-the live result afterward.
-
-Ordinary CI jobs do not run an agent persona. They execute deterministic scripts against the event
-SHA. The persona designs and configures those scripts; the forge attests their results.
-
-### Setting up lightweight governance CI
-
-The CI setup capability is installed, but Industry Night's PR/merge-group workflow and forge rules
-are not. Use this operator sequence rather than hand-authoring a workflow from memory:
-
-1. Select **Project: CI & Integration Architect**.
-2. Run `/ci-assess --provider github --target integration` to refresh repository tests, current
-   workflows, unattended-safety gaps, and visible forge facts.
-3. Run `/ci-design --provider github --target integration`. Review the proposed profile catalog,
-   especially `always-integrity`, product profiles, and the stable `integration-gate` contract.
-4. Create the digest-bound `control-plane/workbench/ci/CI_DESIGN_APPROVAL.md`. There is no installed
-   approval-authoring command; the operator currently records this decision explicitly from the
-   design digest and approved path set.
-5. Run `/ci-configure --provider github --target integration`. This writes only approval-listed
-   repository files and an administrator checklist. It does not change GitHub settings.
-6. Publish the CI configuration PR and begin in observe/non-required mode. For governance-only
-   shaping/admission/completion diffs, the dispatcher should run `always-integrity` rather than
-   every product suite. Unknown or mixed impact broadens or stops.
-7. After measured green runs, configure GitHub rules for protected `integration`: PR required,
-   direct/force pushes constrained, `integration-gate` required, and serial merge queue enabled.
-   Ensure the required workflow handles both `pull_request` and `merge_group: checks_requested`.
-8. Run `/ci-verify-forge --provider github --target integration`. Treat unavailable facts as
-   `unverified`, not passing.
-9. Run `/ci-audit` after enough traffic exists to measure selection accuracy, duration, flakes,
-   retries, skips, queue ejections, and cost before increasing autonomy or speculation.
-
-LOCAL MOD - HARVEST TO CPB (2026-09-30): the general sanity runtime and gate have
-been removed. CI configuration must use the explicitly approved scoped checks;
-historical `always-integrity` examples do not establish an installed profile or PR workflow.
+Local scoped tests and the bounded validation runner remain available. Admission/publication
+still performs its own forge preflight and respects actual repository-required checks and
+merge restrictions. No existing workflow, hosted setting, approval or completion requirement
+is changed by this retirement. Do not recreate removed CI files from historical examples.
 
 ## End-to-end usage for a new project (initial inception)
 
@@ -635,32 +597,14 @@ initialize the packet ledger with that Reserved membership.
 `HORIZON_STATE.json` records durable lifecycle permission facts: declared/inception/admitted and
 seal. It deliberately does not carry an `executing` field. An admitted horizon becomes
 **in-flight (derived)** when at least one executable tracker node moves to `in-progress`.
-Codegen's start invariant is: operational instance, effective bundle-bound admission on the
-protected target, unsealed packet, active eligible phase, and matching phase branch. The topology
-view renders recorded admission and derived progress side by side so no second state can drift.
+Codegen's legacy start invariant is: operational instance, effective bundle-bound admission on the
+protected target, unsealed packet, active eligible phase, and matching phase branch.
 
-Render the current transient cross-horizon graph from session chat with:
-
-```text
-/render-view horizons
-```
-
-The output lives at `control-plane/.views/HORIZON_TOPOLOGY_VIEW.md` and is never authority.
-
-The installed `/render-view` command is a thin wrapper around
-`control-plane/framework/scripts/render-view.py` and preserves its modes:
-
-```text
-/render-view tracker <resolved-legacy-packet>/TRACKER.json
-/render-view archive <resolved-legacy-packet>/TRACKER_ARCHIVE.json
-/render-view register <resolved-legacy-packet>/ledgers/REVIEW_UNIT_LEDGER.json
-/render-view state control-plane/state/CONTROL_PLANE_STATE.json
-/render-view horizons
-```
-
-Add `--stdout` to return rendered content without writing a view file, or `--force` to regenerate a
-cached file. Generated files are gitignored, transient, and non-authoritative. Rendering does not
-open a timing session because inspecting a projection is not a governance mutation.
+LOCAL MOD - HARVEST TO CPB (2026-09-30): `/render-view`, its renderer and exclusive tests
+are retired. The legacy views did not support the repository Canon/tracker schemas. State and
+horizon topology views are also removed; no replacement renderer is installed. Inspect the
+authoritative JSON directly. Existing generated views are historical, non-authoritative output,
+not current projections or a reason to recreate the retired command.
 
 ### Forge review findings and merge notification
 

@@ -13,6 +13,11 @@
 - Decisions: [UPGRADE_OPERATOR_INPUT.md](UPGRADE_OPERATOR_INPUT.md).
 - Compatibility: [COMPATIBILITY_NOTES.md](COMPATIBILITY_NOTES.md).
 - Integrity-core contract: [PLANNING_CONTRACT.md](PLANNING_CONTRACT.md).
+- Horizon/session refinement draft: [HORIZON_PLANNING_REFINEMENT_SPEC.md](HORIZON_PLANNING_REFINEMENT_SPEC.md)
+  (branch-independent planning, local binding, lifecycle, rework criteria and open decisions;
+  recording is not implementation authorization).
+- Migration implementation contract: [MIGRATION_SKILL_SPEC.md](MIGRATION_SKILL_SPEC.md).
+- Individually authorized refinement slices: [HR-01 through HR-12](UPGRADE_PLAN.md#operator-selected-refinement-slices).
 - Reviews and dispositions: [REVIEW_NOTES.md](REVIEW_NOTES.md).
 - Source-only trial: [SOURCE_ONLY_TRIAL.md](SOURCE_ONLY_TRIAL.md).
 - Consolidated outcome: [LOCAL_IMPLEMENTATION_REPORT.md](LOCAL_IMPLEMENTATION_REPORT.md).

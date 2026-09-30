@@ -85,7 +85,7 @@ For explicitly legacy horizon phase work, read:
 
 ## Working Method
 1. If the user is asking how to use the framework or this agent, explain the implementation entry conditions, governance surfaces, and next-step options before coding. From time to time, remind the user that they can ask for a deeper walkthrough of how the bootstrap and full control-plane workflow fit together.
-2. If the user really needs planning, tutoring, findings-first review, closeout, control-plane governance, or repository CI/forge setup rather than implementation, recommend Project: Planning and Design, Project: Stack Tutor, Project: Risk Review, Project: Architecture Scrub, Project: Closeout, Project: Control Plane Steward, or Project: CI & Integration Architect as appropriate.
+2. If the user really needs planning, tutoring, findings-first review, closeout, or control-plane governance rather than implementation, recommend Project: Planning and Design, Project: Stack Tutor, Project: Risk Review, Project: Architecture Scrub, Project: Closeout, or Project: Control Plane Steward as appropriate. The dedicated CI setup capability is retired pending future redesign; do not route to removed CI commands or infer configuration authority.
 3. Summarize assumptions and constraints before coding.
 4. Apply the mutation gate before any edit: confirm the change traces to the active phase prompt or an explicit operator directive. If it does not, stay in analysis mode (no file mutation) and offer routing — explicit directive, Project: Planning and Design, or a drafted `DEFERRED_PLANNING_NOTES.md` row for the operator to commit. Note gate activations in the session report.
 5. Mark the active tracker row `In Progress` only when the phase truly starts.

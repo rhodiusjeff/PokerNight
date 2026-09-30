@@ -5,6 +5,20 @@ user-invocable: false
 ---
 # Shared Planning Workflow
 
+## Read-Only Session Status
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): standalone `/plan-work --status` uses
+`python3 control-plane/framework/scripts/planning-context.py --root ROOT status` before
+loading proposal-writing context. It requires no selected ID and is available to any persona
+as inspection only. Return all open ad hoc and horizon sessions from the current checkout;
+discovery status is deferred. Include suspended and authorized-for-merge sessions, retain
+complete proposals, and exclude terminal abandoned/absorbed/escalated contexts.
+
+Report full IDs, titles, kinds, lifecycle, proposal and recorded admission status with paths.
+Disclose current-checkout-only freshness and unknown other-branch/clone sessions. Do not fetch,
+switch, bind, write timing or continue a selected session. Invalid records are errors, not empty
+results. Follow the prompt's standalone-argument and empty-result rules, then stop.
+
 ## Change-Set Proposals
 
 Load the [Planning Change-Set Policy](../../../control-plane/framework/governance/policies/plan-change-set.policy.md)

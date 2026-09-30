@@ -78,6 +78,31 @@ def list_contexts(root):
             "freshness": "local checkout only; fetch published planning branches before remote discovery"}
 
 
+def planning_status(root):
+    root = pathlib.Path(root).resolve()
+    inventory = list_contexts(root)
+    sessions = []
+    for item in inventory["contexts"]:
+        document = capture.read_capture(pathlib.Path(item["path"]))
+        lifecycle = document.get("context", {})
+        kind = lifecycle.get("kind", document.get("kind"))
+        if kind not in ("ad-hoc", "horizon"):
+            continue
+        state = lifecycle.get("state", "planning")
+        if state not in ("planning", "suspended", "authorized-for-merge"):
+            continue
+        workflow = document.get("workflow", {})
+        admission = workflow.get("admission", {})
+        sessions.append({"id": document["id"], "kind": kind, "title": document["title"],
+                         "state": state,
+                         "proposal_status": document.get("status", workflow.get("planning", {}).get("status", "draft")),
+                         "admission_status": admission.get("status", admission.get("state", "not-started")),
+                         "branch": lifecycle.get("branch"),
+                         "path": str(pathlib.Path(item["path"]).relative_to(root))})
+    return {"sessions": sessions, "count": len(sessions), "binding": inventory["binding"],
+            "freshness": inventory["freshness"], "excluded_kinds": ["discovery"]}
+
+
 def discover(root):
     result = []
     references = git(root, "for-each-ref", "--format=%(refname) %(symref)", "refs/remotes/").stdout.decode().splitlines()
@@ -591,6 +616,7 @@ def main():
     parser.add_argument("--root", type=pathlib.Path, default=pathlib.Path.cwd())
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("list", help="list maintained ADHOC/HNNN contexts in this checkout; no fetch")
+    commands.add_parser("status", help="list open ad hoc and horizon planning sessions in this checkout; discovery excluded")
     commands.add_parser("discover", help="inspect maintained records on last-fetched remote branches without fetching or switching")
     commands.add_parser("new-operation", help="print a collision-safe creation operation identity")
     inspected = commands.add_parser("inspect")
@@ -631,6 +657,8 @@ def main():
     try:
         if args.command == "list":
             result = list_contexts(args.root)
+        elif args.command == "status":
+            result = planning_status(args.root)
         elif args.command == "discover":
             result = discover(args.root)
         elif args.command == "inspect":

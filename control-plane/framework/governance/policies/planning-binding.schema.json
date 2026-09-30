@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:control-plane:planning-binding:v1",
+  "$comment": "LOCAL MOD - HARVEST TO CPB (2026-09-30): Operator-requested branch-independent active-horizon binding contract. Runtime adoption is pending; the current unversioned id/branch binding is not this format.",
+  "title": "Local Active Horizon Binding",
+  "description": "Worktree-local selection stored in ignored control-plane/state/planning-local/binding.json. An absent file or omitted id means no active horizon. A present id must be valid. Horizon existence and operation eligibility require runtime validation; this document grants no lifecycle or admission authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema"],
+  "properties": {
+    "schema": {
+      "const": "cp-planning-binding-v1"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 11,
+      "maxLength": 58,
+      "pattern": "^H[0-9]{3}-[a-z][a-z0-9]*(?:-[a-z0-9]+)*-[0-9a-f]{4}(?![\\s\\S])",
+      "description": "Full helper-minted horizon ID: HNNN, a 1-48 character lowercase ASCII slug, and four lowercase hexadecimal digits. Bare legacy IDs and ad hoc/discovery IDs are not active-horizon bindings."
+    }
+  }
+}

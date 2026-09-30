@@ -11,5 +11,5 @@ window (`<phase-id>__<session>.jsonl`); append-only; never rewritten by sweeps o
 - The folder carries executable phase and side-track timing and is harvested with the packet.
 - Event schema: `framework/governance/timing/timing-log.spec.md`; records carry `"schema"`
   (cpb-timing-v1+); absence of the field marks pre-v1 records.
-- Reconciliation events (`session-transcript-reconciled`) are appended by the harvest runtime,
-  which scans instance and all packet timing roots by default; history is never mutated.
+- Existing reconciliation events (`session-transcript-reconciled`) remain historical evidence.
+  Transcript reconciliation is retired; closed session logs are not extended by a harvest runtime.

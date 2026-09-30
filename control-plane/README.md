@@ -25,6 +25,8 @@ boundary. Installation and fixture tests are not release approval.
    Facilitator**. All three guide the same shared skills with narrow explicit writer grants.
 3. Capture original intent first: `/plan-work --capture ad-hoc`, or `--capture discovery` with
    a verified originating phase/specification. No horizon or executable work is needed.
+   `/plan-work --status` lists open ad hoc and horizon sessions in the current checkout without
+   writes or a selected ID; suspended sessions are included and discovery status is deferred.
 4. For a new horizon explicitly invoke `/horizon --create`. Supply source files, title, slug,
    author and intended remote/target. Confirm the disclosed local slug/hex allocation and
    branch creation. `/horizon --help` describes activation, leave, suspension, abandonment,
@@ -111,6 +113,12 @@ prompts for entry. Historical project examples do not establish this project's p
 LOCAL MOD - HARVEST TO CPB (2026-09-30): the Operator removed the general sanity
 runtime, specification and automatic gate. Scoped tests, format validators and explicit
 review/admission/completion requirements remain; no general health gate replaces it.
+The Operator also retired render-view and timing-harvest, including their exclusive tests.
+No replacement renderer or transcript reconciliation is installed. Timing writers still use
+per-session JSONL files; session markers and historical logs are preserved.
+The dedicated CI agent, commands, scripts and exclusive tests/templates are also retired
+pending future redesign. Local validation and admission/publication's own forge safeguards
+remain active; existing workflows and hosted required checks are unchanged.
 The installed local distribution helper
 is `framework/scripts/planning-install.py`; consult its `--help` for explicit temporary
 destinations. No absent external installer is required or represented as installed here.

@@ -5,6 +5,9 @@ direction. Other harness bindings are deferred. The procedures and conformance c
 are historical, not current authority. Use [current entry](../../README.md); do not recreate
 the old wrappers, hooks or agents.
 
+LOCAL MOD - HARVEST TO CPB (2026-09-30): the CI agent and commands described below
+are also retired. They are not available through the current Copilot surfaces.
+
 **Status:** Portable V0.8 harness companion. Portable-package change for upstream review: the adapters are generated from the packaged canonical prompts; no source-project permissions or runtime state are installed.
 **Authority:** Companion to `control-plane/framework/docs/control-system-user-guide.md`, which remains the governance contract. This document covers only how Claude Code hosts that contract. Harness mechanics live in `control-plane/framework/governance/harness/harness-adapters.md`; where detail exists there, this guide references rather than repeats it.
 **Scope:** Both harnesses expose the current canonical prompts. New-horizon bindings, generated wrappers, and local runtime behavior are checked by the portable package rehearsal. Interactive model execution and hosted-forge admission are not certified by those tests. Instantiation and migration routes are retired; the portable installer is greenfield-only.

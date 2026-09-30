@@ -1,5 +1,13 @@
 # CI and Protected-Branch Integration Policy
 
+**Retired design (2026-09-30, LOCAL MOD - HARVEST TO CPB).** The Operator retired the
+CI agent, five commands, three helper/test pairs and their exclusive templates/schemas.
+The material below is historical design for future reconsideration, not an active policy,
+installed gate, setup procedure or requirement to recreate those files. No replacement CI
+framework is selected. This retirement does not waive actual forge-required checks or
+change admission/publication's own permission, target, merge or verification safeguards.
+Existing workflows, hosted settings and historical evidence remain unchanged.
+
 <!-- LOCAL ADDITION (2026-07-29) - HARVEST TO CPB:
      Generic CI setup capability proven first in Industry Night. framework/ is CPB-owned and this
      operator-directed local modification must be lifted upstream or it will be replaced at upgrade. -->

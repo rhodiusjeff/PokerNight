@@ -61,7 +61,7 @@ function Show-Help {
     Write-Host 'Session marker:'
     Write-Host '  Every open (new or resume) generates a unique session marker, records it in event'
     Write-Host '  metadata as session_marker, and echoes CPB-SESSION-MARKER: <token> to stderr so the'
-    Write-Host '  harness transcript captures it; timing-harvest.sh reconciles the join later.'
+    Write-Host '  marker remains available for inspection; automatic reconciliation is not installed.'
     Write-Host ''
     Write-Host 'Examples:'
     Write-Host '  timing-log.ps1 open --phase-id CP-001'
@@ -301,8 +301,8 @@ function Resolve-CopilotSessionId {
     # Best-effort inline resolution: the live Copilot session's transcript file
     # is the newest transcript across every VS Code window hosting this repo -
     # single-folder or multi-root. "Active" is inferred from write time, never
-    # asked of VS Code. Wrong only under concurrent sessions on the same repo;
-    # the session-marker harvest reconciles that case. Never fails the caller.
+    # asked of VS Code. Concurrent sessions can make this provisional backlink
+    # incorrect; no automatic reconciliation is installed. Never fails the caller.
     $UserDir = Get-VSCodeUserDir
     if ([string]::IsNullOrWhiteSpace($UserDir)) { return $null }
     $StorageRoot = Join-Path $UserDir 'workspaceStorage'

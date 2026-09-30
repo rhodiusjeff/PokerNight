@@ -21,7 +21,7 @@ import uuid
 SUITES = (
     "planning-install", "planning-validation", "planning-contract", "planning-capture",
     "planning-git", "planning-context", "planning-deferred", "planning-evidence",
-    "planning-admission", "planning-publication", "upgrade-entry", "timing-routing", "timing-harvest",
+    "planning-admission", "planning-publication", "upgrade-entry", "timing-routing",
     "resolve-horizon", "horizon-administration", "planning-execution", "planning-work", "planning-transfer", "planning-forge",
 )
 NOT_COVERED = ["live hosted forge/enforcement", "real-agent interaction",

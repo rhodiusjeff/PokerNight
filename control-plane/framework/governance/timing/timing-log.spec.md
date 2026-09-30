@@ -10,6 +10,11 @@
 ## Purpose
 The timing log records governance-relevant actions for each governed execution window so per-phase or lifecycle-entry wall-clock cost is computable, drift is detectable from gaps in the event stream, and cross-trial cost analysis becomes possible. The acquired project runtime records these events through `control-plane/framework/scripts/timing-log.sh` on macOS or Linux or `control-plane/framework/scripts/timing-log.ps1` on Windows PowerShell. Operators should not hand-edit JSONL directly.
 
+LOCAL MOD - HARVEST TO CPB (2026-09-30): the transcript-reconciliation runtime and its
+exclusive test are retired by Operator direction. Timing writers, per-session storage, markers
+and prior events remain unchanged. Historical reconciliation records remain valid evidence;
+there is no installed transcript-correction service or permission to extend closed logs.
+
 ## Location Convention
 - Executable phase-session JSONL files (`CP-*`, `ST-*`) live under the owning horizon packet's
      `timing/<phase-id>__<session-id>.jsonl` after mechanical phase resolution.
@@ -18,8 +23,8 @@ The timing log records governance-relevant actions for each governed execution w
 - There is one file per governed execution window.
 - Active session pointers live beside the selected timing root under `current/<phase-id>.current`.
 - No two writers ever touch the same JSONL file concurrently.
-- The Bootstrap Steward harvests across instance and all horizon packet timing roots for
-     cross-trial timing analysis. `--timing-root` narrows a harvest to one explicit root.
+- Cross-trial analysis may read instance and horizon packet timing roots; no transcript
+     reconciliation runtime is installed.
 - Default `.gitignore` handling is a project-side decision: commit the logs for a full audit trail or ignore them for privacy.
 
 ## Event Schema
@@ -41,14 +46,13 @@ Optional fields:
 Copilot session backlink rule:
 - When the caller can reliably supply an upstream Copilot or chat session identifier, record it as `metadata.copilot_session_id` on the relevant invocation, completion, or session-open event.
 - When the caller does not supply one, `timing-log.sh open` attempts inline resolution: the newest-mtime transcript file under any matching VS Code window's `GitHub.copilot-chat/transcripts/` directory. Both window modes are matched: single-folder windows (`workspace.json` `folder` URI equals the project root, percent-encoding tolerated) and multi-root windows (`workspace.json` `workspace` pointer followed into the `.code-workspace` file, whose `folders[]` paths — absolute or relative — are resolved against the project root). The active window is inferred from transcript mtime, never asked of VS Code; staleness window `CPB_RESOLVER_MAX_AGE_SECONDS`, default 1800 seconds; disable with `--no-resolve`.
-- `metadata.copilot_session_id_source` records provenance: `operator` (explicit flag), `resolver` (inline mtime heuristic), or `unresolved` (resolution attempted, nothing found). Resolver output is provisional until confirmed or corrected by the session-marker harvest.
+- `metadata.copilot_session_id_source` records provenance: `operator` (explicit flag), `resolver` (inline mtime heuristic), or `unresolved` (resolution attempted, nothing found). Resolver output remains provisional; no installed tool confirms or corrects it against transcripts.
 - Absence of `metadata.copilot_session_id` does not invalidate a timing event. It means only that the upstream chat-session backlink was unavailable or not provided.
 
-Session marker rule (deterministic transcript join):
+Session marker rule (retained correlation metadata):
 - Every `open` invocation (new session or resume) generates a unique one-time token, records it as `metadata.session_marker` on the emitted event, and echoes `CPB-SESSION-MARKER: <token>` to stderr.
-- The harness transcript captures that echo as terminal output, so the token lands verbatim in exactly one chat-session record. This makes the marker the ground-truth join between the timing session and the harness transcript — deterministic even when concurrent sessions run against the same workspace, and harness-agnostic (any harness that records terminal output captures it).
-- `timing-harvest.sh` performs reconciliation: it locates each marker across three harness capture surfaces sharing one session-id namespace (filename = session id) — the Copilot typed transcript stream (`GitHub.copilot-chat/transcripts/<id>.jsonl`), the Copilot chatSessions snapshot format (`chatSessions/<id>.jsonl`), and Claude session logs (`.claude/projects/<slug>/<id>.jsonl`, with subagent files resolving to their parent session) — and appends a `session-transcript-reconciled` event (source `harvest`) with `join_surface` (a `+`-joined list of the surfaces that hit) and `disposition` of `confirmed` (agrees with recorded id), `backfilled` (no id was recorded), or `corrected` (marker disproves the recorded id — marker wins). A marker found under more than one session id (e.g. quoted into a later chat) is flagged ambiguous and never auto-reconciled. Historical events are never mutated; reconciliation is append-only and idempotent.
-- A marker that never appears in the corpus (`unmatched`) is expected for sessions with no terminal capture and does not invalidate the timing session.
+- Captured terminal output may retain the token for manual inspection. Marker presence alone does not prove a unique transcript match, and transcript capture is not required for a valid timing event.
+- Historical `session-transcript-reconciled` events from the retired runtime record `confirmed`, `backfilled` or `corrected` session attribution. Preserve their metadata and original bytes; they do not imply a current reconciliation capability.
 
 Invocation provenance rule (invocation gate; effective 2026-07-10):
 - Every `*-invoked` event in the slash-command vocabulary carries `metadata.invocation_source` with exactly one of two legal values: `operator-command` (the operator issued the command) or `operator-confirmation` (the operator explicitly confirmed the agent-named command). An agent that self-inferred an invocation has no legal value to emit and must stop and name the command for the operator instead — boundary operations deserve a signature, not a vibe.
@@ -100,11 +104,11 @@ Phase-session lifecycle events:
 - `phase-session-completed`
 - `phase-session-reset`
 - `phase-session-abandoned`
-- `session-transcript-reconciled` — appended by `timing-harvest.sh` (source `harvest`), never by the live runtime; carries `session_marker`, `copilot_session_id`, `method`, and `disposition` in metadata
+- `session-transcript-reconciled` — historical only, from the retired reconciliation runtime (source `harvest`); retained records may carry `session_marker`, `copilot_session_id`, `method`, `join_surface`, and `disposition` metadata
 
 Slash-command and governance-operation invocation events:
 LOCAL MOD - HARVEST TO CPB (2026-09-30): event names for removed planning/admission,
-approval-packet stub and review-unit allocation commands are retained below only to interpret
+approval-packet stub, review-unit allocation and CI commands are retained below only to interpret
 historical logs. Their presence is not an active command registration or invocation grant.
 No new sessions may be opened to execute those retired commands. Shared timing APIs remain active.
 
@@ -274,14 +278,14 @@ Recommendation logging rule:
 - `source: "runtime"` means the event was emitted by the acquired project timing runtime or a wrapper that calls it.
 - `source: "operator"` means the event was recorded from an explicit operator declaration such as a major decision or deferral.
 - `source: <persona-name>` means the event was emitted by an agent persona itself for finer-grained timing or tool-boundary data.
-- `source: "harvest"` means the event was appended after the fact by `timing-harvest.sh` reconciliation; it is the only source permitted to append to a closed session log.
-- All these sources are valid. Downstream consumers may filter by source, action family, or both.
+- `source: "harvest"` identifies historical events from the retired transcript-reconciliation runtime, not a current writer grant.
+- Retained historical sources remain readable. Downstream consumers may filter by source, action family, or both.
 
 ## Retention and Rotation
 - Default retention keeps all per-session logs in the repository for the duration of a trial.
 - After ship, logs may be archived or pruned at framework-author or project-author discretion.
 - The framework does not define automatic rotation by default.
-- Session logs are append-only while active, then treated as immutable after the session closes, with one exception: `timing-harvest.sh` may append `session-transcript-reconciled` events (source `harvest`) to closed logs. Existing events are never edited or removed; reconciliation corrections are expressed as new events.
+- Session logs are append-only while active, then treated as immutable after the session closes. The former harvest exception is retired; preserve previously appended reconciliation events without rewriting them.
 
 ## Commit-Boundary Handling
 - When a governance operation produces a normal authored commit and the project policy tracks timing logs in git, stage the affected timing artifacts in that same commit rather than leaving them as a trailing uncommitted diff.

@@ -173,7 +173,7 @@ LOCAL MOD - HARVEST TO CPB (2026-09-30): single repository Canon and format-awar
 
 ## Working Method
 1. If the user is asking how to use the framework or this agent, explain this agent's role, workflow boundaries, and recommended next control-plane step before editing docs. From time to time, remind the user that they can ask for a deeper walkthrough of how the bootstrap and full control-plane workflow fit together.
-2. If implementation, tutoring, closeout, governance change, findings-first review, or repository CI/forge setup would better serve the user's goal, recommend Project: Codegen, Project: Stack Tutor, Project: Closeout, Project: Control Plane Steward, Project: Risk Review, Project: Architecture Scrub, or Project: CI & Integration Architect as appropriate.
+2. If implementation, tutoring, closeout, governance change, or findings-first review would better serve the user's goal, recommend Project: Codegen, Project: Stack Tutor, Project: Closeout, Project: Control Plane Steward, Project: Risk Review, or Project: Architecture Scrub as appropriate. The dedicated CI setup capability is retired pending future redesign; do not route to removed CI commands or infer configuration authority.
 3. Define task scope, stakeholder, and decision horizon.
 4. Produce or revise docs in control-plane only.
 4a. When a planning decision changes requirements, stories or definitions, propose changes in the selected context with exact Canon IDs/revisions. Admission alone updates repository Canon. Legacy amendments remain restricted to their explicitly selected profile; never infer an H000 owner.

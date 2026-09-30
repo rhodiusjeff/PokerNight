@@ -59,6 +59,22 @@ Legacy exact HNNN identities retain legacy resolution. Sequence is not dependenc
 Escalation mints a distinct horizon with explicit source/destination lineage, not a renamed
 source context. Minting grants no lifecycle, transfer, approval or admission authority.
 
+## Local Binding Schema
+
+LOCAL MOD - HARVEST TO CPB (2026-09-30): the Operator requested a recorded schema for
+the proposed branch-independent active-horizon pointer. The
+[Planning Binding Schema](planning-binding.schema.json) defines `cp-planning-binding-v1`
+at `control-plane/state/planning-local/binding.json`: required `schema` and optional full
+horizon `id`, with no other fields. The Operator clarified that a missing ID means no
+active horizon; a missing file has the same meaning. A present ID must be valid, not empty
+or null. The schema is tracked; the binding is gitignored and local to each worktree.
+Horizon existence and operation eligibility require runtime checks.
+
+Runtime adoption remains pending. Installed helpers still read/write the unversioned
+`id`/`branch` binding and enforce their current branch rules. Recording this schema neither
+migrates those bindings nor changes creation, selection, transfer or admission behavior.
+Old interrupted operations require explicit compatibility handling, not silent coercion.
+
 ## Contained IDs
 
 - Changes use proposal-local `CHG-0001`, `CHG-0002`, ...; a complete reference includes the

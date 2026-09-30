@@ -409,6 +409,12 @@ class WorkflowTests(unittest.TestCase):
         for name in ('plan-work', 'admit-plan'):
             text = (repository / '.github/prompts' / (name + '.prompt.md')).read_text()
             self.assertNotIn('LOCAL/MOCK', text)
+        status_prompt = (repository / '.github/prompts/plan-work.prompt.md').read_text()
+        self.assertIn('/plan-work --status', status_prompt)
+        self.assertIn('planning-context.py --root ROOT status', status_prompt)
+        self.assertIn('Discovery status is deferred', status_prompt)
+        self.assertIn('No file, binding, source, timing log, branch or remote write is permitted', status_prompt)
+        self.assertLess(status_prompt.index('## Read-Only Status'), status_prompt.index('INVOCATION CONTRACT:'))
         for name in ('inception-facilitator', 'project-planning-design', 'project-codegen'):
             text = (repository / '.github/agents' / (name + '.agent.md')).read_text()
             self.assertIn('## Named Scope: Shared File-Backed Planning', text)
