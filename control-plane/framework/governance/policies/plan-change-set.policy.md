@@ -47,7 +47,7 @@ Required fields are `schema`, `id`, `revision`, `title`, `author`, `created_at`,
   an exact contract source reference. Origin is provenance, not permission to rebind work.
 - `author` and `created_at` preserve attribution and original creation time. A timestamp,
   author string, hash or proposed status cannot authenticate consent or grant authority.
-- `status` is draft or complete. Only an explicit complete operation can save complete
+- `status` is draft or complete. Only explicit `finalize-proposal` can save complete
   status; neither status is reviewed, approved, admitted or executable.
 - `capture` identifies the companion Markdown path/digest. Ordinary request and confirmation
   narrative belongs there, not in a request-file collection or embedded JSON body.
@@ -84,7 +84,7 @@ lifecycle writer: it retains exact preimages before replacement and never rewrit
 admission bundles. Lifecycle owners validate transitions and evidence before using it. A changed
 document digest does not retroactively change the historical reviewed/admitted subject.
 
-HR-01 exposes explicit-ID inspect/validate/preview, existing paired save/complete and exact paired
+HR-01 exposes explicit-ID inspect/validate/preview, paired saves and exact paired
 recovery. HR-03 adds branch-free creation and automatic schema-validated local selection, with
 read-only `current` inspection. New proposals start as draft with null base and no changes;
 original sources are retained byte-for-byte under `assets/sources/`, referenced without Base64.
@@ -118,8 +118,68 @@ malformed records for the selected ID still refuse. Observed planning files in G
 not imply an admitted proposal; this filtering rule changes no admission/lifecycle eligibility.
 Shared `resolve [--id ID] --writable` pins explicit ID before default and checks eligibility
 without writes; writers keep that ID throughout the operation. No branch/folder inference.
-Transfers, finalization naming and admission/closure remain subsequent/deferred slices;
-existing old-format behavior is not silently converted and no live migration is performed.
+Transfers and admission/closure remain subsequent/deferred slices; HR-05 finalization is below.
+Existing old-format behavior is not silently converted and no live migration is performed.
+
+## Proposal Finalization And Freshness
+
+LOCAL MOD - HARVEST TO CPB (2026-10-01): Operator-authorized HR-05. The public command is
+`/plan-work [ID] --finalize-proposal`, routed to `planning-change-set.py finalize-proposal`
+after resolving and pinning the context. Old user-facing `--complete` and helper `complete`
+refuse with replacement guidance before input reads or writes. Internal `complete=True` and
+stored draft/complete vocabulary remain compatible; they grant no approval or admission.
+
+Finalization validates supplied complete content through the shared checker: a non-null exact
+base, source/capture pins, at least one change, no unresolved required inputs, specified included
+work, full composition and preserved bound contracts. Canon-only content requires no artificial
+work. Check the named local target ref equals the pinned commit before validation and before
+publication. This is local target freshness, not a fetch or proof of remote freshness. Admission
+must independently recheck the actual target. Changed finalizations require the next revision;
+an exact retry preserves bytes/revision. No missing decisions are synthesized.
+
+Ordinary save of changed complete content demotes the new revision to draft. This includes
+Canon/work, sources, scope, baseline and planning decisions recorded only in capture. Supply
+the next revision and actual request/confirmation record for narrative-only input changes.
+Retain sources at new paths rather than overwrite old originals; save the revised catalogue
+through the same writer. Legacy source append is not a change-set writer. Direct source/capture
+edits that break hashes refuse validation/admission, never silently update a finalized subject.
+
+History retains the exact finalized proposal/capture pair. Draft plus retained finalized history
+describes stale finalization, not a third persisted maturity. Explicit refinalization binds the
+new exact subject; old review/decision hashes cannot be reused. Read-only inspection/assessment
+and unrelated edits do not change maturity. Newly identified required planning obligations must
+be recorded as unresolved draft input, not hidden behind an unchanged complete flag. Existing
+finding-posture gates also prevent reuse of a decision after new findings. Active publication
+still freezes edits; no invalidation bypasses its withdrawal/reconciliation gate.
+
+### Post-Application Draft Reset Contract
+
+HR-05 defines this handoff; the reset writer remains explicitly unavailable until HR-06 supplies
+verified application integration. Ordinary save refuses an applied local claim or an admission
+for this context in its old/proposed pinned baseline or available named target. A recorded
+`application_verified` flag alone cannot authorize a reset. Read-only operations and unchanged
+retries may still inspect the old subject.
+
+HR05-R1/R2 correction: validate old and proposed pins through the existing baseline format
+dispatcher. A missing old target ref does not prevent an explicitly requested draft edit,
+replacement baseline or unknown-base draft; retained pinned commits still undergo the guard.
+Finalization independently requires its selected target to exist and match the exact base.
+Standalone `cp-plan-baseline-v1` and exact empty legacy snapshots remain editable/finalizable
+without repository authority files. For any inspected commit containing repository authority
+paths, or required by a repository-file-set baseline, validate the complete repository snapshot
+and check admission history. Missing/partial/competing/unsupported authority layouts refuse;
+standalone dispatch does not suppress errors from present repository state. No branch is
+recreated, selected, fetched or inferred. Unnamed/unavailable remote state remains unverified.
+
+The future owner must verify the exact attempt, immutable bundle/applied proposal, integrated
+result and retained evidence against the selected target, including later-target history. Under
+the writer lock, pin the new exact baseline and current pair, reject any active attempt/transfer,
+and obtain explicit reset confirmation. Preserve the old pair and all review/admission subjects;
+retain context ID, origin, lifecycle, attribution and allocation high-water marks. Start a higher
+draft revision against that baseline, removing only verified applied changes, without replaying
+them or reminting IDs. Preserve/disposition remaining scope explicitly. Refuse missing, stale,
+false or contradictory evidence; never clear blindly, promote lifecycle, reopen work or claim
+atomic multi-file success. Exact retries and paired recovery must not overwrite newer planning.
 
 ## Baseline Identity
 
@@ -231,7 +291,7 @@ Activate `.cp-venv`. The helper exposes:
 python3 control-plane/framework/scripts/planning-change-set.py --root ROOT validate --request PROPOSAL
 python3 control-plane/framework/scripts/planning-change-set.py --root ROOT preview --request PROPOSAL
 python3 control-plane/framework/scripts/planning-change-set.py --root ROOT --context ID save --request INPUT --expected-digest SHA --record NOTE --confirmed
-python3 control-plane/framework/scripts/planning-change-set.py --root ROOT --context ID complete --request INPUT --expected-digest SHA --record NOTE --confirmed
+python3 control-plane/framework/scripts/planning-change-set.py --root ROOT --context ID finalize-proposal --request INPUT --expected-digest SHA --record NOTE --confirmed
 ```
 
 INPUT can be `-` for JSON stdin. NOTE is transient Markdown recording actual requested
@@ -248,7 +308,7 @@ draft change set, preserved context/attribution and exact source-ID/hash coverag
 record mapping must be explicit and independently inspectable; the helper cannot decide
 whether a new classification is correct. Original source files are verified and retained.
 
-The schema/checker and paired save/complete apply to all three planning types at their
+The schema/checker and paired save/finalize-proposal apply to all three planning types at their
 supported pair homes. Existing migration remains ad hoc/discovery only; no horizon packet
 shape is silently changed. Paired recovery requires both exact observed hashes, retained
 snapshots, unchanged lifecycle/identity/origin and no active publication. Cross-format or

@@ -339,6 +339,34 @@ def refresh_navigation(root, context_id, expected_digest, confirmed=False):
     return save(root, context_id, document, expected_digest, record, navigation_only=True)
 
 
+def finalize_proposal(root, context_id, document, expected_digest, record):
+    require(document.get('status') == 'complete', 'finalize-proposal requires supplied complete content')
+    return save(root, context_id, document, expected_digest, record, complete=True)
+
+
+def assert_unapplied_baselines(root, context_id, references):
+    repository = helper('planning-repository')
+    commits = {}
+    for reference in references:
+        if reference is None:
+            continue
+        baseline(root, reference)
+        selected = [reference['git_commit']]
+        observed = subprocess.run(['git', '--no-replace-objects', '-C', str(root), 'show-ref',
+                                   '--verify', '--quiet', reference['target_ref']], capture_output=True)
+        require(observed.returncode in (0, 1), 'baseline target inspection failed: ' + observed.stderr.decode(errors='replace').strip())
+        if observed.returncode == 0:
+            selected.append(git(root, 'rev-parse', '--verify', reference['target_ref'] + '^{commit}').decode().strip())
+        for commit in selected:
+            commits[commit] = commits.get(commit, False) or 'files' in reference
+    for commit, requires_repository in commits.items():
+        present = git(root, 'ls-tree', '--name-only', commit, '--', *repository.PATHS.values(), *repository.LEGACY).strip()
+        if requires_repository or present:
+            current = repository.snapshot(root, commit)
+            require(not any(entry['proposal_id'] == context_id for entry in current['state']['tracker']['admissions']),
+                    'post-application draft reset unavailable until HR-06 verifies application and the new baseline; prior changes are preserved')
+
+
 def save(root, context_id, document, expected_digest, record, migrate=False, complete=False, navigation_only=False):
     root = pathlib.Path(root).resolve()
     capture = helper('planning-capture')
@@ -348,6 +376,10 @@ def save(root, context_id, document, expected_digest, record, migrate=False, com
         previous = capture.read_capture(destination)
         if previous['schema'] == FORMAT:
             require(lifecycle_state(previous) == 'planning', 'context is not mutable planning; explicit lifecycle handling required')
+        if complete:
+            require(document.get('base') is not None, 'finalize-proposal requires an exact baseline')
+            require(git(root, 'rev-parse', '--verify', document['base']['target_ref'] + '^{commit}').decode().strip() == document['base']['git_commit'],
+                    'finalize-proposal baseline is stale; reconcile against the current target')
         old_narrative_path = capture.narrative_path(destination) if destination.suffix == '.json' else None
         require(old_narrative_path is not None, 'legacy horizon capture is read-only here; explicit migration required')
         old_narrative = old_narrative_path.read_bytes()
@@ -362,6 +394,8 @@ def save(root, context_id, document, expected_digest, record, migrate=False, com
         normalized = copy.deepcopy(document)
         if previous['schema'] == FORMAT and 'capture' in normalized:
             normalized['capture']['sha256'] = previous['capture']['sha256']
+            if not complete:
+                normalized['status'] = 'draft'
             if normalized == previous:
                 current_digest = hashlib.sha256(before).hexdigest()
                 if expected_digest != current_digest:
@@ -371,8 +405,20 @@ def save(root, context_id, document, expected_digest, record, migrate=False, com
                             old_narrative.endswith(b'\n' + record.rstrip().encode() + b'\n'), 'proposal changed since save was offered')
                 validate(root, previous)
                 return {'updated': False, 'document_digest': current_digest, 'admitted': False}
+        document = copy.deepcopy(document)
+        if not complete and previous['schema'] == FORMAT and previous['status'] == 'complete':
+            document['status'] = 'draft'
         require(hashlib.sha256(before).hexdigest() == expected_digest, 'proposal changed since save was offered')
         helper('planning-change-evidence').assert_mutable(root, context_id)
+        claim = capture.safe_path(root, root / 'control-plane/state/planning-local/publication/claims' / (context_id + '.json'))
+        if claim.exists():
+            publication = helper('planning-publication')
+            attempt = canon.load_json(claim)['attempt_id']
+            events = publication.journal(root, publication.attempt_directory(root, attempt))
+            require(not any(event['state'] in ('applied', 'applied-trial') for event in events),
+                'post-application draft reset unavailable until HR-06 verifies application and the new baseline; prior changes are preserved')
+        if previous['schema'] == FORMAT:
+            assert_unapplied_baselines(root, context_id, (previous['base'], document['base']))
         require(document['context']['id'] == context_id, 'save context mismatch')
         require(document['status'] != 'complete' or complete, 'complete proposal requires explicit complete operation')
         require(not complete or document['status'] == 'complete', 'complete operation requires complete status')
@@ -410,6 +456,9 @@ def save(root, context_id, document, expected_digest, record, migrate=False, com
         require(changed['capture']['path'] == old_narrative_path.relative_to(root).as_posix() and 'git_commit' not in changed['capture'], 'working capture reference must identify its companion file')
         changed['capture']['sha256'] = hashlib.sha256(after_narrative).hexdigest()
         validate(root, changed, after_narrative)
+        if complete:
+            require(git(root, 'rev-parse', '--verify', changed['base']['target_ref'] + '^{commit}').decode().strip() == changed['base']['git_commit'],
+                'finalize-proposal baseline changed during validation')
         content = encoded(changed)
         _publish_pair(root, destination, before, old_narrative, content, after_narrative)
         return {'updated': True, 'document_digest': hashlib.sha256(content).hexdigest(), 'revision': changed['revision'], 'admitted': False}
@@ -606,14 +655,24 @@ def main():
     rekey.add_argument('--operation-id', required=True)
     rekey.add_argument('--expected-digest', required=True)
     rekey.add_argument('--confirmed', action='store_true')
-    for name in ('validate', 'preview', 'save', 'migrate', 'complete'):
+    commands.add_parser('complete', help='retired user-facing name; use finalize-proposal')
+    parser.add_argument('--complete', action='store_true', help='retired; use finalize-proposal')
+    for name in ('validate', 'preview', 'save', 'migrate', 'finalize-proposal'):
         command = commands.add_parser(name)
         command.add_argument('--request', type=pathlib.Path, required=True)
-        if name in ('save', 'migrate', 'complete'):
+        if name in ('save', 'migrate', 'finalize-proposal'):
             command.add_argument('--expected-digest', required=True)
             command.add_argument('--record', type=pathlib.Path, required=True)
             command.add_argument('--confirmed', action='store_true')
-    args = parser.parse_args()
+    if '--complete' in sys.argv[1:]:
+        print('Change set refused: --complete is retired; use finalize-proposal (/plan-work --finalize-proposal). No files changed.', file=sys.stderr)
+        return 1
+    args, unknown = parser.parse_known_args()
+    if args.command == 'complete':
+        print('Change set refused: complete is retired; use finalize-proposal (/plan-work --finalize-proposal). No files changed.', file=sys.stderr)
+        return 1
+    if unknown:
+        parser.error('unrecognized arguments: ' + ' '.join(unknown))
     try:
         if args.command == 'baseline':
             require(args.target_ref.startswith('refs/heads/'), 'baseline target must be a full heads ref')
@@ -629,9 +688,12 @@ def main():
             print(json.dumps(rekey_package(args.root, args.context, args.slug, args.operation_id, args.expected_digest, args.confirmed), indent=2))
             return 0
         document = json.load(sys.stdin) if str(args.request) == '-' else canon.load_json(args.request)
-        if args.command in ('save', 'migrate', 'complete'):
+        if args.command in ('save', 'migrate', 'finalize-proposal'):
             require(args.confirmed and args.context, 'save requires exact context and explicit confirmation')
-            result = save(args.root, args.context, document, args.expected_digest, args.record.read_text(), args.command == 'migrate', args.command == 'complete')
+            if args.command == 'finalize-proposal':
+                result = finalize_proposal(args.root, args.context, document, args.expected_digest, args.record.read_text())
+            else:
+                result = save(args.root, args.context, document, args.expected_digest, args.record.read_text(), args.command == 'migrate')
         else:
             result = validate(args.root, document)
             if args.command == 'validate':

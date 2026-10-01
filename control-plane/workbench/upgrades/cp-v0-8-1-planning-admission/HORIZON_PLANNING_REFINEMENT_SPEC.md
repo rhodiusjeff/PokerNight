@@ -2,7 +2,7 @@
 
 Date: 2026-09-30
 
-Status: HR-01 storage/schema, HR-02 deferred transfers, HR-03 creation/binding and HR-04 lifecycle/resolution/discovery locally implemented;
+Status: HR-01 storage/schema, HR-02 deferred transfers, HR-03 creation/binding, HR-04 lifecycle/resolution/discovery and HR-05 finalization/freshness locally implemented;
 remaining slices await individual authorization. Boundary readiness not assessed. The Operator
 requested a migration contract and implementation-sized slices, with each slice separately
 authorized. This is not runtime implementation permission, admission or lifecycle invocation.
@@ -61,10 +61,11 @@ changes await their owning slices:
    Record the actual request; do not infer downstream lifecycle or admission permission.
 - The Operator accepted `--finalize-proposal` as the replacement for user-facing `--complete`.
    It finalizes a selected proposal against an exact baseline, not the horizon or implementation.
-   The name is selected but not installed. Finalization validates supplied complete
+   HR-05 installs this name. Finalization validates supplied complete
    content, preserves history and saves an exact revision; it does not invent missing
    decisions or perform independent review/admission. HR-01 supplies the horizon pair writer;
-   the renamed command and broader finalization behavior remain HR-05.
+   HR-05 adds the renamed command, local target freshness and draft invalidation. Verified
+   post-application reset remains unavailable pending HR-06's application integration.
 
 ### Deferred Escalation Command
 
@@ -312,7 +313,7 @@ or behavior coverage is claimed from the current unit-test suite.
 
 The following is the selected command surface, not invocations. HR-04 installs standalone
 `--resume` for current pairs; the overloaded activation path remains legacy-only compatibility.
-`--finalize-proposal` still awaits HR-05; installed proposal commands continue using `--complete`.
+HR-05 installs `--finalize-proposal`; old `--complete` refuses without writes or timing.
 Successful horizon-close writing remains HR-06.
 
 | Event | Command | Lifecycle/selection effect | Skill |
@@ -574,9 +575,9 @@ subjects still require their own proof; deferral does not waive their admission 
 
 ### Proposal Finalization Walkthrough And Naming
 
-Current command: `/plan-work ID --complete`. Operator-selected replacement:
+Retired command: `/plan-work ID --complete`. HR-05 installs the Operator-selected replacement:
 `/plan-work [ID] --finalize-proposal`. ID may be omitted when a valid active horizon is
-resolved and pinned under the proposed routing contract. The replacement is not yet installed.
+resolved and pinned under the shared routing contract. The old command refuses without writes.
 This belongs to proposal preparation, not Horizon lifecycle. It means making the selected
 proposed change set structurally complete for subsequent independent review, not claiming
 semantic approval, admission readiness, successful horizon closure or completed implementation.
@@ -587,8 +588,9 @@ The Operator asks to finalize that proposal. The guided operation should:
 1. Resolve and pin the context and current proposal revision. Disclose the selected scope;
    do not interpret finalization as completing every possible future idea in the horizon.
 2. Establish the exact repository baseline the proposal would change. A draft may have an
-   unknown baseline; a complete change set may not. Latest-target freshness is separately
-   rechecked at admission, not proven by validating an older pinned baseline.
+   unknown baseline; a complete change set may not. HR-05 verifies that the local target ref
+   still equals the pinned commit before validation/publication. Remote freshness is separately
+   rechecked at admission; no implicit fetch or distributed lock is claimed.
 3. Present unresolved decisions and missing contracts. Resolve them from actual Operator
    decisions or explicitly revise scope while preserving excluded intent. Do not delete
    gaps or invent decisions just to pass validation. The current schema requires at least
@@ -626,9 +628,11 @@ an active admission attempt, refuse edits until its existing withdrawal/reconcil
 is satisfied; do not weaken that lock merely to allow invalidation. After verified application,
 new planning must target the updated operational baseline without reapplying prior changes.
 
-This walkthrough is the target horizon UX. The current paired save/complete path remains
-ad hoc/discovery-only; required common-writer work must remove that gap before end-to-end
-acceptance. The user-facing name is settled. Retain `draft`/`complete` storage vocabulary
+HR-01 supplies the common pair writer and HR-05 tests finalization across all three scopes.
+The [policy](../../../framework/governance/policies/plan-change-set.policy.md#post-application-draft-reset-contract)
+defines verified post-application draft reset; its writer remains unavailable until HR-06's
+application integration can establish that evidence. Ordinary saves refuse applied claims or
+observed context admissions, rather than blindly clearing changes. Retain `draft`/`complete` storage vocabulary
 with stale finalization derived as described above. HR-05 rejects old user-facing `--complete`
 with replacement guidance; the naming change does not itself rename stored data.
 

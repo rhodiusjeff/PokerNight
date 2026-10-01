@@ -70,12 +70,12 @@ Use the selected proposal format's structured representation and derived preview
 not another maintained plan. HR-01 supports current-horizon pair storage; horizon command
 integration and work-to-Phase allocation remain separate slices.
 
-## Complete Proposal (Explicit --complete Only)
+## Complete Proposal (Explicit Finalization Only)
 
 1. Require exact candidate/Canon inputs, applicable authority, the phase sizing law, and decisions
    sufficient for decomposition, validation, execution model, review grouping, and ordering.
    Return blocked questions if these facts are absent; do not fabricate placeholders.
-2. Use `/plan-work ID --complete` with exact base/execution inputs and explicit preservation
+2. Use `/plan-work ID --finalize-proposal` with exact base/execution inputs and explicit preservation
    dispositions for bound work. Follow its format-dispatched completion contract; no status-only
    save or packet-local proposed tracker substitutes for it.
 3. Verify required contract content, traceability, dependency closure, acyclicity and retained

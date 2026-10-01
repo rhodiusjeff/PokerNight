@@ -137,6 +137,121 @@ class ChangeTests(unittest.TestCase):
                 self.assertTrue(changes.save(folder,document['id'],completed,result['document_digest'],'Operator confirmed completion.',complete=True)['updated'])
                 self.assertTrue(changes.validate(folder,capture.read_capture(filename))['base_verified'])
 
+    def test_finalize_proposal_all_scopes_and_freshness(self):
+        for kind in ('ad-hoc','discovery','horizon'):
+            with self.subTest(kind=kind):
+                folder,document,repository,filename=self.repository_fixture(kind,minted=True)
+                document['status']='draft'
+                filename.write_bytes(changes.encoded(document))
+                before=filename.read_bytes()
+                expected=hashlib.sha256(before).hexdigest()
+                completed=copy.deepcopy(document)
+                completed.update(status='complete',revision=2)
+                unknown=copy.deepcopy(completed)
+                unknown['base']=None
+                with self.assertRaisesRegex(ValueError,'exact baseline'):
+                    changes.finalize_proposal(folder,document['id'],unknown,expected,'Finalize supplied content')
+                self.assertEqual(filename.read_bytes(),before)
+                result=changes.finalize_proposal(folder,document['id'],completed,expected,'Finalize supplied content')
+                self.assertTrue(result['updated'])
+                self.assertFalse(changes.finalize_proposal(folder,document['id'],completed,expected,'Finalize supplied content')['updated'])
+                changes.git(folder,'commit','--allow-empty','--quiet','-m','Target advanced')
+                with self.assertRaisesRegex(ValueError,'baseline is stale'):
+                    changes.finalize_proposal(folder,document['id'],completed,result['document_digest'],'Finalize supplied content')
+
+    def test_planning_input_changes_invalidate_finalization(self):
+        for kind in ('ad-hoc','discovery','horizon'):
+            for field in ('meaning','source','decision','scope','base'):
+                with self.subTest(kind=kind,field=field):
+                    folder,document,repository,filename=self.repository_fixture(kind,minted=True)
+                    before=filename.read_bytes()
+                    narrative=capture.narrative_path(filename).read_bytes()
+                    expected=hashlib.sha256(before).hexdigest()
+                    changed=copy.deepcopy(document)
+                    changed['revision']+=1
+                    if field == 'meaning':
+                        changed['changes'][0]['value']['content']['obligation']='Allow only validated legal moves'
+                    elif field == 'source':
+                        (folder/'additional.md').write_text('Additional planning source\n')
+                        changed['sources'].append({'id':'source-2','path':'additional.md','sha256':hashlib.sha256((folder/'additional.md').read_bytes()).hexdigest()})
+                    elif field == 'scope':
+                        changed['unresolved']=[{'id':'scope-gap','explanation':'Operator must resolve scope','affects':[]}]
+                    elif field == 'base':
+                        changed['base']=None
+                    result=changes.save(folder,document['id'],changed,expected,'Operator changed '+field)
+                    current=capture.read_capture(filename)
+                    self.assertEqual(current['status'],'draft')
+                    self.assertEqual(current['context'],document['context'])
+                    self.assertEqual(current['identity'],document['identity'])
+                    history=filename.parent/'assets/history'
+                    self.assertEqual((history/(expected+'-proposal.json')).read_bytes(),before)
+                    self.assertEqual((history/(expected+'-capture.md')).read_bytes(),narrative)
+                    with self.assertRaisesRegex(ValueError,'complete change set'):
+                        changes.helper('planning-change-evidence').subject(folder,current)
+                    self.assertFalse(changes.save(folder,document['id'],changed,result['document_digest'],'Operator changed '+field)['updated'])
+
+    def test_finalize_cli_and_retired_complete_no_writes(self):
+        folder,document,repository,filename=self.repository_fixture()
+        executable=[sys.executable,str(root/'control-plane/framework/scripts/planning-change-set.py'),'--root',str(folder)]
+        inventory=lambda: {item.relative_to(folder):item.read_bytes() for item in folder.rglob('*') if item.is_file()}
+        before=inventory()
+        for arguments in (['--complete'],['--context',document['id'],'complete','--request','missing']):
+            result=subprocess.run([*executable,*arguments],capture_output=True,text=True)
+            self.assertEqual(result.returncode,1)
+            self.assertIn('use finalize-proposal',result.stderr)
+            self.assertEqual(inventory(),before)
+        document['status']='draft'
+        filename.write_bytes(changes.encoded(document))
+        expected=hashlib.sha256(filename.read_bytes()).hexdigest()
+        document.update(status='complete',revision=2)
+        (folder/'request-note.md').write_text('Operator explicitly requested finalization')
+        arguments=['--context',document['id'],'finalize-proposal','--request','-',
+                   '--expected-digest',expected,'--record',str(folder/'request-note.md')]
+        before=inventory()
+        refused=subprocess.run([*executable,*arguments],input=json.dumps(document),capture_output=True,text=True)
+        self.assertNotEqual(refused.returncode,0)
+        self.assertEqual(inventory(),before)
+        result=subprocess.run([*executable,*arguments,'--confirmed'],input=json.dumps(document),capture_output=True,text=True)
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertTrue(json.loads(result.stdout)['updated'])
+
+    def test_finalization_validation_and_admission_edit_lock(self):
+        for kind in ('ad-hoc','discovery','horizon'):
+            with self.subTest(kind=kind):
+                folder,document,repository,filename=self.repository_fixture(kind)
+                document['status']='draft'
+                filename.write_bytes(changes.encoded(document))
+                expected=hashlib.sha256(filename.read_bytes()).hexdigest()
+                inventory=lambda: {item.relative_to(filename.parent):item.read_bytes() for item in filename.parent.rglob('*') if item.is_file()}
+                before=inventory()
+                completed=copy.deepcopy(document)
+                completed.update(status='complete',revision=2)
+                for defect in ('work','unresolved','empty','source'):
+                    invalid=copy.deepcopy(completed)
+                    if defect == 'work': invalid['changes'].append(add(work(),'work_item'))
+                    elif defect == 'unresolved': invalid['unresolved']=[{'id':'gap','explanation':'Unresolved decision','affects':[]}]
+                    elif defect == 'empty': invalid['changes']=[]
+                    else: invalid['sources'][0]['sha256']='0'*64
+                    with self.subTest(defect=defect), self.assertRaises(ValueError):
+                        changes.finalize_proposal(folder,document['id'],invalid,expected,'Explicit finalization')
+                    self.assertEqual(inventory(),before)
+                changes.validate(folder,document)
+                (folder/'unrelated.md').write_text('Unrelated work')
+                self.assertEqual(inventory(),before)
+                publication=changes.helper('planning-publication')
+                claim=folder/'control-plane/state/planning-local/publication/claims'/(document['id']+'.json')
+                publication.immutable_json(folder,claim,{'attempt_id':'fixture-lock','bundle_id':'fixture'})
+                directory=publication.attempt_directory(folder,'fixture-lock')
+                publication.append_event(folder,directory,'published',{})
+                for candidate,finish in (({**document,'revision':2,'title':'Changed'},False),(completed,True)):
+                    with self.assertRaisesRegex(ValueError,'active publication'):
+                        changes.save(folder,document['id'],candidate,expected,'Attempted edit',complete=finish)
+                    self.assertEqual(inventory(),before)
+                publication.append_event(folder,directory,'applied',{'application_verified':True})
+                with self.assertRaisesRegex(ValueError,'post-application draft reset unavailable'):
+                    changes.save(folder,document['id'],{**document,'revision':2,'changes':[]},expected,'Attempted blind reset')
+                self.assertEqual(inventory(),before)
+
     def test_lifecycle_schema_and_legacy_default(self):
         changes.Draft202012Validator.check_schema(changes.canon.load_json(changes.SCHEMA_PATH))
         document=proposal()
@@ -349,6 +464,106 @@ class ChangeTests(unittest.TestCase):
         self.assertEqual(retired['canon']['records'][-1]['authority_status'],'retired')
         self.assertEqual(repository.latest_records(retired['canon'])['req']['revision'],2)
 
+    def test_applied_target_cannot_be_blindly_reset_without_claim(self):
+        folder,document,repository,filename=self.repository_fixture()
+        result=repository.compose(document,repository.snapshot(folder,document['base']['git_commit']),'1'*64)
+        for key,relative in repository.PATHS.items():
+            destination=folder/relative
+            destination.parent.mkdir(parents=True,exist_ok=True)
+            destination.write_bytes(changes.encoded(result[key]))
+        for relative in repository.LEGACY: (folder/relative).unlink()
+        changes.git(folder,'add','--',*repository.PATHS.values(),*repository.LEGACY)
+        changes.git(folder,'commit','--quiet','-m','Applied target fixture')
+        before=filename.read_bytes()
+        reset=copy.deepcopy(document)
+        reset.update(status='draft',revision=2,changes=[],base=repository.reference(folder,'refs/heads/main'))
+        with self.assertRaisesRegex(ValueError,'post-application draft reset unavailable'):
+            changes.save(folder,document['id'],reset,hashlib.sha256(before).hexdigest(),'Attempted blind reset')
+        self.assertEqual(filename.read_bytes(),before)
+        self.assertFalse((filename.parent/'assets/history').exists())
+
+        changes.git(folder,'branch','-m','main','applied-target')
+        reset['base']=repository.reference(folder,'refs/heads/applied-target')
+        with self.assertRaisesRegex(ValueError,'post-application draft reset unavailable'):
+            changes.save(folder,document['id'],reset,hashlib.sha256(before).hexdigest(),'Attempted reset through replacement target')
+        self.assertEqual(filename.read_bytes(),before)
+        document['base']=copy.deepcopy(reset['base'])
+        filename.write_bytes(changes.encoded(document))
+        before=filename.read_bytes()
+        changes.git(folder,'branch','-m','applied-target','renamed-again')
+        reset['base']=None
+        with self.assertRaisesRegex(ValueError,'post-application draft reset unavailable'):
+            changes.save(folder,document['id'],reset,hashlib.sha256(before).hexdigest(),'Attempted unknown-base reset of pinned application')
+        self.assertEqual(filename.read_bytes(),before)
+        self.assertFalse((filename.parent/'assets/history').exists())
+
+    def test_draft_reconciliation_after_target_rename(self):
+        for kind in ('ad-hoc','discovery','horizon'):
+            for selected_base in ('replacement','unknown','retained'):
+                with self.subTest(kind=kind,selected_base=selected_base):
+                    folder,document,repository,filename=self.repository_fixture(kind)
+                    changes.git(folder,'branch','replacement')
+                    changes.git(folder,'symbolic-ref','HEAD','refs/heads/replacement')
+                    changes.git(folder,'branch','-D','main')
+                    before=filename.read_bytes()
+                    expected=hashlib.sha256(before).hexdigest()
+                    revised=copy.deepcopy(document)
+                    revised.update(status='draft',revision=2,title='Reconciled draft')
+                    if selected_base == 'replacement':
+                        revised['base']=repository.reference(folder,'refs/heads/replacement')
+                    elif selected_base == 'unknown':
+                        revised['base']=None
+                    changes.validate(folder,revised)
+                    refs=changes.git(folder,'show-ref')
+                    result=changes.save(folder,document['id'],revised,expected,'Operator reconciled the planning baseline')
+                    self.assertTrue(result['updated'])
+                    self.assertEqual(capture.read_capture(filename)['base'],revised['base'])
+                    self.assertEqual(changes.git(folder,'show-ref'),refs)
+                    self.assertEqual((filename.parent/'assets/history'/(expected+'-proposal.json')).read_bytes(),before)
+                    self.assertFalse(changes.save(folder,document['id'],revised,expected,'Operator reconciled the planning baseline')['updated'])
+                    if selected_base == 'replacement':
+                        completed=capture.read_capture(filename)
+                        completed.update(status='complete',revision=3)
+                        self.assertTrue(changes.finalize_proposal(folder,document['id'],completed,result['document_digest'],'Finalize against replacement target')['updated'])
+
+    def test_standalone_baseline_save_and_finalization(self):
+        for kind in ('ad-hoc','discovery','horizon'):
+            for baseline_kind in ('cp-plan-baseline-v1','cp-operational-specification-v1'):
+                with self.subTest(kind=kind,baseline_kind=baseline_kind):
+                    folder,document,repository,filename=self.repository_fixture(kind)
+                    value=({'schema':baseline_kind,**changes.empty_base()} if baseline_kind == 'cp-plan-baseline-v1'
+                           else capture.contract.empty_specification())
+                    (folder/'baseline.json').write_bytes(changes.encoded(value))
+                    for relative in repository.LEGACY: (folder/relative).unlink()
+                    changes.git(folder,'add','--','baseline.json',*repository.LEGACY)
+                    changes.git(folder,'commit','--quiet','-m','Standalone supported baseline')
+                    document.update(status='draft',base={'target_ref':'refs/heads/main',
+                        'git_commit':changes.git(folder,'rev-parse','HEAD').decode().strip(),'path':'baseline.json',
+                        'revision':0,'sha256':hashlib.sha256((folder/'baseline.json').read_bytes()).hexdigest()})
+                    filename.write_bytes(changes.encoded(document))
+                    expected=hashlib.sha256(filename.read_bytes()).hexdigest()
+                    revised=copy.deepcopy(document)
+                    revised.update(revision=2,title='Revised standalone draft')
+                    self.assertTrue(changes.validate(folder,revised)['base_verified'])
+                    result=changes.save(folder,document['id'],revised,expected,'Operator revised standalone draft')
+                    self.assertTrue(result['updated'])
+                    completed=capture.read_capture(filename)
+                    completed.update(status='complete',revision=3)
+                    finalized=changes.finalize_proposal(folder,document['id'],completed,result['document_digest'],'Finalize standalone proposal')
+                    self.assertTrue(finalized['updated'])
+                    self.assertFalse(changes.finalize_proposal(folder,document['id'],completed,result['document_digest'],'Finalize standalone proposal')['updated'])
+                    candidate=folder/repository.CANON
+                    candidate.parent.mkdir(parents=True)
+                    candidate.write_bytes(changes.encoded(repository.empty()['canon']))
+                    changes.git(folder,'add','--',repository.CANON)
+                    changes.git(folder,'commit','--quiet','-m','Malformed partial repository target')
+                    before=filename.read_bytes()
+                    revised=capture.read_capture(filename)
+                    revised.update(status='draft',revision=4)
+                    with self.assertRaisesRegex(ValueError,'incomplete repository'):
+                        changes.save(folder,document['id'],revised,finalized['document_digest'],'Must not bypass malformed target')
+                    self.assertEqual(filename.read_bytes(),before)
+
     def test_repository_partial_and_duplicate_authority_refuse(self):
         folder,document,repository,filename=self.repository_fixture()
         candidate=folder/repository.CANON
@@ -452,6 +667,24 @@ class ChangeTests(unittest.TestCase):
         request['attestation']['actor']=document['author']
         with self.assertRaisesRegex(ValueError,'not independent'):
             evidence.apply(folder,document,'review',request,True)
+        evidence_before={item.relative_to(evidence.location(folder,document['id'])):item.read_bytes()
+                         for item in evidence.location(folder,document['id']).rglob('*') if item.is_file()}
+        revised=copy.deepcopy(document)
+        revised['revision']+=1
+        saved=changes.save(folder,document['id'],revised,hashlib.sha256(filename.read_bytes()).hexdigest(),'Operator changed a planning decision')
+        revised=capture.read_capture(filename)
+        self.assertEqual(revised['status'],'draft')
+        with self.assertRaisesRegex(ValueError,'complete change set'):
+            evidence.selected(folder,revised,'decision-1')
+        revised.update(status='complete',revision=revised['revision']+1)
+        changes.finalize_proposal(folder,document['id'],revised,saved['document_digest'],'Operator explicitly refinalized')
+        document=capture.read_capture(filename)
+        with self.assertRaisesRegex(ValueError,'stale'):
+            evidence.selected(folder,document,'decision-1')
+        with self.assertRaisesRegex(ValueError,'review input is stale'):
+            evidence.review_records(evidence.read_events(folder,document['id']),document,['review-1'],changes.digest(evidence.subject(folder,document)))
+        self.assertEqual(evidence_before,{item.relative_to(evidence.location(folder,document['id'])):item.read_bytes()
+                         for item in evidence.location(folder,document['id']).rglob('*') if item.is_file()})
         retained={item.relative_to(pathlib.Path(prepared['bundle'])).as_posix():item.read_bytes()
                   for item in pathlib.Path(prepared['bundle']).rglob('*') if item.is_file()}
         before=filename.read_bytes()

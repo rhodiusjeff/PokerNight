@@ -1,9 +1,16 @@
 ---
 name: "Plan Work"
 description: "List open ad hoc and horizon planning sessions, or capture and iteratively plan work through shared file-backed helpers; complete proposals only on explicit request."
-argument-hint: "--status | [ID] --capture ad-hoc|discovery | --append | --defer | --include | --scrub [FINDING-ID --apply] | --canon | --work | --complete | --assess | --help"
+argument-hint: "--status | [ID] --capture ad-hoc|discovery | --append | --defer | --include | --scrub [FINDING-ID --apply] | --canon | --work | --finalize-proposal | --assess | --help"
 ---
 # Plan Work
+
+## Retired Completion Name
+
+LOCAL MOD - HARVEST TO CPB (2026-10-01): HR-05 replaces `--complete` with
+`--finalize-proposal`. Reject any use of the old mode, including combined flags, before
+context resolution, input gathering, timing or writes. State: "Refused: --complete is
+retired; use /plan-work [ID] --finalize-proposal. No files changed." Help is read-only.
 
 ## Read-Only Status
 
@@ -50,12 +57,12 @@ complete-proposal kernel supports it; preserve the integration boundary until mi
 Help is read-only and explains modes, request shapes, confirmation and legacy limits. Without
 a mode, discuss the selected intent and recommend a bounded next action before writes.
 Select one mode per operation; resolve ambiguity with the Operator. A capture command is not
-proposal permission; `--complete` is not review/approval/admission permission.
+proposal permission; `--finalize-proposal` is not review/approval/admission permission.
 
 For `cp-plan-change-set-v1`, use the
 [change-set policy](../../control-plane/framework/governance/policies/plan-change-set.policy.md):
 typed changes, same-base preconditions, full replacement records and derived-only previews.
-Route draft edits to planning-change-set.py save and explicit completion to complete;
+Route draft edits to planning-change-set.py save and explicit finalization to finalize-proposal;
 do not run the legacy draft/compose/propose APIs on a change-set document. The shared
 schema and paired saves apply to all planning origins. HR-01 current horizons use
 `control-plane/horizons/ID/ID-proposal.json`, `ID-capture.md` and `assets/`; preserve optional
@@ -81,7 +88,9 @@ An explicitly authorized legacy draft rekey uses `planning-change-set.py rekey`,
   then capture, with verified origin phase/specification for discovery. Use
   `control-plane/ad-hoc/ID/ID-capture.md` and `ID-proposal.json`. Keep JSON and Markdown
   separate; fold routine requests/confirmations into capture, not `assets/requests/`.
-- `--append`: retain selected additional sources using the current document digest.
+- `--append`: retain selected additional sources using the current document digest. For a
+  change set, retain originals at new paths, update its source catalogue and save the next
+  draft revision with the actual request record; legacy append does not own this format.
 - `--defer`: capture/revise only the explicitly named register item, preserving origin/guardrail.
 - `--include`: descriptive selection walkthrough, exact selected IDs and association disclosure,
   then offer-inclusion/include after confirmation. Declined items are untouched.
@@ -92,11 +101,21 @@ An explicitly authorized legacy draft rekey uses `planning-change-set.py rekey`,
   only the selected typed changes and use confirmed `planning-change-set.py save`.
   For `cp-planning-capture-v1` only, use `planning-work.py draft --section canon|work`.
   Preserve unaffected meaning and prior paired revisions; use transient/stdin request inputs.
-- `--complete`: for `cp-plan-change-set-v1`, show `planning-change-set.py preview` against
-  the pinned baseline, then use explicitly confirmed `planning-change-set.py complete`.
+- `--finalize-proposal`: for `cp-plan-change-set-v1`, show `planning-change-set.py preview`
+  against the exact current target baseline, then use explicitly confirmed
+  `planning-change-set.py finalize-proposal`. Supply complete content and the next revision;
+  an exact retry changes nothing. Missing base, unresolved inputs or candidate work refuse.
   For `cp-planning-capture-v1` only, use legacy compose/propose with exact base/execution
   inputs. No fake phases, status-only completion or implicit started dispositions.
 - `--assess`: proposal-assessment's new-context advisory REVIEW round, not independent readiness.
+
+Changed Canon/work, source bindings, scope, planning decisions or baseline return the current
+complete change set to draft through `save`. Narrative-only planning decisions also require
+the next revision and an actual request record. Preserve exact finalized history and evidence;
+old review/decision subjects cannot authorize a refinalized proposal. Read-only assessment and
+unrelated edits do not invalidate it; record newly identified planning gaps before refinalization.
+Active admission freezes edits. Post-application reset is unavailable pending HR-06's verified
+application/new-base integration; never clear applied changes or replay them through ordinary save.
 
 Legacy packet planning writes are retired. Preserve historical packets without mutation or
 implicit migration; a malformed current document is not a legacy fallback. New horizons are created only

@@ -43,9 +43,22 @@ Canon values reuse the eleven-kind Canon schema; source references contain no Ba
 For a resolved change-set document, use `planning-change-set.py validate` and `preview`
 read-only, and exact-confirmed `save` for draft revision. `--canon` and `--work` update the
 appropriate typed changes in the same proposal while preserving all unaffected changes.
-`--complete` routes to its explicit `complete` command, not a status-only save or the old
-compose/propose builder. Record actual confirmation in capture through transient `--record`
+`--finalize-proposal` routes to its explicit `finalize-proposal` command, not a status-only
+save or the old compose/propose builder. Reject old `--complete` before context resolution,
+timing or writes and provide replacement guidance. Record actual confirmation through transient `--record`
 input. Never create numbered request files or maintain the preview as a second proposal.
+
+LOCAL MOD - HARVEST TO CPB (2026-10-01): HR-05 finalization requires complete supplied
+content, an exact fresh target baseline, no unresolved inputs and specified included work.
+Canon-only proposals need no invented work. Save changed planning inputs as the next draft
+revision, including narrative-only decisions; the writer demotes an edited complete proposal.
+Source additions use new retained paths and a revised catalogue through this same save path,
+not the legacy append API. Preserve old source bytes, identity, lifecycle and exact paired history.
+Identical retries do not create revisions. Read-only/unrelated operations do not stale a subject;
+changed subjects require explicit refinalization and new exact review/decision evidence.
+Admission locks still refuse edits. After application, stop for verified new-base/reset handling;
+HR-05 defines that contract but the reset writer remains unavailable pending HR-06. Never clear
+or replay applied changes through ordinary save, trust a receipt flag, or promote lifecycle state.
 
 The paired writer owns ad hoc/discovery and HR-01 current-format horizon pairs. HR-03 creates
 and automatically selects new horizon pairs without a branch or remote prerequisite. Use
@@ -228,7 +241,7 @@ blocks admission even if an older complete proposal remains. Explicit `propose` 
 Old-format HNNN keeps the existing `text` input and `workflow.planning.drafts` history;
 current-format horizons use the change-set writer. Do not apply ad hoc migration to horizons.
 
-Only explicit `--complete` planning authorizes a complete admission proposal. COMPLETE.json has
+Only explicit `--finalize-proposal` planning authorizes a complete admission proposal. COMPLETE.json has
 exactly `result` (complete `canon`, `phases`, `dag` content) and `started_dispositions` (map).
 Use `planning-contract.py --schema specification` and `--schema execution` for current shapes.
 Read the exact supplied operational base and execution snapshot; disclose their provenance and

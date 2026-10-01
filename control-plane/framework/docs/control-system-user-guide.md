@@ -26,7 +26,7 @@ Legacy HNNN/tag procedures below are compatibility surfaces, not the new minting
 cp-plan-change-set-v1 for all planning origins. It stores explicit typed changes against
 an exact base, source references without Base64, and no maintained result snapshot.
 Use planning-change-set.py for validation/preview and paired ad hoc/discovery/horizon saves;
-explicit complete is separate from draft save. Existing legacy draft/evidence/admission
+explicit finalize-proposal is separate from draft save. Existing legacy draft/evidence/admission
 draft APIs below do not accept this format. Evidence, admission and publication commands
 now dispatch change sets to the repository Canon/tracker/archive implementation. Current-horizon
 admission integration and product start/completion remain pending. Neither schema validity nor
@@ -58,7 +58,7 @@ execution or forge-administration writes.
 | `/plan-work ID --include` | Discuss relevant deferred items and include only explicit selected IDs |
 | `/plan-work ID --scrub` | Source-quality findings; `--apply` requires exact correction confirmation |
 | `/plan-work ID --canon` / `--work` | Iterative partial candidates, questions and provenance |
-| `/plan-work ID --complete` | Complete proposed Canon/phases/DAG result, not executable work |
+| `/plan-work [ID] --finalize-proposal` | Validate supplied complete content against an exact fresh base; not review, admission or executable work |
 | `/plan-work ID --assess` | Advisory REVIEW findings, not independent readiness |
 | `/admit-plan ID` | Exact independent review, actual decision and one real origin-selected publication attempt |
 
@@ -107,9 +107,16 @@ origin, relevance, scope, testing implications, questions and recommendation; de
 remain untouched. Existing destination associations are disclosed before explicit inclusion.
 
 For `cp-plan-change-set-v1`, use `planning-change-set.py save` for partial drafts,
-`preview` for the derived result and explicitly confirmed `complete` for a complete
+`preview` for the derived result and explicitly confirmed `finalize-proposal` for a complete
 proposal. Optional lifecycle metadata is schema-validated and preserved by saves; absence
 means planning without rewriting. Explicit-ID inspection and pair recovery are supported.
+LOCAL MOD - HARVEST TO CPB (2026-10-01): HR-05 rejects old `--complete` without writes
+or timing. Changed Canon/work, sources, scope, decisions or baseline require a next revision;
+ordinary save demotes an edited complete proposal to draft and preserves its exact pair history.
+Narrative-only planning changes follow the same rule. Read-only or unrelated operations do not
+invalidate finalization. Re-finalization requires fresh review/decision subjects, not copied
+approval. Active admission freezes edits. Post-application reset remains unavailable until
+HR-06 verifies application and a new baseline; ordinary save cannot clear/replay applied changes.
 HR-03 supports current-format creation/automatic binding and `current` inspection. HR-04 adds
 branch-free activation, leave, suspension, standalone resume and abandonment. Transition tokens,
 exact digests, actual actor/provenance and retained preimages make retries explicit; active

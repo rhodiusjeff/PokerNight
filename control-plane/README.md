@@ -9,7 +9,7 @@ another project's requirements, state, architecture, or history.
 For `cp-plan-change-set-v1`, follow the
 [Planning Change-Set Policy](framework/governance/policies/plan-change-set.policy.md).
 The new schema uses one explicit changes list and referenced sources without embedded
-Base64. Its validate/preview/save/complete commands are separate from the legacy full-result
+Base64. Its validate/preview/save/finalize-proposal commands are separate from the legacy full-result
 helpers below; new-format admission now uses the format-dispatched evidence/admission/
 publication controller and repository storage contract. The existing
 tic-tac-toe context has been rebuilt in this format and remains a draft.
@@ -46,8 +46,10 @@ boundary. Installation and fixture tests are not release approval.
 5. Use `/plan-work ID --include` for a descriptive deferred-item selection walkthrough.
    Only explicitly selected IDs are included; declined items and original source bytes survive.
 6. Use `/plan-work ID --canon` or `--work` for partial drafts. Source-quality `--scrub` and
-   advisory `--assess` remain distinct. Use `--complete` only for a full proposed result against
-   an explicit operational base and execution snapshot. Missing decisions are not fabricated.
+   advisory `--assess` remain distinct. Use `--finalize-proposal` only for a full proposed result
+   against an exact fresh operational base. Old `--complete` refuses without writes. Changed
+   planning inputs return complete proposals to draft; old exact review/decision subjects stay
+   historical. Missing decisions are not fabricated. Post-application draft reset awaits HR-06.
 7. Explicit `/admit-plan ID` guides exact independent review, distinct findings, actual approval
    or waiver, bundle validation and one confirmed real publication attempt. Separate `--merge`
    performs operator-confirmed integration; `--verify` checks actual application. No implicit product start.
