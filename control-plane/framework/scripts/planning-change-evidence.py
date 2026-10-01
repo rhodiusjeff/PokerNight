@@ -227,6 +227,62 @@ def assert_mutable(root, identity):
                 'active publication freezes proposal/evidence; close and retire the exact attempt first')
 
 
+def verified_applications(root, proposal, target_ref, target_commit, applied, historical=False, historical_target=False):
+    publication = helper('planning-publication')
+    require(isinstance(applied, list) and applied, 'exact applied proposal/attempt evidence required')
+    if not historical:
+        assert_mutable(root, proposal['id'])
+    helper('planning-transfer').guard(root, proposal)
+    proposals = []
+    attempts = set()
+    for entry in applied:
+        require(isinstance(entry, dict) and set(entry) == {'proposal', 'attempt', 'verification'}, 'invalid applied evidence entry')
+        attempt = entry['attempt']['id']
+        require(attempt not in attempts, 'duplicate applied attempt')
+        attempts.add(attempt)
+        require(publication.applied_evidence(root, attempt, target_ref, target_commit, entry['verification'], historical_target=historical_target) == entry,
+                'applied evidence references differ from verified subjects')
+        document = capture.decode_capture(capture.safe_path(root, pathlib.Path(root) / entry['proposal']['path']).read_bytes(), proposal['id'])
+        require(document['id'] == proposal['id'], 'applied proposal belongs to another context')
+        proposals.append(document)
+    state = repository.snapshot(root, target_commit)['state']
+    admitted = [entry for entry in state['tracker']['admissions'] if entry['proposal_id'] == proposal['id']]
+    supplied = {digest(item) for item in proposals}
+    recorded = {item['proposal_digest'] for item in admitted}
+    require(supplied <= recorded if historical else len(proposals) == len(admitted) and supplied == recorded,
+            'all applied context proposals must be accounted for')
+    home = publication.home(root)
+    for filename in home.glob('*/attempt.json') if home.exists() and not historical else []:
+        header = contract.load_json(capture.safe_path(root, filename))
+        if header['offer']['context_id'] != proposal['id']:
+            continue
+        _, directory, header = publication.load_attempt(root, header['id'])
+        events = publication.journal(root, directory)
+        require(events and events[-1]['state'] in ('applied', 'retired', 'withdrawn'), 'active publication blocks reset/closure')
+        require(events[-1]['state'] != 'applied' or header['id'] in attempts, 'unaccounted applied attempt')
+    require(historical_target or publication.planning_git.resolve_commit(root, target_ref) == target_commit, 'target moved during application checks')
+    return proposals
+
+
+def verify_closure(root, proposal, request, historical_target=False):
+    require(isinstance(request, dict) and set(request) == {'target_ref', 'target_commit', 'applied', 'remaining_scope'}, 'invalid closure request')
+    closure = {key: request[key] for key in ('applied', 'remaining_scope')}
+    validator = changes.schema_validator().evolve(schema={'$ref': changes.SCHEMA_PATH.as_uri() + '#/$defs/closure'})
+    errors = list(validator.iter_errors(closure))
+    require(not errors, 'closure schema: ' + (errors[0].message if errors else ''))
+    proposals = verified_applications(root, proposal, request['target_ref'], request['target_commit'], closure['applied'], historical_target=historical_target)
+    scopes = {entry['scope']: entry for entry in closure['remaining_scope']}
+    expected = {'context', *('change:' + item['change_id'] for item in proposal['changes']), *('unresolved:' + item['id'] for item in proposal['unresolved'])}
+    require(len(scopes) == len(closure['remaining_scope']) and set(scopes) == expected, 'remaining scope requires exact complete dispositions')
+    exact = any(changes.proposal_meaning(proposal) == changes.proposal_meaning(item) for item in proposals)
+    for scope, entry in scopes.items():
+        changes.canon.verify_source(root, entry['evidence'])
+        if entry['disposition'] == 'applied':
+            require(not scope.startswith('unresolved:'), 'unresolved scope cannot be declared applied')
+            require(exact or scope == 'context' and not proposal['changes'] and not proposal['unresolved'], 'unverified remaining scope cannot be declared applied')
+    return closure
+
+
 def read_view(root, identity):
     filename = capture.resolve_document(root, identity)
     proposal = capture.read_capture(filename)
@@ -276,7 +332,7 @@ def prepare(root, identity, decision_id, expected_digest, confirmed):
         require(hashlib.sha256(raw).hexdigest() == expected_digest, 'proposal changed since bundle preparation')
         proposal = capture.read_capture(filename)
         require(changes.lifecycle_state(proposal) == 'planning', 'terminal or suspended source cannot authorize admission')
-        require(proposal['context']['kind'] != 'horizon', 'current-format horizon admission is unavailable until its integration slice')
+        helper('planning-transfer').guard(root, proposal)
         clean = subject(root, proposal)
         events = read_events(root, identity)
         sources = {'sources/' + source['sha256'] + '.bin': source_bytes(root, source, proposal) for source in proposal['sources']}

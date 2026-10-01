@@ -49,7 +49,8 @@ boundary. Installation and fixture tests are not release approval.
    advisory `--assess` remain distinct. Use `--finalize-proposal` only for a full proposed result
    against an exact fresh operational base. Old `--complete` refuses without writes. Changed
    planning inputs return complete proposals to draft; old exact review/decision subjects stay
-   historical. Missing decisions are not fabricated. Post-application draft reset awaits HR-06.
+   historical. Missing decisions are not fabricated. Explicit `--reset-draft` requires verified
+   application and a fresh baseline; it never follows automatically from admission.
 7. Explicit `/admit-plan ID` guides exact independent review, distinct findings, actual approval
    or waiver, bundle validation and one confirmed real publication attempt. Separate `--merge`
    performs operator-confirmed integration; `--verify` checks actual application. No implicit product start.
@@ -94,7 +95,10 @@ separate Markdown and JSON, use related stems with distinct role suffixes, and k
 current ad hoc capture/proposal pair. Requests and confirmations belong in capture;
 superseded revisions belong in history. HR-01 adds shared current-horizon pair storage;
 HR-03 adds branch-free creation and local binding; HR-04 adds lifecycle, resolution and
-identity-based local/last-fetched discovery. Horizon admission/closure remains HR-06.
+identity-based local/last-fetched discovery. HR-06 implements branchless horizon admission,
+verified draft reset and explicit successful closure. Focused local fixtures cover consecutive
+proposals and recovery after target advancement. Independent review and full slice acceptance
+remain outstanding; local tests do not certify hosted operations or authorize live changes.
 See [change-set storage and lifecycle](framework/governance/policies/plan-change-set.policy.md#context-lifecycle-and-pair-storage).
 
 | Path | Owner and purpose |

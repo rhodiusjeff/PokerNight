@@ -28,6 +28,14 @@ source-branch synchronization commands; obtain exact branch/method/action and cu
 offer/resolution confirmation. A successful merge does not implicitly invoke sync.
 No product start, automatic stash, cleanup, or force-push is granted.
 
+LOCAL MOD - HARVEST TO CPB (2026-10-01): HR-06 permits
+ordinary current-format horizon preparation without a planning-branch association.
+Keep exact source/target/evidence and historical-transfer guards. Read-only local
+`planning-publication.py applied-evidence --attempt ID --target-ref REF --target-commit SHA`
+returns exact subjects for separately confirmed `/plan-work ID --reset-draft` or
+`/horizon --close ID`. Neither follows automatically from application; this prompt's
+`--close ATTEMPT-ID` closes the forge request, not the horizon.
+
 Require a selected existing new-format capture ID. Legacy packet admission commands are retired;
 do not coerce a legacy tracker into the new schema. Default walks current
 prerequisites and stops at the next missing actual review/decision/confirmation.

@@ -507,7 +507,12 @@ def guard_remote(root, selected):
 
 
 def guard(root, document):
+    if document.get('schema') == 'cp-change-review-state-v1':
+        document = document['proposal']
     state = document.get("context", {})
+    if document.get('schema') == 'cp-plan-change-set-v1':
+        contract.require(capture.change_set_module().lifecycle_state(document) not in ('abandoned', 'closed'),
+                         'terminal context cannot publish admission')
     contract.require(state.get("state", "planning") not in ("absorbed", "escalated", "abandoned") and not state.get("transfer"),
                      "retired transfer source cannot publish admission")
     contract.require(not state.get("transfer_pending"), "transferred subject publication incomplete; admission refused")

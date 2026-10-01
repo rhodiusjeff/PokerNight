@@ -248,7 +248,7 @@ class ChangeTests(unittest.TestCase):
                         changes.save(folder,document['id'],candidate,expected,'Attempted edit',complete=finish)
                     self.assertEqual(inventory(),before)
                 publication.append_event(folder,directory,'applied',{'application_verified':True})
-                with self.assertRaisesRegex(ValueError,'post-application draft reset unavailable'):
+                with self.assertRaisesRegex(ValueError,'verified post-application draft reset required'):
                     changes.save(folder,document['id'],{**document,'revision':2,'changes':[]},expected,'Attempted blind reset')
                 self.assertEqual(inventory(),before)
 
@@ -436,7 +436,7 @@ class ChangeTests(unittest.TestCase):
             context.activate(folder,document['id'],False)
         with self.assertRaisesRegex(ValueError,'operation token'):
             context.transition(folder,document['id'],'suspend',expected,'Fixture next step',True)
-        with self.assertRaisesRegex(ValueError,'unavailable'):
+        with self.assertRaisesRegex(ValueError,'decision is not the current finalized selection'):
             changes.helper('planning-admission').prepare(folder,document['id'],'no-decision',None,None,expected,True)
         self.assertEqual(filename.read_bytes(),before)
         self.assertFalse(binding.exists())
@@ -477,14 +477,14 @@ class ChangeTests(unittest.TestCase):
         before=filename.read_bytes()
         reset=copy.deepcopy(document)
         reset.update(status='draft',revision=2,changes=[],base=repository.reference(folder,'refs/heads/main'))
-        with self.assertRaisesRegex(ValueError,'post-application draft reset unavailable'):
+        with self.assertRaisesRegex(ValueError,'verified post-application draft reset required'):
             changes.save(folder,document['id'],reset,hashlib.sha256(before).hexdigest(),'Attempted blind reset')
         self.assertEqual(filename.read_bytes(),before)
         self.assertFalse((filename.parent/'assets/history').exists())
 
         changes.git(folder,'branch','-m','main','applied-target')
         reset['base']=repository.reference(folder,'refs/heads/applied-target')
-        with self.assertRaisesRegex(ValueError,'post-application draft reset unavailable'):
+        with self.assertRaisesRegex(ValueError,'verified post-application draft reset required'):
             changes.save(folder,document['id'],reset,hashlib.sha256(before).hexdigest(),'Attempted reset through replacement target')
         self.assertEqual(filename.read_bytes(),before)
         document['base']=copy.deepcopy(reset['base'])
@@ -492,7 +492,7 @@ class ChangeTests(unittest.TestCase):
         before=filename.read_bytes()
         changes.git(folder,'branch','-m','applied-target','renamed-again')
         reset['base']=None
-        with self.assertRaisesRegex(ValueError,'post-application draft reset unavailable'):
+        with self.assertRaisesRegex(ValueError,'verified post-application draft reset required'):
             changes.save(folder,document['id'],reset,hashlib.sha256(before).hexdigest(),'Attempted unknown-base reset of pinned application')
         self.assertEqual(filename.read_bytes(),before)
         self.assertFalse((filename.parent/'assets/history').exists())

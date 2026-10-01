@@ -65,7 +65,8 @@ changes await their owning slices:
    content, preserves history and saves an exact revision; it does not invent missing
    decisions or perform independent review/admission. HR-01 supplies the horizon pair writer;
    HR-05 adds the renamed command, local target freshness and draft invalidation. Verified
-   post-application reset remains unavailable pending HR-06's application integration.
+   post-application reset is implemented by HR-06 with exact application evidence and
+   a separately confirmed fresh baseline; local verification is not slice acceptance.
 
 ### Deferred Escalation Command
 
@@ -314,7 +315,7 @@ or behavior coverage is claimed from the current unit-test suite.
 The following is the selected command surface, not invocations. HR-04 installs standalone
 `--resume` for current pairs; the overloaded activation path remains legacy-only compatibility.
 HR-05 installs `--finalize-proposal`; old `--complete` refuses without writes or timing.
-Successful horizon-close writing remains HR-06.
+HR-06 installs successful horizon-close writing with exact application and scope evidence.
 
 | Event | Command | Lifecycle/selection effect | Skill |
 | --- | --- | --- | --- |
@@ -331,7 +332,8 @@ Successful horizon-close writing remains HR-06.
 
 Terminal states cannot silently resume. Active admission and incomplete transfer protections
 remain in force. Legacy `authorized-for-merge` is admission-owned compatibility vocabulary,
-not a general Horizon command. There is no installed successful horizon-close transition.
+not a general Horizon command. HR-06's explicit close transition remains separate from
+forge-request closure, product completion and automatic archival.
 
 Planning uses `--include` through `planning-workflow`, `--scrub` through `inception-scrub`,
 `--canon` through `canon-consolidation`, `--work` through `work-plan-shaping`, `--assess`
@@ -630,8 +632,8 @@ new planning must target the updated operational baseline without reapplying pri
 
 HR-01 supplies the common pair writer and HR-05 tests finalization across all three scopes.
 The [policy](../../../framework/governance/policies/plan-change-set.policy.md#post-application-draft-reset-contract)
-defines verified post-application draft reset; its writer remains unavailable until HR-06's
-application integration can establish that evidence. Ordinary saves refuse applied claims or
+defines verified post-application draft reset, implemented by HR-06's application integration
+with exact confirmation and retained history. Ordinary saves refuse applied claims or
 observed context admissions, rather than blindly clearing changes. Retain `draft`/`complete` storage vocabulary
 with stale finalization derived as described above. HR-05 rejects old user-facing `--complete`
 with replacement guidance; the naming change does not itself rename stored data.

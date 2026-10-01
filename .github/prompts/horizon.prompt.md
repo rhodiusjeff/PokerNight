@@ -1,7 +1,7 @@
 ---
 name: "Horizon"
 description: "Manage explicit planning context lifecycle through planning-context.py; escalation and absorption are deferred with no writes."
-argument-hint: "--create [--from ID] | --current | --activate [ID] | --leave ID | --suspend ID | --resume ID | --abandon ID | --absorb SOURCE --into HNNN; --help"
+argument-hint: "--create [--from ID] | --current | --activate [ID] | --leave ID | --suspend ID | --resume ID | --abandon ID | --close ID | --absorb SOURCE --into HNNN; --help"
 ---
 # Horizon
 
@@ -45,8 +45,8 @@ current-format horizon pairs without a branch or remote requirement. `--current`
 validate the local binding, inspect its exact subject, or report no active horizon.
 Malformed/old bindings and missing subjects are explicit errors, never branch-derived defaults.
 LOCAL MOD - HARVEST TO CPB (2026-10-01): HR-04 supports current-format activation,
-leave, standalone resume, suspend/abandon and identity-based discovery. Admission/closure
-remains HR-06. `list` includes terminal history; `status` lists open sessions and reports
+leave, standalone resume, suspend/abandon and identity-based discovery. HR-06 adds branchless
+admission and exact-confirmed closure. `list` includes terminal history; `status` lists open sessions and reports
 selection validity separately. `discover` groups last-fetched observations by identity and
 reports conflicting versions, never branch-name authority. No fetch or automatic reconciliation.
 Do not fall back to a legacy capture or writer for a current-format operation.
@@ -60,6 +60,7 @@ Do not fall back to a legacy capture or writer for a current-format operation.
 | `--suspend ID` | `planning-context.py --root ROOT suspend --id ID --expected-digest SHA --reason NEXT_STEP --operation-id OP --actor ACTOR --invocation-source PROVENANCE --confirmed` |
 | `--resume ID` | `planning-context.py --root ROOT resume --id ID --expected-digest SHA --operation-id OP --actor ACTOR --invocation-source PROVENANCE --confirmed` |
 | `--abandon ID` | `planning-context.py --root ROOT abandon --id ID --expected-digest SHA --reason REASON --operation-id OP --actor ACTOR --invocation-source PROVENANCE --confirmed` |
+| `--close ID` | `planning-context.py --root ROOT close --id ID --expected-digest SHA --reason REASON --operation-id OP --actor ACTOR --invocation-source PROVENANCE --request REQUEST.json --confirmed` |
 | `--absorb SOURCE --into HNNN` | Deferred; see Deferred Transfers above |
 | `--create --from ID` | Deferred; never route to ordinary create |
 
@@ -92,9 +93,20 @@ ACTOR names the actual recorded actor; PROVENANCE is `operator-command` or
 Suspend requires planning and next steps; abandon accepts planning/suspended with a reason.
 Leave changes only selection, including a missing-but-selected valid ID. Empty selection is a
 no-op; a different selection refuses. Suspend/abandon clear only their matching selection.
-Terminal states remain readable but refuse mutation; close writing is unavailable until HR-06.
+Terminal states remain readable but refuse mutation; closed horizons cannot reopen.
 Malformed/legacy bindings are not automatically repaired. Legacy explicit lifecycle adapters
 remain format-specific and cannot overwrite a versioned binding.
+
+LOCAL MOD - HARVEST TO CPB (2026-10-01): close accepts planning/suspended current horizons
+only after verified application and complete scope disposition. Its JSON request (or stdin `-`)
+contains `target_ref`, `target_commit`, `applied`, and `remaining_scope`. Use the exact
+[closure contract](../../control-plane/framework/governance/policies/plan-change-set.policy.md#successful-horizon-closure).
+Obtain the actual Operator's dispositions for `context`, every `change:CHANGE-ID`, and every
+`unresolved:ID`; do not invent missing scope decisions. Account for every applied proposal,
+not just the latest attempt. Active admission/transfer, false receipts and stale target refuse.
+Close retains the exact applied subjects and lifecycle preimage, clears only matching selection,
+and never archives work or completes a product phase. `/admit-plan --close ATTEMPT-ID` closes
+a forge request instead; it cannot close this horizon. Later planning requires a new linked context.
 
 Reuse the exact OP, digest, actor, provenance and reason on retry. Lifecycle events retain
 exact pair preimages; identical retries do not append events, contradictory or superseded

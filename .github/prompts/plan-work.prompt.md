@@ -1,7 +1,7 @@
 ---
 name: "Plan Work"
 description: "List open ad hoc and horizon planning sessions, or capture and iteratively plan work through shared file-backed helpers; complete proposals only on explicit request."
-argument-hint: "--status | [ID] --capture ad-hoc|discovery | --append | --defer | --include | --scrub [FINDING-ID --apply] | --canon | --work | --finalize-proposal | --assess | --help"
+argument-hint: "--status | [ID] --capture ad-hoc|discovery | --append | --defer | --include | --scrub [FINDING-ID --apply] | --canon | --work | --finalize-proposal | --reset-draft | --assess | --help"
 ---
 # Plan Work
 
@@ -68,7 +68,7 @@ schema and paired saves apply to all planning origins. HR-01 current horizons us
 `control-plane/horizons/ID/ID-proposal.json`, `ID-capture.md` and `assets/`; preserve optional
 `context.lifecycle` and immutable identity/origin. Old horizon captures are read-only to this
 writer, with no implicit migration. HR-03 creation/binding and HR-04 lifecycle/discovery are
-supported; current-horizon admission/closure remain HR-06. Status includes current pairs.
+supported; HR-06 adds branchless admission, verified reset and explicit closure. Status includes current pairs.
 Before context-specific inputs or confirmation, use `planning-context.py --root ROOT resolve
 [--id EXPLICIT-ID] --writable` and pin its returned ID/digest for the entire operation.
 Explicit IDs override the default without changing it; an omitted ID uses the valid active
@@ -108,14 +108,18 @@ An explicitly authorized legacy draft rekey uses `planning-change-set.py rekey`,
   For `cp-planning-capture-v1` only, use legacy compose/propose with exact base/execution
   inputs. No fake phases, status-only completion or implicit started dispositions.
 - `--assess`: proposal-assessment's new-context advisory REVIEW round, not independent readiness.
+- `--reset-draft`: explicitly confirm `planning-change-set.py --root ROOT --context ID
+  reset-draft --request REQUEST.json --confirmed`. Follow the shared skill's exact request
+  contract; verify all applied attempts against the pinned new base. Retain the prior pair,
+  reset only the exact applied subject, and do not replay its changes or invent remaining-scope decisions.
 
 Changed Canon/work, source bindings, scope, planning decisions or baseline return the current
 complete change set to draft through `save`. Narrative-only planning decisions also require
 the next revision and an actual request record. Preserve exact finalized history and evidence;
 old review/decision subjects cannot authorize a refinalized proposal. Read-only assessment and
 unrelated edits do not invalidate it; record newly identified planning gaps before refinalization.
-Active admission freezes edits. Post-application reset is unavailable pending HR-06's verified
-application/new-base integration; never clear applied changes or replay them through ordinary save.
+Active admission freezes edits. HR-06's explicit verified reset starts a higher empty draft
+against the new base; ordinary save still refuses blindly clearing or replaying applied changes.
 
 Legacy packet planning writes are retired. Preserve historical packets without mutation or
 implicit migration; a malformed current document is not a legacy fallback. New horizons are created only

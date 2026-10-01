@@ -59,6 +59,11 @@ Required fields are `schema`, `id`, `revision`, `title`, `author`, `created_at`,
 
 ## Context Lifecycle And Pair Storage
 
+LOCAL MOD - HARVEST TO CPB (2026-10-01): HR-06 permits ordinary
+current-horizon admission preparation without branch association, retaining lifecycle
+and transfer checks. Reset and close use exact locally verified application evidence,
+not a recorded success flag. Source synchronization remains separately authorized.
+
 LOCAL MOD - HARVEST TO CPB (2026-09-30): Operator-authorized HR-01 storage/schema foundation.
 Current-format horizons use `control-plane/horizons/<ID>/<ID>-proposal.json` and
 `<ID>-capture.md`, with `assets/history/` beside the pair. Ad hoc/discovery homes are unchanged.
@@ -75,7 +80,7 @@ requires reason/next step; abandon/close require reason. Closed metadata additio
 applied proposal/attempt/verification subjects and explicit remaining-scope dispositions.
 Schema acceptance does not verify application, authorize a transition or authenticate an actor.
 HR-04 owns activation, suspend/resume/abandon eligibility and matching-binding cleanup.
-Successful close writing and receipt verification remain HR-06; closed states are readable only.
+HR-06 implements successful close and receipt verification below; closed states are readable only.
 
 Normal saves preserve the entire context, including origin and lifecycle, plus attribution and
 issued identity metadata. Non-planning contexts refuse saves. The private `_publish_pair`
@@ -98,7 +103,7 @@ a reason. Exact token/digest/actor/provenance retries preserve event history and
 subjects. Journals precede publication; interrupted resume never overwrites newer selection.
 Lifecycle-only publication preserves proposal meaning/revision and capture bytes; its retained
 preimage event changes the exact proposal digest, never historical review/admission evidence.
-Active admission claims block lifecycle changes. No close writer is exposed.
+Active admission claims block lifecycle changes. HR-06 adds the verified close writer below.
 Local list includes terminal history; status includes open current pairs and distinct selection
 diagnostics. Last-fetched discovery is identity-based, reports conflicting versions and never
 fetches. Different observed subjects block activation/transitions unless verified as local
@@ -118,7 +123,7 @@ malformed records for the selected ID still refuse. Observed planning files in G
 not imply an admitted proposal; this filtering rule changes no admission/lifecycle eligibility.
 Shared `resolve [--id ID] --writable` pins explicit ID before default and checks eligibility
 without writes; writers keep that ID throughout the operation. No branch/folder inference.
-Transfers and admission/closure remain subsequent/deferred slices; HR-05 finalization is below.
+Transfers remain deferred; HR-06 admission/closure and HR-05 finalization are described below.
 Existing old-format behavior is not silently converted and no live migration is performed.
 
 ## Proposal Finalization And Freshness
@@ -154,8 +159,7 @@ still freezes edits; no invalidation bypasses its withdrawal/reconciliation gate
 
 ### Post-Application Draft Reset Contract
 
-HR-05 defines this handoff; the reset writer remains explicitly unavailable until HR-06 supplies
-verified application integration. Ordinary save refuses an applied local claim or an admission
+HR-06 implements explicit `planning-change-set.py reset-draft`. Ordinary save refuses an applied local claim or an admission
 for this context in its old/proposed pinned baseline or available named target. A recorded
 `application_verified` flag alone cannot authorize a reset. Read-only operations and unchanged
 retries may still inspect the old subject.
@@ -171,7 +175,7 @@ and check admission history. Missing/partial/competing/unsupported authority lay
 standalone dispatch does not suppress errors from present repository state. No branch is
 recreated, selected, fetched or inferred. Unnamed/unavailable remote state remains unverified.
 
-The future owner must verify the exact attempt, immutable bundle/applied proposal, integrated
+The reset owner verifies the exact attempt, immutable bundle/applied proposal, integrated
 result and retained evidence against the selected target, including later-target history. Under
 the writer lock, pin the new exact baseline and current pair, reject any active attempt/transfer,
 and obtain explicit reset confirmation. Preserve the old pair and all review/admission subjects;
@@ -180,6 +184,59 @@ draft revision against that baseline, removing only verified applied changes, wi
 them or reminting IDs. Preserve/disposition remaining scope explicitly. Refuse missing, stale,
 false or contradictory evidence; never clear blindly, promote lifecycle, reopen work or claim
 atomic multi-file success. Exact retries and paired recovery must not overwrite newer planning.
+
+The reset request has exactly `operation_id`, `expected_digest`, `base`, `applied`, `actor`,
+`invocation_source`, and `record`. `applied` uses the closure schema's proposal/attempt/verification
+references, returned by `planning-publication.py applied-evidence --attempt ID --target-ref REF
+--target-commit SHA`. Every context admission at that target must be included. The current
+proposal must equal a verified applied subject except lifecycle-only changes; additional
+unadmitted changes require reconciliation rather than destructive reset. All original narrative
+and source bytes remain retained. Source IDs/hashes stay fixed while references use admitted
+custody locations. The higher revision is draft with empty changes/unresolved and no stale
+execution-impact declaration. Requests/confirmations append as Markdown to capture; immutable
+reset journals live under `assets/admission/resets/`. Normal saves verify those journals and
+their retained paired outputs before allowing later planning. Exact retries are no-ops;
+superseded subjects refuse. No automatic new proposal, review, admission or lifecycle action.
+
+HR06-R1: new reset journals use `cp-proposal-reset-v2`. Journal creation records pending
+intent; an immutable `completed/<operation_id>.json` receipt binds the journal and output
+after pair publication. An interrupted pending journal with no output grants no applied
+authority and does not block a freshly confirmed reset after target advancement. Retain it
+unchanged. If output exists before completion recording, verify its full history/evidence;
+exact retry can finish the completion receipt. Completed output history remains mandatory.
+Old v1 journals retain strict verification, not guessed pending/completed classification;
+an incomplete v1 journal requires explicit reconciliation outside this automatic recovery.
+
+### Successful Horizon Closure
+
+Explicit `/horizon --close ID` uses the existing lifecycle token/digest/actor/provenance
+transaction and requires a reason plus a JSON request with exactly `target_ref`, `target_commit`,
+`applied` and `remaining_scope`. It accepts planning or suspended current horizons only.
+The applied list must account for every context proposal in the selected target history.
+Each reference must match an exact normal attempt, retained bundle and applied journal event;
+verify candidate inventory, merged request, first integration tree/result and later retained
+evidence/history against local Git objects. Trial receipts and flags alone are not authority.
+This is a local verified observation, not a fetch, hosted certification or distributed lease.
+
+`remaining_scope` contains exactly one entry for `context`, every current `change:CHANGE-ID`
+and every `unresolved:ID`. Each needs an actual disposition (`applied`, `deferred`, `withdrawn`)
+and hash-verified substantive evidence. `applied` cannot dismiss unresolved or unadmitted
+changes. The context entry records the Operator's complete narrative-scope accounting;
+helpers cannot infer unrecorded obligations or authenticate consent. Deferred/withdrawn scope
+must cite the Operator's actual destination/reason, not an invented empty-scope claim.
+No active local attempt or historical transfer may be hidden by selecting another receipt.
+
+Closure preserves all proposal, review, decision, admission and pair history, appends the
+close event and exact evidence, and clears only a matching ignored selection. Identical
+token retries verify retained preimages/evidence without another event; they never clear a
+different selection. Closed remains terminal/read-only, not product completion or automatic
+archival. Further planning uses a new linked context. Forge-request close remains distinct.
+
+HR06-R2: after the exact close output is already persisted, retry verifies the recorded
+target commit and historical application evidence, not equality with today's target ref.
+This permits interrupted matching-selection cleanup after unrelated target advancement.
+New or not-yet-published closes still require a fresh target. Changed requests, missing or
+tampered preimages/evidence and changed close output refuse; newer selections survive.
 
 ## Baseline Identity
 

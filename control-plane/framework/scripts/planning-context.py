@@ -251,9 +251,9 @@ def verify_current_observation(root, document):
             else "local-only; no last-fetched observation for this identity")
 
 
-def current_transition(root, identity, action, expected_digest, reason, confirmed, operation_id, actor, provenance):
+def current_transition(root, identity, action, expected_digest, reason, confirmed, operation_id, actor, provenance, closure_request=None):
     contract.require(confirmed, "lifecycle transition requires explicit confirmation")
-    contract.require(action in ("suspend", "resume", "abandon"), "unsupported context transition")
+    contract.require(action in ("suspend", "resume", "abandon", "close"), "unsupported context transition")
     contract.require(isinstance(operation_id, str) and OPERATION.fullmatch(operation_id), "explicit operation token required")
     contract.require(isinstance(actor, str) and actor.strip() and provenance in
                      ("operator-command", "operator-confirmation"), "actual actor and invocation provenance required")
@@ -263,6 +263,10 @@ def current_transition(root, identity, action, expected_digest, reason, confirme
     identity = resolve_context(root, identity)
     request = {"id": identity, "action": action, "expected_digest": expected_digest,
                "reason": reason, "actor": actor, "invocation_source": provenance, "operation_id": operation_id}
+    if action == 'close':
+        request['closure'] = json.loads(json.dumps(closure_request, sort_keys=True))
+    else:
+        contract.require(closure_request is None, 'closure evidence belongs only to close')
     journal_path = local_path(root, f"lifecycle/{operation_id}.json")
     _, observed_binding = read_binding(root)
     changes = capture.change_set_module()
@@ -291,7 +295,7 @@ def current_transition(root, identity, action, expected_digest, reason, confirme
                              "lifecycle journal event contradicts confirmed request")
         lifecycle = document["context"].get("lifecycle", {"state": "planning", "events": []})
         previous_event = next((event for event in lifecycle["events"] if event["operation_id"] == operation_id), None)
-        target = {"suspend": "suspended", "resume": "planning", "abandon": "abandoned"}[action]
+        target = {"suspend": "suspended", "resume": "planning", "abandon": "abandoned", "close": "closed"}[action]
         if previous_event is not None:
             contract.require(recovering and previous_event == journal["event"] and
                              lifecycle["events"][-1] == previous_event and lifecycle["state"] == target and
@@ -300,11 +304,18 @@ def current_transition(root, identity, action, expected_digest, reason, confirme
             for source in previous_event["preimage"].values():
                 retained = capture.safe_path(root, pathlib.Path(root).resolve() / source["path"])
                 contract.require(digest_bytes(retained.read_bytes()) == source["sha256"], "lifecycle preimage history differs")
+            if action == 'close':
+                preimage = capture.safe_path(root, pathlib.Path(root).resolve() / previous_event['preimage']['proposal']['path'])
+                before_close = capture.decode_capture(preimage.read_bytes(), identity)
+                closure = changes.helper('planning-change-evidence').verify_closure(root, before_close, request['closure'], historical_target=True)
+                contract.require(lifecycle['closure'] == closure, 'closed evidence differs from confirmed closure')
         else:
             contract.require(digest_bytes(original) == expected_digest, "context changed since transition confirmation")
-            allowed = ("suspended",) if action == "resume" else ("planning", "suspended") if action == "abandon" else ("planning",)
+            allowed = ("suspended",) if action == "resume" else ("planning", "suspended") if action in ("abandon", "close") else ("planning",)
             contract.require(lifecycle["state"] in allowed, "terminal or ineligible lifecycle transition")
             verify_current_observation(root, document)
+            if action == 'close':
+                closure = changes.helper('planning-change-evidence').verify_closure(root, document, request['closure'])
             history = capture.assets_path(root, identity) / "history"
             event = {"operation_id": operation_id, "action": action, "actor": actor, "invocation_source": provenance,
                      "timestamp": journal["event"]["timestamp"] if recovering else now(),
@@ -316,6 +327,8 @@ def current_transition(root, identity, action, expected_digest, reason, confirme
                 event["next_step"] = reason
             updated = copy.deepcopy(document)
             updated["context"]["lifecycle"] = {"state": target, "events": [*lifecycle["events"], event]}
+            if action == 'close':
+                updated['context']['lifecycle']['closure'] = closure
             changes.validate(root, updated, narrative)
             content = changes.encoded(updated)
             if recovering:
@@ -326,6 +339,8 @@ def current_transition(root, identity, action, expected_digest, reason, confirme
                            "binding_before": base64.b64encode(binding_before).decode() if binding_before is not None else None,
                            "event": event, "output_digest": digest_bytes(content)}
                 write_json(root, journal_path, journal)
+            if action == 'close':
+                changes.helper('planning-change-evidence').verify_closure(root, document, request['closure'])
             changes._publish_pair(root, destination, original, narrative, content, narrative)
         if action == "resume":
             binding, current = read_binding(root)
@@ -1076,7 +1091,7 @@ def main():
     activation.add_argument("--expected-digest")
     activation.add_argument("--operation-id", help="reuse the exact token for selection recovery")
     activation.add_argument("--confirmed", action="store_true")
-    for name in ("leave", "suspend", "resume", "abandon"):
+    for name in ("leave", "suspend", "resume", "abandon", "close"):
         command = commands.add_parser(name)
         command.add_argument("--id", required=True)
         command.add_argument("--confirmed", action="store_true")
@@ -1087,6 +1102,8 @@ def main():
             command.add_argument("--invocation-source", choices=("operator-command", "operator-confirmation"))
             if name != "resume":
                 command.add_argument("--reason", required=True, help="pause next step or abandonment rationale")
+            if name == 'close':
+                command.add_argument('--request', type=pathlib.Path, required=True, help='exact applied subjects and remaining-scope dispositions; JSON file or - for stdin')
     offered = commands.add_parser("offer-transfer", help="deferred: no new absorption/escalation offers",
                                   description="New transfer offers are deferred; historical evidence remains readable.")
     offered.add_argument("--source", required=True)
@@ -1145,6 +1162,10 @@ def main():
         elif args.command == "resume":
             result = resume_context(args.root, args.id, args.expected_digest, args.confirmed,
                                     args.operation_id, args.actor, args.invocation_source)
+        elif args.command == 'close':
+            request = json.load(sys.stdin) if str(args.request) == '-' else contract.load_json(args.request)
+            result = current_transition(args.root, args.id, 'close', args.expected_digest, args.reason, args.confirmed,
+                                        args.operation_id, args.actor, args.invocation_source, request)
         elif args.command in ("suspend", "abandon"):
             result = transition(args.root, args.id, args.command, args.expected_digest, args.reason, args.confirmed,
                                 args.operation_id, args.actor, args.invocation_source)

@@ -582,6 +582,15 @@ class RepositoryControllerTests(NormalControllerTests):
 			kind='ad-hoc', origin_phase=None, origin_specification=None, title='Fixture', author='Fixture Author'))
 		filename = self.capture.resolve_document(self.root, identity)
 		narrative = self.capture.narrative_path(filename)
+		kind = 'horizon' if getattr(self, 'horizon', False) else 'ad-hoc'
+		if kind == 'horizon':
+			issued = self.change_evidence.changes.identity_policy.mint(self.root,'horizon','fixture','horizon-create','Fixture Author',None,True)
+			identity = issued['id']
+			filename = self.root/'control-plane/horizons'/identity/(identity+'-proposal.json')
+			filename.parent.mkdir(parents=True)
+			horizon_narrative = self.capture.narrative_path(filename)
+			horizon_narrative.write_bytes(narrative.read_bytes())
+			narrative = horizon_narrative
 		sha = self.evidence.hashlib.sha256
 		canon = {'id':'REQ-1','revision':1,'kind':'functional_requirement','title':'Legal move','scope':'repository',
 			'authority_status':'proposed','sources':['source-1'],'selection_rationale':'Distinct observable obligation',
@@ -600,10 +609,14 @@ class RepositoryControllerTests(NormalControllerTests):
 		items.append(addition({'from':{'id':'PHASE-A','revision':1},'to':{'id':'PHASE-B','revision':1},
 			'rationale':'Prerequisite','sources':['source-1']},'work_dependency','dependency'))
 		proposal = {'schema':'cp-plan-change-set-v1','id':identity,'revision':1,'title':'Fixture','author':'Fixture Author',
-			'created_at':'2026-09-29T00:00:00Z','context':{'kind':'ad-hoc','id':identity},'status':'complete',
+			'created_at':'2026-09-29T00:00:00Z','context':{'kind':kind,'id':identity},'status':'complete',
 			'capture':{'id':'capture','path':narrative.relative_to(self.root).as_posix(),'sha256':sha(narrative.read_bytes()).hexdigest()},
 			'base':self.repository.reference(self.root,'refs/heads/integration'),
 			'sources':[{'id':'source-1','path':source.name,'sha256':sha(source.read_bytes()).hexdigest()}], 'changes':items,'unresolved':[]}
+		if kind == 'horizon':
+			proposal['identity'] = {'mint':{'operation_id':issued['operation_id'],'request_digest':issued['request_digest']},
+				'allocation':{},'aliases':{'contexts':[],'canon':{},'changes':{}}}
+			self.allocate(proposal,'first-records')
 		filename.write_bytes(self.repository.encoded(proposal))
 		(self.root/'review.md').write_text('Independent review of Canon, sources, semantics, two phases and dependency.\n')
 		self.change_evidence.apply(self.root,proposal,'review',{'request_id':'review-1',
@@ -620,8 +633,30 @@ class RepositoryControllerTests(NormalControllerTests):
 		prepared = publication.admission.prepare(self.root,identity,'decision-1',None,None,sha(filename.read_bytes()).hexdigest(),True)
 		return {'offer':{'bundle':prepared['bundle']}}
 
+	def allocate(self, proposal, operation):
+		bindings = [{'change_id':item['change_id'],'operation':item['operation'],'target':item['target'],
+			'kind':item.get('value',{}).get('kind')} for item in proposal['changes']]
+		allocated = self.change_evidence.changes.identity_policy.reserve_records(self.root,proposal['id'],operation,bindings,confirmed=True)
+		proposal['identity']['allocation'] = allocated['state']
+		for item in proposal['changes']:
+			item['change_id'] = allocated['mapping']['changes'][item['change_id']]
+			if item['target']['type'] == 'canon_record' and item['operation'] == 'add':
+				item['target']['id'] = item['value']['id'] = allocated['mapping']['canon'][item['value']['id']]
+			for reference in item.get('value',{}).get('canon_refs',[]):
+				reference['id'] = allocated['mapping']['canon'].get(reference['id'],reference['id'])
+
 	def application(self, provider):
 		self.setup_normal(provider)
+		if getattr(self,'horizon',False):
+			(self.root/'branch-only.txt').write_text('Unrelated committed branch content\n')
+			self.git(self.root,'add','branch-only.txt')
+			self.git(self.root,'commit','--quiet','-m','Unrelated fixture work')
+			(self.root/'branch-only.txt').write_text('Unrelated dirty content\n')
+			(self.root/'staged-only.txt').write_text('Unrelated staged content\n')
+			self.git(self.root,'add','staged-only.txt')
+			(self.root/'untracked-only.txt').write_text('Unrelated untracked content\n')
+			index_before = (self.root/'.git/index').read_bytes()
+			refs_before = self.git(self.root,'show-ref').stdout
 		before = self.git(self.root,'rev-parse','HEAD').stdout
 		published = self.cli('resume','--attempt','trial-attempt','--confirmed')
 		self.assertEqual(published['state'],'published')
@@ -637,6 +672,12 @@ class RepositoryControllerTests(NormalControllerTests):
 		self.assertEqual(self.cli('verify','--attempt','trial-attempt','--confirmed'),result)
 		self.assertEqual(self.merges,1)
 		self.assertEqual(self.git(self.root,'rev-parse','HEAD').stdout,before)
+		if getattr(self,'horizon',False):
+			self.assertEqual((self.root/'.git/index').read_bytes(),index_before)
+			self.assertEqual(self.git(self.root,'show-ref').stdout,refs_before)
+			for name in ('branch-only.txt','staged-only.txt','untracked-only.txt'):
+				self.assertIsNone(self.repository.blob(self.sandbox,result['target_commit'],name))
+			self.assertEqual((self.root/'branch-only.txt').read_text(),'Unrelated dirty content\n')
 		for relative in self.repository.LEGACY:
 			self.assertIsNone(self.repository.blob(self.sandbox,result['target_commit'],relative))
 		self.remote_target = self.git(self.sandbox,'commit-tree',self.remote_target+'^{tree}','-p',self.remote_target,
@@ -644,6 +685,193 @@ class RepositoryControllerTests(NormalControllerTests):
 		later = self.cli('verify','--attempt','trial-attempt','--confirmed')
 		self.assertTrue(later['target_advanced'])
 		self.assertEqual(later['integration_commit'],result['integration_commit'])
+
+	def test_branchless_horizon_admission(self):
+		self.horizon = True
+		self.application('github')
+		self.git(self.root,'fetch','--quiet','--no-tags','--no-write-fetch-head',str(self.sandbox),self.remote_target)
+		self.git(self.root,'update-ref','refs/heads/integration',self.remote_target,self.target)
+		result = publication.applied_evidence(self.root,'trial-attempt','refs/heads/integration',self.remote_target)
+		self.assertEqual(result['attempt']['id'],'trial-attempt')
+		self.git(self.root,'update-ref','refs/replace/'+self.remote_target,self.target)
+		with self.assertRaisesRegex(ValueError,'replacement refs'):
+			publication.applied_evidence(self.root,'trial-attempt','refs/heads/integration',self.remote_target)
+		self.git(self.root,'update-ref','-d','refs/replace/'+self.remote_target)
+		with self.assertRaisesRegex(ValueError,'stale|already-applied'):
+			publication.offer(self.root,self.offered['offer']['bundle'],'refs/heads/integration',cli=True)
+		with mock.patch.object(sys,'argv',['publication','--root',str(self.root),'applied-evidence','--attempt','trial-attempt',
+			'--target-ref','refs/heads/integration','--target-commit',self.remote_target]),contextlib.redirect_stdout(io.StringIO()) as output:
+			self.assertEqual(publication.main(),0)
+			self.assertEqual(json.loads(output.getvalue()),result)
+		with self.assertRaisesRegex(ValueError,'stale'):
+			publication.applied_evidence(self.root,'trial-attempt','refs/heads/integration',self.target)
+		directory = publication.attempt_directory(self.root,'trial-attempt')
+		false_receipt = copy.deepcopy(publication.journal(self.root,directory)[-1]['data'])
+		false_receipt['integration_commit'] = self.target
+		publication.append_event(self.root,directory,'applied',false_receipt)
+		with self.assertRaisesRegex(ValueError,'contradicts Git'):
+			publication.applied_evidence(self.root,'trial-attempt','refs/heads/integration',self.remote_target)
+
+	def applied_horizon(self):
+		self.horizon = True
+		self.setup_normal()
+		self.cli('resume','--attempt','trial-attempt','--confirmed')
+		result = publication.run_cli(self.root,'trial-attempt','merge',True,self.operation_confirmation('merge'))
+		self.git(self.root,'fetch','--quiet','--no-tags','--no-write-fetch-head',str(self.sandbox),result['target_commit'])
+		self.git(self.root,'update-ref','refs/heads/integration',result['target_commit'],self.target)
+		self.target = result['target_commit']
+		identity = self.offered['offer']['context_id']
+		filename = self.capture.resolve_document(self.root,identity)
+		entry = publication.applied_evidence(self.root,'trial-attempt','refs/heads/integration',self.target)
+		request = {'operation_id':'reset-fixture','expected_digest':self.evidence.hashlib.sha256(filename.read_bytes()).hexdigest(),
+			'base':self.repository.reference(self.root,'refs/heads/integration'),'applied':[entry],
+			'actor':'Fixture Operator','invocation_source':'operator-command','record':'Operator confirms a new draft after verified application; original scope retained.'}
+		return identity,filename,entry,request
+
+	def test_reset_refusals_transfer_and_recovery(self):
+		identity,filename,entry,request = self.applied_horizon()
+		changes = self.change_evidence.changes
+		original = filename.read_bytes()
+		for changed in ({**request,'expected_digest':'0'*64},{**request,'applied':[]},{**request,'actor':''}):
+			with self.assertRaises(ValueError):
+				changes.reset_draft(self.root,identity,changed,True)
+			self.assertEqual(filename.read_bytes(),original)
+		with self.assertRaisesRegex(ValueError,'confirmation'):
+			changes.reset_draft(self.root,identity,request,False)
+		transfer = self.root/'control-plane/state/planning-local/transfer-publication/old/operation.json'
+		publication.immutable_json(self.root,transfer,{'offer':{'offer':{'source':identity,'destination':'H999'}}})
+		with self.assertRaisesRegex(ValueError,'transferring source'):
+			changes.reset_draft(self.root,identity,request,True)
+		with self.assertRaisesRegex(ValueError,'transferring source'):
+			publication.admission.prepare(self.root,identity,'decision-1',None,None,request['expected_digest'],True)
+		transfer.unlink()
+		with mock.patch.object(changes,'_publish_pair',side_effect=OSError('fixture interruption')):
+			with self.assertRaisesRegex(OSError,'interruption'):
+				changes.reset_draft(self.root,identity,request,True)
+		self.assertEqual(filename.read_bytes(),original)
+		with mock.patch.object(sys,'argv',['changes','--root',str(self.root),'--context',identity,'reset-draft','--request','-','--confirmed']), \
+			mock.patch.object(sys,'stdin',io.StringIO(json.dumps(request))),contextlib.redirect_stdout(io.StringIO()):
+			self.assertEqual(changes.main(),0)
+		self.assertFalse(changes.reset_draft(self.root,identity,request,True)['updated'])
+		document = self.capture.read_capture(filename)
+		document['revision'] += 1
+		document['title'] = 'Later planning'
+		lost_history = copy.deepcopy(document)
+		lost_history['base'] = self.capture.decode_capture(original,identity)['base']
+		with self.assertRaisesRegex(ValueError,'loses verified admission history'):
+			changes.save(self.root,identity,lost_history,self.evidence.hashlib.sha256(filename.read_bytes()).hexdigest(),'Invalid old base')
+		changes.save(self.root,identity,document,self.evidence.hashlib.sha256(filename.read_bytes()).hexdigest(),'New planning scope')
+		with self.assertRaisesRegex(ValueError,'changed'):
+			changes.reset_draft(self.root,identity,request,True)
+		self.assertEqual((self.capture.assets_path(self.root,identity)/'history'/(request['expected_digest']+'-proposal.json')).read_bytes(),original)
+
+	def test_interrupted_reset_target_advance_and_new_confirmation(self):
+		identity,filename,entry,request = self.applied_horizon()
+		changes = self.change_evidence.changes
+		with mock.patch.object(changes,'_publish_pair',side_effect=OSError('fixture interruption')):
+			with self.assertRaises(OSError):
+				changes.reset_draft(self.root,identity,request,True)
+		journals = self.capture.assets_path(self.root,identity)/'admission/resets'
+		pending = (journals/(request['operation_id']+'.json')).read_bytes()
+		newer = self.git(self.root,'commit-tree',self.target+'^{tree}','-p',self.target,'-m','Unrelated target advance').stdout.decode().strip()
+		self.git(self.root,'update-ref','refs/heads/integration',newer,self.target)
+		self.target = newer
+		with self.assertRaisesRegex(ValueError,'stale'):
+			changes.reset_draft(self.root,identity,request,True)
+		fresh = {**request,'operation_id':'fresh-reset','base':self.repository.reference(self.root,'refs/heads/integration'),
+			'applied':[publication.applied_evidence(self.root,'trial-attempt','refs/heads/integration',self.target)]}
+		with mock.patch.object(changes,'complete_reset',side_effect=OSError('completion interruption')):
+			with self.assertRaises(OSError):
+				changes.reset_draft(self.root,identity,fresh,True)
+		self.assertFalse(changes.reset_draft(self.root,identity,fresh,True)['updated'])
+		self.assertTrue((journals/'completed/fresh-reset.json').exists())
+		output_digest = self.evidence.hashlib.sha256(filename.read_bytes()).hexdigest()
+		document = self.capture.read_capture(filename)
+		document['revision'] += 1
+		document['title'] = 'Planning after target advance'
+		changes.save(self.root,identity,document,output_digest,'Explicit new planning scope')
+		self.assertEqual((journals/(request['operation_id']+'.json')).read_bytes(),pending)
+		self.assertFalse((journals/'completed'/(request['operation_id']+'.json')).exists())
+		retained = self.capture.assets_path(self.root,identity)/'history'/(output_digest+'-proposal.json')
+		retained.unlink()
+		document = self.capture.read_capture(filename)
+		document['revision'] += 1
+		with self.assertRaises(FileNotFoundError):
+			changes.save(self.root,identity,document,self.evidence.hashlib.sha256(filename.read_bytes()).hexdigest(),'Missing completed history must refuse')
+
+	def test_close_cleanup_recovery_after_target_advance(self):
+		identity,filename,entry,request = self.applied_horizon()
+		context = self.evidence.load_module('planning-context')
+		(self.root/'.git/info/exclude').write_text('/control-plane/state/planning-local/\n')
+		context.write_json(self.root,context.local_path(self.root,'binding.json'),{'schema':'cp-planning-binding-v1','id':identity})
+		proposal = self.capture.read_capture(filename)
+		closure = {'target_ref':'refs/heads/integration','target_commit':self.target,'applied':[entry],
+			'remaining_scope':[{'scope':scope,'disposition':'applied','evidence':entry['verification']}
+				for scope in ['context',*('change:'+item['change_id'] for item in proposal['changes'])]]}
+		before = context.document_digest(self.root,identity)
+		def close():
+			return context.current_transition(self.root,identity,'close',before,'All scope applied',True,'cleanup-close','Fixture Operator','operator-command',closure)
+		with mock.patch.object(context,'clear_current_selection',side_effect=OSError('cleanup interruption')):
+			with self.assertRaises(OSError):
+				close()
+		closed_bytes = filename.read_bytes()
+		newer = self.git(self.root,'commit-tree',self.target+'^{tree}','-p',self.target,'-m','Later unrelated commit').stdout.decode().strip()
+		self.git(self.root,'update-ref','refs/heads/integration',newer,self.target)
+		with self.assertRaisesRegex(ValueError,'stale'):
+			self.change_evidence.verify_closure(self.root,proposal,closure)
+		self.assertEqual(close()['state'],'closed')
+		self.assertIsNone(context.read_binding(self.root)[0].get('id'))
+		context.write_json(self.root,context.local_path(self.root,'binding.json'),{'schema':'cp-planning-binding-v1','id':'H999-other-dead'})
+		self.assertEqual(close()['state'],'closed')
+		self.assertEqual(context.read_binding(self.root)[0]['id'],'H999-other-dead')
+		self.assertEqual(filename.read_bytes(),closed_bytes)
+		verification = self.root/entry['verification']['path']
+		verification.write_bytes(verification.read_bytes()+b'\n')
+		with self.assertRaises(ValueError):
+			close()
+		self.assertEqual(context.read_binding(self.root)[0]['id'],'H999-other-dead')
+
+	def test_remaining_scope_close_refusal_and_matching_selection(self):
+		identity,filename,entry,reset_request = self.applied_horizon()
+		changes = self.change_evidence.changes
+		changes.reset_draft(self.root,identity,reset_request,True)
+		document = self.capture.read_capture(filename)
+		document['revision'] += 1
+		document['unresolved'] = [{'id':'later','explanation':'Operator must disposition later work','affects':[]}]
+		changes.save(self.root,identity,document,self.evidence.hashlib.sha256(filename.read_bytes()).hexdigest(),'Capture remaining work')
+		context = self.evidence.load_module('planning-context')
+		(self.root/'.git/info/exclude').write_text('/control-plane/state/planning-local/\n')
+		context.write_json(self.root,context.local_path(self.root,'binding.json'),{'schema':'cp-planning-binding-v1','id':'H999-other-dead'})
+		closure = {'target_ref':'refs/heads/integration','target_commit':self.target,'applied':[entry],'remaining_scope':[]}
+		before = context.document_digest(self.root,identity)
+		def close():
+			return context.current_transition(self.root,identity,'close',before,'Defer remaining scope',True,'close-remaining','Fixture Operator','operator-command',closure)
+		with self.assertRaisesRegex(ValueError,'remaining scope'):
+			close()
+		proof = self.capture.assets_path(self.root,identity)/'scope-disposition.md'
+		proof.write_text('Fixture Operator explicitly defers all remaining context scope and later work to a separately selected future context. No work admitted by this decision.\n')
+		source = {'id':'scope-disposition','path':proof.relative_to(self.root).as_posix(),'sha256':self.evidence.hashlib.sha256(proof.read_bytes()).hexdigest()}
+		closure['remaining_scope'] = [{'scope':scope,'disposition':'deferred','evidence':source} for scope in ('context','unresolved:later')]
+		closure['remaining_scope'][-1]['disposition'] = 'applied'
+		with self.assertRaisesRegex(ValueError,'unresolved scope'):
+			close()
+		closure['remaining_scope'][-1]['disposition'] = 'deferred'
+		ghost = publication.home(self.root)/'other-attempt/attempt.json'
+		header = copy.deepcopy(publication.load_attempt(self.root,'trial-attempt')[2])
+		header['id'] = 'other-attempt'
+		publication.immutable_json(self.root,ghost,header)
+		with self.assertRaisesRegex(ValueError,'active publication'):
+			close()
+		ghost.unlink()
+		context.current_transition(self.root,identity,'suspend',before,'Wait for scope decision',True,'pause-close','Fixture Operator','operator-command')
+		before = context.document_digest(self.root,identity)
+		with mock.patch.object(context.capture,'change_set_module',return_value=changes),mock.patch.object(changes,'_publish_pair',side_effect=OSError('close interruption')):
+			with self.assertRaisesRegex(OSError,'interruption'):
+				close()
+		self.assertEqual(close()['state'],'closed')
+		self.assertEqual(context.read_binding(self.root)[0]['id'],'H999-other-dead')
+		self.assertEqual(close()['state'],'closed')
+		self.assertEqual(context.read_binding(self.root)[0]['id'],'H999-other-dead')
 
 	def test_normal_close_survives_source_edits(self):
 		self.setup_normal()
@@ -706,6 +934,7 @@ class RepositoryControllerTests(NormalControllerTests):
 		self.assertEqual(self.remote_target,applied['target_commit'])
 
 	def test_second_admission_obsoletes_without_losing_history(self):
+		self.horizon = True
 		self.setup_normal()
 		self.cli('resume','--attempt','trial-attempt','--confirmed')
 		applied = publication.run_cli(self.root,'trial-attempt','merge',True,self.operation_confirmation('merge'))
@@ -715,7 +944,16 @@ class RepositoryControllerTests(NormalControllerTests):
 		state = self.repository.snapshot(self.root,self.target)['state']
 		identity = self.offered['offer']['context_id']
 		filename = self.capture.resolve_document(self.root,identity)
+		reset_request = {'operation_id':'second-draft','expected_digest':self.evidence.hashlib.sha256(filename.read_bytes()).hexdigest(),
+			'base':self.repository.reference(self.root,'refs/heads/integration'),
+			'applied':[publication.applied_evidence(self.root,'trial-attempt','refs/heads/integration',self.target)],
+			'actor':'Fixture Operator','invocation_source':'operator-command','record':'Explicit reset after verified application; retain original scope.'}
+		reset = self.change_evidence.changes.reset_draft(self.root,identity,reset_request,True)
+		self.assertTrue(reset['updated'])
+		self.assertFalse(self.change_evidence.changes.reset_draft(self.root,identity,reset_request,True)['updated'])
 		proposal = self.capture.read_capture(filename)
+		self.assertEqual(proposal['changes'],[])
+		self.assertEqual(proposal['status'],'draft')
 		proposal['revision'] += 1
 		proposal['base'] = self.repository.reference(self.root,'refs/heads/integration')
 		proposal['sources'] = copy.deepcopy(state['canon']['sources'])
@@ -727,6 +965,8 @@ class RepositoryControllerTests(NormalControllerTests):
 		edge = state['tracker']['dependencies'][0]
 		proposal['changes'].append({'change_id':'remove-dependency','operation':'remove','target':{'type':'work_dependency','from':edge['from'],'to':edge['to']},
 			'expected':{'state':'present','digest':self.contract.digest(edge)},'rationale':'Retired work','sources':['source-1']})
+		proposal['status'] = 'complete'
+		self.allocate(proposal,'second-records')
 		self.change_evidence.changes.save(self.root,identity,proposal,self.evidence.hashlib.sha256(filename.read_bytes()).hexdigest(),
 			'Operator confirmed complete retirement proposal.',complete=True)
 		proposal = self.capture.read_capture(filename)
@@ -753,6 +993,35 @@ class RepositoryControllerTests(NormalControllerTests):
 		self.assertEqual(stored['canon']['records'][-1]['authority_status'],'retired')
 		self.assertTrue(all(node['applicability']=='obsolete' for node in stored['tracker']['nodes']))
 		self.assertEqual(stored['tracker']['dependencies'],[])
+		self.git(self.root,'fetch','--quiet','--no-tags','--no-write-fetch-head',str(self.sandbox),result['target_commit'])
+		self.git(self.root,'update-ref','refs/heads/integration',result['target_commit'],self.target)
+		self.target = result['target_commit']
+		context = self.evidence.load_module('planning-context')
+		(self.root/'.git/info/exclude').write_text('/control-plane/state/planning-local/\n')
+		context.write_json(self.root,context.local_path(self.root,'binding.json'),{'schema':'cp-planning-binding-v1','id':identity})
+		applied_entries = [publication.applied_evidence(self.root,attempt,'refs/heads/integration',self.target) for attempt in ('trial-attempt','second-attempt')]
+		proposal = self.capture.read_capture(filename)
+		closure = {'target_ref':'refs/heads/integration','target_commit':self.target,'applied':applied_entries,
+			'remaining_scope':[{'scope':scope,'disposition':'applied','evidence':applied_entries[-1]['verification']}
+				for scope in ['context',*('change:'+item['change_id'] for item in proposal['changes'])]]}
+		before_close = context.document_digest(self.root,identity)
+		closed = context.current_transition(self.root,identity,'close',before_close,'All scope accounted for',True,'close-fixture','Fixture Operator','operator-command',closure)
+		self.assertEqual(closed['state'],'closed')
+		self.assertIsNone(context.current_context(self.root)['id'])
+		self.assertEqual(context.current_transition(self.root,identity,'close',before_close,'All scope accounted for',True,'close-fixture','Fixture Operator','operator-command',closure),closed)
+		self.assertEqual(len(self.capture.read_capture(filename)['context']['lifecycle']['closure']['applied']),2)
+		with mock.patch.object(sys,'argv',['context','--root',str(self.root),'close','--id',identity,'--expected-digest',before_close,
+			'--reason','All scope accounted for','--operation-id','close-fixture','--actor','Fixture Operator','--invocation-source','operator-command','--request','-','--confirmed']), \
+			mock.patch.object(sys,'stdin',io.StringIO(json.dumps(closure))),contextlib.redirect_stdout(io.StringIO()):
+			self.assertEqual(context.main(),0)
+		closed_bytes = filename.read_bytes()
+		with self.assertRaisesRegex(ValueError,'terminal|not mutable'):
+			self.change_evidence.changes.save(self.root,identity,self.capture.read_capture(filename),context.document_digest(self.root,identity),'Disallowed edit')
+		with self.assertRaisesRegex(ValueError,'terminal'):
+			publication.admission.prepare(self.root,identity,'decision-2',None,None,context.document_digest(self.root,identity),True)
+		with self.assertRaisesRegex(ValueError,'terminal'):
+			context.current_transition(self.root,identity,'resume',context.document_digest(self.root,identity),None,True,'reopen','Fixture Operator','operator-command')
+		self.assertEqual(filename.read_bytes(),closed_bytes)
 
 
 class TransferPublicationGuards(unittest.TestCase):

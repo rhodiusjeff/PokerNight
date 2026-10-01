@@ -29,7 +29,9 @@ Use planning-change-set.py for validation/preview and paired ad hoc/discovery/ho
 explicit finalize-proposal is separate from draft save. Existing legacy draft/evidence/admission
 draft APIs below do not accept this format. Evidence, admission and publication commands
 now dispatch change sets to the repository Canon/tracker/archive implementation. Current-horizon
-admission integration and product start/completion remain pending. Neither schema validity nor
+admission, verified draft reset and explicit closure are implemented under HR-06 with focused
+local verification; independent review and slice acceptance remain outstanding. Product
+start/completion remain pending. Neither schema validity nor
 a complete save starts work. The guided-admission skill documents exact evidence inputs
 and optional separately confirmed post-merge source-branch synchronization.
 
@@ -115,12 +117,13 @@ or timing. Changed Canon/work, sources, scope, decisions or baseline require a n
 ordinary save demotes an edited complete proposal to draft and preserves its exact pair history.
 Narrative-only planning changes follow the same rule. Read-only or unrelated operations do not
 invalidate finalization. Re-finalization requires fresh review/decision subjects, not copied
-approval. Active admission freezes edits. Post-application reset remains unavailable until
-HR-06 verifies application and a new baseline; ordinary save cannot clear/replay applied changes.
+approval. Active admission freezes edits. HR-06 adds explicit `--reset-draft` after verified
+application against a new baseline; ordinary save cannot clear/replay applied changes.
 HR-03 supports current-format creation/automatic binding and `current` inspection. HR-04 adds
 branch-free activation, leave, suspension, standalone resume and abandonment. Transition tokens,
 exact digests, actual actor/provenance and retained preimages make retries explicit; active
-admission and terminal-state guards remain. Successful closure/admission remains HR-06.
+admission and terminal-state guards remain. HR-06 adds `/horizon --close ID` with exact applied
+evidence and complete remaining-scope dispositions. Close is not product completion.
 Local status includes current pairs and reports selection validity separately. Remote discovery
 groups last-fetched observations by identity, reports conflicting versions and never fetches.
 Activation/transitions accept exact last-fetched subjects or verified local predecessors, not

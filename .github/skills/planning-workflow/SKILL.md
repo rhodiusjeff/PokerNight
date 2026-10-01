@@ -56,18 +56,28 @@ Source additions use new retained paths and a revised catalogue through this sam
 not the legacy append API. Preserve old source bytes, identity, lifecycle and exact paired history.
 Identical retries do not create revisions. Read-only/unrelated operations do not stale a subject;
 changed subjects require explicit refinalization and new exact review/decision evidence.
-Admission locks still refuse edits. After application, stop for verified new-base/reset handling;
-HR-05 defines that contract but the reset writer remains unavailable pending HR-06. Never clear
-or replay applied changes through ordinary save, trust a receipt flag, or promote lifecycle state.
+Admission locks still refuse edits. After application, explicitly confirm HR-06's `reset-draft`
+under the [reset contract](../../../control-plane/framework/governance/policies/plan-change-set.policy.md#post-application-draft-reset-contract).
+Use `planning-change-set.py --root ROOT --context ID reset-draft --request REQUEST.json --confirmed`.
+The request contains `operation_id`, `expected_digest`, exact new `base`, all `applied` entries,
+actual `actor`, `invocation_source`, and verbatim request/confirmation `record` (Markdown text).
+Stdin `--request -` is supported. Inspect each applied subject through publication's read-only
+`applied-evidence --attempt ID --target-ref REF --target-commit SHA`. No fetch occurs here;
+missing committed objects require separately authorized synchronization, not invented receipts.
+Reset requires an exact applied current proposal, retains its pair and identity, updates source
+custody references without changing IDs/hashes, and creates a higher empty draft. It neither
+discards additional unadmitted scope nor replays old changes. New planning then uses normal saves.
+Never trust a receipt flag alone or promote lifecycle state. Horizon closure is a separate
+explicit `/horizon --close ID` with all applied evidence and complete scope dispositions.
 
 The paired writer owns ad hoc/discovery and HR-01 current-format horizon pairs. HR-03 creates
 and automatically selects new horizon pairs without a branch or remote prerequisite. Use
 `planning-context.py --root ROOT current` for read-only, schema-validated selection inspection;
 missing selection never derives from a branch. HR-04 supports explicit lifecycle, standalone
 resume, identity-based discovery and shared context resolution through the horizon prompt.
-Migration and current-horizon admission/closure remain later slices.
-Explicit-ID inspection and paired edits are supported; transfer writers and current-horizon
-admission preparation still refuse as unavailable. List/status includes current horizon pairs.
+Migration remains a later slice; transfers remain deferred. HR-06 supports current-horizon
+admission without planning-branch association, verified reset and explicit terminal closure.
+List/status includes current horizon pairs; list retains closed history while status excludes it.
 Legacy draft mutation helpers
 refuse change sets. Evidence/admission/publication commands now dispatch by format;
 use [guided admission](../guided-admission/SKILL.md) only on its explicit invocation.

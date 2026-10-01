@@ -344,7 +344,112 @@ def finalize_proposal(root, context_id, document, expected_digest, record):
     return save(root, context_id, document, expected_digest, record, complete=True)
 
 
-def assert_unapplied_baselines(root, context_id, references):
+def reset_output(root, previous, narrative, request):
+    updated = copy.deepcopy(previous)
+    updated.update(revision=previous['revision'] + 1, status='draft', base=request['base'], changes=[], unresolved=[])
+    sources = {source['id']: source for source in baseline(root, request['base'])['canon']['sources']}
+    for source in previous['sources']:
+        require(source['id'] in sources and sources[source['id']]['sha256'] == source['sha256'], 'reset source custody differs')
+    updated['sources'] = [copy.deepcopy(sources[source['id']]) for source in previous['sources']]
+    updated.pop('execution_impact', None)
+    after = narrative + b'\n' + request['record'].rstrip().encode() + b'\n'
+    updated['capture']['sha256'] = hashlib.sha256(after).hexdigest()
+    return json.loads(json.dumps(updated, sort_keys=True)), after
+
+
+def reset_admissions(root, document):
+    capture = helper('planning-capture')
+    home = capture.assets_path(root, document['id'])
+    allowed = set()
+    for filename in sorted((home / 'admission/resets').glob('*.json')):
+        receipt = canon.load_json(capture.safe_path(root, filename))
+        require(set(receipt) == {'schema', 'request', 'output_digest'} and receipt['schema'] in ('cp-proposal-reset-v1', 'cp-proposal-reset-v2'), 'invalid reset journal')
+        request = receipt['request']
+        current = capture.resolve_document(root, document['id'])
+        retained = current if hashlib.sha256(current.read_bytes()).hexdigest() == receipt['output_digest'] else home / 'history' / (receipt['output_digest'] + '-proposal.json')
+        if receipt['schema'] == 'cp-proposal-reset-v2':
+            completion = capture.safe_path(root, filename.parent / 'completed' / filename.name)
+            if completion.exists():
+                require(canon.load_json(completion) == reset_completion(receipt), 'reset completion differs')
+            elif not capture.safe_path(root, retained).exists():
+                continue
+        before = capture.safe_path(root, home / 'history' / (request['expected_digest'] + '-proposal.json'))
+        narrative = capture.safe_path(root, home / 'history' / (request['expected_digest'] + '-capture.md')).read_bytes()
+        require(hashlib.sha256(before.read_bytes()).hexdigest() == request['expected_digest'], 'reset preimage changed')
+        previous = capture.decode_capture(before.read_bytes(), document['id'])
+        require(previous['id'] == document['id'], 'reset context differs')
+        require(hashlib.sha256(narrative).hexdigest() == previous['capture']['sha256'], 'reset capture preimage differs')
+        output, after = reset_output(root, previous, narrative, request)
+        require(hashlib.sha256(encoded(output)).hexdigest() == receipt['output_digest'], 'reset output differs')
+        require(capture.safe_path(root, retained).read_bytes() == encoded(output), 'verified reset output history missing')
+        require(document['revision'] >= output['revision'] and capture.narrative_path(current).read_bytes().startswith(after), 'proposal does not descend from verified reset')
+        reference = document['base']
+        require(reference is not None, 'post-application planning requires an exact baseline')
+        target = git(root, 'rev-parse', '--verify', reference['target_ref'] + '^{commit}').decode().strip()
+        proposals = helper('planning-change-evidence').verified_applications(root, document, reference['target_ref'], target, request['applied'], historical=True)
+        require(any(proposal_meaning(previous) == proposal_meaning(item) for item in proposals), 'reset did not preserve exact applied subject')
+        allowed.update(digest(item) for item in proposals)
+    return allowed
+
+
+def reset_completion(receipt):
+    return {'schema': 'cp-proposal-reset-completion-v1', 'journal_digest': digest(receipt),
+            'output_digest': receipt['output_digest']}
+
+
+def complete_reset(root, journal, receipt):
+    if receipt['schema'] == 'cp-proposal-reset-v2':
+        helper('planning-publication').immutable_json(root, journal.parent / 'completed' / journal.name, reset_completion(receipt))
+
+
+def proposal_meaning(document):
+    value = copy.deepcopy(document)
+    value['context'].pop('lifecycle', None)
+    return value
+
+
+def reset_draft(root, context_id, request, confirmed=False):
+    require(confirmed, 'draft reset requires explicit confirmation')
+    require(isinstance(request, dict) and set(request) == {'operation_id', 'expected_digest', 'base', 'applied', 'actor', 'invocation_source', 'record'}, 'invalid reset request')
+    require(isinstance(request['operation_id'], str) and re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_-]{0,79}', request['operation_id']), 'invalid reset operation token')
+    require(isinstance(request['actor'], str) and request['actor'].strip() and request['invocation_source'] in ('operator-command', 'operator-confirmation'), 'actual reset actor/provenance required')
+    require(isinstance(request['record'], str) and request['record'].strip() and not re.search(r'(?im)^\s*(?:```|~~~)json\b', request['record']), 'actual reset narrative required without JSON blocks')
+    require(isinstance(request['expected_digest'], str) and re.fullmatch(r'[0-9a-f]{64}', request['expected_digest']), 'exact reset subject required')
+    root = pathlib.Path(root).resolve()
+    capture = helper('planning-capture')
+    with capture.local_writer(root):
+        destination = capture.resolve_document(root, context_id)
+        previous = capture.read_capture(destination)
+        require(previous['schema'] == FORMAT and lifecycle_state(previous) == 'planning', 'reset requires mutable current planning')
+        before = destination.read_bytes()
+        narrative = capture.narrative_path(destination).read_bytes()
+        reference = request['base']
+        require(reference is not None and helper('planning-repository').reference(root, reference['target_ref']) == reference, 'reset baseline is stale or differs')
+        proposals = helper('planning-change-evidence').verified_applications(root, previous, reference['target_ref'], reference['git_commit'], request['applied'])
+        journal = capture.safe_path(root, capture.assets_path(root, context_id) / 'admission/resets' / (request['operation_id'] + '.json'))
+        if journal.exists():
+            receipt = canon.load_json(journal)
+            require(receipt.get('schema') in ('cp-proposal-reset-v1', 'cp-proposal-reset-v2') and receipt['request'] == request, 'contradictory reset retry')
+            if hashlib.sha256(before).hexdigest() == receipt['output_digest']:
+                reset_admissions(root, previous)
+                complete_reset(root, journal, receipt)
+                return {'updated': False, 'revision': previous['revision'], 'document_digest': receipt['output_digest'], 'status': 'draft'}
+        require(hashlib.sha256(before).hexdigest() == request['expected_digest'], 'reset subject changed; do not replay')
+        require(previous['revision'] == max(item['revision'] for item in proposals), 'reset requires latest applied proposal revision')
+        require(any(proposal_meaning(previous) == proposal_meaning(item) for item in proposals), 'reset requires exact applied proposal; remaining changes need reconciliation')
+        changed, after = reset_output(root, previous, narrative, request)
+        validate(root, changed, after)
+        content = encoded(changed)
+        receipt = {'schema': receipt['schema'] if journal.exists() else 'cp-proposal-reset-v2',
+               'request': copy.deepcopy(request), 'output_digest': hashlib.sha256(content).hexdigest()}
+        helper('planning-publication').immutable_json(root, journal, receipt)
+        require(helper('planning-repository').reference(root, reference['target_ref']) == reference, 'reset target moved before publication')
+        _publish_pair(root, destination, before, narrative, content, after)
+        complete_reset(root, journal, receipt)
+        return {'updated': True, 'revision': changed['revision'], 'document_digest': receipt['output_digest'], 'status': 'draft'}
+
+
+def assert_unapplied_baselines(root, context_id, references, allowed=()):
     repository = helper('planning-repository')
     commits = {}
     for reference in references:
@@ -363,8 +468,8 @@ def assert_unapplied_baselines(root, context_id, references):
         present = git(root, 'ls-tree', '--name-only', commit, '--', *repository.PATHS.values(), *repository.LEGACY).strip()
         if requires_repository or present:
             current = repository.snapshot(root, commit)
-            require(not any(entry['proposal_id'] == context_id for entry in current['state']['tracker']['admissions']),
-                    'post-application draft reset unavailable until HR-06 verifies application and the new baseline; prior changes are preserved')
+            require(not any(entry['proposal_id'] == context_id and entry['proposal_digest'] not in allowed for entry in current['state']['tracker']['admissions']),
+                    'verified post-application draft reset required; prior changes are preserved')
 
 
 def save(root, context_id, document, expected_digest, record, migrate=False, complete=False, navigation_only=False):
@@ -410,15 +515,21 @@ def save(root, context_id, document, expected_digest, record, migrate=False, com
             document['status'] = 'draft'
         require(hashlib.sha256(before).hexdigest() == expected_digest, 'proposal changed since save was offered')
         helper('planning-change-evidence').assert_mutable(root, context_id)
+        applied = reset_admissions(root, previous) if previous['schema'] == FORMAT else set()
         claim = capture.safe_path(root, root / 'control-plane/state/planning-local/publication/claims' / (context_id + '.json'))
         if claim.exists():
             publication = helper('planning-publication')
             attempt = canon.load_json(claim)['attempt_id']
             events = publication.journal(root, publication.attempt_directory(root, attempt))
-            require(not any(event['state'] in ('applied', 'applied-trial') for event in events),
-                'post-application draft reset unavailable until HR-06 verifies application and the new baseline; prior changes are preserved')
+            if any(event['state'] in ('applied', 'applied-trial') for event in events):
+                require(applied and publication.load_attempt(root, attempt)[2]['offer']['proposal_digest'] in applied,
+                        'verified post-application draft reset required; prior changes are preserved')
         if previous['schema'] == FORMAT:
-            assert_unapplied_baselines(root, context_id, (previous['base'], document['base']))
+            assert_unapplied_baselines(root, context_id, (previous['base'], document['base']), applied)
+            if applied:
+                require(document['base'] is not None, 'post-reset planning requires a verified admission baseline')
+                retained = helper('planning-repository').snapshot(root, document['base']['git_commit'])['state']['tracker']['admissions']
+                require(applied <= {entry['proposal_digest'] for entry in retained}, 'post-reset baseline loses verified admission history')
         require(document['context']['id'] == context_id, 'save context mismatch')
         require(document['status'] != 'complete' or complete, 'complete proposal requires explicit complete operation')
         require(not complete or document['status'] == 'complete', 'complete operation requires complete status')
@@ -650,6 +761,9 @@ def main():
     navigation = commands.add_parser('refresh-navigation', help='refresh local source links without changing proposal meaning')
     navigation.add_argument('--expected-digest', required=True)
     navigation.add_argument('--confirmed', action='store_true')
+    reset = commands.add_parser('reset-draft', help='explicit verified post-application reset against a pinned new base; no replay')
+    reset.add_argument('--request', type=pathlib.Path, required=True)
+    reset.add_argument('--confirmed', action='store_true')
     rekey = commands.add_parser('rekey')
     rekey.add_argument('--slug', required=True)
     rekey.add_argument('--operation-id', required=True)
@@ -688,7 +802,10 @@ def main():
             print(json.dumps(rekey_package(args.root, args.context, args.slug, args.operation_id, args.expected_digest, args.confirmed), indent=2))
             return 0
         document = json.load(sys.stdin) if str(args.request) == '-' else canon.load_json(args.request)
-        if args.command in ('save', 'migrate', 'finalize-proposal'):
+        if args.command == 'reset-draft':
+            require(args.context, 'reset requires an exact context')
+            result = reset_draft(args.root, args.context, document, args.confirmed)
+        elif args.command in ('save', 'migrate', 'finalize-proposal'):
             require(args.confirmed and args.context, 'save requires exact context and explicit confirmation')
             if args.command == 'finalize-proposal':
                 result = finalize_proposal(args.root, args.context, document, args.expected_digest, args.record.read_text())

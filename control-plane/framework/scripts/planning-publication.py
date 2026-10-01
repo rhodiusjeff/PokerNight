@@ -560,6 +560,68 @@ def check_trial_request(header, commit, request):
     return body
 
 
+def repository_application(repository_root, header, commit, target, files, paths):
+    require_unmodified_git_objects(repository_root)
+    original = header['offer']['target_commit']
+    for ancestor in (original, commit):
+        contract.require(planning_git.git(repository_root, 'merge-base', '--is-ancestor', ancestor, target, check=False).returncode == 0,
+                         'applied target does not contain the pinned candidate/base')
+    candidates = planning_git.git(repository_root, 'rev-list', '--first-parent', '--reverse', original + '..' + target).stdout.decode().split()
+    integrated = next((candidate for candidate in candidates if planning_git.git(repository_root, 'merge-base', '--is-ancestor', commit, candidate, check=False).returncode == 0), None)
+    contract.require(integrated is not None, 'admission integration commit unavailable')
+    contract.require(planning_git.git(repository_root, 'rev-parse', integrated + '^{tree}').stdout ==
+                     planning_git.git(repository_root, 'rev-parse', commit + '^{tree}').stdout, 'integrated tree differs from approved candidate')
+    repository = evidence.load_module('planning-repository')
+    expected = evidence.load_bytes(files[paths['prefix'] + '/result.json'])
+    contract.require(repository.snapshot(repository_root, integrated)['state'] == expected, 'integrated repository state differs')
+    current = repository.snapshot(repository_root, target)['state']
+    contract.require(expected['tracker']['admissions'][-1] in current['tracker']['admissions'], 'later target lost admission history')
+    for relative, content in files.items():
+        if relative.startswith(paths['prefix'] + '/'):
+            contract.require(repository.blob(repository_root, target, relative) == content, 'target lost immutable admission evidence')
+    return integrated, expected['tracker']['revision']
+
+
+def applied_evidence(root, identity, target_ref, target_commit, verification=None, historical_target=False):
+    root, directory, header = load_attempt(root, identity)
+    require_unmodified_git_objects(root)
+    require_unmodified_git_objects(evidence.confined(root, directory / 'repository'))
+    contract.require(header['offer']['transport'] == 'forge-cli', 'verified normal admission required; trial receipts are not authority')
+    contract.require(header['offer']['target_ref'] == target_ref and
+                     (historical_target or planning_git.resolve_commit(root, target_ref) == target_commit), 'applied evidence target is stale or different')
+    events = journal(root, directory)
+    contract.require(not any(event['state'] in ('withdrawn', 'retired', 'trial-retired') for event in events), 'retired attempt is not applied evidence')
+    receipts = [event for event in events if event['state'] == 'applied']
+    if verification is not None:
+        receipts = [event for event in receipts if hashlib.sha256(evidence.encoded(event)).hexdigest() == verification['sha256']]
+    prepared = {event['data']['commit'] for event in events if event['state'] == 'candidate-prepared'}
+    contract.require(receipts and len(prepared) == 1, 'exact applied receipt and candidate required')
+    commit = next(iter(prepared))
+    contract.require(isinstance(commit, str) and re.fullmatch(r'[0-9a-f]{40}|[0-9a-f]{64}', commit), 'exact candidate commit required')
+    check_candidate_contents(root, directory, header, commit)
+    files, paths = expected_files(root, header)
+    contract.require(paths.get('schema') == 'cp-change-admission-bundle-v1', 'current change-set application required')
+    receipt = receipts[-1]
+    observed = receipt['data']
+    check_trial_request(header, commit, observed['request'])
+    contract.require(observed['request']['state'] == 'merged' and observed['attempt_id'] == identity and
+                     observed['state'] == 'applied' and observed['transport'] == 'forge-cli' and
+                     observed['application_verified'] is True, 'false application receipt')
+    integrated, revision = repository_application(root, header, commit, observed['target_commit'], files, paths)
+    contract.require(observed.get('integration_commit') == integrated and observed['revision'] == revision and
+                     observed.get('target_advanced') == (observed['target_commit'] != integrated), 'application receipt contradicts Git evidence')
+    contract.require(planning_git.git(root, 'merge-base', '--is-ancestor', observed['target_commit'], target_commit, check=False).returncode == 0,
+                     'selected target predates verified application')
+    repository_application(root, header, commit, target_commit, files, paths)
+    contract.require(historical_target or planning_git.resolve_commit(root, target_ref) == target_commit, 'target moved during applied verification')
+    def source(name, filename):
+        return {'id': name, 'path': filename.relative_to(root).as_posix(), 'sha256': hashlib.sha256(filename.read_bytes()).hexdigest()}
+    bundle = evidence.confined(root, header['offer']['bundle'])
+    return {'proposal': source('applied-proposal', bundle / 'capture-proposal.json'),
+            'attempt': source(identity, directory / 'attempt.json'),
+            'verification': source('application-verification', directory / 'journal' / f"{receipt['sequence']:06d}.json")}
+
+
 def verify_trial_application(root, directory, header, client, commit, request):
     contract.require(request["state"] == "merged", "trial request has not merged")
     sandbox = evidence.confined(root, directory / "repository")
@@ -570,23 +632,9 @@ def verify_trial_application(root, directory, header, client, commit, request):
                          "merged trial target does not contain the pinned candidate/base")
     files, paths = expected_files(root, header)
     if paths.get('schema') == 'cp-change-admission-bundle-v1':
-        candidates = planning_git.git(sandbox, 'rev-list', '--first-parent', '--reverse', original + '..' + target).stdout.decode().split()
-        integrated = next((candidate for candidate in candidates if planning_git.git(sandbox, 'merge-base', '--is-ancestor', commit, candidate, check=False).returncode == 0), None)
-        contract.require(integrated is not None, 'admission integration commit unavailable')
-        contract.require(planning_git.git(sandbox, 'rev-parse', integrated + '^{tree}').stdout ==
-                         planning_git.git(sandbox, 'rev-parse', commit + '^{tree}').stdout, 'integrated tree differs from approved candidate')
-        repository = evidence.load_module('planning-repository')
-        observed_state = repository.snapshot(sandbox, integrated)['state']
-        expected = evidence.load_bytes(files[paths['prefix'] + '/result.json'])
-        contract.require(observed_state == expected, 'integrated repository state differs')
-        current = repository.snapshot(sandbox, target)['state']
-        admitted = expected['tracker']['admissions'][-1]
-        contract.require(admitted in current['tracker']['admissions'], 'later target lost admission history')
-        for relative, content in files.items():
-            if relative.startswith(paths['prefix'] + '/'):
-                contract.require(repository.blob(sandbox, target, relative) == content, 'target lost immutable admission evidence')
+        integrated, revision = repository_application(sandbox, header, commit, target, files, paths)
         observed = {'attempt_id': header['id'], 'state': 'applied-trial' if header['offer']['transport'] == 'forge-cli-trial' else 'applied',
-                    'request': request, 'target_commit': target, 'integration_commit': integrated, 'revision': expected['tracker']['revision'],
+                    'request': request, 'target_commit': target, 'integration_commit': integrated, 'revision': revision,
                     'transport': header['offer']['transport'], 'live_admission': header['offer']['transport'] == 'forge-cli',
                     'application_verified': True, 'protected_enforcement_verified': False, 'target_advanced': target != integrated}
         append_event(root, directory, observed['state'], observed)
@@ -1014,6 +1062,10 @@ def main():
     parser.add_argument("--transport", choices=("forge-cli", "local-mock", "github", "forge-cli-trial"), default="forge-cli")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("new-id", help="print a UUID attempt ID without writes")
+    applied = commands.add_parser('applied-evidence', help='read-only exact local Git/attempt evidence for reset or horizon close; no fetch')
+    applied.add_argument('--attempt', required=True)
+    applied.add_argument('--target-ref', required=True)
+    applied.add_argument('--target-commit', required=True)
     origin = commands.add_parser("inspect-origin", help="read-only gh/glab repository and branch preflight selected from origin")
     origin.add_argument("--target", help="remote branch to inspect; defaults to the forge default branch")
     origin.add_argument("--host-provider", action="append", default=[], metavar="HOST=github|gitlab")
@@ -1061,7 +1113,10 @@ def main():
             providers[host] = provider
         trial = args.transport == "forge-cli-trial"
         cli = args.transport == "forge-cli"
-        if args.command.startswith('sync'):
+        if args.command == 'applied-evidence':
+            contract.require(cli, 'applied evidence requires normal admission')
+            result = applied_evidence(args.root, args.attempt, args.target_ref, args.target_commit)
+        elif args.command.startswith('sync'):
             contract.require(cli, 'source synchronization requires normal forge-cli admission')
             synchronization = evidence.load_module('planning-admission-sync')
             if args.command == 'sync-offer':

@@ -12,6 +12,17 @@ and repository storage contract. Never flatten typed Canon into the older kernel
 Drafts remain inadmissible. Populated legacy baselines require explicit migration mapping;
 only the verified empty legacy pair can be replaced in the admission candidate.
 
+LOCAL MOD - HARVEST TO CPB (2026-10-01): HR-06 enables
+current-format horizon bundle preparation without planning-branch association.
+Admission still requires exact sources, target, review/decision and historical-transfer
+checks. After normal application verification, read-only `planning-publication.py --root ROOT
+applied-evidence --attempt ID --target-ref REF --target-commit SHA` returns exact proposal,
+attempt and verification references for separately confirmed reset or horizon closure.
+It requires locally available committed target/candidate objects and rechecks Git/result/history;
+no fetch or forge call occurs. Keep all prior applied subjects, not only the latest one.
+Use the planning skill for `/plan-work ID --reset-draft`, and the horizon prompt for
+`/horizon --close ID`. Do not confuse horizon closure with this skill's forge-request close.
+
 LOCAL MOD - HARVEST TO CPB (2026-09-29): load the
 [repository storage contract](../../../control-plane/framework/governance/policies/tracker-and-state.policy.md#repository-canon-and-tracker-storage-contract)
 when assessing new-format application. Application checks identities and dependencies
@@ -38,7 +49,7 @@ source bytes, exact baseline and deterministic result. New source paths are mate
 under control-plane/evidence/admissions/<proposal-digest>/; no Base64 is introduced.
 
 Obtain a current baseline with planning-change-set.py baseline --target-ref refs/heads/BRANCH.
-Use normal complete/save to revise the proposal against it, then refresh review/decision
+Use normal finalize-proposal/save to revise the proposal against it, then refresh review/decision
 as needed. Complete proposals affecting existing bound work require explicit
 execution_impact preservation entries. Sources already in the baseline resolve at its
 pinned Git commit, even when the source worktree has not caught up.
@@ -125,8 +136,8 @@ The author can guide the process but cannot impersonate an independent reviewer 
 Use [planning workflow](../planning-workflow/SKILL.md) for capture/selection/drafts, not admission.
 Only explicit `/admit-plan ID` or confirmation of its exact offered step invokes this boundary.
 Keep every command and verbatim actual confirmation in the selected capture's supporting request
-records: for paired ADHOC/discovery, these are Markdown entries in `ID-capture.md`, not
-separate files in a requests directory. HNNN keeps its existing support-file placement.
+records: for current paired contexts, these are Markdown entries in `ID-capture.md`, not
+separate files in a requests directory. Legacy HNNN keeps its existing support-file placement.
 Use transient inputs or JSON stdin for evidence requests; do not embed JSON in the Markdown.
 The proposal JSON owns the structured evidence indexes and candidate. Immutable admission
 bundles retain both pair members, with different role suffixes. A `draft` candidate is not
