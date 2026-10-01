@@ -10,6 +10,15 @@ readiness, upgrade and portfolio dispositions await separate review.
 
 ## V0.8.1 Local Planning Entry
 
+**Migration assessment (HR-07, LOCAL MOD - HARVEST TO CPB):**
+`planning-migration.py --root ROOT inspect --source-root SOURCE --target-root TARGET`
+is read-only. Its confirmed `plan --id ID --home HOME --request REQUEST --confirmed`
+records an exactly inventoried assessment in a new selected-upgrade run home only.
+See [Migration Assessment](../governance/policies/migration.policy.md) for strict
+request fields, exclusions, root restrictions and unsupported mappings. Staging,
+application, recovery and `/migrate-cp` skill routing belong to later slices; no
+source/target mutation or lifecycle authority follows from a recorded plan.
+
 LOCAL MOD - HARVEST TO CPB (2026-09-30): active context loads follow Canon And Work
 Context Resolution in [Tracker And State Policy](../governance/policies/tracker-and-state.policy.md).
 Use the single repository Canon and tracker/archive pair, or an explicitly selected

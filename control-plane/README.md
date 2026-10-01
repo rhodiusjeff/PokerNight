@@ -118,6 +118,16 @@ See [change-set storage and lifecycle](framework/governance/policies/plan-change
 `.cpb.yaml` is the discovery anchor. This portable release supports the fixed
 `control-plane/` layout; changing `cp_root` alone is not supported.
 
+### Migration Assessment
+
+LOCAL MOD - HARVEST TO CPB (2026-10-01): HR-07 adds `planning-migration.py inspect`
+for read-only source/target inventory and explicitly confirmed `plan` for a new
+assessment run in the selected upgrade packet. Strict schemas, exact coverage and
+root/source/target/adapter pins expose unknown or blocked mappings without execution.
+See [Migration Assessment](framework/governance/policies/migration.policy.md) for
+the request contract and write scope. Stage/apply/recovery and the migration agent
+skill are not implemented; no actual repository migration is authorized.
+
 ## Harnesses And Runtime
 
 `.github/agents/`, `.github/prompts/`, and `.github/skills/` are the supported Copilot surfaces.
@@ -144,7 +154,8 @@ destinations. No absent external installer is required or represented as install
 
 ## Deliberate Limits
 
-- No migration, upgrade installer, or existing-control-plane detection.
+- No migration application, upgrade installer, or automatic existing-control-plane detection.
+   HR-07 explicit inspection/planning is assessment-only.
 - No product Canon, horizon, CI profile, forge permissions, or approvals
   are seeded. Required later-stage inputs must be shaped before their boundaries run.
 - Experimental Package A/B/C review/promotion runtimes, tests and schemas are retired.

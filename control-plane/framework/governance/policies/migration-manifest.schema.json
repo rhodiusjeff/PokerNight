@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cp:migration-manifest",
+  "$comment": "LOCAL MOD - HARVEST TO CPB: HR-07 typed local transaction contract; no transaction writer yet.",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema", "id", "plan_digest", "root_map", "root_map_digest", "adapters", "outputs", "snapshots", "preimages", "preconditions", "verification", "events"],
+  "properties": {
+    "schema": {"const": "cp-migration-manifest-v1"}, "id": {"$ref": "urn:cp:migration-inventory#/$defs/id"},
+    "plan_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"},
+    "root_map": {"type": "object", "additionalProperties": false, "required": ["source", "target"], "properties": {"source": {"type": "string", "minLength": 1}, "target": {"type": "string", "minLength": 1}}},
+    "root_map_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"},
+    "adapters": {"type": "array", "items": {"$ref": "urn:cp:migration-plan#/$defs/adapter"}},
+    "outputs": {"type": "array", "items": {"$ref": "#/$defs/storedFile"}},
+    "snapshots": {"type": "array", "items": {"$ref": "#/$defs/storedFile"}},
+    "preimages": {"type": "array", "items": {"$ref": "#/$defs/storedFile"}},
+    "preconditions": {"type": "array", "items": {"$ref": "urn:cp:migration-inventory#/$defs/precondition"}},
+    "verification": {"type": "array", "items": {"$ref": "#/$defs/verification"}},
+    "events": {"type": "array", "items": {"$ref": "#/$defs/event"}}
+  },
+  "$defs": {
+    "storedFile": {
+      "type": "object", "additionalProperties": false, "required": ["path", "stored_path", "sha256", "mode"],
+      "properties": {"path": {"$ref": "urn:cp:migration-inventory#/$defs/path"}, "stored_path": {"$ref": "urn:cp:migration-inventory#/$defs/path"}, "sha256": {"$ref": "urn:cp:migration-inventory#/$defs/hash"}, "mode": {"type": "integer", "minimum": 0, "maximum": 4095}}
+    },
+    "verification": {
+      "type": "object", "additionalProperties": false, "required": ["id", "passed", "detail"],
+      "properties": {"id": {"$ref": "urn:cp:migration-inventory#/$defs/text"}, "passed": {"type": "boolean"}, "detail": {"$ref": "urn:cp:migration-inventory#/$defs/text"}}
+    },
+    "event": {
+      "type": "object", "additionalProperties": false,
+      "required": ["sequence", "action", "phase", "unit", "path", "before", "after", "confirmation_digest"],
+      "properties": {
+        "sequence": {"type": "integer", "minimum": 1}, "action": {"enum": ["create", "replace", "remove", "restore", "mark", "unmark", "receipt"]},
+        "phase": {"enum": ["intent", "complete"]}, "unit": {"$ref": "urn:cp:migration-inventory#/$defs/id"},
+        "path": {"$ref": "urn:cp:migration-inventory#/$defs/path"},
+        "before": {"anyOf": [{"$ref": "urn:cp:migration-inventory#/$defs/hash"}, {"type": "null"}]},
+        "after": {"anyOf": [{"$ref": "urn:cp:migration-inventory#/$defs/hash"}, {"type": "null"}]},
+        "confirmation_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"}
+      }
+    },
+    "marker": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "id", "context_ids", "plan_digest", "manifest_digest", "root_map_digest", "journal", "state"],
+      "properties": {
+        "schema": {"const": "cp-migration-marker-v1"}, "id": {"$ref": "urn:cp:migration-inventory#/$defs/id"},
+        "context_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "urn:cp:migration-inventory#/$defs/text"}},
+        "plan_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"},
+        "manifest_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"},
+        "root_map_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"},
+        "journal": {"$ref": "urn:cp:migration-inventory#/$defs/path"},
+        "state": {"enum": ["applying", "recovery-required", "rolling-back"]}
+      }
+    }
+  }
+}

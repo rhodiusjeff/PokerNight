@@ -1,17 +1,38 @@
 # Upgrade Status
 
 **Upgrade:** `cp-v0-8-1-planning-admission`.
-**Current phase:** HR-01 through HR-06 implemented locally; HR06-IR1/IR2 fixed and cleared by bounded independent re-review. Operator acceptance remains pending. HR-07 through HR-12 remain unstarted.
+**Current phase:** HR-01 through HR-07 implemented locally; HR06-IR1/IR2 fixed and cleared by bounded independent re-review. HR07-R1/R2/R3 locally repaired with 47 focused tests passing. Independent HR-07 re-review and Operator acceptance remain pending. HR-08 through HR-12 remain unstarted.
 **Implementation:** Shared capture/planning/evidence, repository-owned Canon/phase/DAG specification,
 origin-selected gh/glab publication, separately confirmed integration, exact application verification
 and recoverable close/retire/reentry. The normal public transport is forge-cli.
-**Remaining:** HR-06 Operator acceptance, migration slices HR-07 through HR-10,
+**Remaining:** HR-06 Operator acceptance, HR-07 independent re-review/acceptance, migration slices HR-08 through HR-10,
 skills/routing HR-11, installed/agent validation HR-12, and required Windows with GLab
 end-to-end validation before completion. E3 live normal-workflow acceptance and GitLab live verification; E5 operational
 start/closeout/completion consumer work identified for the 0.8.2 follow-up. C2 diagram-provider
 verification and F2/F3 queue/train enforcement are explicitly deferred, not current blockers.
 **Readiness:** not-assessed.
 **Last update:** 2026-10-01.
+
+HR-07 was explicitly requested after the HR-06 repair checkpoint. Its read-only
+inventory and confirmed new-run plan recorder passed 37 focused macOS tests; five
+strict schemas define current assessment and future transaction artifacts. All
+application/staging/recovery operations remain unavailable. See the
+[HR-07 evidence](../../steward-consults/2026-10-01-hr-07-migration-inventory.md).
+Proceeding under that request does not record HR-06 acceptance or authorize live migration.
+
+Under `Review HR-07`, the implementing assistant reran 37 tests (all passed) and
+reproduced three defects in separate disposable probes: publication can follow a
+swapped run directory into the selected target; late Unicode encoding failure
+misreports a partial recording as unchanged; explicitly selected excluded roots
+bypass child-only exclusions. This is same-session review, not independent review.
+See [findings and subject pins](../../steward-consults/2026-10-01-hr-07-migration-inventory.md#hr-07-code-review).
+No implementation fixes were made during review.
+
+Subsequent explicit `Fix findings` repaired HR07-R1/R2/R3 using anchored no-follow
+directory publication, pre-encoded outputs with accurate partial outcomes, and
+excluded-root ancestry checks. The focused suite now passes 47 tests. See
+[repair evidence and exact subjects](../../steward-consults/2026-10-01-hr-07-migration-inventory.md#review-finding-repairs).
+This is local repair verification, not independent re-review or acceptance.
 
 HR-06 is committed at `f58dc9d626e49a6cc26654917beb8bf0a5182f67`, with 115 distinct
 local tests passing after three review fixes. Incomplete legacy v1 reset journals
@@ -68,10 +89,12 @@ planning item, product phase, admission MR or deferred record was created by the
 
 ## Next Action
 
-Present the repaired HR-06 subject and [independent re-review](../../steward-consults/2026-10-01-hr-06-admission-closure.md#independent-finding-fixes-and-re-review)
-for the Operator's acceptance decision before HR-07 implementation. Both independent
-findings are resolved; bounded review does not grant acceptance or migration authority.
-Windows/GLab validation remains required before upgrade completion.
+Independently re-review the repaired HR-07 slice before Operator acceptance. All three
+same-session findings are locally fixed, with focused regressions passing.
+HR-06's repaired subject and [independent re-review](../../steward-consults/2026-10-01-hr-06-admission-closure.md#independent-finding-fixes-and-re-review)
+still have a separate pending acceptance decision. HR-08 requires its own explicit
+implementation request; no migration application is authorized. Windows/GLab validation
+remains required before upgrade completion.
 
 Later, proceed to the separately authorized operational manual-validation setup using the current
 normal commands and actual selected inputs. Review/approve the exact proposed Canon and

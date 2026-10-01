@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cp:migration-confirmation",
+  "$comment": "LOCAL MOD - HARVEST TO CPB: typed future transaction consent; HR-07 exposes no consumer.",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema", "id", "actor", "date", "invocation_source", "action", "plan_digest", "manifest_digest", "observed_digest", "unit_keys", "acknowledged_losses", "root_map_digest"],
+  "properties": {
+    "schema": {"const": "cp-migration-confirmation-v1"}, "id": {"$ref": "urn:cp:migration-inventory#/$defs/id"},
+    "actor": {"$ref": "urn:cp:migration-inventory#/$defs/text"}, "date": {"type": "string", "format": "date-time"},
+    "invocation_source": {"enum": ["operator-command", "operator-confirmation"]},
+    "action": {"enum": ["apply", "resume", "rollback"]},
+    "plan_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"},
+    "manifest_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"},
+    "observed_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"},
+    "unit_keys": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "urn:cp:migration-inventory#/$defs/id"}},
+    "acknowledged_losses": {"$ref": "urn:cp:migration-inventory#/$defs/texts"},
+    "root_map_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"}
+  }
+}

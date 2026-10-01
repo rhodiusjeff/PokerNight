@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cp:migration-plan",
+  "$comment": "LOCAL MOD - HARVEST TO CPB: HR-07 assessment plans, not application authority.",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema", "id", "revision", "inventory_digest", "target_contract_digest", "roots", "root_map_digest", "units", "dependency_order", "identity_map", "path_map", "risks", "unresolved", "scope_exclusions", "verification_rules", "application"],
+  "properties": {
+    "schema": {"const": "cp-migration-plan-v1"}, "id": {"$ref": "urn:cp:migration-inventory#/$defs/id"},
+    "revision": {"type": "integer", "minimum": 1},
+    "inventory_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"},
+    "target_contract_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"},
+    "roots": {"$ref": "urn:cp:migration-inventory#/$defs/roots"},
+    "root_map_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"},
+    "units": {"type": "array", "items": {"$ref": "#/$defs/unit"}},
+    "dependency_order": {"$ref": "urn:cp:migration-inventory#/$defs/texts"},
+    "identity_map": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/identityMap"}},
+    "path_map": {"type": "array", "items": {"$ref": "#/$defs/pathMap"}},
+    "risks": {"$ref": "urn:cp:migration-inventory#/$defs/texts"},
+    "unresolved": {"$ref": "urn:cp:migration-inventory#/$defs/texts"},
+    "scope_exclusions": {"type": "array", "items": {"$ref": "urn:cp:migration-inventory#/$defs/exclusion"}},
+    "verification_rules": {"$ref": "urn:cp:migration-inventory#/$defs/texts"},
+    "application": {"const": "unsupported-hr07"}
+  },
+  "$defs": {
+    "strategy": {"enum": ["import", "no-op", "retain-history", "exclude", "blocked"]},
+    "choice": {
+      "type": "object", "additionalProperties": false, "required": ["path", "target", "strategy", "reason"],
+      "properties": {
+        "path": {"$ref": "urn:cp:migration-inventory#/$defs/path"},
+        "target": {"anyOf": [{"$ref": "urn:cp:migration-inventory#/$defs/path"}, {"type": "null"}]},
+        "strategy": {"$ref": "#/$defs/strategy"}, "reason": {"$ref": "urn:cp:migration-inventory#/$defs/text"}
+      }
+    },
+    "request": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_root", "target_root", "inventory_digest", "actor", "date", "invocation_source", "choices"],
+      "properties": {
+        "source_root": {"type": "string", "minLength": 1}, "target_root": {"type": "string", "minLength": 1},
+        "inventory_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"},
+        "actor": {"$ref": "urn:cp:migration-inventory#/$defs/text"},
+        "date": {"type": "string", "format": "date-time"},
+        "invocation_source": {"enum": ["operator-command", "operator-confirmation"]},
+        "choices": {"type": "array", "items": {"$ref": "#/$defs/choice"}}
+      }
+    },
+    "adapter": {
+      "type": "object", "additionalProperties": false, "required": ["name", "version", "sha256"],
+      "properties": {"name": {"enum": ["current-pair", "current-binding", "legacy-binding", "legacy-source-only", "legacy-populated", "historical-journal", "operational", "supporting-file", "unknown"]}, "version": {"const": "1"}, "sha256": {"$ref": "urn:cp:migration-inventory#/$defs/hash"}}
+    },
+    "unit": {
+      "type": "object", "additionalProperties": false,
+      "required": ["key", "adapter", "strategy", "reason", "inputs", "targets", "expected_outputs", "status", "blockers", "disposition", "verification_ids"],
+      "properties": {
+        "key": {"$ref": "urn:cp:migration-inventory#/$defs/id"}, "adapter": {"$ref": "#/$defs/adapter"},
+        "strategy": {"$ref": "#/$defs/strategy"}, "reason": {"$ref": "urn:cp:migration-inventory#/$defs/text"},
+        "inputs": {"type": "array", "minItems": 1, "items": {"$ref": "urn:cp:migration-inventory#/$defs/observation"}},
+        "targets": {"type": "array", "items": {"$ref": "urn:cp:migration-inventory#/$defs/precondition"}},
+        "expected_outputs": {"type": "array", "items": {"$ref": "urn:cp:migration-inventory#/$defs/filePin"}},
+        "status": {"enum": ["blocked", "no-op", "retained", "excluded"]},
+        "blockers": {"$ref": "urn:cp:migration-inventory#/$defs/texts"},
+        "disposition": {"const": "preserve-source"},
+        "verification_ids": {"$ref": "urn:cp:migration-inventory#/$defs/texts"}
+      }
+    },
+    "identityMap": {
+      "type": "object", "additionalProperties": false, "required": ["source", "target"],
+      "properties": {"source": {"$ref": "urn:cp:migration-inventory#/$defs/text"}, "target": {"$ref": "urn:cp:migration-inventory#/$defs/text"}}
+    },
+    "pathMap": {
+      "type": "object", "additionalProperties": false, "required": ["source", "target"],
+      "properties": {"source": {"$ref": "urn:cp:migration-inventory#/$defs/path"}, "target": {"anyOf": [{"$ref": "urn:cp:migration-inventory#/$defs/path"}, {"type": "null"}]}}
+    }
+  }
+}

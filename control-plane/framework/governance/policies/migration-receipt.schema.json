@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cp:migration-receipt",
+  "$comment": "LOCAL MOD - HARVEST TO CPB: HR-07 defines receipts without emitting application evidence.",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema", "id", "action", "plan_digest", "manifest_digest", "confirmation_digest", "prior_receipt_digest", "outcomes", "targets", "invariants", "exceptions", "result"],
+  "properties": {
+    "schema": {"const": "cp-migration-receipt-v1"}, "id": {"$ref": "urn:cp:migration-inventory#/$defs/id"},
+    "action": {"enum": ["stage", "apply", "verify", "resume", "rollback"]},
+    "plan_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"},
+    "manifest_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"},
+    "confirmation_digest": {"anyOf": [{"$ref": "urn:cp:migration-inventory#/$defs/hash"}, {"type": "null"}]},
+    "prior_receipt_digest": {"anyOf": [{"$ref": "urn:cp:migration-inventory#/$defs/hash"}, {"type": "null"}]},
+    "outcomes": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["unit", "result"], "properties": {"unit": {"$ref": "urn:cp:migration-inventory#/$defs/id"}, "result": {"enum": ["staged", "applied", "verified", "blocked", "stale", "partial", "rolled-back"]}}}},
+    "targets": {"type": "array", "items": {"$ref": "urn:cp:migration-inventory#/$defs/precondition"}},
+    "invariants": {"type": "array", "items": {"$ref": "urn:cp:migration-manifest#/$defs/verification"}},
+    "exceptions": {"$ref": "urn:cp:migration-inventory#/$defs/texts"},
+    "result": {"enum": ["success", "blocked", "stale", "partial"]}
+  },
+  "allOf": [{"if": {"properties": {"action": {"enum": ["apply", "resume", "rollback"]}}}, "then": {"properties": {"confirmation_digest": {"$ref": "urn:cp:migration-inventory#/$defs/hash"}}}}]
+}

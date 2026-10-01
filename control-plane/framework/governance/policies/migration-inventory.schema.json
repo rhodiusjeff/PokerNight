@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cp:migration-inventory",
+  "$comment": "LOCAL MOD - HARVEST TO CPB: HR-07 migration inventory contract.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "revision", "roots", "root_map_digest", "contracts", "source", "target", "source_directories", "target_directories", "exclusions", "blockers"],
+  "properties": {
+    "schema": {"const": "cp-migration-inventory-v1"},
+    "id": {"$ref": "#/$defs/id"},
+    "revision": {"type": "integer", "minimum": 1},
+    "roots": {"$ref": "#/$defs/roots"},
+    "root_map_digest": {"$ref": "#/$defs/hash"},
+    "contracts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/filePin"}},
+    "source": {"type": "array", "items": {"$ref": "#/$defs/observation"}},
+    "target": {"type": "array", "items": {"$ref": "#/$defs/observation"}},
+    "source_directories": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/path"}},
+    "target_directories": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/path"}},
+    "exclusions": {"type": "array", "items": {"$ref": "#/$defs/exclusion"}},
+    "blockers": {"$ref": "#/$defs/texts"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"},
+    "text": {"type": "string", "minLength": 1},
+    "texts": {"type": "array", "items": {"$ref": "#/$defs/text"}, "uniqueItems": true},
+    "hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "path": {"type": "string", "pattern": "^(?!/)(?!.*[\\\\:\\u0000-\\u001f])(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*//)(?!.* /)(?!.*[. ](?:/|$))[^/]+(?:/[^/]+)*$"},
+    "roots": {
+      "type": "object", "additionalProperties": false, "required": ["source", "target"],
+      "properties": {"source": {"const": "source"}, "target": {"const": "target"}}
+    },
+    "filePin": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+      "properties": {"path": {"$ref": "#/$defs/path"}, "sha256": {"$ref": "#/$defs/hash"}}
+    },
+    "precondition": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+      "properties": {"path": {"$ref": "#/$defs/path"}, "sha256": {"anyOf": [{"$ref": "#/$defs/hash"}, {"type": "null"}]}}
+    },
+    "observation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "role", "type", "mode", "bytes", "sha256", "profile", "version", "confidence", "evidence", "context_ids", "references"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"},
+        "role": {"enum": ["proposal", "capture", "binding", "asset", "history", "operational", "unknown"]},
+        "type": {"const": "regular"}, "mode": {"type": "integer", "minimum": 0, "maximum": 4095},
+        "bytes": {"type": "integer", "minimum": 0}, "sha256": {"$ref": "#/$defs/hash"},
+        "profile": {"enum": ["current-pair", "current-binding", "legacy-binding", "legacy-source-only", "legacy-populated", "historical-journal", "operational", "supporting-file", "unknown"]},
+        "version": {"type": ["string", "null"]},
+        "confidence": {"enum": ["exact", "ambiguous", "unknown"]},
+        "evidence": {"$ref": "#/$defs/texts"}, "context_ids": {"$ref": "#/$defs/texts"},
+        "references": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/path"}}
+      }
+    },
+    "exclusion": {
+      "type": "object", "additionalProperties": false, "required": ["root", "path", "reason"],
+      "properties": {"root": {"enum": ["source", "target"]}, "path": {"$ref": "#/$defs/path"}, "reason": {"$ref": "#/$defs/text"}}
+    }
+  }
+}

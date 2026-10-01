@@ -35,6 +35,15 @@ the Operator. The reset/migration/owner scope questions are already answered.
 
 ## Subsequent Forge Decision
 
+### HR-07 Implementation Direction (2026-10-01)
+
+Operator direction (verbatim): `IMplement HR-07`.
+
+Proceed with the named migration schema/inventory/plan slice under the Steward.
+This authorizes local framework implementation after the HR-06 repair checkpoint;
+it does not record HR-06 acceptance, permit actual repository migration, start HR-08
+or change the required Windows/GLab final gate below.
+
 ### Required Windows And GLab Validation (2026-10-01)
 
 Operator direction (verbatim):
