@@ -236,6 +236,9 @@ def main():
                 require(hashlib.sha256(filename.read_bytes()).hexdigest() == args.expected_digest, 'proposal changed since allocation was offered')
                 document = capture.read_capture(filename)
                 require(document['id'] == args.context, 'allocate against the full current context ID')
+                require(capture.change_set_module().lifecycle_state(document) == 'planning',
+                    'terminal or suspended context cannot allocate planning records')
+                load_helper('planning-change-evidence').assert_mutable(args.root, args.context)
                 bindings = json.load(sys.stdin) if str(args.bindings) == '-' else json.loads(args.bindings.read_bytes())
                 result = reserve_records(args.root, args.context, args.operation_id, bindings, document['identity']['allocation'], True, locked=True)
             print(json.dumps(result, indent=2))

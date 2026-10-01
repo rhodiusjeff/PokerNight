@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:control-plane:planning-binding:v1",
-  "$comment": "LOCAL MOD - HARVEST TO CPB (2026-09-30): Operator-requested branch-independent active-horizon binding contract. Runtime adoption is pending; the current unversioned id/branch binding is not this format.",
+  "$comment": "LOCAL MOD - HARVEST TO CPB (2026-09-30): HR-03 creation and current inspection adopt this branch-independent binding. Unversioned id/branch objects require explicit compatibility handling; lifecycle selection commands remain HR-04.",
   "title": "Local Active Horizon Binding",
   "description": "Worktree-local selection stored in ignored control-plane/state/planning-local/binding.json. An absent file or omitted id means no active horizon. A present id must be valid. Horizon existence and operation eligibility require runtime validation; this document grants no lifecycle or admission authority.",
   "type": "object",

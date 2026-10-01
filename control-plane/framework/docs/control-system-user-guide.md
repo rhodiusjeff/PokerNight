@@ -45,8 +45,10 @@ execution or forge-administration writes.
 
 | Command | Purpose and boundary |
 | --- | --- |
-| `/horizon --create` | Create a locally minted full-ID planning context without new tags; not admission |
-| `/horizon --activate ID` / `--leave ID` | Explicit worktree/branch-scoped binding or unbinding |
+| `/horizon --create` | Create and automatically select a current-format horizon; no branch/remote prerequisite; not admission |
+| `/horizon --current` | Read-only schema-validated worktree selection and exact subject inspection |
+| `/horizon --activate ID` / `--leave ID` | Select a planning horizon or clear only matching worktree-local selection |
+| `/horizon --resume ID` | Exact-confirmed suspended-to-planning transition and local selection |
 | `/horizon --suspend ID` / `--abandon ID` | Distinct confirmed lifecycle outcomes; no inferred retirement |
 | `/horizon --absorb SOURCE --into HNNN` | Deferred; no transfer, retirement or selection changes |
 | `/horizon --create --from ID` | Deferred; no creation, source consumption or selection changes |
@@ -74,7 +76,15 @@ Malformed/combined flags may return usage errors. Missing sources do not trigger
 Legacy transfer/import/publication APIs also defer, including retry of existing offers;
 confirmation does not enable them. Historical inventory/receipt readers, read-only
 `planning-transfer.py verify` and admission-lock/retirement checks remain supported.
-Ordinary explicit creation keeps its current behavior until HR-03.
+HR-03 ordinary creation uses the shared pair format without branch/remote requirements.
+One confirmation covers full-ID minting and local selection. Original source bytes are retained;
+the proposal starts as draft with null base and empty changes. Git HEAD, refs, index and unrelated
+work remain unchanged. The tracked binding schema governs the ignored local pointer. Missing
+file or ID means no selection; malformed or legacy pointers refuse current inspection/creation.
+Retry the exact operation and inputs after interruption: the same identity is reused, but newer
+selection is preserved. Created-but-unselected recovery returns `status: partial`, exit 3.
+Selecting that subject needs a new explicit activation. HR-04 activation/resume also preserve
+newer selections on interrupted retries; partial recovery never reports successful selection.
 
 ### Drafts And Complete Proposals
 
@@ -100,9 +110,23 @@ For `cp-plan-change-set-v1`, use `planning-change-set.py save` for partial draft
 `preview` for the derived result and explicitly confirmed `complete` for a complete
 proposal. Optional lifecycle metadata is schema-validated and preserved by saves; absence
 means planning without rewriting. Explicit-ID inspection and pair recovery are supported.
-Current-format horizon creation/binding, lifecycle/discovery and admission/closure remain later
-slices. Until then lifecycle/admission writers and inventory of current horizon pairs refuse
-explicitly; the command table above describes retained old-format behavior, not new-pair support.
+HR-03 supports current-format creation/automatic binding and `current` inspection. HR-04 adds
+branch-free activation, leave, suspension, standalone resume and abandonment. Transition tokens,
+exact digests, actual actor/provenance and retained preimages make retries explicit; active
+admission and terminal-state guards remain. Successful closure/admission remains HR-06.
+Local status includes current pairs and reports selection validity separately. Remote discovery
+groups last-fetched observations by identity, reports conflicting versions and never fetches.
+Activation/transitions accept exact last-fetched subjects or verified local predecessors, not
+arbitrary differences. Predecessor proof requires exact retained pair hashes, Git ancestry,
+unchanged identity and compatible lifecycle/revision/capture history. Thus an unadmitted
+horizon can suspend/resume and advance its draft locally without republishing each state.
+Unknown, advanced, divergent or terminal observations still require reconciliation; absent
+observations are explicitly local-only. No designated branch supplies current-format authority.
+Before planning inputs/confirmation, use `planning-context.py --root ROOT resolve [--id ID]
+--writable` and pass the returned exact ID to writers even if the default later changes.
+Explicit IDs do not alter or repair the default; no ID requires a valid active horizon.
+Creation/status and exact transfer/admission roles bypass the default. Legacy commands cannot
+overwrite a versioned binding. Old journals refuse rather than replaying or migrating them.
 The legacy commands in the next paragraph apply only to `cp-planning-capture-v1`.
 
 For that legacy capture format, `planning-work.py draft --section canon|work` replaces the selected ad hoc section in

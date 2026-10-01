@@ -74,20 +74,52 @@ and exact retained proposal/capture preimage references. Creation has a null pre
 requires reason/next step; abandon/close require reason. Closed metadata additionally names
 applied proposal/attempt/verification subjects and explicit remaining-scope dispositions.
 Schema acceptance does not verify application, authorize a transition or authenticate an actor.
-Transition eligibility, receipt verification and binding cleanup belong to later lifecycle owners.
+HR-04 owns activation, suspend/resume/abandon eligibility and matching-binding cleanup.
+Successful close writing and receipt verification remain HR-06; closed states are readable only.
 
 Normal saves preserve the entire context, including origin and lifecycle, plus attribution and
 issued identity metadata. Non-planning contexts refuse saves. The private `_publish_pair`
 primitive is only byte publication under the owning caller's lock/authority checks, not a public
 lifecycle writer: it retains exact preimages before replacement and never rewrites review or
-admission bundles. Later owners must validate transitions and evidence before using it. A changed
+admission bundles. Lifecycle owners validate transitions and evidence before using it. A changed
 document digest does not retroactively change the historical reviewed/admitted subject.
 
 HR-01 exposes explicit-ID inspect/validate/preview, existing paired save/complete and exact paired
-recovery. It does not create or migrate horizons. Current-format activation, transfers and admission
-preparation refuse as unavailable. Current-horizon inventory also refuses instead of silently
-omitting pairs. Creation/binding, discovery/lifecycle, finalization naming and admission/closure
-remain subsequent slices; existing old-format behavior is not silently converted.
+recovery. HR-03 adds branch-free creation and automatic schema-validated local selection, with
+read-only `current` inspection. New proposals start as draft with null base and no changes;
+original sources are retained byte-for-byte under `assets/sources/`, referenced without Base64.
+Creation records an attributed event and helper-minted identity metadata. Its ignored versioned
+journal retains exact inputs and binding preimage; retries never overwrite a later selection.
+See [binding and recovery](planning-identity.policy.md#local-binding-schema).
+LOCAL MOD - HARVEST TO CPB (2026-10-01): HR-04 implements current-format lifecycle and
+discovery in planning-context.py. Activate selects planning only; standalone resume requires
+suspended; suspend requires planning and next steps; abandon accepts planning/suspended with
+a reason. Exact token/digest/actor/provenance retries preserve event history and refuse changed
+subjects. Journals precede publication; interrupted resume never overwrites newer selection.
+Lifecycle-only publication preserves proposal meaning/revision and capture bytes; its retained
+preimage event changes the exact proposal digest, never historical review/admission evidence.
+Active admission claims block lifecycle changes. No close writer is exposed.
+Local list includes terminal history; status includes open current pairs and distinct selection
+diagnostics. Last-fetched discovery is identity-based, reports conflicting versions and never
+fetches. Different observed subjects block activation/transitions unless verified as local
+predecessors. HR04-R1 correction: accept a differing observed pair only when its exact
+proposal/capture hashes are retained in this context's history, its commit is an ancestor
+of pinned HEAD, immutable identity/origin agrees, and its nonterminal lifecycle is a prefix
+of valid local suspend/resume progression. Same-revision differences must be lifecycle-only;
+draft changes require a higher revision and the retained capture bytes as a prefix of the
+current narrative. All observations must qualify; recheck ref tips and HEAD before returning.
+Missing/corrupt history, unsupported formats, advanced/divergent commits, terminal observations
+and incompatible lineage refuse. Non-append capture transformations without this proof still
+require reconciliation. History alone or Git ancestry alone is insufficient; no automatic
+fetch, sync, binding repair, admission or reopening follows from predecessor recognition.
+Lifecycle observation filters by the selected context ID before parsing remote content;
+unrelated malformed records do not block that operation. Full discovery remains strict, and
+malformed records for the selected ID still refuse. Observed planning files in Git refs do
+not imply an admitted proposal; this filtering rule changes no admission/lifecycle eligibility.
+Shared `resolve [--id ID] --writable` pins explicit ID before default and checks eligibility
+without writes; writers keep that ID throughout the operation. No branch/folder inference.
+Transfers, finalization naming and admission/closure remain subsequent/deferred slices;
+existing old-format behavior is not silently converted and no live migration is performed.
 
 ## Baseline Identity
 

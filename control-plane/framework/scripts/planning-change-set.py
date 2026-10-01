@@ -347,7 +347,7 @@ def save(root, context_id, document, expected_digest, record, migrate=False, com
         before = destination.read_bytes()
         previous = capture.read_capture(destination)
         if previous['schema'] == FORMAT:
-            require(lifecycle_state(previous) == 'planning', 'context is not mutable planning; lifecycle writer is not available for this format yet')
+            require(lifecycle_state(previous) == 'planning', 'context is not mutable planning; explicit lifecycle handling required')
         old_narrative_path = capture.narrative_path(destination) if destination.suffix == '.json' else None
         require(old_narrative_path is not None, 'legacy horizon capture is read-only here; explicit migration required')
         old_narrative = old_narrative_path.read_bytes()

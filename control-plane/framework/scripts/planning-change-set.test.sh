@@ -94,6 +94,7 @@ class ChangeTests(unittest.TestCase):
             filename.parent.mkdir(parents=True)
             new_narrative=capture.narrative_path(filename)
             new_narrative.write_bytes(narrative.read_bytes())
+            narrative.unlink()
             narrative=new_narrative
             document['capture']['path']=narrative.relative_to(folder).as_posix()
         filename.write_bytes(changes.encoded(document))
@@ -308,18 +309,17 @@ class ChangeTests(unittest.TestCase):
         self.assertEqual(filename.read_bytes(),before)
         self.assertEqual(narrative.read_bytes(),before_narrative)
 
-    def test_current_pair_refuses_undelivered_context_and_admission_writers(self):
+    def test_current_pair_inventory_and_guarded_writers(self):
         folder,document,repository,filename=self.repository_fixture('horizon',minted=True)
         context=changes.helper('planning-context')
         before=filename.read_bytes()
         expected=hashlib.sha256(before).hexdigest()
         binding=folder/'control-plane/state/planning-local/binding.json'
         self.assertEqual(context.inspect_context(folder,document['id'])['path'],str(filename))
-        with self.assertRaisesRegex(ValueError,'inventory is unavailable'):
-            context.planning_status(folder)
-        with self.assertRaisesRegex(ValueError,'unavailable'):
-            context.activate(folder,document['id'],True)
-        with self.assertRaisesRegex(ValueError,'unavailable'):
+        self.assertEqual(context.planning_status(folder)['count'],1)
+        with self.assertRaisesRegex(ValueError,'confirmation'):
+            context.activate(folder,document['id'],False)
+        with self.assertRaisesRegex(ValueError,'operation token'):
             context.transition(folder,document['id'],'suspend',expected,'Fixture next step',True)
         with self.assertRaisesRegex(ValueError,'unavailable'):
             changes.helper('planning-admission').prepare(folder,document['id'],'no-decision',None,None,expected,True)

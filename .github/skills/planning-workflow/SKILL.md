@@ -23,12 +23,14 @@ LOCAL MOD - HARVEST TO CPB (2026-09-30): standalone `/plan-work --status` uses
 loading proposal-writing context. It requires no selected ID and is available to any persona
 as inspection only. Return all open ad hoc and horizon sessions from the current checkout;
 discovery status is deferred. Include suspended and authorized-for-merge sessions, retain
-complete proposals, and exclude terminal abandoned/absorbed/escalated contexts.
+complete proposals, and exclude terminal abandoned/closed/absorbed/escalated contexts.
 
 Report full IDs, titles, kinds, lifecycle, proposal and recorded admission status with paths.
 Disclose current-checkout-only freshness and unknown other-branch/clone sessions. Do not fetch,
 switch, bind, write timing or continue a selected session. Invalid records are errors, not empty
-results. Follow the prompt's standalone-argument and empty-result rules, then stop.
+results. Report `selection.status` separately as valid, none or invalid, with its diagnostic
+or lifecycle eligibility. Status never repairs selection. Follow the prompt's standalone-argument
+and empty-result rules, then stop.
 
 ## Change-Set Proposals
 
@@ -45,11 +47,15 @@ appropriate typed changes in the same proposal while preserving all unaffected c
 compose/propose builder. Record actual confirmation in capture through transient `--record`
 input. Never create numbered request files or maintain the preview as a second proposal.
 
-The paired writer owns ad hoc/discovery and HR-01 current-format horizon pairs. Horizon
-creation/migration and lifecycle/discovery/admission command integration remain later slices.
-Explicit-ID inspection and paired edits are supported; legacy lifecycle/transfer writers and
-current-horizon admission preparation refuse as unavailable. List/status also refuses when
-current horizon pairs would otherwise be omitted. Legacy draft mutation helpers
+The paired writer owns ad hoc/discovery and HR-01 current-format horizon pairs. HR-03 creates
+and automatically selects new horizon pairs without a branch or remote prerequisite. Use
+`planning-context.py --root ROOT current` for read-only, schema-validated selection inspection;
+missing selection never derives from a branch. HR-04 supports explicit lifecycle, standalone
+resume, identity-based discovery and shared context resolution through the horizon prompt.
+Migration and current-horizon admission/closure remain later slices.
+Explicit-ID inspection and paired edits are supported; transfer writers and current-horizon
+admission preparation still refuse as unavailable. List/status includes current horizon pairs.
+Legacy draft mutation helpers
 refuse change sets. Evidence/admission/publication commands now dispatch by format;
 use [guided admission](../guided-admission/SKILL.md) only on its explicit invocation.
 Complete or validated still does not mean reviewed, approved, admitted or executable.
@@ -88,9 +94,17 @@ and `<ID>-capture.md`, with `assets/` beside them. Preserve `context.lifecycle` 
 through the normal writer; absent lifecycle means planning without a rewrite. Existing
 old-format horizon captures retain `planning/<ID>.md` and their old schema without conversion.
 ID is the full minted `HNNN-<slug>-<hex4>`. Do not abbreviate it or require a packet-local tracker.
-For an omitted context, inspect `planning-context.py --root ROOT list` and `discover`, show
-the branch-scoped binding and alternatives, and confirm a singular selection. Ambiguity stops
-mutation. A missing, malformed, suspended, or terminal new document is not a legacy fallback.
+LOCAL MOD - HARVEST TO CPB (2026-10-01): before context-specific planning inputs or confirmation,
+run `planning-context.py --root ROOT resolve [--id EXPLICIT-ID] --writable`. For read-only
+inspection omit `--writable`. Pin the returned full ID and digest and pass that exact ID to
+subsequent writers; never re-resolve the shared default mid-operation. An explicit ID takes
+precedence without changing or repairing the default. With no ID use the valid active horizon;
+with neither require selection. Suspended/terminal/missing defaults refuse planning writes.
+Capture creation, standalone status, transfer pairs and admission attempts retain their own
+explicit inputs; the binding supplies neither origin nor approval. `list` includes terminal
+history; `discover` reports identity-grouped last-fetched observations and conflicts without fetch.
+A missing, malformed, suspended, or terminal new document is not a legacy fallback. Broader
+natural-language routing across agents remains HR-11, not new authority from this skill.
 Legacy packet planning writes are retired, not a fallback for an absent capture.
 Historical H000 remains unchanged; no implicit migration or renumbering.
 

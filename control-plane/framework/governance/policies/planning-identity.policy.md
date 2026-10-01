@@ -62,7 +62,7 @@ source context. Minting grants no lifecycle, transfer, approval or admission aut
 ## Local Binding Schema
 
 LOCAL MOD - HARVEST TO CPB (2026-09-30): the Operator requested a recorded schema for
-the proposed branch-independent active-horizon pointer. The
+the branch-independent active-horizon pointer. The
 [Planning Binding Schema](planning-binding.schema.json) defines `cp-planning-binding-v1`
 at `control-plane/state/planning-local/binding.json`: required `schema` and optional full
 horizon `id`, with no other fields. The Operator clarified that a missing ID means no
@@ -70,10 +70,35 @@ active horizon; a missing file has the same meaning. A present ID must be valid,
 or null. The schema is tracked; the binding is gitignored and local to each worktree.
 Horizon existence and operation eligibility require runtime checks.
 
-Runtime adoption remains pending. Installed helpers still read/write the unversioned
-`id`/`branch` binding and enforce their current branch rules. Recording this schema neither
-migrates those bindings nor changes creation, selection, transfer or admission behavior.
-Old interrupted operations require explicit compatibility handling, not silent coercion.
+HR-03 creation and `planning-context.py current` validate this schema. Creation writes a
+draft horizon capture/proposal pair and selects it without changing Git branches, refs or
+the index, requiring no remote. Binding writes require an untracked, ignored, nonsymlink
+path and use the shared local lock plus exact-preimage publication. Version-only bindings
+are valid empty selections. Reads never repair malformed, missing-subject or legacy pointers.
+
+The versioned creation journal records the observed binding before publication. A normal
+creation replaces it only when unchanged. Any retry preserves the current selection unless
+it already names the created subject; otherwise report partial recovery (exit 3), not automatic
+activation success. Reuse the same operation ID and exact inputs; never allocate again or
+overwrite later draft edits. Before recovery writes, validate journal shape/state and require
+its identity and mint metadata to match the durable allocator record for that operation.
+Contradictory or missing reserved allocations refuse unchanged; a prepared journal may recover
+the already-issued identity after an interrupted allocation, but cannot substitute another ID.
+Old journals and unversioned bindings refuse this path without conversion.
+
+LOCAL MOD - HARVEST TO CPB (2026-10-01): HR-04 adds activation/leave and standalone resume.
+Activation and lifecycle journals record observed binding preimages under the shared lock.
+Reuse the same operation token on retry; recovery selects nothing unless the subject is
+already selected. Report resumed/retained but unselected subjects as partial, then require
+a new exact activation to replace selection. Leave and suspend/abandon cleanup only clear a
+matching ID, using the schema-valid version-only empty selection. Empty leave is a no-op;
+explicit leave can clear a missing-but-selected valid ID, never an invalid binding.
+
+`planning-context.py resolve [--id ID] --writable` pins explicit identity before default,
+without changing selection. Explicit IDs work independently of an invalid default; omitted
+IDs require a valid existing eligible horizon. Do not re-resolve mid-operation, infer from
+branches, or convert legacy bindings. Listing reports selection diagnostics without repairs.
+Legacy lifecycle commands cannot overwrite a versioned binding. No live migration is implied.
 
 ## Contained IDs
 

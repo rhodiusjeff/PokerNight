@@ -2,7 +2,7 @@
 
 Date: 2026-09-30
 
-Status: HR-01 storage/schema and HR-02 deferred transfer boundaries locally implemented;
+Status: HR-01 storage/schema, HR-02 deferred transfers, HR-03 creation/binding and HR-04 lifecycle/resolution/discovery locally implemented;
 remaining slices await individual authorization. Boundary readiness not assessed. The Operator
 requested a migration contract and implementation-sized slices, with each slice separately
 authorized. This is not runtime implementation permission, admission or lifecycle invocation.
@@ -25,7 +25,7 @@ their historical descriptions when implementation changes.
 
 | Subject | Recorded disposition |
 | --- | --- |
-| Dedicated planning branch | Operator directed removal of the requirement. No runtime removal has been implemented. |
+| Dedicated planning branch | HR-03 removes the requirement for current-format creation; no branch/remote prerequisite or Git mutation. Later lifecycle/admission integration retains its own slices. |
 | Active horizon | Operator requested a gitignored local selection that planning tools use to route operations. |
 | Selection/lifecycle commands | Create automatically activates; activate only selects already-planning contexts; standalone `--resume ID` resumes and activates suspended contexts. |
 | Empty selection | An omitted binding ID or absent file means no active horizon; malformed present IDs remain errors. |
@@ -35,7 +35,7 @@ their historical descriptions when implementation changes.
 | Binding recovery | Operator approved preserving newer selections; interrupted recovery cannot silently overwrite the current binding. |
 | Finalization | Operator selected `--finalize-proposal`; subsequent planning changes to its subject make the previous finalization stale. |
 | Natural-language dispatch | Explicit consolidation/shaping requests use the active context and matching skill without requiring command spelling. |
-| Binding schema | Operator requested a schema on the tracked CP surface. Schema and policy link are recorded and validated; runtime adoption is pending. |
+| Binding schema | HR-03 creation/current inspection and HR-04 lifecycle selection validate the tracked schema and safely publish ignored selection. |
 | Migration capability | Specified in MIGRATION_SKILL_SPEC.md: dedicated skill, versioned plans/receipts, supported profiles, staged apply/recovery. Delivery is split into individually authorized slices; unsupported conversion is explicit, not guessed. |
 | Durable specification | Operator requested this discussion be retained as the spec for substantial refinement/rework. |
 | Detailed routing, compatibility and cutover rules below | Steward recommendations for review, not separately finalized operator decisions. |
@@ -85,7 +85,7 @@ before creation preflight, source resolution, identity allocation, timing or jou
 Do not create an empty destination, switch branches, alter the binding, transfer files,
 retire the source, or silently fall back to plain `--create`. Malformed arguments can still
 produce usage errors. Help labels this mode deferred; ordinary `/horizon --create`
-retains its existing fresh-creation behavior until HR-03 changes creation/binding.
+uses HR-03 branch-free creation and automatic local selection.
 
 HR-02 makes both the agent-facing command and shipped mutation entry points
 honor the deferral; the prompt cannot advertise deferred while forwarding into the old
@@ -201,6 +201,27 @@ Latest schema evidence: Draft 2020-12 self-validation, 4 positive and 18 negativ
 passed, including the version-only empty selection. This is schema evidence only, not runtime
 adoption or lifecycle certification; the earlier required-ID checks are historical evidence.
 
+HR-03 runtime evidence now covers branch-free creation, schema-validated automatic selection,
+read-only `current` inspection and preserve-newer-selection recovery. See the
+[implementation consult](../../steward-consults/2026-09-30-hr-03-creation-binding.md).
+HR-04 adds explicit current-format activation/leave/resume, lifecycle and discovery. Admission
+and successful closure remain HR-06. A created/resumed-but-unselected retry returns partial
+(exit 3), requiring a new confirmed activation, not a manually rewritten binding.
+
+HR-04 uses the existing paired-history publisher and current lifecycle schema, preserving
+capture bytes and proposal meaning/revision. The event changes the exact proposal digest;
+historical reviewed subjects remain unchanged. Versioned local lifecycle/selection journals
+pin requests and observed bindings; contradictory retries or changed output/history refuse.
+Default resolution never infers a branch and explicit IDs neither replace nor repair defaults.
+Status reports invalid selection separately from open sessions. Last-fetched discovery groups
+by identity; activation/transitions accept exact matches or verified local predecessors.
+HR04-R1 correction requires retained pair hashes plus ancestor commit, immutable identity,
+compatible nonterminal lifecycle history and forward draft revision/capture history. Unknown,
+advanced/divergent or terminal observations still require reconciliation. This permits ordinary
+local suspend/resume without republishing each event and grants no admission or reopening.
+It is not live remote freshness or automatic Git recovery; non-append capture transformations
+without the required predecessor proof remain explicit reconciliation cases.
+
 ## Proposed Behavior
 
 ### Creation And Selection
@@ -257,7 +278,8 @@ of the local default. If the binding already names that subject, selection recov
 no-op. Otherwise retain the current selection and require an explicit activation before
 replacing it, even if the observed bytes resemble an older binding. Report created/resumed
 but not currently selected as partial recovery, not full automatic-activation success.
-This avoids replaying old selection intent after another chat has acted.
+This avoids replaying old selection intent after another chat has acted. HR-03 implements
+this rule for creation; HR-04 implements it for activation and resumed-context recovery.
 
 Leave and terminal transitions may clear only the exact matching selection; they never
 clear a different active horizon. A repeated leave with no selection is a no-op. Broader
@@ -288,9 +310,10 @@ or behavior coverage is claimed from the current unit-test suite.
 
 ### Lifecycle And Command Surface
 
-The following is the target command surface, not invocations or installed behavior.
-Standalone `--resume` and `--finalize-proposal` are selected changes. The installed runtime
-still overloads activation for resume and uses `--complete`; that is compatibility context only.
+The following is the selected command surface, not invocations. HR-04 installs standalone
+`--resume` for current pairs; the overloaded activation path remains legacy-only compatibility.
+`--finalize-proposal` still awaits HR-05; installed proposal commands continue using `--complete`.
+Successful horizon-close writing remains HR-06.
 
 | Event | Command | Lifecycle/selection effect | Skill |
 | --- | --- | --- | --- |

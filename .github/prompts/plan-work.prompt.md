@@ -19,7 +19,7 @@ full ID linked to its returned path, title, lifecycle, proposal status and recor
 status. Include its branch when recorded; do not infer one from the current branch.
 
 Open means lifecycle `planning`, `suspended` or `authorized-for-merge`; absent lifecycle state
-means `planning`. A `complete` proposal remains visible. Exclude abandoned, absorbed and
+means `planning`. A `complete` proposal remains visible. Exclude abandoned, closed, absorbed and
 escalated sessions and all discovery sessions, including older discovery captures with ADHOC IDs.
 Do not infer merged, closed or admitted state from proposal completion. Admission information
 is the recorded capture status, not live forge verification.
@@ -28,7 +28,8 @@ State the result count and freshness: current-checkout records only, including u
 sessions; other branches/clones are not inventoried and no fetch is performed. Do not present
 this as a repository-wide remote inventory. If empty, say no open ad hoc or horizon planning
 sessions were found in this checkout. On helper failure, report the error instead of claiming
-an empty or complete inventory. Discovery status is deferred.
+an empty or complete inventory. Report the separate selection diagnostic (valid, none or invalid),
+including missing subjects or ineligible lifecycle, without repairing it. Discovery status is deferred.
 
 No file, binding, source, timing log, branch or remote write is permitted. Do not activate a
 session or automatically continue planning after listing it. Stop after reporting status.
@@ -59,9 +60,14 @@ do not run the legacy draft/compose/propose APIs on a change-set document. The s
 schema and paired saves apply to all planning origins. HR-01 current horizons use
 `control-plane/horizons/ID/ID-proposal.json`, `ID-capture.md` and `assets/`; preserve optional
 `context.lifecycle` and immutable identity/origin. Old horizon captures are read-only to this
-writer, with no implicit migration. Creation/binding and current-horizon lifecycle/discovery
-and admission integration remain unavailable until their later slices. Status refuses when
-current horizon pairs would otherwise be omitted; use explicit-ID inspection in the meantime.
+writer, with no implicit migration. HR-03 creation/binding and HR-04 lifecycle/discovery are
+supported; current-horizon admission/closure remain HR-06. Status includes current pairs.
+Before context-specific inputs or confirmation, use `planning-context.py --root ROOT resolve
+[--id EXPLICIT-ID] --writable` and pin its returned ID/digest for the entire operation.
+Explicit IDs override the default without changing it; an omitted ID uses the valid active
+horizon, never a branch/folder guess. For read-only inspection omit `--writable`. Missing,
+invalid, suspended or terminal defaults refuse planning writes. Capture creation and standalone
+status bypass this default; do not fill discovery origin, transfer or admission roles from it.
 Change-set admission uses the format-dispatched guided-admission workflow under its
 separate invocation/confirmation gates, never a parallel authority or a drafting side effect.
 

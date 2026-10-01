@@ -28,13 +28,21 @@ boundary. Installation and fixture tests are not release approval.
    `/plan-work --status` lists open ad hoc and horizon sessions in the current checkout without
    writes or a selected ID; suspended sessions are included and discovery status is deferred.
 4. For a new horizon explicitly invoke `/horizon --create`. Supply source files, title, slug,
-   author and intended remote/target. Confirm the disclosed local slug/hex allocation and
-   branch creation. `/horizon --help` describes activation, leave, suspension, abandonment,
+   and author. Confirm the disclosed local slug/hex allocation and automatic worktree-local
+   selection. No branch or remote is required; HEAD, refs, index and dirty work are preserved.
+   `/horizon --current` inspects the versioned local selection without writes. Explicit
+   current-format activation/lifecycle/discovery is supported by HR-04; creation retries preserve newer
+   selections and report created-but-unselected recovery as partial, not successful activation.
+   `/horizon --help` describes activation, leave, suspension, abandonment,
    absorption and `--create --from` escalation. Both transfer modes are deferred under HR-02:
    no creation, source lookup, allocation, binding, timing or journal writes; no legacy fallback.
    Read-only historical transfer verification and admission protections remain available.
    Use the full ID returned under [Planning Identity Policy](framework/governance/policies/planning-identity.policy.md).
    Minting creates no new Git tags; legacy reservations remain historical facts.
+   Activation requires planning; standalone `--resume ID` resumes suspended work with exact
+   confirmation and selects it. Retry preserves newer selection and can return partial.
+   `planning-context.py resolve [--id ID] --writable` pins an explicit context or the valid
+   local default before planning inputs; it never changes selection or infers it from a branch.
 5. Use `/plan-work ID --include` for a descriptive deferred-item selection walkthrough.
    Only explicitly selected IDs are included; declined items and original source bytes survive.
 6. Use `/plan-work ID --canon` or `--work` for partial drafts. Source-quality `--scrub` and
@@ -83,7 +91,8 @@ Follow [Artifact Formats And Ad Hoc Storage](framework/governance/policies/track
 separate Markdown and JSON, use related stems with distinct role suffixes, and keep one
 current ad hoc capture/proposal pair. Requests and confirmations belong in capture;
 superseded revisions belong in history. HR-01 adds shared current-horizon pair storage;
-creation/binding, discovery/lifecycle and horizon admission integration remain later slices.
+HR-03 adds branch-free creation and local binding; HR-04 adds lifecycle, resolution and
+identity-based local/last-fetched discovery. Horizon admission/closure remains HR-06.
 See [change-set storage and lifecycle](framework/governance/policies/plan-change-set.policy.md#context-lifecycle-and-pair-storage).
 
 | Path | Owner and purpose |
