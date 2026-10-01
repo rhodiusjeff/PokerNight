@@ -1,15 +1,28 @@
 # Upgrade Status
 
 **Upgrade:** `cp-v0-8-1-planning-admission`.
-**Current phase:** Normal planning/admission implemented; operational manual validation pending.
+**Current phase:** HR-01 through HR-06 implemented locally; HR06-IR1/IR2 fixed and cleared by bounded independent re-review. Operator acceptance remains pending. HR-07 through HR-12 remain unstarted.
 **Implementation:** Shared capture/planning/evidence, repository-owned Canon/phase/DAG specification,
 origin-selected gh/glab publication, separately confirmed integration, exact application verification
 and recoverable close/retire/reentry. The normal public transport is forge-cli.
-**Remaining:** E3 live normal-workflow acceptance and GitLab live verification; E5 operational
+**Remaining:** HR-06 Operator acceptance, migration slices HR-07 through HR-10,
+skills/routing HR-11, installed/agent validation HR-12, and required Windows with GLab
+end-to-end validation before completion. E3 live normal-workflow acceptance and GitLab live verification; E5 operational
 start/closeout/completion consumer work identified for the 0.8.2 follow-up. C2 diagram-provider
 verification and F2/F3 queue/train enforcement are explicitly deferred, not current blockers.
 **Readiness:** not-assessed.
-**Last update:** 2026-09-29.
+**Last update:** 2026-10-01.
+
+HR-06 is committed at `f58dc9d626e49a6cc26654917beb8bf0a5182f67`, with 115 distinct
+local tests passing after three review fixes. Incomplete legacy v1 reset journals
+still require explicit reconciliation. These results are macOS/local Git/mock-forge
+evidence, not Windows/GLab certification or final acceptance.
+
+Subsequent uncommitted HR06-IR1/IR2 fixes passed 44 focused tests. Bounded independent
+re-review resolved both findings, found no new blockers in the three-file diff, and
+passed three additional mocked guard probes. Exact reviewed SHA256 subjects and
+limitations are recorded in the existing HR-06 consult; the earlier 115-test run is
+separate evidence and was not represented as rerun on this repair.
 
 The normal command is the operational manual-validation path; do not reintroduce a
 mock-only default or a separate trial recipe. Existing configured forge checks apply;
@@ -22,7 +35,8 @@ Operational tracking is independent of horizons. Definitions/ownership guidance 
 that contract; legacy packet consumers refuse operational results rather than inventing
 tracker/ledger paths. Those guards do not implement phase start or completion.
 
-**Checklist:** 28 of 33 tasks checked against local evidence, not a percentage-of-effort estimate.
+**Original checklist:** 28 of 33 tasks checked against local evidence, not a percentage-of-effort estimate.
+That count predates and excludes the HR refinement rows in the single task inventory.
 Current command evidence and limits are in the
 [normal admission correction](../../steward-consults/2026-09-29-normal-admission-correction.md).
 The [local implementation report](LOCAL_IMPLEMENTATION_REPORT.md), packet lane contracts and
@@ -54,7 +68,12 @@ planning item, product phase, admission MR or deferred record was created by the
 
 ## Next Action
 
-Proceed to the separately authorized operational manual-validation setup using the current
+Present the repaired HR-06 subject and [independent re-review](../../steward-consults/2026-10-01-hr-06-admission-closure.md#independent-finding-fixes-and-re-review)
+for the Operator's acceptance decision before HR-07 implementation. Both independent
+findings are resolved; bounded review does not grant acceptance or migration authority.
+Windows/GLab validation remains required before upgrade completion.
+
+Later, proceed to the separately authorized operational manual-validation setup using the current
 normal commands and actual selected inputs. Review/approve the exact proposed Canon and
 phase/DAG change, publish its PR/MR, separately confirm integration, and verify the target.
 No synthetic approvals, test-only transport or per-horizon operational tracker belongs in

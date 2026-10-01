@@ -35,6 +35,28 @@ the Operator. The reset/migration/owner scope questions are already answered.
 
 ## Subsequent Forge Decision
 
+### Required Windows And GLab Validation (2026-10-01)
+
+Operator direction (verbatim):
+
+> We will test all of this in Windows with GLab before we are finished.
+>
+> Proceed with your recommedation
+
+Windows with origin-selected GitLab `glab` is a required final validation gate for
+the delivered planning/admission and horizon/migration refinement workflows.
+Exercise the supported end-to-end journeys and recovery/refusal cases on that
+platform before claiming this upgrade finished. macOS tests, mock-forge fixtures
+and GitHub results are distinct evidence, not substitutes. Record actual Windows
+and GLab results and any blockers; unavailable infrastructure means unverified.
+This does not expand the deferred 0.8.2 product execution-consumer scope.
+
+Proceed first with independent review of HR-06 commit
+`f58dc9d626e49a6cc26654917beb8bf0a5182f67`, then present its acceptance decision
+before HR-07 implementation. No live setup, publication, integration, cleanup,
+credentials transfer or lifecycle completion is authorized by this validation
+objective; select the environment and confirm the applicable operations separately.
+
 Operator choice: "Defer live forge tests; continue local implementation". Live admission stays
 disabled, with protected forge verification an explicit unfinished release gate. Do not transfer
 Poker Night, create organization repositories, configure protection, or substitute a weaker

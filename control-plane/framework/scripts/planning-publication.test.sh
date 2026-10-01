@@ -686,6 +686,34 @@ class RepositoryControllerTests(NormalControllerTests):
 		self.assertTrue(later['target_advanced'])
 		self.assertEqual(later['integration_commit'],result['integration_commit'])
 
+	def test_candidate_event_interruption_recovers_applied_evidence(self):
+		self.horizon = True
+		self.setup_normal()
+		append_event = publication.append_event
+		def interrupt_candidate(root,directory,state,data):
+			if state == 'candidate-prepared':
+				raise OSError('candidate event interruption')
+			return append_event(root,directory,state,data)
+		with mock.patch.object(publication,'append_event',side_effect=interrupt_candidate):
+			with self.assertRaisesRegex(OSError,'candidate event interruption'):
+				publication.run_cli(self.root,'trial-attempt','resume',True)
+		root,directory,header = publication.load_attempt(self.root,'trial-attempt')
+		self.assertFalse(any(event['state']=='candidate-prepared' for event in publication.journal(root,directory)))
+		self.assertEqual(self.cli('resume','--attempt','trial-attempt','--confirmed')['state'],'published')
+		self.assertEqual(self.cli('resume','--attempt','trial-attempt','--confirmed')['state'],'published')
+		self.assertEqual(sum(event['state']=='candidate-prepared' for event in publication.journal(root,directory)),1)
+		self.assertEqual(self.creates,1)
+		result = publication.run_cli(self.root,'trial-attempt','merge',True,self.operation_confirmation('merge'))
+		self.assertEqual(result['state'],'applied')
+		self.assertEqual(self.cli('verify','--attempt','trial-attempt','--confirmed'),result)
+		self.git(self.root,'fetch','--quiet','--no-tags','--no-write-fetch-head',str(self.sandbox),result['target_commit'])
+		self.git(self.root,'update-ref','refs/heads/integration',result['target_commit'],self.target)
+		entry = publication.applied_evidence(self.root,'trial-attempt','refs/heads/integration',result['target_commit'])
+		self.assertEqual(entry['attempt']['id'],'trial-attempt')
+		publication.append_event(root,directory,'candidate-prepared',{'commit':self.target})
+		with self.assertRaisesRegex(ValueError,'contradicts retained candidate'):
+			publication.candidate_contents(root,directory,header)
+
 	def test_branchless_horizon_admission(self):
 		self.horizon = True
 		self.application('github')
@@ -1001,6 +1029,33 @@ class RepositoryControllerTests(NormalControllerTests):
 		context.write_json(self.root,context.local_path(self.root,'binding.json'),{'schema':'cp-planning-binding-v1','id':identity})
 		applied_entries = [publication.applied_evidence(self.root,attempt,'refs/heads/integration',self.target) for attempt in ('trial-attempt','second-attempt')]
 		proposal = self.capture.read_capture(filename)
+		changes = self.change_evidence.changes
+		unauthorized = copy.deepcopy(proposal)
+		unauthorized.update(revision=proposal['revision']+1,status='draft',changes=[],unresolved=[],
+			base=self.repository.reference(self.root,'refs/heads/integration'))
+		proposal_bytes = filename.read_bytes()
+		capture_bytes = self.capture.narrative_path(filename).read_bytes()
+		def save_without_reset():
+			return changes.save(self.root,identity,unauthorized,self.evidence.hashlib.sha256(proposal_bytes).hexdigest(),'Unconfirmed second reset')
+		with self.assertRaisesRegex(ValueError,'verified post-application draft reset required'):
+			save_without_reset()
+		journal = self.capture.assets_path(self.root,identity)/'admission/resets/second-draft.json'
+		completion = journal.parent/'completed'/journal.name
+		journal_bytes,completion_bytes = journal.read_bytes(),completion.read_bytes()
+		altered = json.loads(journal_bytes)
+		altered['request']['applied'].append(applied_entries[-1])
+		journal.write_bytes(self.evidence.encoded(altered))
+		completion.write_bytes(self.evidence.encoded(changes.reset_completion(altered)))
+		try:
+			with self.assertRaises(ValueError):
+				save_without_reset()
+			self.assertEqual(filename.read_bytes(),proposal_bytes)
+			self.assertEqual(self.capture.narrative_path(filename).read_bytes(),capture_bytes)
+		finally:
+			journal.write_bytes(journal_bytes)
+			completion.write_bytes(completion_bytes)
+		self.assertEqual(changes.reset_admissions(self.root,proposal),{changes.digest(self.capture.decode_capture(
+			(self.root/applied_entries[0]['proposal']['path']).read_bytes(),identity))})
 		closure = {'target_ref':'refs/heads/integration','target_commit':self.target,'applied':applied_entries,
 			'remaining_scope':[{'scope':scope,'disposition':'applied','evidence':applied_entries[-1]['verification']}
 				for scope in ['context',*('change:'+item['change_id'] for item in proposal['changes'])]]}

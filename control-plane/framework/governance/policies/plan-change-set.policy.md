@@ -207,6 +207,11 @@ exact retry can finish the completion receipt. Completed output history remains 
 Old v1 journals retain strict verification, not guessed pending/completed classification;
 an incomplete v1 journal requires explicit reconciliation outside this automatic recovery.
 
+HR06-IR1: persisted reset verification rechecks all applications at the journal's original
+`request.base`, with exact complete admission accounting and the latest applied preimage
+required there. Current-target retention is checked separately. An application added later
+cannot extend an older reset's authority by changing its journal or completion digest.
+
 ### Successful Horizon Closure
 
 Explicit `/horizon --close ID` uses the existing lifecycle token/digest/actor/provenance
@@ -217,6 +222,11 @@ Each reference must match an exact normal attempt, retained bundle and applied j
 verify candidate inventory, merged request, first integration tree/result and later retained
 evidence/history against local Git objects. Trial receipts and flags alone are not authority.
 This is a local verified observation, not a fetch, hosted certification or distributed lease.
+
+HR06-IR2: publication recovery validates an existing candidate before recording a missing
+`candidate-prepared` event. A matching event is reused; duplicate or contradictory events
+refuse. Recovery must preserve the candidate evidence needed by reset/closure verification,
+not report successful application with an unrecoverable gap in that evidence.
 
 `remaining_scope` contains exactly one entry for `context`, every current `change:CHANGE-ID`
 and every `unresolved:ID`. Each needs an actual disposition (`applied`, `deferred`, `withdrawn`)

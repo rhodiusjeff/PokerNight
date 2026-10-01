@@ -198,6 +198,10 @@ cross-agent routing integration, not permission to leave earlier command docs co
 
 ### HR-12 - Installed End-To-End Validation
 
+- Required final platform gate (Operator, 2026-10-01): test the delivered workflows
+   and their recovery/refusal journeys on Windows with origin-selected GitLab `glab`
+   before upgrade completion. Preserve actual platform/CLI evidence separately from
+   macOS and mocked-forge results; unavailable infrastructure is unverified, not passed.
 - Scope: package the supported schemas/helpers/skills, run scoped combined regressions in disposable
    installs and fresh/old-state fixtures, and carry out bounded actual agent trials with evidence.
    Check no references to retired tools, no omitted schemas and accurate deferred/unsupported output.
@@ -274,7 +278,8 @@ Steward owner for implementation; use Facilitator for confirmed lifecycle state 
 
 Completion requires task evidence or explicitly agreed exclusions, coherent installed docs and
 adapters, independent assessments with dispositions, distribution/trial evidence and an explicit
-publication posture. The Operator confirms the exact return-to-operational action after those
+publication posture. The Operator's 2026-10-01 Windows/GLab validation gate remains required;
+local macOS or mock-forge results cannot satisfy it. The Operator confirms the exact return-to-operational action after those
 conditions are presented. Archive the coordinator byte-for-byte at a unique path, preserve this
 completed packet, clear active pointers and validate instance state. Neither entry success nor
 this plan grants completion, merge, or product execution.

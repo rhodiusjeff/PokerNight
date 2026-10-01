@@ -383,6 +383,17 @@ def reset_admissions(root, document):
         require(hashlib.sha256(encoded(output)).hexdigest() == receipt['output_digest'], 'reset output differs')
         require(capture.safe_path(root, retained).read_bytes() == encoded(output), 'verified reset output history missing')
         require(document['revision'] >= output['revision'] and capture.narrative_path(current).read_bytes().startswith(after), 'proposal does not descend from verified reset')
+        reset_reference = request['base']
+        original_proposals = helper('planning-change-evidence').verified_applications(root, previous,
+            reset_reference['target_ref'], reset_reference['git_commit'], request['applied'], historical=True, historical_target=True)
+        original_state = helper('planning-repository').snapshot(root, reset_reference['git_commit'])['state']
+        original_admissions = [entry for entry in original_state['tracker']['admissions'] if entry['proposal_id'] == document['id']]
+        require(len(original_proposals) == len(original_admissions) and
+            {digest(item) for item in original_proposals} == {entry['proposal_digest'] for entry in original_admissions},
+            'reset must account for every admission at its original baseline')
+        require(previous['revision'] == max(item['revision'] for item in original_proposals) and
+            any(proposal_meaning(previous) == proposal_meaning(item) for item in original_proposals),
+            'reset preimage must be the latest applied proposal at its original baseline')
         reference = document['base']
         require(reference is not None, 'post-application planning requires an exact baseline')
         target = git(root, 'rev-parse', '--verify', reference['target_ref'] + '^{commit}').decode().strip()

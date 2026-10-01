@@ -346,6 +346,11 @@ def candidate_contents(root, directory, header):
     if observed.returncode == 0:
         commit = observed.stdout.decode().strip()
         check_candidate_contents(root, directory, header, commit)
+        prepared = [event for event in journal(root, directory) if event['state'] == 'candidate-prepared']
+        contract.require(len(prepared) <= 1 and all(event['data'] == {'commit': commit} for event in prepared),
+                         'candidate-prepared journal contradicts retained candidate')
+        if not prepared:
+            append_event(root, directory, 'candidate-prepared', {'commit': commit})
         return commit
     planning_git.git(sandbox, "read-tree", header["offer"]["target_commit"])
     for relative, content in files.items():
